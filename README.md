@@ -59,8 +59,6 @@ src/
 │           │   └── loginSaga.ts
 │           ├── types/
 │           │   └── login.types.ts
-│           ├── styles/
-│           │   └── login.module.scss
 │           └── index.ts         # Feature exports
 │
 ├── hooks/                        # 🎣 Global Custom Hooks
@@ -233,31 +231,26 @@ export function* rootSaga() {
 
 ## 🎨 Styling Guidelines
 
-### SCSS Modules
-Each feature has its own SCSS module:
-```scss
-// features/auth/login/styles/login.module.scss
-.container {
-  max-width: 28rem;
-  margin: 0 auto;
-}
+### Tailwind CSS (Primary)
+We use Tailwind CSS as the primary styling solution for better performance and maintainability:
 
-.loginCard {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-```
-
-### Tailwind CSS
-Global utility classes for common styling:
 ```typescript
-<div className="min-h-screen bg-gray-100 py-8">
-  <div className="container mx-auto px-4">
-    {/* Content */}
+// Responsive design with utility classes
+<div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-500 to-purple-600">
+  <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+    <input className="p-3 border-2 border-gray-300 transition-all duration-200 bg-white text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+    <button className="bg-black text-white py-4 px-6 font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg">
+      Submit
+    </button>
   </div>
 </div>
 ```
+
+### SCSS Modules (When Needed)
+Use SCSS modules only for complex styling that can't be easily achieved with Tailwind:
+- Complex animations with keyframes
+- Very specific component styling with many custom properties
+- Legacy code integration
 
 ## 🔧 Configuration
 

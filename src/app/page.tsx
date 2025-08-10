@@ -20,9 +20,12 @@ export default function Home() {
               🔐 Login / Sign In
             </Link>
 
-            <div className="block w-full bg-gray-400 text-white text-center py-3 px-4 rounded-lg cursor-not-allowed font-medium opacity-50">
-              👤 Profile (Coming Soon)
-            </div>
+            <Link
+              href="/profile"
+              className="block w-full bg-green-600 text-white text-center py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
+            >
+              👤 Profile
+            </Link>
 
             <div className="block w-full bg-gray-400 text-white text-center py-3 px-4 rounded-lg cursor-not-allowed font-medium opacity-50">
               🛒 Shop (Coming Soon)
@@ -36,6 +39,7 @@ export default function Home() {
                 <li>✅ TypeScript strict mode</li>
                 <li>✅ SCSS modules</li>
                 <li>✅ Next.js 15 App Router</li>
+                <li>✅ Profile Management</li>
               </ul>
             </div>
 

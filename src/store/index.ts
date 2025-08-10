@@ -1,21 +1,21 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, Middleware } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-import { rootReducer } from './rootReducer';
+import { rootReducer, RootState } from './rootReducer';
 import { rootSaga } from './sagas/rootSaga';
 
 // Create saga middleware
 const sagaMiddleware = createSagaMiddleware();
 
-// Configure store
+// Configure store with proper middleware typing
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      thunk: false, // Disable thunk since we're using saga
+      thunk: false,
       serializableCheck: {
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
-    }).concat(sagaMiddleware),
+    }).concat(sagaMiddleware as Middleware<{}, RootState>),
   devTools: process.env.NODE_ENV !== 'production',
 });
 
@@ -23,8 +23,8 @@ export const store = configureStore({
 sagaMiddleware.run(rootSaga);
 
 // Export types
-export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export type { RootState };
 
 // Export store
 export default store;
