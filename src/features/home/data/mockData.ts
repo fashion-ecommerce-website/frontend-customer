@@ -4,24 +4,13 @@ import { Banner, Product, ProductCategory } from '../types/home.types';
 export const mockBanners: Banner[] = [
   {
     id: '1',
-    title: 'SUMMER CLEARANCE SALE',
-    subtitle: 'MLB',
-    description: 'SALE UP TO 50%',
-    image: '/images/banners/summer-sale.jpg',
+    title: 'FASHION SALE',
+    subtitle: 'THỜI TRANG ƯU ĐÃI',
+    description: 'GIẢM GIÁ ĐẾN 50%',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
     link: '/sale',
-    buttonText: 'Shop Now',
+    buttonText: 'Mua ngay',
     type: 'hero',
-    isActive: true,
-  },
-  {
-    id: '2',
-    title: 'MLB SALE UP TO 50%',
-    subtitle: 'MUA 2 GIẢM 10%\nMUA 3 GIẢM 15%',
-    description: '26.6 - 13.7',
-    image: '/images/banners/mlb-sale.jpg',
-    link: '/mlb-sale',
-    buttonText: 'Xem ngay',
-    type: 'promotion',
     isActive: true,
   },
 ];
@@ -83,8 +72,8 @@ export const mockNewArrivals: Product[] = [
     name: 'Áo sát nách nữ cổ tròn New York Yankees',
     brand: 'MLB',
     price: 1190000,
-    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=400&fit=crop&crop=center',
-    images: ['https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=400&fit=crop&crop=center'],
+    image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=400&fit=crop&crop=center',
+    images: ['https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=400&fit=crop&crop=center'],
     category: 'clothes',
     colors: ['black', 'white'],
     sizes: ['S', 'M', 'L', 'XL'],
@@ -221,6 +210,3 @@ export const mockRecentlyViewed: Product[] = [
     reviewCount: 198,
   },
 ];
-
-// Export all mock data
-export { mockProducts, mockCategories, mockBrands, mockRecentlyViewed };

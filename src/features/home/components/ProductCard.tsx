@@ -27,95 +27,62 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div 
-      className={`group cursor-pointer ${className}`}
+      className={`group cursor-pointer transition-transform duration-200 hover:scale-105 ${className}`}
       onClick={() => onProductClick(product.id)}
     >
       {/* Product Image */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-3">
-        <div className="aspect-square">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              // Fallback to placeholder if image fails to load
-              e.currentTarget.src = 'https://via.placeholder.com/400x400/f3f4f6/9ca3af?text=Product';
-            }}
-          />
-        </div>
+      <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+        <div 
+          className="w-full h-full transition-transform duration-300 group-hover:scale-110"
+          style={{
+            backgroundImage: `url(${product.image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
         
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {product.isNew && (
-            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded">
+            <span className="bg-black text-white text-xs font-semibold px-2 py-1 rounded">
               NEW
             </span>
           )}
-          {product.isSale && (
-            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">
-              SALE
-            </span>
-          )}
           {discountPercentage > 0 && (
-            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">
+            <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
               -{discountPercentage}%
             </span>
           )}
         </div>
 
-        {/* Quick View Button */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-          <button className="bg-white text-gray-800 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 font-medium">
-            Xem chi tiết
-          </button>
-        </div>
+        {/* Heart Icon */}
+        <button className="absolute top-2 right-2 p-2 rounded-full bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white">
+          <svg className="w-4 h-4 text-gray-600 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </button>
       </div>
 
       {/* Product Info */}
       <div className="space-y-1">
         {/* Brand */}
-        <div className="text-sm text-gray-500 font-medium">
+        <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
           {product.brand}
-        </div>
-
+        </p>
+        
         {/* Product Name */}
-        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 leading-tight">
           {product.name}
         </h3>
-
-        {/* Colors */}
-        {product.colors && product.colors.length > 0 && (
-          <div className="flex gap-1 mt-2">
-            {product.colors.slice(0, 3).map((color, index) => (
-              <div
-                key={index}
-                className={`w-4 h-4 rounded-full border border-gray-300 ${
-                  color === 'black' ? 'bg-black' :
-                  color === 'white' ? 'bg-white' :
-                  color === 'blue' ? 'bg-blue-500' :
-                  color === 'green' ? 'bg-green-500' :
-                  color === 'beige' ? 'bg-yellow-100' :
-                  color === 'brown' ? 'bg-yellow-800' :
-                  'bg-gray-400'
-                }`}
-                title={color}
-              />
-            ))}
-            {product.colors.length > 3 && (
-              <span className="text-xs text-gray-500 ml-1">
-                +{product.colors.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-
+        
         {/* Price */}
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-lg font-bold text-gray-900">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-gray-900">
             {formatPrice(product.price)}
           </span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-sm text-gray-500 line-through">
+          {product.originalPrice && (
+            <span className="text-xs text-gray-500 line-through">
               {formatPrice(product.originalPrice)}
             </span>
           )}
@@ -123,15 +90,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Rating */}
         {product.rating && (
-          <div className="flex items-center gap-1 mt-1">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map((star) => (
+          <div className="flex items-center gap-1">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
                 <svg
-                  key={star}
+                  key={i}
                   className={`w-3 h-3 ${
-                    star <= Math.floor(product.rating!) 
-                      ? 'text-yellow-400' 
-                      : 'text-gray-300'
+                    i < Math.floor(product.rating!) ? 'text-yellow-400' : 'text-gray-300'
                   }`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
@@ -140,9 +105,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 </svg>
               ))}
             </div>
-            {product.reviewCount && (
-              <span className="text-xs text-gray-500">
-                ({product.reviewCount})
+            <span className="text-xs text-gray-500">
+              ({product.reviewCount})
+            </span>
+          </div>
+        )}
+
+        {/* Colors */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="flex items-center gap-1 mt-2">
+            {product.colors.slice(0, 4).map((color) => (
+              <div
+                key={color}
+                className="w-4 h-4 rounded-full border border-gray-300"
+                style={{
+                  backgroundColor: color === 'white' ? '#ffffff' : 
+                                  color === 'black' ? '#000000' :
+                                  color === 'beige' ? '#F5F5DC' :
+                                  color === 'navy' ? '#001f3f' :
+                                  color === 'gray' ? '#808080' :
+                                  color
+                }}
+              />
+            ))}
+            {product.colors.length > 4 && (
+              <span className="text-xs text-gray-500 ml-1">
+                +{product.colors.length - 4}
               </span>
             )}
           </div>
