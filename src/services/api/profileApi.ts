@@ -1,6 +1,6 @@
 import { apiClient } from './baseApi';
-import { ApiResponse } from '@/store/sagas/factories';
-import { Profile } from '@/store/slices/profileSlice';
+import { ApiResponse } from '../../types/api.types';
+import { Profile } from '../../features/profile/types/profile.types';
 
 // Profile API endpoints
 const PROFILE_ENDPOINTS = {

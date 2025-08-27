@@ -54,7 +54,7 @@ const profileSlice = createSlice({
     },
 
     // Update Profile Actions
-    updateProfileRequest: (state, action: PayloadAction<UpdateProfileRequest>) => {
+    updateProfileRequest: (state, _action: PayloadAction<UpdateProfileRequest>) => {
       state.isUpdating = true;
       state.updateError = null;
       state.updateSuccess = false;
@@ -72,7 +72,7 @@ const profileSlice = createSlice({
     },
 
     // Change Password Actions
-    changePasswordRequest: (state, action: PayloadAction<ChangePasswordRequest>) => {
+    changePasswordRequest: (state, _action: PayloadAction<ChangePasswordRequest>) => {
       state.isChangingPassword = true;
       state.passwordError = null;
       state.passwordChangeSuccess = false;
@@ -105,7 +105,7 @@ const profileSlice = createSlice({
       state.updateSuccess = false;
       state.passwordChangeSuccess = false;
     },
-    clearState: (state) => {
+    clearState: (_state) => {
       return initialState;
     },
   },

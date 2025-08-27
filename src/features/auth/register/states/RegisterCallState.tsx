@@ -2,31 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { RegisterCallStateProps, User, ApiError, RegisterRequest } from '../types/register.types';
-
-// Mock API call for register
-const mockRegisterApi = async (data: RegisterRequest): Promise<User> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  // Simulate validation errors
-  if (data.email === 'admin@test.com') {
-    throw new Error('Email already exists');
-  }
-
-  if (data.password.length < 6) {
-    throw new Error('Password must be at least 6 characters');
-  }
-
-  // Return mock user data
-  return {
-    id: Math.random().toString(36).substr(2, 9),
-    fullname: data.fullname,
-    email: data.email,
-    role: 'customer',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-};
+import { authApiService } from '../../../../services/api/authApi';
 
 export const RegisterCallState: React.FC<RegisterCallStateProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -40,14 +16,24 @@ export const RegisterCallState: React.FC<RegisterCallStateProps> = ({ children }
       setIsLoading(true);
       setError(null);
 
-      const userData = await mockRegisterApi(data);
+      const response = await authApiService.register(data);
       
-      setUser(userData);
-      setIsAuthenticated(true);
-      
-      // Store in localStorage for demo purposes
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('isAuthenticated', 'true');
+      if (response.success && response.data) {
+        // Store tokens from API response
+        localStorage.setItem('token', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+        
+        // Get user info using the new token
+        const userResponse = await authApiService.getCurrentUser();
+        if (userResponse.success && userResponse.data) {
+          setUser(userResponse.data);
+          setIsAuthenticated(true);
+          localStorage.setItem('user', JSON.stringify(userResponse.data));
+          localStorage.setItem('isAuthenticated', 'true');
+        }
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';

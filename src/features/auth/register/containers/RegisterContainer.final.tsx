@@ -57,10 +57,9 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
       });
 
       if (response.success && response.data) {
-        // Store tokens and user info from response
+        // Create user object from registration response
         const { accessToken, refreshToken, username, email } = response.data;
         
-        // Create user object for local state
         const user: User = {
           id: '', // Will be filled when we fetch user profile
           username,
@@ -75,7 +74,6 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
 
         setUser(user);
         setIsAuthenticated(true);
-        
         if (onRegisterSuccess) {
           onRegisterSuccess(user);
         }

@@ -46,8 +46,8 @@ export default function Home() {
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <h3 className="font-semibold text-blue-900 mb-2">🚀 Demo Instructions:</h3>
               <p className="text-sm text-blue-700">
-                Click "Login / Sign In" to test the authentication feature.
-                Use any email/password combination - it's a demo!
+                Click &quot;Login / Sign In&quot; to test the authentication feature.
+                Use any email/password combination - it&apos;s a demo!
               </p>
             </div>
           </div>

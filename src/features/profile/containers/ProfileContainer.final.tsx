@@ -30,6 +30,8 @@ import {
   ProfileContainerProps, 
   ProfileFormData, 
   ChangePasswordFormData,
+  User,
+  ApiError
 } from '../types/profile.types';
 
 export const ProfileContainer: React.FC<ProfileContainerProps> = ({

@@ -34,8 +34,16 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
   const validateForm = () => {
     const errors: Record<string, string> = {};
 
-    if (!formData.fullname.trim()) {
-      errors.fullname = 'Full name is required';
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^\d{10,}$/.test(formData.phone.replace(/\s|-/g, ''))) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+
+    if (!formData.username.trim()) {
+      errors.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      errors.username = 'Username must be at least 3 characters';
     }
 
     if (!formData.email.trim()) {
@@ -103,7 +111,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
             <div className="text-left">
               <div className="font-semibold text-green-800 mb-2">Registration Successful</div>
               <div className="text-green-700 text-sm">
-                <p><strong>Name:</strong> {user.fullname}</p>
+                <p><strong>Name:</strong> {user.username}</p>
                 <p><strong>Email:</strong> {user.email}</p>
                 <p><strong>Role:</strong> {user.role}</p>
                 <p><strong>Account Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
@@ -185,27 +193,52 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           </div>
 
            <div className="flex flex-col">
-            <label htmlFor="fullname" className="font-medium text-gray-700 mb-2 text-sm tracking-wider">
-              FULLNAME
+            <label htmlFor="phone" className="font-medium text-gray-700 mb-2 text-sm tracking-wider">
+              PHONE NUMBER
             </label>
             <input
-              type="text"
-              id="fullname"
-              name="fullname"
-              value={formData.fullname}
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
               placeholder=""
               required
               disabled={isLoading}
               className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
-                validationErrors.fullname 
+                validationErrors.phone 
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                   : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
               } ${isLoading ? 'bg-gray-50 cursor-not-allowed opacity-50' : ''} placeholder-gray-400`}
             />
-            {validationErrors.fullname && (
-              <div className="text-red-500 text-xs mt-1">{validationErrors.fullname}</div>
+            {validationErrors.phone && (
+              <div className="text-red-500 text-xs mt-1">{validationErrors.phone}</div>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="username" className="font-medium text-gray-700 mb-2 text-sm tracking-wider">
+              USERNAME
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              placeholder=""
+              required
+              disabled={isLoading}
+              className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
+                validationErrors.username 
+                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
+                  : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+              } ${isLoading ? 'bg-gray-50 cursor-not-allowed opacity-50' : ''} placeholder-gray-400`}
+            />
+            {validationErrors.username && (
+              <div className="text-red-500 text-xs mt-1">{validationErrors.username}</div>
             )}
           </div>
 

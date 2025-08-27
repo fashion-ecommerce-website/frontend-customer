@@ -19,11 +19,31 @@ export interface User {
   updatedAt: string;
 }
 
+export interface Profile extends User {
+  // Additional profile-specific fields
+  bio?: string;
+  location?: string;
+  website?: string;
+  preferences?: {
+    newsletter: boolean;
+    notifications: boolean;
+    language: string;
+    theme: 'light' | 'dark';
+  };
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+}
+
 export interface ApiError {
   message: string;
   status?: number;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Profile Request/Response

@@ -18,7 +18,7 @@ import {
   selectIsLoading,
   selectError,
 } from '../redux/loginSlice';
-import { LoginContainerProps, LoginFormData } from '../types/login.types';
+import { LoginContainerProps, LoginFormData, User, ApiError } from '../types/login.types';
 
 export const LoginContainer: React.FC<LoginContainerProps> = ({
   onLoginSuccess,
@@ -35,7 +35,7 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
 
   // Local form state
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
+    username: '',
     password: '',
   });
 
@@ -50,7 +50,7 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
   // Handle form submission
   const handleSubmit = (formData: LoginFormData) => {
     dispatch(loginRequest({
-      email: formData.email,
+      username: formData.username,
       password: formData.password,
     }));
   };

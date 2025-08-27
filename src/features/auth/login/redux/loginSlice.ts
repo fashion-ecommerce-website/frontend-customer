@@ -42,7 +42,21 @@ const loginSlice = createSlice({
     
     loginSuccess: (state, action: PayloadAction<LoginResponse>) => {
       state.isLoading = false;
-      state.user = action.payload.user;
+      
+      // Create user object from token response
+      const user = {
+        id: '', // Will be filled when we fetch user profile
+        username: action.payload.username,
+        email: action.payload.email,
+        firstName: '',
+        lastName: '',
+        role: 'USER' as const,
+        enabled: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      state.user = user;
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
@@ -111,6 +125,41 @@ const loginSlice = createSlice({
       state.tokenExpiresAt = null;
       state.isAuthenticated = false;
     },
+
+    // Refresh Token Actions
+    refreshTokenRequest: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+
+    refreshTokenSuccess: (state, action: PayloadAction<{ accessToken: string; refreshToken: string; expiresIn: number; username: string; email: string }>) => {
+      state.isLoading = false;
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      state.error = null;
+      
+      // Update user info if provided
+      if (state.user) {
+        state.user.username = action.payload.username;
+        state.user.email = action.payload.email;
+      }
+      
+      // Calculate token expiration
+      const expiresAt = new Date();
+      expiresAt.setSeconds(expiresAt.getSeconds() + action.payload.expiresIn);
+      state.tokenExpiresAt = expiresAt.toISOString();
+    },
+
+    refreshTokenFailure: (state, action: PayloadAction<ApiError>) => {
+      state.isLoading = false;
+      state.error = action.payload;
+      // Clear tokens on refresh failure
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.tokenExpiresAt = null;
+      state.isAuthenticated = false;
+      state.user = null;
+    },
   },
 });
 
@@ -126,6 +175,9 @@ export const {
   clearState,
   setTokens,
   clearTokens,
+  refreshTokenRequest,
+  refreshTokenSuccess,
+  refreshTokenFailure,
 } = loginSlice.actions;
 
 // Export reducer
@@ -142,6 +194,11 @@ export const loginActionCreators = {
     request: logoutRequest,
     success: logoutSuccess,
     failure: loginFailure, // Reuse login failure for logout errors
+  },
+  refreshToken: {
+    request: refreshTokenRequest,
+    success: refreshTokenSuccess,
+    failure: refreshTokenFailure,
   },
 };
 

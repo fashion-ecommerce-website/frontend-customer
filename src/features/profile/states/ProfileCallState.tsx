@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import {
   getProfileRequest,
@@ -45,17 +45,17 @@ export const ProfileCallState: React.FC<ProfileCallStateProps> = ({ children }) 
   const updateSuccess = useAppSelector(selectUpdateSuccess);
   const passwordChangeSuccess = useAppSelector(selectPasswordChangeSuccess);
 
+  // Action handlers using Redux actions (sagas will handle the API calls)
+  const handleGetProfile = useCallback(() => {
+    dispatch(getProfileRequest());
+  }, [dispatch]);
+
   // Load profile on component mount
   useEffect(() => {
     if (!user) {
       handleGetProfile();
     }
-  }, [user]);
-
-  // Action handlers using Redux actions (sagas will handle the API calls)
-  const handleGetProfile = () => {
-    dispatch(getProfileRequest());
-  };
+  }, [user, handleGetProfile]);
 
   const handleUpdateProfile = (data: UpdateProfileRequest) => {
     dispatch(updateProfileRequest(data));

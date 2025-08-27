@@ -1,17 +1,37 @@
 export interface RegisterFormData {
+  username: string;
   email: string;
-  fullname: string;
   password: string;
   confirmPassword: string;
+  phone: string;
   agreeToTerms: boolean;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  username: string;
+  phone: string;
+}
+
+export interface RegisterResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string | null;
+  expiresIn: number;
+  username: string;
+  email: string;
 }
 
 export interface User {
   id: string;
-  fullname: string;
+  username: string;
   email: string;
+  firstName: string;
+  lastName: string;
   phone?: string;
-  role: string;
+  role: 'ADMIN' | 'USER';
+  enabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,13 +65,8 @@ export interface RegisterCallStateProps {
     isAuthenticated: boolean;
     isLoading: boolean;
     error: ApiError | null;
-    register: (data: { fullname: string; email: string; password: string }) => void;
+    register: (data: RegisterRequest) => void;
     clearError: () => void;
   }) => React.ReactNode;
 }
 
-export interface RegisterRequest {
-  fullname: string;
-  email: string;
-  password: string;
-}

@@ -1,68 +1,35 @@
 import { apiClient } from './baseApi';
-import { ApiResponse } from '@/redux/auth/factories';
-import { LoginRequest, RegisterRequest, ForgotPasswordRequest, ResetPasswordRequest, AuthResponse, User } from '@/redux/auth';
+import { ApiResponse } from '../../types/api.types';
+import { LoginRequest, LoginResponse, User, RefreshTokenRequest, RefreshTokenResponse } from '../../features/auth/login/types/login.types';
+import { RegisterRequest, RegisterResponse } from '../../features/auth/register/types/register.types';
+import { API_ENDPOINTS } from '../../config/environment';
 
-// Auth API endpoints
-const AUTH_ENDPOINTS = {
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  LOGOUT: '/auth/logout',
-  FORGOT_PASSWORD: '/auth/forgot-password',
-  RESET_PASSWORD: '/auth/reset-password',
-  VERIFY_EMAIL: '/auth/verify-email',
-  REFRESH_TOKEN: '/auth/refresh-token',
-  ME: '/auth/me',
-} as const;
+// Use endpoints from environment config
+const AUTH_ENDPOINTS = API_ENDPOINTS.AUTH;
+const ADMIN_ENDPOINTS = API_ENDPOINTS.ADMIN;
+const PUBLIC_ENDPOINTS = API_ENDPOINTS.PUBLIC;
 
 // Auth API service
 export class AuthApiService {
   /**
    * Login user
    */
-  async login(credentials: LoginRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>(AUTH_ENDPOINTS.LOGIN, credentials);
+  async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+    return apiClient.post<LoginResponse>(AUTH_ENDPOINTS.LOGIN, credentials);
   }
 
   /**
    * Register new user
    */
-  async register(userData: RegisterRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>(AUTH_ENDPOINTS.REGISTER, userData);
-  }
-
-  /**
-   * Logout user
-   */
-  async logout(): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(AUTH_ENDPOINTS.LOGOUT);
-  }
-
-  /**
-   * Send forgot password email
-   */
-  async forgotPassword(data: ForgotPasswordRequest): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(AUTH_ENDPOINTS.FORGOT_PASSWORD, data);
-  }
-
-  /**
-   * Reset password with token
-   */
-  async resetPassword(data: ResetPasswordRequest): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(AUTH_ENDPOINTS.RESET_PASSWORD, data);
-  }
-
-  /**
-   * Verify email with token
-   */
-  async verifyEmail(data: { token: string }): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(AUTH_ENDPOINTS.VERIFY_EMAIL, data);
+  async register(userData: RegisterRequest): Promise<ApiResponse<RegisterResponse>> {
+    return apiClient.post<RegisterResponse>(AUTH_ENDPOINTS.REGISTER, userData);
   }
 
   /**
    * Refresh access token
    */
-  async refreshToken(): Promise<ApiResponse<{ accessToken: string; expiresIn: number }>> {
-    return apiClient.post<{ accessToken: string; expiresIn: number }>(AUTH_ENDPOINTS.REFRESH_TOKEN);
+  async refreshToken(refreshTokenData: RefreshTokenRequest): Promise<ApiResponse<RefreshTokenResponse>> {
+    return apiClient.post<RefreshTokenResponse>(AUTH_ENDPOINTS.REFRESH, refreshTokenData);
   }
 
   /**
@@ -70,6 +37,62 @@ export class AuthApiService {
    */
   async getCurrentUser(): Promise<ApiResponse<User>> {
     return apiClient.get<User>(AUTH_ENDPOINTS.ME);
+  }
+
+  /**
+   * Admin endpoint - test admin access
+   */
+  async getAdminData(): Promise<ApiResponse<Record<string, unknown>>> {
+    return apiClient.get<Record<string, unknown>>(AUTH_ENDPOINTS.ADMIN);
+  }
+
+  /**
+   * User endpoint - test user access
+   */
+  async getUserData(): Promise<ApiResponse<Record<string, unknown>>> {
+    return apiClient.get<Record<string, unknown>>(AUTH_ENDPOINTS.USER);
+  }
+
+  /**
+   * Get all users (Admin only)
+   */
+  async getAllUsers(): Promise<ApiResponse<User[]>> {
+    return apiClient.get<User[]>(ADMIN_ENDPOINTS.USERS);
+  }
+
+  /**
+   * Get user by ID (Admin only)
+   */
+  async getUserById(id: string): Promise<ApiResponse<User>> {
+    return apiClient.get<User>(ADMIN_ENDPOINTS.USER_BY_ID(id));
+  }
+
+  /**
+   * Enable user (Admin only)
+   */
+  async enableUser(id: string): Promise<ApiResponse<User>> {
+    return apiClient.put<User>(ADMIN_ENDPOINTS.ENABLE_USER(id));
+  }
+
+  /**
+   * Disable user (Admin only)
+   */
+  async disableUser(id: string): Promise<ApiResponse<User>> {
+    return apiClient.put<User>(ADMIN_ENDPOINTS.DISABLE_USER(id));
+  }
+
+  /**
+   * Check application health
+   */
+  async getHealth(): Promise<ApiResponse<{ status: string; timestamp: string }>> {
+    return apiClient.get<{ status: string; timestamp: string }>(PUBLIC_ENDPOINTS.HEALTH);
+  }
+
+  /**
+   * Get application info
+   */
+  async getInfo(): Promise<ApiResponse<{ version: string; name: string }>> {
+    return apiClient.get<{ version: string; name: string }>(PUBLIC_ENDPOINTS.INFO);
   }
 }
 
@@ -80,10 +103,14 @@ export const authApiService = new AuthApiService();
 export const authApi = {
   login: (credentials: LoginRequest) => authApiService.login(credentials),
   register: (userData: RegisterRequest) => authApiService.register(userData),
-  logout: () => authApiService.logout(),
-  forgotPassword: (data: ForgotPasswordRequest) => authApiService.forgotPassword(data),
-  resetPassword: (data: ResetPasswordRequest) => authApiService.resetPassword(data),
-  verifyEmail: (data: { token: string }) => authApiService.verifyEmail(data),
-  refreshToken: () => authApiService.refreshToken(),
+  refreshToken: (refreshTokenData: RefreshTokenRequest) => authApiService.refreshToken(refreshTokenData),
   getCurrentUser: () => authApiService.getCurrentUser(),
+  getAdminData: () => authApiService.getAdminData(),
+  getUserData: () => authApiService.getUserData(),
+  getAllUsers: () => authApiService.getAllUsers(),
+  getUserById: (id: string) => authApiService.getUserById(id),
+  enableUser: (id: string) => authApiService.enableUser(id),
+  disableUser: (id: string) => authApiService.disableUser(id),
+  getHealth: () => authApiService.getHealth(),
+  getInfo: () => authApiService.getInfo(),
 };

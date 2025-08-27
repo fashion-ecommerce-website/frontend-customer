@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ProfilePresenterProps } from '../types/profile.types';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
@@ -25,9 +26,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   onUpdateProfile,
   onChangePassword,
   onClearError,
-  onClearUpdateError,
+  // onClearUpdateError,
   onClearPasswordError,
-  onClearSuccess,
+  // onClearSuccess,
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -243,9 +244,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {/* Breadcrumb */}
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <nav className="flex items-center gap-2 text-sm text-gray-500">
-              <a href="/" className="text-gray-500 hover:text-blue-500 no-underline">HOME</a>
+              <Link href="/" className="text-gray-500 hover:text-blue-500 no-underline">HOME</Link>
               <span className="text-gray-300">&gt;</span>
-              <a href="/account" className="text-gray-500 hover:text-blue-500 no-underline">ACCOUNT</a>
+              <Link href="/account" className="text-gray-500 hover:text-blue-500 no-underline">ACCOUNT</Link>
               <span className="text-gray-300">&gt;</span>
               <span className="text-gray-900 font-medium">INFORMATION</span>
             </nav>
