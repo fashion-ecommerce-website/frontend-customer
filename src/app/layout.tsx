@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { AuthInitializer } from "@/components/AuthInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,13 +32,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReduxProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <AuthInitializer>
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </AuthInitializer>
         </ReduxProvider>
       </body>
     </html>

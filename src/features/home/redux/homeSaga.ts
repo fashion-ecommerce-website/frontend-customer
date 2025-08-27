@@ -1,7 +1,7 @@
 // Home Redux Saga
 // Side effects management for home page functionality
 
-import { call, put, takeEvery, takeLatest, delay, select } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
   initializeHome,
@@ -135,9 +135,9 @@ function* submitSearchSaga(action: PayloadAction<SearchRequest>) {
     yield put(setSearching(true));
     
     // Add small delay for better UX
-    yield delay(300);
+    yield call(() => new Promise(resolve => setTimeout(resolve, 300)));
     
-    const suggestions: string[] = yield call(mockSearchApi, action.payload);
+    const suggestions: string[] = yield call(() => mockSearchApi(action.payload));
     yield put(submitSearchSuccess(suggestions));
   } catch (error) {
     const apiError: ApiError = {
@@ -147,6 +147,11 @@ function* submitSearchSaga(action: PayloadAction<SearchRequest>) {
     yield put(submitSearchFailure(apiError));
   }
 }
+
+// Import takeEvery and takeLatest
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const effects = require('redux-saga/effects');
+const { takeEvery, takeLatest } = effects;
 
 // Watcher sagas
 function* watchInitializeHome() {

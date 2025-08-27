@@ -4,7 +4,7 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LoginState, LoginRequest, LoginResponse, ApiError } from '../types/login.types';
+import { LoginState, LoginRequest, LoginResponse, ApiError, User } from '../types/login.types';
 
 // Initial state
 const initialState: LoginState = {
@@ -25,7 +25,6 @@ const initialState: LoginState = {
   
   // UI states
   lastLoginAt: null,
-  rememberMe: false,
 };
 
 // Login slice
@@ -37,7 +36,6 @@ const loginSlice = createSlice({
     loginRequest: (state, action: PayloadAction<LoginRequest>) => {
       state.isLoading = true;
       state.error = null;
-      state.rememberMe = action.payload.rememberMe || false;
     },
     
     loginSuccess: (state, action: PayloadAction<LoginResponse>) => {
@@ -92,7 +90,6 @@ const loginSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
       state.lastLoginAt = null;
-      state.rememberMe = false;
     },
     
     // Utility Actions
@@ -160,6 +157,15 @@ const loginSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
     },
+
+    // Restore auth state from localStorage
+    restoreAuthState: (state, action: PayloadAction<{ user: User; accessToken: string; isAuthenticated: boolean }>) => {
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
+      state.isAuthenticated = action.payload.isAuthenticated;
+      state.isLoading = false;
+      state.error = null;
+    },
   },
 });
 
@@ -178,6 +184,7 @@ export const {
   refreshTokenRequest,
   refreshTokenSuccess,
   refreshTokenFailure,
+  restoreAuthState,
 } = loginSlice.actions;
 
 // Export reducer

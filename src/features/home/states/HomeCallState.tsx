@@ -45,11 +45,11 @@ export const HomeCallState: React.FC<HomeCallStateProps> = ({ children }) => {
   const isInitialized = useAppSelector(selectIsInitialized);
 
   // Action handlers
-  const setActiveNavigation = useCallback((itemId: string) => {
+  const handleSetActiveNavigation = useCallback((itemId: string) => {
     dispatch(setActiveNavigation(itemId));
   }, [dispatch]);
 
-  const toggleMenu = useCallback(() => {
+  const handleToggleMenu = useCallback(() => {
     dispatch(toggleMenu());
   }, [dispatch]);
 
@@ -118,8 +118,8 @@ export const HomeCallState: React.FC<HomeCallStateProps> = ({ children }) => {
         productCategories,
         isLoading,
         error,
-        setActiveNavigation,
-        toggleMenu,
+        setActiveNavigation: handleSetActiveNavigation,
+        toggleMenu: handleToggleMenu,
         updateSearch: updateSearchQuery,
         submitSearch: submitSearchQuery,
         clearSearch: clearSearchQuery,

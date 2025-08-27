@@ -27,6 +27,10 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
   const router = useRouter();
   const dispatch = useAppDispatch();
   
+  // Get returnUrl from URL params
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const returnUrl = searchParams?.get('returnUrl') || '/profile';
+  
   // Redux state
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -71,10 +75,11 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
       if (onLoginSuccess) {
         onLoginSuccess(user);
       } else {
-        router.push('/profile');
+        // Redirect to returnUrl or default to profile
+        router.push(returnUrl);
       }
     }
-  }, [isAuthenticated, user, isLoading, onLoginSuccess, router]);
+  }, [isAuthenticated, user, isLoading, onLoginSuccess, router, returnUrl]);
 
   // Handle authentication errors
   useEffect(() => {

@@ -1,17 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const router = useRouter();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Get authentication state from custom hook
+  const { isAuthenticated, user, logout } = useAuth();
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Navigate to search results page
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -21,6 +43,26 @@ export const Header: React.FC = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Handle profile/login navigation
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (isAuthenticated && user) {
+      // Toggle user menu dropdown
+      setIsUserMenuOpen(!isUserMenuOpen);
+    } else {
+      // User is not logged in, redirect to login with return URL
+      router.push('/auth/login?returnUrl=/profile');
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    setIsUserMenuOpen(false);
+    router.push('/');
   };
 
   const navigationItems = [
@@ -110,11 +152,61 @@ export const Header: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </Link>
-              <Link href="/profile" className="text-gray-700 hover:text-black transition-colors">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </Link>
+              
+              {/* Profile/Login Button with Authentication Check */}
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={handleProfileClick}
+                  className="text-gray-700 hover:text-black transition-colors flex items-center space-x-1"
+                  title={isAuthenticated ? `Profile (${user?.username || 'User'})` : 'Login to access profile'}
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {/* Dropdown arrow if authenticated */}
+                  {isAuthenticated && (
+                    <svg className="hidden lg:inline-block h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  )}
+                </button>
+                
+                {/* User Dropdown Menu */}
+                {isAuthenticated && isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50">
+                    <div className="py-2">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                      <Link
+                        href="/settings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Settings
+                      </Link>
+                      <hr className="my-1 border-gray-100" />
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Mobile menu button */}
@@ -140,10 +232,36 @@ export const Header: React.FC = () => {
                   key={item.id}
                   href={item.href}
                   className="block px-3 py-3 text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
               ))}
+              
+              {/* Mobile Profile/Login Button */}
+              <button
+                onClick={(e) => {
+                  handleProfileClick(e);
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-3 py-3 text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors flex items-center space-x-2"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+              
+              {/* Cart button for mobile */}
+              <Link
+                href="/cart"
+                className="w-full text-left px-3 py-3 text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors flex items-center space-x-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span>Cart</span>
+              </Link>
             </div>
 
             {/* Mobile Search */}

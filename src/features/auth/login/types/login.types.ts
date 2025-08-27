@@ -30,7 +30,6 @@ export interface ApiError {
 export interface LoginRequest {
   email: string;
   password: string;
-  rememberMe?: boolean;
 }
 
 export interface LoginResponse {
@@ -75,7 +74,6 @@ export interface LoginState {
   
   // UI states
   lastLoginAt: string | null;
-  rememberMe: boolean;
 }
 
 // Form Data

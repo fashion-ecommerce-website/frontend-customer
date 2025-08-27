@@ -35,10 +35,26 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
     
   const response: ApiResponse<LoginResponse> = yield call(() => authApi.login(action.payload));
     if (response.success && response.data.accessToken) {
+      // Store tokens
       localStorage.setItem('accessToken', response.data.accessToken);
       if (response.data.refreshToken) {
         localStorage.setItem('refreshToken', response.data.refreshToken);
       }
+      
+      // Store user data
+      const userData = {
+        id: '', // Will be filled when we fetch user profile
+        username: response.data.username,
+        email: response.data.email,
+        firstName: '',
+        lastName: '',
+        role: 'USER' as const,
+        enabled: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
+      
       yield put(loginSuccess(response.data));
     } else {
       yield put(loginFailure({
@@ -71,12 +87,14 @@ function* handleLogout() {
     // Clear tokens regardless of API response
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     
     yield put(logoutSuccess());
   } catch (_error: unknown) {
     // Clear tokens even on error
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     
     // Still dispatch success since logout should always succeed locally
     yield put(logoutSuccess());

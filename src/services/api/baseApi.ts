@@ -74,7 +74,7 @@ class BaseApi {
       const newRefreshToken = data.refreshToken;
 
       if (typeof window !== 'undefined') {
-        localStorage.setItem(ENV_CONFIG.JWT.STORAGE_KEY, newAccessToken);
+        localStorage.setItem('accessToken', newAccessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
       }
 
@@ -84,7 +84,7 @@ class BaseApi {
       this.processQueue(error, undefined);
       // Clear tokens if refresh fails
       if (typeof window !== 'undefined') {
-        localStorage.removeItem(ENV_CONFIG.JWT.STORAGE_KEY);
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
       }
       return null;
@@ -95,7 +95,7 @@ class BaseApi {
 
   // Get authorization header
   private getAuthHeaders(): Record<string, string> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem(ENV_CONFIG.JWT.STORAGE_KEY) : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     return token ? { Authorization: `${ENV_CONFIG.JWT.HEADER_PREFIX}${token}` } : {};
   }
 
@@ -151,7 +151,7 @@ class BaseApi {
 
       return {
         success: true,
-        data: data.data || data,
+        data: data,
         message: data.message,
       };
     } catch (error: unknown) {

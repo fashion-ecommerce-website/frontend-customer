@@ -3,7 +3,7 @@
 // Home Container Component
 // Business logic container for home page
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { HomePresenter } from '../components/HomePresenter';
 import { HomeCallState } from '../states/HomeCallState';
@@ -13,6 +13,27 @@ export const HomeContainer: React.FC<HomeContainerProps> = ({
   className,
 }) => {
   const router = useRouter();
+
+  // Handle product click
+  const handleProductClick = useCallback((productId: string) => {
+    // Navigate to product detail page
+    router.push(`/product/${productId}`);
+  }, [router]);
+
+  // Handle category click
+  const handleCategoryClick = useCallback((categoryId: string) => {
+    // Navigate to category page
+    router.push(`/category/${categoryId}`);
+  }, [router]);
+
+  // Handle banner click
+  const handleBannerClick = useCallback((bannerId: string, banners: any[]) => {
+    // Navigate based on banner link
+    const banner = banners.find(b => b.id === bannerId);
+    if (banner?.link) {
+      router.push(banner.link);
+    }
+  }, [router]);
 
   return (
     <div className={className}>
@@ -29,29 +50,6 @@ export const HomeContainer: React.FC<HomeContainerProps> = ({
           selectCategory,
           selectBanner
         }) => {
-          // Handle product click
-          const handleProductClick = useCallback((productId: string) => {
-            selectProduct(productId);
-            // Navigate to product detail page
-            router.push(`/product/${productId}`);
-          }, [selectProduct, router]);
-
-          // Handle category click
-          const handleCategoryClick = useCallback((categoryId: string) => {
-            selectCategory(categoryId);
-            // Navigate to category page
-            router.push(`/category/${categoryId}`);
-          }, [selectCategory, router]);
-
-          // Handle banner click
-          const handleBannerClick = useCallback((bannerId: string) => {
-            selectBanner(bannerId);
-            // Navigate based on banner link
-            const banner = banners.find(b => b.id === bannerId);
-            if (banner?.link) {
-              router.push(banner.link);
-            }
-          }, [selectBanner, banners, router]);
 
           return (
             <HomePresenter
@@ -61,9 +59,18 @@ export const HomeContainer: React.FC<HomeContainerProps> = ({
               productCategories={productCategories}
               isLoading={isLoading}
               error={error}
-              onProductClick={handleProductClick}
-              onCategoryClick={handleCategoryClick}
-              onBannerClick={handleBannerClick}
+              onProductClick={(productId: string) => {
+                selectProduct(productId);
+                handleProductClick(productId);
+              }}
+              onCategoryClick={(categoryId: string) => {
+                selectCategory(categoryId);
+                handleCategoryClick(categoryId);
+              }}
+              onBannerClick={(bannerId: string) => {
+                selectBanner(bannerId);
+                handleBannerClick(bannerId, banners);
+              }}
               onClearError={clearError}
             />
           );

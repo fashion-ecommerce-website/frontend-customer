@@ -32,7 +32,6 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
     password: '',
     confirmPassword: '',
     phone: '',
-    agreeToTerms: false,
   });
 
   // Handle form data changes
@@ -49,6 +48,12 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
       setIsLoading(true);
       setError(null);
 
+      console.log('Submitting registration with data:', {
+        email: formData.email,
+        username: formData.username,
+        phone: formData.phone,
+      });
+
       const response = await authApi.register({
         email: formData.email,
         password: formData.password,
@@ -56,9 +61,15 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
         phone: formData.phone,
       });
 
+      console.log('Registration response:', response);
+
       if (response.success && response.data) {
         // Store tokens and user info from response
         const { accessToken, refreshToken, username, email } = response.data;
+        
+        // Store tokens in localStorage
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
         
         // Create user object for local state
         const user: User = {
@@ -72,6 +83,9 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
+
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(user));
 
         setUser(user);
         setIsAuthenticated(true);

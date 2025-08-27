@@ -13,7 +13,7 @@ export const ENV_CONFIG = {
   
   // JWT Configuration
   JWT: {
-    STORAGE_KEY: 'token',
+    STORAGE_KEY: 'accessToken',
     HEADER_PREFIX: 'Bearer '
   },
   

@@ -64,10 +64,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
       errors.confirmPassword = 'Passwords do not match';
     }
 
-    if (!formData.agreeToTerms) {
-      errors.agreeToTerms = 'You must agree to the terms and conditions';
-    }
-
     return errors;
   };
 
