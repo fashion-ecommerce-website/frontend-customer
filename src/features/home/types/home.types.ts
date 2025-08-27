@@ -143,25 +143,15 @@ export interface ApiError {
 // Component Props Types
 export interface HomeContainerProps {
   className?: string;
-  onNavigationChange?: (activeItem: string) => void;
-  onSearch?: (query: string) => void;
 }
 
 export interface HomePresenterProps {
-  navigation: NavigationState;
-  search: SearchState;
-  footer: FooterData;
   banners: Banner[];
   newArrivals: Product[];
   recommendedProducts: Product[];
   productCategories: ProductCategory[];
   isLoading: boolean;
   error: string | null;
-  onNavigationItemClick: (itemId: string) => void;
-  onMenuToggle: () => void;
-  onSearchChange: (query: string) => void;
-  onSearchSubmit: (query: string) => void;
-  onSearchClear: () => void;
   onClearError: () => void;
   onProductClick: (productId: string) => void;
   onCategoryClick: (categoryId: string) => void;
