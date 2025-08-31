@@ -27,7 +27,7 @@ export const HomeContainer: React.FC<HomeContainerProps> = ({
   }, [router]);
 
   // Handle banner click
-  const handleBannerClick = useCallback((bannerId: string, banners: any[]) => {
+  const handleBannerClick = useCallback((bannerId: string, banners: Array<{ id: string; link?: string }>) => {
     // Navigate based on banner link
     const banner = banners.find(b => b.id === bannerId);
     if (banner?.link) {

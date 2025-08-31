@@ -5,6 +5,7 @@ import { ReduxProvider } from "@/providers/ReduxProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AuthInitializer } from "@/components/AuthInitializer";
+import { ToastProvider } from "@/providers/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,13 +34,15 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <AuthInitializer>
-            <div className="min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
+            <ToastProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </ToastProvider>
           </AuthInitializer>
         </ReduxProvider>
       </body>

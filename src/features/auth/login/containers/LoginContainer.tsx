@@ -1,6 +1,22 @@
 /**
  * Login Container Component
- * Smart component that handles business logic for login
+ * Smart component   // Handle submit
+  const handleSubmit = (formData: LoginFormData) => {
+    dispatch(loginRequest({
+      email: formData.email,
+      password: formData.password,
+    }));
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = () => {
+    dispatch(googleLoginRequest());
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logoutRequest());
+  }; business logic for login
  */
 
 'use client';
@@ -10,7 +26,7 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { LoginPresenter } from '../components/LoginPresenter';
 import { 
-  loginRequest, 
+  loginRequest,
   logoutRequest, 
   clearError,
   selectUser,

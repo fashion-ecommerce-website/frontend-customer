@@ -19,8 +19,8 @@ class BaseApi {
   private baseUrl: string;
   private isRefreshing: boolean = false;
   private failedQueue: Array<{
-    resolve: (value: any) => void;
-    reject: (reason: any) => void;
+    resolve: (value: string | null) => void;
+    reject: (reason: unknown) => void;
   }> = [];
 
   constructor(baseUrl: string = API_BASE_URL) {
@@ -28,12 +28,12 @@ class BaseApi {
   }
 
   // Process the queue of failed requests
-  private processQueue(error: any, token?: string) {
+  private processQueue(error: unknown, token?: string) {
     this.failedQueue.forEach(({ resolve, reject }) => {
       if (error) {
         reject(error);
       } else {
-        resolve(token);
+        resolve(token ?? null);
       }
     });
 

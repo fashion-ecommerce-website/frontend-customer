@@ -137,7 +137,7 @@ export interface HomeState {
 export interface ApiError {
   message: string;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Component Props Types

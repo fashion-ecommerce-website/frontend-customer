@@ -79,9 +79,7 @@ const loginSlice = createSlice({
     // Logout Actions
     logoutRequest: (state) => {
       state.isLoading = true;
-    },
-    
-    logoutSuccess: (state) => {
+    },    logoutSuccess: (state) => {
       state.isLoading = false;
       state.user = null;
       state.accessToken = null;
