@@ -88,43 +88,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
     }
   };
 
-  // Show success state if authenticated
-  if (isAuthenticated && user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-500 to-purple-600">
-        <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg text-center">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-green-600 mb-2">Welcome to Fashion Store!</h2>
-            <p className="text-gray-600 text-sm">Your account has been created successfully.</p>
-          </div>
-
-          <div className="bg-green-50 rounded-lg p-6 mb-8 flex items-center gap-4">
-            <div className="text-green-600 flex-shrink-0">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <div className="font-semibold text-green-800 mb-2">Registration Successful</div>
-              <div className="text-green-700 text-sm">
-                <p><strong>Name:</strong> {user.username}</p>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Role:</strong> {user.role}</p>
-                <p><strong>Account Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 text-center pt-6 border-t border-gray-200">
-            <p className="text-gray-600 text-sm">
-              Ready to start shopping? <Link href="/auth/login" className="text-blue-600 hover:underline font-medium">Sign in to your account</Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Show register form
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-white">

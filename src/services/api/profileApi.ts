@@ -4,7 +4,7 @@ import { Profile } from '../../features/profile/types/profile.types';
 
 // Profile API endpoints
 const PROFILE_ENDPOINTS = {
-  GET_PROFILE: '/auth/profile',
+  GET_PROFILE: '/users',
   UPDATE_PROFILE: '/profile',
   UPLOAD_AVATAR: '/profile/avatar',
   CHANGE_PASSWORD: '/profile/change-password',

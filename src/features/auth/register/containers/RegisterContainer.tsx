@@ -10,20 +10,20 @@ import { RegisterPresenter } from '../components/RegisterPresenter';
 import { authApi } from '@/services/api/authApi';
 import { 
   RegisterContainerProps, 
-  RegisterFormData, 
-  User, 
+  RegisterFormData,
   ApiError 
 } from '../types/register.types';
 
 export const RegisterContainer: React.FC<RegisterContainerProps> = ({
   onRegisterSuccess,
   onRegisterError,
+  redirectTo,
 }) => {
-  // Local state
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Simple local state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationMessage, setRegistrationMessage] = useState<string | null>(null);
 
   // Local form state
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -42,17 +42,11 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
     }));
   };
 
-  // Handle form submission
+  // Handle form submission - simple API call
   const handleSubmit = useCallback(async (formData: RegisterFormData) => {
     try {
       setIsLoading(true);
       setError(null);
-
-      console.log('Submitting registration with data:', {
-        email: formData.email,
-        username: formData.username,
-        phone: formData.phone,
-      });
 
       const response = await authApi.register({
         email: formData.email,
@@ -61,37 +55,25 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
         phone: formData.phone,
       });
 
-      console.log('Registration response:', response);
-
-      if (response.success && response.data) {
-        // Store tokens and user info from response
-        const { accessToken, refreshToken, username, email } = response.data;
-        
-        // Store tokens in localStorage
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        
-        // Create user object for local state
-        const user: User = {
-          id: '', // Will be filled when we fetch user profile
-          username,
-          email,
-          firstName: '',
-          lastName: '',
-          role: 'USER',
-          enabled: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-
-        setUser(user);
-        setIsAuthenticated(true);
+      if (response.success) {
+        // Just show success message
+        setIsRegistered(true);
+        setRegistrationMessage('Registration successful! Please login to continue.');
         
         if (onRegisterSuccess) {
-          onRegisterSuccess(user);
+          // Minimal user object for callback compatibility
+          const tempUser = {
+            id: '',
+            username: formData.username,
+            email: formData.email,
+            firstName: '',
+            lastName: '',
+            role: 'USER' as const,
+            enabled: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          onRegisterSuccess(tempUser);
         }
       } else {
         const errorMessage = response.message || 'Registration failed';
@@ -109,23 +91,34 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [onRegisterSuccess, onRegisterError]);
+  }, [onRegisterSuccess, onRegisterError, formData.username, formData.email]);
 
   // Handle clear error
   const handleClearError = () => {
     setError(null);
   };
 
+  // Handle reset registration state
+  const handleResetRegistration = () => {
+    setIsRegistered(false);
+    setRegistrationMessage(null);
+    setError(null);
+  };
+
   return (
     <RegisterPresenter
-      user={user}
-      isAuthenticated={isAuthenticated}
+      user={null}
+      isAuthenticated={false}
       isLoading={isLoading}
       error={error}
       formData={formData}
+      isRegistered={isRegistered}
+      registrationMessage={registrationMessage}
+      redirectTo={redirectTo}
       onFormDataChange={handleFormDataChange}
       onSubmit={handleSubmit}
       onClearError={handleClearError}
+      onResetRegistration={handleResetRegistration}
     />
   );
 };

@@ -53,19 +53,12 @@ export interface RegisterPresenterProps {
   isLoading: boolean;
   error: ApiError | null;
   formData: RegisterFormData;
+  isRegistered?: boolean;
+  registrationMessage?: string | null;
+  redirectTo?: string;
   onFormDataChange: (data: Partial<RegisterFormData>) => void;
   onSubmit: (data: RegisterFormData) => void;
   onClearError: () => void;
-}
-
-export interface RegisterCallStateProps {
-  children: (state: {
-    user: User | null;
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    error: ApiError | null;
-    register: (data: RegisterRequest) => void;
-    clearError: () => void;
-  }) => React.ReactNode;
+  onResetRegistration?: () => void;
 }
 
