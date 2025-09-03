@@ -53,9 +53,11 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
 
   // Local form state
   const [profileFormData, setProfileFormData] = useState<ProfileFormData>({
+    username: '',
+    email: '',
+    phone: '',
     firstName: '',
     lastName: '',
-    phone: '',
     dateOfBirth: '',
     gender: '',
   });
@@ -77,9 +79,11 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
   useEffect(() => {
     if (user) {
       setProfileFormData({
+        username: user.username || '',
+        email: user.email || '',
+        phone: user.phone || '',
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        phone: user.phone || '',
         dateOfBirth: user.dateOfBirth || '',
         gender: user.gender || '',
       });

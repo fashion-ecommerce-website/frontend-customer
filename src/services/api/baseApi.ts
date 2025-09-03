@@ -1,5 +1,5 @@
 import { ApiResponse } from '../../types/api.types';
-import { getApiUrl, ENV_CONFIG } from '../../config/environment';
+import { getApiUrl, JWT_CONFIG } from '../../config/environment';
 
 // Base API configuration
 const API_BASE_URL = getApiUrl();
@@ -96,7 +96,7 @@ class BaseApi {
   // Get authorization header
   private getAuthHeaders(): Record<string, string> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    return token ? { Authorization: `${ENV_CONFIG.JWT.HEADER_PREFIX}${token}` } : {};
+    return token ? { Authorization: `${JWT_CONFIG.HEADER_PREFIX}${token}` } : {};
   }
 
   // Make HTTP request
