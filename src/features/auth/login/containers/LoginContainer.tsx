@@ -1,104 +1,120 @@
+/**
+ * Login Container Component
+ * Smart component   // Handle submit
+  const handleSubmit = (formData: LoginFormData) => {
+    dispatch(loginRequest({
+      email: formData.email,
+      password: formData.password,
+    }));
+  };
+
+  // Handle Google login
+  const handleGoogleLogin = () => {
+    dispatch(googleLoginRequest());
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logoutRequest());
+  }; business logic for login
+ */
+
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { LoginPresenter } from '../components/LoginPresenter';
-import { LoginCallState } from '../states/LoginCallState';
-import { LoginContainerProps, LoginFormData, User, ApiError } from '../types/login.types';
+import { 
+  loginRequest,
+  logoutRequest, 
+  clearError,
+  selectUser,
+  selectIsAuthenticated,
+  selectIsLoading,
+  selectError,
+} from '../redux/loginSlice';
+import { LoginContainerProps, LoginFormData } from '../types/login.types';
 
 export const LoginContainer: React.FC<LoginContainerProps> = ({
   onLoginSuccess,
   onLoginError,
-  redirectTo = '/',
 }) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   
-  // Form state
+  // Get returnUrl from URL params
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const returnUrl = searchParams?.get('returnUrl') || '/profile';
+  
+  // Redux state
+  const user = useAppSelector(selectUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isLoading = useAppSelector(selectIsLoading);
+  const error = useAppSelector(selectError);
+
+  // Local form state
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
-    rememberMe: false,
   });
 
-  // Form data change handler
-  const handleFormDataChange = useCallback((data: Partial<LoginFormData>) => {
-    setFormData(prev => ({ ...prev, ...data }));
-  }, []);
+  // Handle form data changes
+  const handleFormDataChange = (data: Partial<LoginFormData>) => {
+    setFormData(prev => ({
+      ...prev,
+      ...data,
+    }));
+  };
 
-  // Login success handler
-  const handleLoginSuccess = useCallback((user: User) => {
-    // Call external success handler if provided
-    if (onLoginSuccess) {
-      onLoginSuccess(user);
+  // Handle form submission
+  const handleSubmit = (formData: LoginFormData) => {
+    dispatch(loginRequest({
+      email: formData.email,
+      password: formData.password,
+    }));
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logoutRequest());
+  };
+
+  // Handle clear error
+  const handleClearError = () => {
+    dispatch(clearError());
+  };
+
+  // Handle successful authentication
+  useEffect(() => {
+    if (isAuthenticated && user && !isLoading) {
+      if (onLoginSuccess) {
+        onLoginSuccess(user);
+      } else {
+        // Redirect to returnUrl or default to profile
+        router.push(returnUrl);
+      }
     }
-    
-    // Redirect to specified route
-    router.push(redirectTo);
-  }, [onLoginSuccess, redirectTo, router]);
+  }, [isAuthenticated, user, isLoading, onLoginSuccess, router, returnUrl]);
 
-  // Login error handler
-  const handleLoginError = useCallback((error: ApiError) => {
-    // Call external error handler if provided
-    if (onLoginError) {
+  // Handle authentication errors
+  useEffect(() => {
+    if (error && !isLoading && onLoginError) {
       onLoginError(error);
     }
-    
-    // You could also show a toast notification here
-    console.error('Login error:', error);
-  }, [onLoginError]);
-
-  // Auto-redirect if already authenticated
-  const handleAuthCheck = useCallback((isAuthenticated: boolean, user: User | null) => {
-    if (isAuthenticated && user) {
-      router.push(redirectTo);
-    }
-  }, [redirectTo, router]);
+  }, [error, isLoading, onLoginError]);
 
   return (
-    <LoginCallState>
-      {({ user, isAuthenticated, isLoading, error, login, logout, clearError }) => {
-        // Auto-redirect check
-        useEffect(() => {
-          handleAuthCheck(isAuthenticated, user);
-        }, [isAuthenticated, user, handleAuthCheck]);
-
-        // Handle form submission
-        const handleSubmit = useCallback((formData: LoginFormData) => {
-          login({
-            email: formData.email,
-            password: formData.password,
-            rememberMe: formData.rememberMe,
-          });
-        }, [login]);
-
-        // Handle login success
-        useEffect(() => {
-          if (isAuthenticated && user && !isLoading) {
-            handleLoginSuccess(user);
-          }
-        }, [isAuthenticated, user, isLoading, handleLoginSuccess]);
-
-        // Handle login error
-        useEffect(() => {
-          if (error && !isLoading) {
-            handleLoginError(error);
-          }
-        }, [error, isLoading, handleLoginError]);
-
-        return (
-          <LoginPresenter
-            user={user}
-            isAuthenticated={isAuthenticated}
-            isLoading={isLoading}
-            error={error}
-            formData={formData}
-            onFormDataChange={handleFormDataChange}
-            onSubmit={handleSubmit}
-            onClearError={clearError}
-            onLogout={logout}
-          />
-        );
-      }}
-    </LoginCallState>
+    <LoginPresenter
+      user={user}
+      isAuthenticated={isAuthenticated}
+      isLoading={isLoading}
+      error={error}
+      formData={formData}
+      onFormDataChange={handleFormDataChange}
+      onSubmit={handleSubmit}
+      onClearError={handleClearError}
+      onLogout={handleLogout}
+    />
   );
 };

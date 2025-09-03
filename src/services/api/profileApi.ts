@@ -1,10 +1,10 @@
 import { apiClient } from './baseApi';
-import { ApiResponse } from '@/store/sagas/factories';
-import { Profile } from '@/store/slices/profileSlice';
+import { ApiResponse } from '../../types/api.types';
+import { Profile } from '../../features/profile/types/profile.types';
 
 // Profile API endpoints
 const PROFILE_ENDPOINTS = {
-  GET_PROFILE: '/profile',
+  GET_PROFILE: '/auth/profile',
   UPDATE_PROFILE: '/profile',
   UPLOAD_AVATAR: '/profile/avatar',
   CHANGE_PASSWORD: '/profile/change-password',

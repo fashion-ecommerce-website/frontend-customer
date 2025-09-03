@@ -3,7 +3,9 @@
  * Self-contained saga logic for login feature
  */
 
-import { all, fork, call, put, takeLatest } from 'redux-saga/effects';
+import { fork, call, put } from 'redux-saga/effects';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { takeEvery } = require('redux-saga/effects');
 import { PayloadAction } from '@reduxjs/toolkit';
 import { 
   loginRequest, 
@@ -11,64 +13,47 @@ import {
   loginFailure,
   logoutRequest,
   logoutSuccess,
+  refreshTokenRequest,
+  refreshTokenSuccess,
+  refreshTokenFailure,
   setLoading 
 } from './loginSlice';
-import { LoginRequest, LoginResponse, ApiError } from '../types/login.types';
+import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse } from '../types/login.types';
 
 // API Response interface
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   success: boolean;
 }
 
-// Mock API calls (replace with actual API service)
-const loginApi = {
-  login: async (credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock successful login
-    return {
-      success: true,
-      data: {
-        user: {
-          id: '1',
-          email: credentials.email,
-          firstName: 'John',
-          lastName: 'Doe',
-          phone: '+1234567890',
-          avatar: null,
-          role: 'customer' as const,
-          isEmailVerified: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        accessToken: 'mock-access-token-' + Date.now(),
-        refreshToken: 'mock-refresh-token-' + Date.now(),
-        expiresIn: 3600,
-      },
-    };
-  },
-
-  logout: async (): Promise<ApiResponse<void>> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { success: true, data: undefined };
-  },
-};
-
+import { authApi } from '../../../../services/api/authApi';
 // Login saga with token storage
 function* handleLogin(action: PayloadAction<LoginRequest>) {
   try {
     yield put(setLoading(true));
     
-    const response: ApiResponse<LoginResponse> = yield call(loginApi.login, action.payload);
-    
-    if (response.success) {
-      // Store tokens in localStorage
+  const response: ApiResponse<LoginResponse> = yield call(() => authApi.login(action.payload));
+    if (response.success && response.data.accessToken) {
+      // Store tokens
       localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+      }
+      
+      // Store user data
+      const userData = {
+        id: '', // Will be filled when we fetch user profile
+        username: response.data.username,
+        email: response.data.email,
+        firstName: '',
+        lastName: '',
+        role: 'USER' as const,
+        enabled: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
       
       yield put(loginSuccess(response.data));
     } else {
@@ -77,11 +62,17 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
         status: 401
       }));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Network error occurred';
+    const errorStatus = error instanceof Error && 'status' in error ? 
+      (error as Error & { status: number }).status : 500;
+    const errorCode = error instanceof Error && 'code' in error ? 
+      (error as Error & { code: string }).code : undefined;
+      
     yield put(loginFailure({
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
-      code: error.code
+      message: errorMessage,
+      status: errorStatus,
+      code: errorCode
     }));
   } finally {
     yield put(setLoading(false));
@@ -91,39 +82,88 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
 // Logout saga with token clearing
 function* handleLogout() {
   try {
-    yield call(loginApi.logout);
+    // Just clear local storage - no API call needed for logout
     
     // Clear tokens regardless of API response
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     
     yield put(logoutSuccess());
-  } catch (error: any) {
+  } catch (_error: unknown) {
     // Clear tokens even on error
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     
     // Still dispatch success since logout should always succeed locally
     yield put(logoutSuccess());
   }
 }
 
+// Refresh Token saga
+function* handleRefreshToken(action: PayloadAction<RefreshTokenRequest>) {
+  try {
+    yield put(setLoading(true));
+    
+    const response: ApiResponse<RefreshTokenResponse> = yield call(() => authApi.refreshToken(action.payload));
+    
+    if (response.success && response.data.accessToken) {
+      // Store new tokens
+      localStorage.setItem('accessToken', response.data.accessToken);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+      }
+      
+      yield put(refreshTokenSuccess({
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+        expiresIn: response.data.expiresIn,
+        username: response.data.username,
+        email: response.data.email,
+      }));
+    } else {
+      yield put(refreshTokenFailure({
+        message: response.message || 'Token refresh failed',
+        status: 401
+      }));
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Token refresh failed';
+    const errorStatus = error instanceof Error && 'status' in error ? 
+      (error as Error & { status: number }).status : 500;
+    const errorCode = error instanceof Error && 'code' in error ? 
+      (error as Error & { code: string }).code : undefined;
+      
+    yield put(refreshTokenFailure({
+      message: errorMessage,
+      status: errorStatus,
+      code: errorCode
+    }));
+  } finally {
+    yield put(setLoading(false));
+  }
+}
+
 // Watch functions
 function* watchLogin() {
-  yield takeLatest(loginRequest.type, handleLogin);
+  yield takeEvery(loginRequest.type, handleLogin);
 }
 
 function* watchLogout() {
-  yield takeLatest(logoutRequest.type, handleLogout);
+  yield takeEvery(logoutRequest.type, handleLogout);
+}
+
+function* watchRefreshToken() {
+  yield takeEvery(refreshTokenRequest.type, handleRefreshToken);
 }
 
 // Root login saga
 export function* loginSaga() {
-  yield all([
-    fork(watchLogin),
-    fork(watchLogout),
-  ]);
+  yield fork(watchLogin);
+  yield fork(watchLogout);
+  yield fork(watchRefreshToken);
 }
 
 // Export individual sagas for testing
-export { handleLogin, handleLogout };
+export { handleLogin, handleLogout, handleRefreshToken };

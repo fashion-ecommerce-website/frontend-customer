@@ -6,15 +6,14 @@
 // Base types
 export interface User {
   id: string;
+  username: string;
   email: string;
   firstName: string;
   lastName: string;
   phone?: string;
   avatar?: string;
-  role: 'admin' | 'customer' | 'moderator' | 'guest';
-  isEmailVerified: boolean;
-  dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
+  role: 'ADMIN' | 'USER';
+  enabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,21 +22,37 @@ export interface ApiError {
   message: string;
   status?: number;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Login Request/Response
+
 export interface LoginRequest {
   email: string;
   password: string;
-  rememberMe?: boolean;
 }
 
 export interface LoginResponse {
-  user: User;
   accessToken: string;
   refreshToken: string;
+  tokenType: string | null;
   expiresIn: number;
+  username: string;
+  email: string;
+}
+
+// Refresh Token Request/Response
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string | null;
+  expiresIn: number;
+  username: string;
+  email: string;
 }
 
 // Login State
@@ -59,14 +74,13 @@ export interface LoginState {
   
   // UI states
   lastLoginAt: string | null;
-  rememberMe: boolean;
 }
 
 // Form Data
+
 export interface LoginFormData {
   email: string;
   password: string;
-  rememberMe: boolean;
 }
 
 // Component Props
