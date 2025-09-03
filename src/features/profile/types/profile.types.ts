@@ -5,18 +5,27 @@
 
 // Base types
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  firstName: string;
-  lastName: string;
+  username: string;
   phone?: string;
-  avatar?: string;
-  role: 'admin' | 'customer' | 'moderator' | 'guest';
-  isEmailVerified: boolean;
-  dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
+  avatarUrl?: string | null;
+  reason?: string | null;
   createdAt: string;
   updatedAt: string;
+  lastLoginAt: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  roles: string[];
+  active: boolean;
+  // Additional fields for compatibility
+  firstName?: string;
+  lastName?: string;
+  role?: 'admin' | 'customer' | 'moderator' | 'guest';
+  isEmailVerified?: boolean;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other';
+  avatar?: string;
 }
 
 export interface Profile extends User {
@@ -88,11 +97,14 @@ export interface ProfileState {
 
 // Form Data
 export interface ProfileFormData {
-  firstName: string;
-  lastName: string;
+  username: string;
+  email: string;
   phone: string;
-  dateOfBirth: string;
-  gender: 'male' | 'female' | 'other' | '';
+  // Optional fields for backward compatibility
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other' | '';
 }
 
 export interface ChangePasswordFormData {

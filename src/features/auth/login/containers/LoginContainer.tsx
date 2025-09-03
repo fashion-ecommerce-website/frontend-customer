@@ -1,26 +1,4 @@
-/**
- * Login Container Component
- * Smart component   // Handle submit
-  const handleSubmit = (formData: LoginFormData) => {
-    dispatch(loginRequest({
-      email: formData.email,
-      password: formData.password,
-    }));
-  };
-
-  // Handle Google login
-  const handleGoogleLogin = () => {
-    dispatch(googleLoginRequest());
-  };
-
-  // Handle logout
-  const handleLogout = () => {
-    dispatch(logoutRequest());
-  }; business logic for login
- */
-
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
@@ -42,10 +20,6 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
 }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
-  // Get returnUrl from URL params
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const returnUrl = searchParams?.get('returnUrl') || '/profile';
   
   // Redux state
   const user = useAppSelector(selectUser);
@@ -75,6 +49,11 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
     }));
   };
 
+  // // Handle Google login
+  // const handleGoogleLogin = () => {
+  //   dispatch(googleLoginRequest());
+  // };
+
   // Handle logout
   const handleLogout = () => {
     dispatch(logoutRequest());
@@ -87,15 +66,26 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
 
   // Handle successful authentication
   useEffect(() => {
+    console.log('Auth state changed:', { isAuthenticated, user: !!user, isLoading });
+    
     if (isAuthenticated && user && !isLoading) {
+      console.log('Redirecting user...');
       if (onLoginSuccess) {
         onLoginSuccess(user);
       } else {
-        // Redirect to returnUrl or default to profile
-        router.push(returnUrl);
+        // Redirect to home page
+        console.log('Pushing to home page...');
+        // Using setTimeout to ensure state is fully updated
+        setTimeout(() => {
+          router.push('/');
+          // Fallback if router.push doesn't work
+          if (typeof window !== 'undefined') {
+            window.location.href = '/';
+          }
+        }, 100);
       }
     }
-  }, [isAuthenticated, user, isLoading, onLoginSuccess, router, returnUrl]);
+  }, [isAuthenticated, user, isLoading, onLoginSuccess, router]);
 
   // Handle authentication errors
   useEffect(() => {

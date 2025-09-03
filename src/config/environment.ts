@@ -1,46 +1,24 @@
 /**
  * Environment Configuration
- * Configuration for different environments to match Spring Boot backend
  */
 
-export const ENV_CONFIG = {
-  // API Base URLs
-  API: {
-    DEV: 'http://localhost:8080/api',
-    PROD: process.env.NEXT_PUBLIC_API_URL || 'https://your-production-api.com/api',
-    LOCAL: 'http://localhost:8080/api'
-  },
-  
-  // JWT Configuration
-  JWT: {
-    STORAGE_KEY: 'accessToken',
-    HEADER_PREFIX: 'Bearer '
-  },
-  
-  // Spring Boot Database URLs (for reference)
-  DATABASE: {
-    DEV: 'jdbc:postgresql://localhost:5432/fit_backend_dev',
-    PROD: 'jdbc:postgresql://localhost:5432/fit_backend_prod'
-  },
-  
-  // PgAdmin URL
-  PGADMIN_URL: 'http://localhost:8081'
+// JWT Configuration - hardcoded
+export const JWT_CONFIG = {
+  STORAGE_KEY: 'accessToken',
+  HEADER_PREFIX: 'Bearer '
+};
+
+// Database URLs (for reference only) - hardcoded
+export const DATABASE_CONFIG = {
+  DEV: 'jdbc:postgresql://localhost:5432/fit_backend_dev',
+  PROD: 'jdbc:postgresql://localhost:5432/fit_backend_prod'
 };
 
 /**
- * Get current API URL based on environment
+ * Get API URL from environment variable
  */
 export const getApiUrl = (): string => {
-  if (process.env.NODE_ENV === 'production') {
-    return ENV_CONFIG.API.PROD;
-  }
-  
-  // Check if custom API URL is set
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  
-  return ENV_CONFIG.API.DEV;
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 };
 
 /**
@@ -71,5 +49,3 @@ export const API_ENDPOINTS = {
     DISABLE_USER: (id: string) => `/admin/users/${id}/disable`
   }
 };
-
-export default ENV_CONFIG;
