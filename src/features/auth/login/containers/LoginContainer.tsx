@@ -66,15 +66,11 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
 
   // Handle successful authentication
   useEffect(() => {
-    console.log('Auth state changed:', { isAuthenticated, user: !!user, isLoading });
-    
     if (isAuthenticated && user && !isLoading) {
-      console.log('Redirecting user...');
       if (onLoginSuccess) {
         onLoginSuccess(user);
       } else {
         // Redirect to home page
-        console.log('Pushing to home page...');
         // Using setTimeout to ensure state is fully updated
         setTimeout(() => {
           router.push('/');

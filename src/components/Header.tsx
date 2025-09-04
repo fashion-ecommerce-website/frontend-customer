@@ -123,7 +123,7 @@ export const Header: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for products..."
-                    className="w-full pl-12 pr-4 py-3 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-200 bg-gray-100 text-gray-900 placeholder-gray-500"
+                    className="w-full pl-12 pr-4 py-3 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-200 bg-gray-100 text-black placeholder-gray-500"
                   />
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,7 +272,7 @@ export const Header: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-200 bg-gray-50"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-200 bg-gray-50 text-black placeholder-gray-500"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

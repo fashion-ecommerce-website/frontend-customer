@@ -6,6 +6,12 @@ export { ProfileContainer } from './containers/ProfileContainer';
 
 // Export components
 export { ProfilePresenter } from './components/ProfilePresenter';
+export { ProfileSidebar } from './components/ProfileSidebar';
+export { ProfileFormSection } from './components/ProfileFormSection';
+export { PasswordChangeModal } from './components/PasswordChangeModal';
+
+// Export hooks
+export { useFormValidation, useProfileValidation, usePasswordValidation } from './hooks/useValidation';
 
 // Export states
 export { ProfileCallState } from './states/ProfileCallState';

@@ -71,8 +71,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         {toasts.map((toast, index) => (
           <div 
             key={toast.id} 
-            style={{ top: `${16 + index * 80}px` }}
             className="absolute right-4"
+            style={{ top: `${16 + index * 80}px` }}
           >
             <Toast
               message={toast.message}

@@ -63,7 +63,7 @@ export class ProfileApiService {
 
     // For file upload, we need to override the content type
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}${PROFILE_ENDPOINTS.UPLOAD_AVATAR}`,
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}${PROFILE_ENDPOINTS.UPLOAD_AVATAR}`,
       {
         method: 'POST',
         headers: {

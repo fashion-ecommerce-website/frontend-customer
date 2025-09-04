@@ -4,7 +4,7 @@
  */
 
 // User roles matching Spring Boot backend
-export type UserRole = 'ADMIN' | 'USER';
+export type UserRole = 'USER';
 
 // Base user interface
 export interface BaseUser {
@@ -29,11 +29,6 @@ export interface AuthResponse {
 export interface UserResponse extends BaseUser {
   phone?: string;
   avatar?: string;
-}
-
-// Admin user management
-export interface UserManagementRequest {
-  userId: string;
 }
 
 // Public API responses

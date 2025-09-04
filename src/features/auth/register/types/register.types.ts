@@ -29,7 +29,7 @@ export interface User {
   firstName: string;
   lastName: string;
   phone?: string;
-  role: 'ADMIN' | 'USER';
+  role: 'USER';
   enabled: boolean;
   createdAt: string;
   updatedAt: string;

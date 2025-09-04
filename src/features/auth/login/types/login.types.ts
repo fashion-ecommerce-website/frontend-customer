@@ -12,7 +12,7 @@ export interface User {
   lastName: string;
   phone?: string;
   avatar?: string;
-  role: 'ADMIN' | 'USER';
+  role: 'USER';
   enabled: boolean;
   createdAt: string;
   updatedAt: string;

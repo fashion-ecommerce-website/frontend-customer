@@ -1,5 +1,6 @@
 import { ApiResponse } from '../../types/api.types';
 import { getApiUrl, JWT_CONFIG } from '../../config/environment';
+import { authUtils } from '../../utils/auth';
 
 // Base API configuration
 const API_BASE_URL = getApiUrl();
@@ -56,22 +57,43 @@ class BaseApi {
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
+      
+      // Validate refresh token format (should be JWT)
+      if (!refreshToken.includes('.') || refreshToken.split('.').length !== 3) {
+        throw new Error('Invalid refresh token format');
+      }
+      
+      const payload = { refreshToken };
 
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Đảm bảo không gửi Authorization header cho refresh request
         },
-        body: JSON.stringify({ refreshToken }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to refresh token');
+        const errorData = await response.text();
+        
+        // Log để debug
+        if (response.status === 403) {
+          throw new Error('403 Forbidden - RefreshToken có thể đã hết hạn hoặc không hợp lệ');
+        }
+        
+        throw new Error(`Failed to refresh token: ${response.status} - ${errorData}`);
       }
 
       const data = await response.json();
-      const newAccessToken = data.accessToken;
-      const newRefreshToken = data.refreshToken;
+      
+      // Kiểm tra structure của response data
+      const newAccessToken = data.accessToken || data.access_token;
+      const newRefreshToken = data.refreshToken || data.refresh_token;
+      
+      if (!newAccessToken || !newRefreshToken) {
+        throw new Error('Invalid response structure from refresh endpoint');
+      }
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('accessToken', newAccessToken);
@@ -83,10 +105,7 @@ class BaseApi {
     } catch (error) {
       this.processQueue(error, undefined);
       // Clear tokens if refresh fails
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-      }
+      authUtils.clearAuth();
       return null;
     } finally {
       this.isRefreshing = false;
@@ -99,6 +118,34 @@ class BaseApi {
     return token ? { Authorization: `${JWT_CONFIG.HEADER_PREFIX}${token}` } : {};
   }
 
+  // Check if token is expired or about to expire
+  private isTokenExpired(): boolean {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) return true;
+
+    try {
+      // Decode JWT token to check expiry
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp;
+      const now = Math.floor(Date.now() / 1000);
+      
+      // Consider token expired if it expires within next 30 seconds
+      const isExpired = exp - now < 30;
+      return isExpired;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  // Proactive token refresh before making request
+  private async ensureValidToken(): Promise<boolean> {
+    if (this.isTokenExpired()) {
+      const newToken = await this.refreshToken();
+      return newToken !== null;
+    }
+    return true;
+  }
+
   // Make HTTP request
   private async makeRequest<T>(
     endpoint: string,
@@ -106,6 +153,18 @@ class BaseApi {
     retry: boolean = true
   ): Promise<ApiResponse<T>> {
     try {
+      // Proactively check and refresh token if needed (only for authenticated endpoints)
+      if (!endpoint.includes('/auth/') && !endpoint.includes('/public/')) {
+        const tokenValid = await this.ensureValidToken();
+        if (!tokenValid) {
+          return {
+            success: false,
+            data: null,
+            message: 'Authentication required',
+          };
+        }
+      }
+
       const url = `${this.baseUrl}${endpoint}`;
       const headers = {
         'Content-Type': 'application/json',

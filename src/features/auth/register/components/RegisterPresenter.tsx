@@ -140,7 +140,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
+              className={`p-3 border-2 transition-all duration-200 bg-white text-base text-black ${
                 validationErrors.email 
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                   : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
@@ -165,7 +165,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
+              className={`p-3 border-2 transition-all duration-200 bg-white text-base text-black ${
                 validationErrors.phone 
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                   : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
@@ -190,7 +190,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
+              className={`p-3 border-2 transition-all duration-200 bg-white text-base text-black ${
                 validationErrors.username 
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                   : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
@@ -215,7 +215,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
+              className={`p-3 border-2 transition-all duration-200 bg-white text-base text-black ${
                 validationErrors.password 
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                   : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
@@ -240,7 +240,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 transition-all duration-200 bg-white text-base ${
+              className={`p-3 border-2 transition-all duration-200 bg-white text-base text-black ${
                 validationErrors.confirmPassword 
                   ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                   : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'

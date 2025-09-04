@@ -106,7 +106,6 @@ export const googleAuth = {
 
 // Use endpoints from environment config
 const AUTH_ENDPOINTS = API_ENDPOINTS.AUTH;
-const ADMIN_ENDPOINTS = API_ENDPOINTS.ADMIN;
 const PUBLIC_ENDPOINTS = API_ENDPOINTS.PUBLIC;
 
 // Auth API service
@@ -137,12 +136,9 @@ export class AuthApiService {
   async authenticateWithGoogle(): Promise<BackendUser> {
     try {
       // Step 1: Firebase authentication
-      console.log('🔥 Starting Firebase authentication...');
       const firebaseUser = await googleAuth.signInWithGoogle();
-      console.log('✅ Firebase login successful:', firebaseUser.displayName);
       
       // Step 2: Send to backend
-      console.log('📡 Sending token to backend...');
       const backendResponse = await this.googleLogin({
         idToken: firebaseUser.idToken,
         email: firebaseUser.email,
@@ -154,7 +150,6 @@ export class AuthApiService {
       if (backendResponse.jwtToken) {
         localStorage.setItem('token', backendResponse.jwtToken);
         localStorage.setItem('user', JSON.stringify(backendResponse.user));
-        console.log('✅ Backend authentication successful:', backendResponse.user);
       }
       
       return backendResponse.user;
@@ -230,45 +225,10 @@ export class AuthApiService {
   }
 
   /**
-   * Admin endpoint - test admin access
-   */
-  async getAdminData(): Promise<ApiResponse<Record<string, unknown>>> {
-    return apiClient.get<Record<string, unknown>>(AUTH_ENDPOINTS.ADMIN);
-  }
-
-  /**
    * User endpoint - test user access
    */
   async getUserData(): Promise<ApiResponse<Record<string, unknown>>> {
     return apiClient.get<Record<string, unknown>>(AUTH_ENDPOINTS.USER);
-  }
-
-  /**
-   * Get all users (Admin only)
-   */
-  async getAllUsers(): Promise<ApiResponse<User[]>> {
-    return apiClient.get<User[]>(ADMIN_ENDPOINTS.USERS);
-  }
-
-  /**
-   * Get user by ID (Admin only)
-   */
-  async getUserById(id: string): Promise<ApiResponse<User>> {
-    return apiClient.get<User>(ADMIN_ENDPOINTS.USER_BY_ID(id));
-  }
-
-  /**
-   * Enable user (Admin only)
-   */
-  async enableUser(id: string): Promise<ApiResponse<User>> {
-    return apiClient.put<User>(ADMIN_ENDPOINTS.ENABLE_USER(id));
-  }
-
-  /**
-   * Disable user (Admin only)
-   */
-  async disableUser(id: string): Promise<ApiResponse<User>> {
-    return apiClient.put<User>(ADMIN_ENDPOINTS.DISABLE_USER(id));
   }
 
   /**
@@ -302,13 +262,8 @@ export const authApi = {
   refreshToken: (refreshTokenData: RefreshTokenRequest) => authApiService.refreshToken(refreshTokenData),
   getCurrentUser: () => authApiService.getCurrentUser(),
   
-  // Admin & User endpoints
-  getAdminData: () => authApiService.getAdminData(),
+  // User endpoints
   getUserData: () => authApiService.getUserData(),
-  getAllUsers: () => authApiService.getAllUsers(),
-  getUserById: (id: string) => authApiService.getUserById(id),
-  enableUser: (id: string) => authApiService.enableUser(id),
-  disableUser: (id: string) => authApiService.disableUser(id),
   
   // Health checks
   getHealth: () => authApiService.getHealth(),

@@ -21,7 +21,7 @@ export interface User {
   // Additional fields for compatibility
   firstName?: string;
   lastName?: string;
-  role?: 'admin' | 'customer' | 'moderator' | 'guest';
+  role?: 'customer' | 'moderator' | 'guest';
   isEmailVerified?: boolean;
   dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';

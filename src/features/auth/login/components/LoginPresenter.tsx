@@ -93,7 +93,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 border-gray-300 transition-all duration-200 bg-white text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${isLoading ? 'bg-gray-50 cursor-not-allowed opacity-50' : ''} placeholder-gray-400`}
+              className={`p-3 border-2 border-gray-300 transition-all duration-200 bg-white text-base text-black focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${isLoading ? 'bg-gray-50 cursor-not-allowed opacity-50' : ''} placeholder-gray-400`}
             />
           </div>
 
@@ -111,7 +111,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               placeholder=""
               required
               disabled={isLoading}
-              className={`p-3 border-2 border-gray-300 transition-all duration-200 bg-white text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${isLoading ? 'bg-gray-50 cursor-not-allowed opacity-50' : ''} placeholder-gray-400`}
+              className={`p-3 border-2 border-gray-300 transition-all duration-200 bg-white text-base text-black focus:border-blue-500 focus:ring-2 focus:ring-blue-200 ${isLoading ? 'bg-gray-50 cursor-not-allowed opacity-50' : ''} placeholder-gray-400`}
             />
           </div>
 
@@ -139,7 +139,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
           <div className="mb-4">
             <GoogleAuth 
               onSuccess={(user) => {
-                console.log('🎉 Google login thành công:', user);
                 showSuccess(`Chào mừng ${user.name}! Bạn đã đăng nhập thành công.`);
                 // TODO: Redirect to home or dashboard
                 setTimeout(() => {
@@ -147,7 +146,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
                 }, 1500);
               }}
               onError={(error) => {
-                console.error('❌ Google login thất bại:', error);
                 showError(error);
               }}
             />

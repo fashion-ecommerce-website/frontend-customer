@@ -2,6 +2,7 @@
 export { Header } from './Header';
 export { Footer } from './Footer';
 export { AuthInitializer } from './AuthInitializer';
+export { AuthGuard } from './AuthGuard';
 
 // Authentication Components
 export { default as LoginForm } from './LoginForm';
@@ -11,3 +12,8 @@ export { GoogleAuth } from './GoogleAuth';
 // Toast Components
 export { Toast } from './Toast';
 export { useToast } from '../providers/ToastProvider';
+
+// UI Components
+export { LoadingSpinner, PageLoadingSpinner } from './LoadingSpinner';
+export { ErrorMessage, SuccessMessage, InfoMessage, WarningMessage } from './Messages';
+export { Breadcrumb } from './Breadcrumb';

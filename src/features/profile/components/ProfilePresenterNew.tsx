@@ -101,7 +101,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   // No user data
   if (!user) {
     return (
-      <div className="min-h-screen bg-white py-8">
+      <div className="min-h-screen bg-gray-50 py-8">
         <div className="flex items-center justify-center p-8">
           <p>No profile data available</p>
         </div>
@@ -110,7 +110,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 flex gap-8 flex-col lg:flex-row">
         {/* Sidebar */}
         <ProfileSidebar 
@@ -119,7 +119,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         />
 
         {/* Main Content */}
-        <main className="bg-white overflow-hidden">
+        <main className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
           {/* Breadcrumb */}
           <Breadcrumb items={breadcrumbItems} />
 
