@@ -16,6 +16,14 @@ export interface GoogleLoginRequest {
   picture: string | null;
 }
 
+export interface FirebaseGoogleUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  idToken: string;
+}
+
 export interface BackendUser {
   id: string;
   email: string;
@@ -34,68 +42,126 @@ export interface GoogleAuthResponse {
 
 // Firebase Google Auth Functions
 export const googleAuth = {
-  // Firebase Google Login with faster popup detection
-  signInWithGoogle: async () => {
-    try {
+  // Firebase Google Login with fast popup close detection
+  signInWithGoogle: async (): Promise<FirebaseGoogleUser> => {
+    return new Promise((resolve, reject) => {
       console.log('🚀 Opening Google popup...');
-      const startTime = Date.now();
       
-      // Monitor window focus to detect popup interactions
+      let isResolved = false;
       let focusCheckInterval: NodeJS.Timeout | null = null;
+      let windowBlurTimer: NodeJS.Timeout | null = null;
       
-      // Start monitoring for popup close after 2 seconds
+      const cleanup = () => {
+        if (focusCheckInterval) {
+          clearInterval(focusCheckInterval);
+          focusCheckInterval = null;
+        }
+        if (windowBlurTimer) {
+          clearTimeout(windowBlurTimer);
+          windowBlurTimer = null;
+        }
+      };
+      
+      const handlePopupClosed = () => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          reject(new Error('Bạn đã đóng cửa sổ đăng nhập'));
+        }
+      };
+      
+      // Monitor window focus changes to detect popup close
+      const onWindowFocus = () => {
+        if (windowBlurTimer) {
+          clearTimeout(windowBlurTimer);
+          windowBlurTimer = setTimeout(() => {
+            // If we regain focus after being blurred, popup might be closed
+            if (!isResolved) {
+              handlePopupClosed();
+            }
+          }, 300); // Reduced delay for faster popup close detection
+        }
+      };
+      
+      const onWindowBlur = () => {
+        // Clear any existing timer when window loses focus
+        if (windowBlurTimer) {
+          clearTimeout(windowBlurTimer);
+          windowBlurTimer = null;
+        }
+      };
+      
+      // Start monitoring focus changes after popup should be open
       setTimeout(() => {
-        focusCheckInterval = setInterval(() => {
-          // If window regains focus and enough time has passed, user might have closed popup
-          if (document.hasFocus() && Date.now() - startTime > 3000) {
-            if (focusCheckInterval) clearInterval(focusCheckInterval);
+        if (!isResolved) {
+          window.addEventListener('focus', onWindowFocus);
+          window.addEventListener('blur', onWindowBlur);
+          
+          // Also check periodically if window has focus (popup might be closed)
+          focusCheckInterval = setInterval(() => {
+            if (document.hasFocus() && !isResolved) {
+              // Window has focus, popup might be closed
+              setTimeout(() => {
+                if (!isResolved) {
+                  handlePopupClosed();
+                }
+              }, 200); // Reduced delay for faster response
+            }
+          }, 500); // Check more frequently
+        }
+      }, 500); // Start monitoring sooner
+      
+      // Call Firebase signInWithPopup
+      signInWithPopup(auth, googleProvider)
+        .then(async (result) => {
+          if (!isResolved) {
+            isResolved = true;
+            cleanup();
+            window.removeEventListener('focus', onWindowFocus);
+            window.removeEventListener('blur', onWindowBlur);
+            
+            console.log('✅ Google popup completed successfully');
+            
+            // Get Firebase ID token for backend verification
+            const idToken = await result.user.getIdToken();
+            
+            resolve({
+              uid: result.user.uid,
+              email: result.user.email,
+              displayName: result.user.displayName,
+              photoURL: result.user.photoURL,
+              idToken, // Add Firebase token for backend
+            });
           }
-        }, 1000);
-      }, 2000);
-      
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        
-        // Clean up monitoring
-        if (focusCheckInterval) clearInterval(focusCheckInterval);
-        
-        console.log('✅ Google popup completed successfully');
-        
-        // Get Firebase ID token for backend verification
-        const idToken = await result.user.getIdToken();
-        
-        return {
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-          idToken, // Add Firebase token for backend
-        };
-      } catch (error: unknown) {
-        // Clean up monitoring
-        if (focusCheckInterval) clearInterval(focusCheckInterval);
-        throw error;
-      }
-      
-    } catch (error: unknown) {
-      console.log('❌ Google popup error:', error);
-      
-      const firebaseError = error as { code?: string; message?: string };
-      
-      // Handle specific Firebase auth errors with faster response
-      if (firebaseError.code === 'auth/popup-closed-by-user') {
-        throw new Error('Bạn đã đóng cửa sổ đăng nhập');
-      } else if (firebaseError.code === 'auth/popup-blocked') {
-        throw new Error('Popup bị chặn. Vui lòng cho phép popup và thử lại');
-      } else if (firebaseError.code === 'auth/cancelled-popup-request') {
-        throw new Error('Yêu cầu đăng nhập bị hủy');
-      } else if (firebaseError.code === 'auth/network-request-failed') {
-        throw new Error('Lỗi kết nối mạng. Vui lòng kiểm tra internet');
-      } else if (firebaseError.code === 'auth/internal-error') {
-        throw new Error('Lỗi hệ thống. Vui lòng thử lại');
-      }
-      throw new Error(firebaseError.message || 'Đăng nhập Google thất bại');
-    }
+        })
+        .catch((error: unknown) => {
+          if (!isResolved) {
+            isResolved = true;
+            cleanup();
+            window.removeEventListener('focus', onWindowFocus);
+            window.removeEventListener('blur', onWindowBlur);
+            
+            console.log('❌ Google popup error:', error);
+            
+            const firebaseError = error as { code?: string; message?: string };
+            
+            // Handle specific Firebase auth errors with immediate response
+            if (firebaseError.code === 'auth/popup-closed-by-user') {
+              reject(new Error('Bạn đã đóng cửa sổ đăng nhập'));
+            } else if (firebaseError.code === 'auth/popup-blocked') {
+              reject(new Error('Popup bị chặn. Vui lòng cho phép popup và thử lại'));
+            } else if (firebaseError.code === 'auth/cancelled-popup-request') {
+              reject(new Error('Yêu cầu đăng nhập bị hủy'));
+            } else if (firebaseError.code === 'auth/network-request-failed') {
+              reject(new Error('Lỗi kết nối mạng. Vui lòng kiểm tra internet'));
+            } else if (firebaseError.code === 'auth/internal-error') {
+              reject(new Error('Lỗi hệ thống. Vui lòng thử lại'));
+            } else {
+              reject(new Error(firebaseError.message || 'Đăng nhập Google thất bại'));
+            }
+          }
+        });
+    });
   },
 
   // Firebase Google Logout

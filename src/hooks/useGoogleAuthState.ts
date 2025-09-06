@@ -66,7 +66,7 @@ export const useGoogleAuthState = () => {
       timeoutId = setTimeout(() => {
         setLoading(false);
         setError('Đăng nhập quá lâu. Vui lòng thử lại.');
-      }, 60000); // 60 seconds timeout
+      }, 15000); // 15 seconds timeout (reduced from 30)
       
       console.log('🚀 Starting Google authentication...');
       const backendUser = await authApi.authenticateWithGoogle();
@@ -88,7 +88,17 @@ export const useGoogleAuthState = () => {
       
       const errorMessage = err instanceof Error ? err.message : 'Đăng nhập thất bại';
       console.error('❌ Google login failed:', err);
-      setError(errorMessage);
+      
+      // Don't show error for user cancellation cases
+      const isCancelledByUser = errorMessage.includes('đóng cửa sổ') || 
+                               errorMessage.includes('bị hủy') || 
+                               errorMessage.includes('cancelled') ||
+                               errorMessage.includes('popup-closed-by-user');
+      
+      if (!isCancelledByUser) {
+        setError(errorMessage);
+      }
+      
       clearAuthState(); // Clear any partial state
       throw err;
     } finally {

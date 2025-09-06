@@ -25,8 +25,14 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
       onSuccess?.(backendUser);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Đăng nhập thất bại';
-      // Don't show generic error if user just cancelled
-      if (!errorMessage.includes('bị hủy') && !errorMessage.includes('cancelled')) {
+      
+      // Don't show error for user cancellation cases
+      const isCancelledByUser = errorMessage.includes('đóng cửa sổ') || 
+                               errorMessage.includes('bị hủy') || 
+                               errorMessage.includes('cancelled') ||
+                               errorMessage.includes('popup-closed-by-user');
+      
+      if (!isCancelledByUser) {
         onError?.(errorMessage);
       }
     }
@@ -43,7 +49,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-3 py-3 px-4 bg-gray-50 border border-gray-200 rounded-md animate-pulse">
+      <div className="flex items-center justify-center py-3 px-4 bg-gray-50 border border-gray-200 rounded-md">
         <div className="flex space-x-1">
           <div 
             className="w-2 h-2 rounded-full"
@@ -78,7 +84,6 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
             }}
           ></div>
         </div>
-        <span className="text-gray-600 font-medium">Đang xử lý...</span>
       </div>
     );
   }
@@ -212,7 +217,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
         </svg>
       )}
       <span className="text-gray-700 font-medium">
-        {loading ? 'Đang đăng nhập...' : 'Tiếp tục với Google'}
+        {loading ? '' : 'Tiếp tục với Google'}
       </span>
     </button>
   );
