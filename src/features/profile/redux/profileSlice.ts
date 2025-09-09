@@ -58,7 +58,7 @@ const profileSlice = createSlice({
     updateProfileSuccess: (state) => {
       state.isUpdating = false;
       state.updateError = null;
-      state.updateSuccess = true;
+      state.updateSuccess = false; // No success notification needed
     },
     updateProfileFailure: (state, action: PayloadAction<ApiError>) => {
       state.isUpdating = false;

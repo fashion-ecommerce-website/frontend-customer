@@ -27,10 +27,31 @@ import {
 import { selectUser } from '../../auth/login/redux/loginSlice';
 import { User } from '../../auth/login/types/login.types';
 import {
-  ProfileCallStateProps,
   UpdateProfileRequest,
   ChangePasswordRequest,
 } from '../types/profile.types';
+
+// Define ProfileCallStateProps locally since it's not exported anymore
+interface ProfileCallStateProps {
+  children: (props: {
+    user: User | null;
+    isLoading: boolean;
+    isUpdating: boolean;
+    isChangingPassword: boolean;
+    error: any;
+    updateError: any;
+    passwordError: any;
+    updateSuccess: boolean;
+    passwordChangeSuccess: boolean;
+    getProfile: () => void;
+    updateProfile: (data: UpdateProfileRequest) => void;
+    changePassword: (data: ChangePasswordRequest) => void;
+    clearError: () => void;
+    clearUpdateError: () => void;
+    clearPasswordError: () => void;
+    clearSuccess: () => void;
+  }) => React.ReactNode;
+}
 
 export const ProfileCallState: React.FC<ProfileCallStateProps> = ({ children }) => {
   const dispatch = useAppDispatch();

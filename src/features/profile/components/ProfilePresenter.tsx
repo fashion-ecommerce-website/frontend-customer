@@ -160,14 +160,6 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             />
           )}
 
-          {/* Update Success Message */}
-          {updateSuccess && (
-            <SuccessMessage 
-              message="Profile updated successfully"
-              className="m-4"
-            />
-          )}
-
           {/* Update Error */}
           {updateError && (
             <ErrorMessage 

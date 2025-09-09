@@ -254,7 +254,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
       onClearError={handleClearError}
       onClearUpdateError={handleClearUpdateError}
       onClearPasswordError={handleClearPasswordError}
-      onClearSuccess={handleClearSuccess}
+      onClearSuccess={() => {}} // Empty function as it's not needed anymore
     />
   );
 };
