@@ -38,6 +38,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   onClearPasswordError,
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
   const [activeSidebarSection, setActiveSidebarSection] = useState('purchase-info');
   
   const {
@@ -71,6 +72,11 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   // Handle password modal open
   const handlePasswordModalOpen = () => {
     setShowPasswordModal(true);
+  };
+
+  // Handle update info modal open
+  const handleUpdateInfoModalOpen = () => {
+    setShowUpdateInfoModal(true);
   };
 
   // Clear error when user starts typing
@@ -156,6 +162,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             onSubmit={handleProfileSubmit}
             onInputFocus={handleInputFocus}
             onShowPasswordModal={handlePasswordModalOpen}
+            onShowUpdateInfoModal={handleUpdateInfoModalOpen}
             isChangingPassword={isChangingPassword}
           />
         </main>

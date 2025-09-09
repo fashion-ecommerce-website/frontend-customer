@@ -16,6 +16,17 @@ export interface User {
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
+  // Profile-specific fields to unify types
+  dob?: string; // Date of birth in DD/MM/YYYY format (e.g., "12/10/2003")
+  gender?: 'male' | 'female' | 'other';
+  avatarUrl?: string | null;
+  reason?: string | null;
+  lastLoginAt?: string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  roles?: string[];
+  active?: boolean;
+  isEmailVerified?: boolean;
 }
 
 export interface ApiError {

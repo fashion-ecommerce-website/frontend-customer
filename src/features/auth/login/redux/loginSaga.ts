@@ -28,12 +28,57 @@ interface ApiResponse<T = unknown> {
 }
 
 import { authApi } from '../../../../services/api/authApi';
-// Login saga with token storage
+import { profileApiService, ApiUserResponse } from '../../../../services/api/profileApi';
+import { setUser } from './loginSlice';
+
+// Helper function to convert date from YYYY-MM-DD to DD/MM/YYYY
+function convertDateFromApi(dateString: string): string {
+  if (!dateString) return '';
+  
+  // If already in DD/MM/YYYY format, return as is
+  if (dateString.includes('/')) return dateString;
+  
+  // Convert from YYYY-MM-DD to DD/MM/YYYY
+  const parts = dateString.split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  }
+  
+  return dateString;
+}
+
+// Helper function to convert ApiUserResponse to User
+function convertApiUserToUser(apiUser: ApiUserResponse) {
+  return {
+    id: apiUser.id.toString(),
+    email: apiUser.email,
+    username: apiUser.username,
+    firstName: '', // API doesn't have firstName/lastName, will be empty
+    lastName: '',
+    phone: apiUser.phone,
+    avatar: apiUser.avatarUrl || undefined,
+    dob: convertDateFromApi(apiUser.dob), // Convert YYYY-MM-DD to DD/MM/YYYY
+    role: 'USER' as const,
+    enabled: apiUser.active,
+    createdAt: apiUser.createdAt,
+    updatedAt: apiUser.updatedAt,
+    avatarUrl: apiUser.avatarUrl,
+    reason: apiUser.reason,
+    lastLoginAt: apiUser.lastLoginAt,
+    emailVerified: apiUser.emailVerified,
+    phoneVerified: apiUser.phoneVerified,
+    roles: apiUser.roles,
+    active: apiUser.active,
+  };
+}
+
+// Login saga with token storage and profile loading
 function* handleLogin(action: PayloadAction<LoginRequest>) {
   try {
     yield put(setLoading(true));
     
-  const response: ApiResponse<LoginResponse> = yield call(() => authApi.login(action.payload));
+    const response: ApiResponse<LoginResponse> = yield call(() => authApi.login(action.payload));
     if (response.success && response.data.accessToken) {
       // Store tokens
       localStorage.setItem('accessToken', response.data.accessToken);
@@ -41,8 +86,8 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
         localStorage.setItem('refreshToken', response.data.refreshToken);
       }
       
-      // Store user data
-      const userData = {
+      // Store basic user data from login response
+      const basicUserData = {
         id: '', // Will be filled when we fetch user profile
         username: response.data.username,
         email: response.data.email,
@@ -53,9 +98,27 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(basicUserData));
       
+      // First, set login success with basic data
       yield put(loginSuccess(response.data));
+      
+      // Then immediately fetch full profile data
+      try {
+        const profileResponse: ApiResponse<ApiUserResponse> = yield call(() => profileApiService.getProfile());
+        
+        if (profileResponse.success && profileResponse.data) {
+          const fullUserData = convertApiUserToUser(profileResponse.data);
+          // Update localStorage with full user data
+          localStorage.setItem('user', JSON.stringify(fullUserData));
+          // Update Redux store with full user data
+          yield put(setUser(fullUserData));
+        }
+        // If profile fetch fails, we still keep the login successful with basic data
+      } catch (profileError) {
+        // Log error but don't fail the login process
+        console.warn('Failed to fetch profile after login:', profileError);
+      }
     } else {
       yield put(loginFailure({
         message: response.message || 'Login failed',

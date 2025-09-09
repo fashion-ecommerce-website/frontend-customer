@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { ProfilePresenter } from '../components/ProfilePresenter';
-import { 
+import {
   getProfileRequest,
   updateProfileRequest,
   changePasswordRequest,
@@ -16,7 +16,6 @@ import {
   clearUpdateError,
   clearPasswordError,
   clearSuccess,
-  selectUser,
   selectIsLoading,
   selectIsUpdating,
   selectIsChangingPassword,
@@ -26,6 +25,8 @@ import {
   selectUpdateSuccess,
   selectPasswordChangeSuccess,
 } from '../redux/profileSlice';
+import { selectUser } from '../../auth/login/redux/loginSlice';
+import { User } from '../../auth/login/types/login.types';
 import { 
   ProfileContainerProps, 
   ProfileFormData, 
@@ -58,7 +59,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
     phone: '',
     firstName: '',
     lastName: '',
-    dateOfBirth: '',
+    dob: '',
     gender: '',
   });
 
@@ -68,12 +69,32 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
     confirmPassword: '',
   });
 
-  // Load profile on mount
+  // Convert date from DD/MM/YYYY to YYYY-MM-DD format for input date
+  const convertDateToInputFormat = (dateString: string): string => {
+    if (!dateString) return '';
+    
+    // If already in YYYY-MM-DD format, return as is
+    if (dateString.includes('-') && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateString;
+    }
+    
+    // Convert from DD/MM/YYYY to YYYY-MM-DD
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const [day, month, year] = parts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    
+    return dateString;
+  };
+
+  // Load profile data if not already available or if data seems incomplete
   useEffect(() => {
-    if (!user) {
+    // Only fetch profile if user is missing key fields that should be available from the profile API
+    if (user && (!user.id || user.id === '')) {
       dispatch(getProfileRequest());
     }
-  }, [user, dispatch]);
+  }, [dispatch, user]);
 
   // Update form data when user data changes
   useEffect(() => {
@@ -84,7 +105,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
         phone: user.phone || '',
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        dateOfBirth: user.dateOfBirth || '',
+        dob: convertDateToInputFormat(user.dob || ''),
         gender: user.gender || '',
       });
     }
@@ -140,16 +161,51 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
     }));
   }, []);
 
-  // Handle profile update
-  const handleUpdateProfile = useCallback((formData: ProfileFormData) => {
-    const updateData = {
-      firstName: formData.firstName || undefined,
-      lastName: formData.lastName || undefined,
-      phone: formData.phone || undefined,
-      dateOfBirth: formData.dateOfBirth || undefined,
-      gender: formData.gender === '' ? undefined : formData.gender as 'male' | 'female' | 'other',
-    };
-    dispatch(updateProfileRequest(updateData));
+  // Convert date from input format (YYYY-MM-DD or DD/MM/YYYY) to API format (YYYY-MM-DD)
+  const convertDateToApiFormat = (dateString: string): string => {
+    if (!dateString) return '';
+    
+    // If already in YYYY-MM-DD format, return as is
+    if (dateString.includes('-') && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateString;
+    }
+    
+    // Convert from DD/MM/YYYY to YYYY-MM-DD for API
+    if (dateString.includes('/')) {
+      const parts = dateString.split('/');
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
+    }
+    
+    return dateString;
+  };
+
+  // Handle profile update - unified handler for both old and new format
+  const handleUpdateProfile = useCallback((formData: ProfileFormData | any) => {
+    // Check if it's UpdateProfileApiPayload format
+    if (formData.dob !== undefined || formData.username !== undefined) {
+      // New API format - use directly
+      const updateData = {
+        username: formData.username,
+        dob: formData.dob,
+        phone: formData.phone,
+      };
+      dispatch(updateProfileRequest(updateData));
+    } else {
+      // Legacy format - convert dob to correct format
+      const updateData = {
+        username: formData.username || undefined,
+        dob: convertDateToApiFormat(formData.dob || ''),
+        phone: formData.phone || undefined,
+        // Keep legacy fields for backward compatibility
+        firstName: formData.firstName || undefined,
+        lastName: formData.lastName || undefined,
+        gender: formData.gender === '' ? undefined : formData.gender as 'male' | 'female' | 'other',
+      };
+      dispatch(updateProfileRequest(updateData));
+    }
   }, [dispatch]);
 
   // Handle password change

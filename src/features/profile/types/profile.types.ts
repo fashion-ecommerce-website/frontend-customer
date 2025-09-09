@@ -5,7 +5,7 @@
 
 // Base types
 export interface User {
-  id: number;
+  id: string; // Changed from number to string to match LoginUser
   email: string;
   username: string;
   phone?: string;
@@ -13,19 +13,20 @@ export interface User {
   reason?: string | null;
   createdAt: string;
   updatedAt: string;
-  lastLoginAt: string;
-  emailVerified: boolean;
-  phoneVerified: boolean;
-  roles: string[];
-  active: boolean;
+  lastLoginAt?: string; // Made optional
+  emailVerified?: boolean; // Made optional
+  phoneVerified?: boolean; // Made optional
+  roles?: string[]; // Made optional
+  active?: boolean; // Made optional
   // Additional fields for compatibility
   firstName?: string;
   lastName?: string;
-  role?: 'customer' | 'moderator' | 'guest';
+  role?: 'customer' | 'moderator' | 'guest' | 'USER';
   isEmailVerified?: boolean;
-  dateOfBirth?: string;
+  dob?: string; // Date of birth in DD/MM/YYYY format (e.g., "12/10/2003")
   gender?: 'male' | 'female' | 'other';
   avatar?: string;
+  enabled?: boolean; // Added for compatibility with LoginUser
 }
 
 export interface Profile extends User {
@@ -57,10 +58,12 @@ export interface ApiError {
 
 // Profile Request/Response
 export interface UpdateProfileRequest {
+  username?: string;
+  dob?: string; // Date of birth in DD/MM/YYYY format (e.g., "12/10/2003")
+  phone?: string;
+  // Legacy fields for backward compatibility
   firstName?: string;
   lastName?: string;
-  phone?: string;
-  dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';
 }
 
@@ -75,11 +78,8 @@ export interface ProfileResponse {
   message?: string;
 }
 
-// Profile State
+// Profile State - User data removed, now only UI states
 export interface ProfileState {
-  // User data
-  user: User | null;
-  
   // Loading states
   isLoading: boolean;
   isUpdating: boolean;
@@ -103,7 +103,7 @@ export interface ProfileFormData {
   // Optional fields for backward compatibility
   firstName?: string;
   lastName?: string;
-  dateOfBirth?: string;
+  dob?: string; // Date of birth in DD/MM/YYYY format (e.g., "12/10/2003")
   gender?: 'male' | 'female' | 'other' | '';
 }
 
@@ -146,7 +146,7 @@ export interface ProfilePresenterProps {
   // Handlers
   onProfileFormDataChange: (data: Partial<ProfileFormData>) => void;
   onPasswordFormDataChange: (data: Partial<ChangePasswordFormData>) => void;
-  onUpdateProfile: (formData: ProfileFormData) => void;
+  onUpdateProfile: (formData: ProfileFormData | any) => void;
   onChangePassword: (formData: ChangePasswordFormData) => void;
   onClearError: () => void;
   onClearUpdateError: () => void;
@@ -154,23 +154,4 @@ export interface ProfilePresenterProps {
   onClearSuccess: () => void;
 }
 
-export interface ProfileCallStateProps {
-  children: (props: {
-    user: User | null;
-    isLoading: boolean;
-    isUpdating: boolean;
-    isChangingPassword: boolean;
-    error: ApiError | null;
-    updateError: ApiError | null;
-    passwordError: ApiError | null;
-    updateSuccess: boolean;
-    passwordChangeSuccess: boolean;
-    getProfile: () => void;
-    updateProfile: (data: UpdateProfileRequest) => void;
-    changePassword: (data: ChangePasswordRequest) => void;
-    clearError: () => void;
-    clearUpdateError: () => void;
-    clearPasswordError: () => void;
-    clearSuccess: () => void;
-  }) => React.ReactNode;
-}
+// ProfileCallStateProps removed - component no longer needed

@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProfilePresenterProps } from '../types/profile.types';
 import { useFormValidation } from '../hooks/useValidation';
 import { 
@@ -17,6 +17,7 @@ import {
 import { ProfileSidebar } from './ProfileSidebar';
 import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
+import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   user,
@@ -38,6 +39,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   onClearPasswordError,
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
   const [activeSidebarSection, setActiveSidebarSection] = useState('purchase-info');
   
   const {
@@ -47,11 +49,27 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     handleInputChange,
   } = useFormValidation();
 
+  // Close update info modal on successful update
+  useEffect(() => {
+    if (updateSuccess && showUpdateInfoModal) {
+      setShowUpdateInfoModal(false);
+    }
+  }, [updateSuccess, showUpdateInfoModal]);
+
   // Handle profile form submission
   const handleProfileSubmit = (formData: typeof profileFormData) => {
     if (validateAndSetErrors(formData, 'profile')) {
       onUpdateProfile(formData);
+      // Close the modal after successful submission
+      setShowUpdateInfoModal(false);
     }
+  };
+
+  // Handle modal form submission with API format
+  const handleModalSubmit = (data: UpdateProfileApiPayload) => {
+    // Pass the API payload directly to the unified update function
+    onUpdateProfile(data);
+    setShowUpdateInfoModal(false);
   };
 
   // Handle password form submission
@@ -71,6 +89,17 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   // Handle password modal open
   const handlePasswordModalOpen = () => {
     setShowPasswordModal(true);
+  };
+
+  // Handle update info modal open
+  const handleUpdateInfoModalOpen = () => {
+    setShowUpdateInfoModal(true);
+  };
+
+  // Handle update info modal close
+  const handleUpdateInfoModalClose = () => {
+    setShowUpdateInfoModal(false);
+    clearAllErrors();
   };
 
   // Clear error when user starts typing
@@ -156,6 +185,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             onSubmit={handleProfileSubmit}
             onInputFocus={handleInputFocus}
             onShowPasswordModal={handlePasswordModalOpen}
+            onShowUpdateInfoModal={handleUpdateInfoModalOpen}
             isChangingPassword={isChangingPassword}
           />
         </main>
@@ -173,6 +203,17 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         onChangePassword={handlePasswordSubmit}
         onClose={handlePasswordModalClose}
         onClearPasswordError={onClearPasswordError}
+      />
+
+      {/* Update Info Modal */}
+      <UpdateInfoModal
+        isOpen={showUpdateInfoModal}
+        profileFormData={profileFormData}
+        isUpdating={isUpdating}
+        validationErrors={validationErrors}
+        onClose={handleUpdateInfoModalClose}
+        onProfileFormDataChange={onProfileFormDataChange}
+        onSubmit={handleModalSubmit}
       />
     </div>
   );

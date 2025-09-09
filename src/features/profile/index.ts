@@ -1,25 +1,16 @@
-// Profile Feature Barrel Export
-// Self-contained profile module exports
-
-// Export containers
 export { ProfileContainer } from './containers/ProfileContainer';
 
-// Export components
 export { ProfilePresenter } from './components/ProfilePresenter';
 export { ProfileSidebar } from './components/ProfileSidebar';
 export { ProfileFormSection } from './components/ProfileFormSection';
 export { PasswordChangeModal } from './components/PasswordChangeModal';
+export { UpdateInfoModal } from './components/UpdateInfoModal';
 
-// Export hooks
 export { useFormValidation, useProfileValidation, usePasswordValidation } from './hooks/useValidation';
 
-// Export states
-export { ProfileCallState } from './states/ProfileCallState';
 
-// Export redux
 export { 
   profileReducer,
-  getProfileRequest,
   getProfileSuccess,
   getProfileFailure,
   updateProfileRequest,
@@ -36,7 +27,6 @@ export {
   clearState,
   profileActionCreators,
   selectProfileState,
-  selectUser,
   selectIsLoading,
   selectIsUpdating,
   selectIsChangingPassword,
@@ -61,7 +51,6 @@ export type {
   ChangePasswordFormData,
   ProfileContainerProps,
   ProfilePresenterProps,
-  ProfileCallStateProps,
 } from './types/profile.types';
 
 // Default export
