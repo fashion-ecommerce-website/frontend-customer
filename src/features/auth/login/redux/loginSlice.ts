@@ -5,6 +5,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LoginState, LoginRequest, LoginResponse, ApiError, User } from '../types/login.types';
+import { RootState } from '../../../../store/rootReducer';
 
 // Initial state
 const initialState: LoginState = {
@@ -103,6 +104,22 @@ const loginSlice = createSlice({
       Object.assign(state, initialState);
     },
     
+    // Profile Update Actions
+    updateUserProfile: (state, action: PayloadAction<User>) => {
+      // Update the entire user object with new profile data
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      } else {
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      }
+    },
+    
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+    },
+    
     // Token Management
     setTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string; expiresIn: number }>) => {
       state.accessToken = action.payload.accessToken;
@@ -183,6 +200,8 @@ export const {
   refreshTokenSuccess,
   refreshTokenFailure,
   restoreAuthState,
+  updateUserProfile,
+  setUser,
 } = loginSlice.actions;
 
 // Export reducer
@@ -207,14 +226,14 @@ export const loginActionCreators = {
   },
 };
 
-// Selectors
-export const selectLoginState = (state: { login: LoginState }) => state.login;
-export const selectUser = (state: { login: LoginState }) => state.login.user;
-export const selectIsAuthenticated = (state: { login: LoginState }) => state.login.isAuthenticated;
-export const selectIsLoading = (state: { login: LoginState }) => state.login.isLoading;
-export const selectError = (state: { login: LoginState }) => state.login.error;
-export const selectAccessToken = (state: { login: LoginState }) => state.login.accessToken;
-export const selectRefreshToken = (state: { login: LoginState }) => state.login.refreshToken;
+// Selectors with proper RootState typing
+export const selectLoginState = (state: RootState) => state.login;
+export const selectUser = (state: RootState) => state.login.user;
+export const selectIsAuthenticated = (state: RootState) => state.login.isAuthenticated;
+export const selectIsLoading = (state: RootState) => state.login.isLoading;
+export const selectError = (state: RootState) => state.login.error;
+export const selectAccessToken = (state: RootState) => state.login.accessToken;
+export const selectRefreshToken = (state: RootState) => state.login.refreshToken;
 
 // Export slice
 export default loginSlice;

@@ -13,11 +13,8 @@ import {
   ChangePasswordRequest 
 } from '../types/profile.types';
 
-// Initial state
+// Initial state - User data removed
 const initialState: ProfileState = {
-  // User data
-  user: null,
-  
   // Loading states
   isLoading: false,
   isUpdating: false,
@@ -38,14 +35,13 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    // Get Profile Actions
+    // Get Profile Actions - removed user handling
     getProfileRequest: (state) => {
       state.isLoading = true;
       state.error = null;
     },
-    getProfileSuccess: (state, action: PayloadAction<User>) => {
+    getProfileSuccess: (state) => {
       state.isLoading = false;
-      state.user = action.payload;
       state.error = null;
     },
     getProfileFailure: (state, action: PayloadAction<ApiError>) => {
@@ -53,15 +49,14 @@ const profileSlice = createSlice({
       state.error = action.payload;
     },
 
-    // Update Profile Actions
+    // Update Profile Actions - removed user handling
     updateProfileRequest: (state, _action: PayloadAction<UpdateProfileRequest>) => {
       state.isUpdating = true;
       state.updateError = null;
       state.updateSuccess = false;
     },
-    updateProfileSuccess: (state, action: PayloadAction<User>) => {
+    updateProfileSuccess: (state) => {
       state.isUpdating = false;
-      state.user = action.payload;
       state.updateError = null;
       state.updateSuccess = true;
     },
@@ -156,9 +151,8 @@ export const profileActionCreators = {
   clearState,
 };
 
-// Selectors
+// Selectors - removed selectUser (now in auth slice)
 export const selectProfileState = (state: RootState) => state.profile;
-export const selectUser = (state: RootState) => state.profile.user;
 export const selectIsLoading = (state: RootState) => state.profile.isLoading;
 export const selectIsUpdating = (state: RootState) => state.profile.isUpdating;
 export const selectIsChangingPassword = (state: RootState) => state.profile.isChangingPassword;

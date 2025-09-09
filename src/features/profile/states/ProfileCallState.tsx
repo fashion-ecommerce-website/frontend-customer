@@ -15,7 +15,6 @@ import {
   clearUpdateError,
   clearPasswordError,
   clearSuccess,
-  selectUser,
   selectIsLoading,
   selectIsUpdating,
   selectIsChangingPassword,
@@ -25,6 +24,8 @@ import {
   selectUpdateSuccess,
   selectPasswordChangeSuccess,
 } from '../redux/profileSlice';
+import { selectUser } from '../../auth/login/redux/loginSlice';
+import { User } from '../../auth/login/types/login.types';
 import {
   ProfileCallStateProps,
   UpdateProfileRequest,
@@ -50,12 +51,7 @@ export const ProfileCallState: React.FC<ProfileCallStateProps> = ({ children }) 
     dispatch(getProfileRequest());
   }, [dispatch]);
 
-  // Load profile on component mount
-  useEffect(() => {
-    if (!user) {
-      handleGetProfile();
-    }
-  }, [user, handleGetProfile]);
+  // No need to load profile - user comes from login state
 
   const handleUpdateProfile = (data: UpdateProfileRequest) => {
     dispatch(updateProfileRequest(data));

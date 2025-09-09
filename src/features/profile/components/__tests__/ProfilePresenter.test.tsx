@@ -50,7 +50,7 @@ jest.mock('../PasswordChangeModal', () => ({
 
 describe('ProfilePresenter', () => {
   const mockUser: User = {
-    id: 1,
+    id: '1',
     email: 'test@example.com',
     username: 'testuser',
     phone: '1234567890',

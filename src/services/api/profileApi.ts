@@ -2,20 +2,40 @@ import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
 import { Profile } from '../../features/profile/types/profile.types';
 
+// API User Response interface - matches actual API response
+export interface ApiUserResponse {
+  id: number;
+  email: string;
+  username: string;
+  phone: string;
+  dob: string;
+  avatarUrl: string | null;
+  reason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  roles: string[];
+  active: boolean;
+}
+
 // Profile API endpoints
 const PROFILE_ENDPOINTS = {
   GET_PROFILE: '/users',
-  UPDATE_PROFILE: '/profile',
+  UPDATE_PROFILE: '/users',
   UPLOAD_AVATAR: '/profile/avatar',
   CHANGE_PASSWORD: '/profile/change-password',
 } as const;
 
-// Update profile request interface
+// Update profile request interface (for backward compatibility)
 export interface UpdateProfileRequest {
+  username?: string;
+  dob?: string; // Date of birth in YYYY-MM-DD format (e.g., "2003-10-12")
+  phone?: string;
+  // Keep backward compatibility
   firstName?: string;
   lastName?: string;
-  phone?: string;
-  dateOfBirth?: string;
   gender?: 'male' | 'female' | 'other';
   address?: {
     street: string;
@@ -43,15 +63,15 @@ export class ProfileApiService {
   /**
    * Get current user profile
    */
-  async getProfile(): Promise<ApiResponse<Profile>> {
-    return apiClient.get<Profile>(PROFILE_ENDPOINTS.GET_PROFILE);
+  async getProfile(): Promise<ApiResponse<ApiUserResponse>> {
+    return apiClient.get<ApiUserResponse>(PROFILE_ENDPOINTS.GET_PROFILE);
   }
 
   /**
    * Update user profile
    */
-  async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<Profile>> {
-    return apiClient.put<Profile>(PROFILE_ENDPOINTS.UPDATE_PROFILE, data);
+  async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<ApiUserResponse>> {
+    return apiClient.put<ApiUserResponse>(PROFILE_ENDPOINTS.UPDATE_PROFILE, data);
   }
 
   /**

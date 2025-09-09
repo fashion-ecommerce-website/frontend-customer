@@ -9,17 +9,18 @@ export { ProfilePresenter } from './components/ProfilePresenter';
 export { ProfileSidebar } from './components/ProfileSidebar';
 export { ProfileFormSection } from './components/ProfileFormSection';
 export { PasswordChangeModal } from './components/PasswordChangeModal';
+export { UpdateInfoModal } from './components/UpdateInfoModal';
 
 // Export hooks
 export { useFormValidation, useProfileValidation, usePasswordValidation } from './hooks/useValidation';
 
 // Export states
-export { ProfileCallState } from './states/ProfileCallState';
+// ProfileCallState removed - no longer needed
 
 // Export redux
 export { 
   profileReducer,
-  getProfileRequest,
+  // getProfileRequest removed - no longer needed
   getProfileSuccess,
   getProfileFailure,
   updateProfileRequest,
@@ -36,7 +37,6 @@ export {
   clearState,
   profileActionCreators,
   selectProfileState,
-  selectUser,
   selectIsLoading,
   selectIsUpdating,
   selectIsChangingPassword,
@@ -61,7 +61,6 @@ export type {
   ChangePasswordFormData,
   ProfileContainerProps,
   ProfilePresenterProps,
-  ProfileCallStateProps,
 } from './types/profile.types';
 
 // Default export

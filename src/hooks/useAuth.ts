@@ -5,7 +5,8 @@
 
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { selectIsAuthenticated, selectUser, selectAccessToken } from '@/features/auth/login/redux/loginSlice';
+import { selectIsAuthenticated, selectUser, selectAccessToken, setUser } from '@/features/auth/login/redux/loginSlice';
+import { profileApiService, ApiUserResponse } from '@/services/api/profileApi';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -13,9 +14,51 @@ export const useAuth = () => {
   const user = useAppSelector(selectUser);
   const accessToken = useAppSelector(selectAccessToken);
 
+  // Helper function to convert date from YYYY-MM-DD to DD/MM/YYYY
+  const convertDateFromApi = (dateString: string): string => {
+    if (!dateString) return '';
+    
+    // If already in DD/MM/YYYY format, return as is
+    if (dateString.includes('/')) return dateString;
+    
+    // Convert from YYYY-MM-DD to DD/MM/YYYY
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      return `${day}/${month}/${year}`;
+    }
+    
+    return dateString;
+  };
+
+  // Helper function to convert ApiUserResponse to User
+  const convertApiUserToUser = (apiUser: ApiUserResponse) => {
+    return {
+      id: apiUser.id.toString(),
+      email: apiUser.email,
+      username: apiUser.username,
+      firstName: '', // API doesn't have firstName/lastName, will be empty
+      lastName: '',
+      phone: apiUser.phone,
+      avatar: apiUser.avatarUrl || undefined,
+      dob: convertDateFromApi(apiUser.dob), // Convert YYYY-MM-DD to DD/MM/YYYY
+      role: 'USER' as const,
+      enabled: apiUser.active,
+      createdAt: apiUser.createdAt,
+      updatedAt: apiUser.updatedAt,
+      avatarUrl: apiUser.avatarUrl,
+      reason: apiUser.reason,
+      lastLoginAt: apiUser.lastLoginAt,
+      emailVerified: apiUser.emailVerified,
+      phoneVerified: apiUser.phoneVerified,
+      roles: apiUser.roles,
+      active: apiUser.active,
+    };
+  };
+
   // Initialize auth state from localStorage on app start
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
         const storedToken = localStorage.getItem('accessToken');
         const storedUser = localStorage.getItem('user');
@@ -35,6 +78,21 @@ export const useAuth = () => {
                 isAuthenticated: true,
               }
             });
+
+            // Fetch fresh profile data to ensure it's up to date
+            try {
+              const profileResponse = await profileApiService.getProfile();
+              if (profileResponse.success && profileResponse.data) {
+                const fullUserData = convertApiUserToUser(profileResponse.data);
+                // Update localStorage with fresh user data
+                localStorage.setItem('user', JSON.stringify(fullUserData));
+                // Update Redux store with fresh user data
+                dispatch(setUser(fullUserData));
+              }
+            } catch (profileError) {
+              console.warn('Failed to fetch fresh profile data:', profileError);
+              // Continue with stored user data if profile fetch fails
+            }
           } else {
             // Token expired, clear storage
             localStorage.removeItem('accessToken');

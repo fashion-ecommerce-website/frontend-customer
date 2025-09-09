@@ -15,6 +15,7 @@ import {
   changePasswordSuccess,
   changePasswordFailure,
 } from './profileSlice';
+import { updateUserProfile, setUser } from '../../auth/login/redux/loginSlice';
 import {
   UpdateProfileRequest,
   ChangePasswordRequest,
@@ -34,17 +35,65 @@ interface ApiResponse<T = unknown> {
   message?: string;
 }
 
-import { profileApiService } from '../../../services/api/profileApi';
+import { profileApiService, ApiUserResponse } from '../../../services/api/profileApi';
+
+// Import login User type to avoid conflicts
+import { User as LoginUser } from '../../auth/login/types/login.types';
+
+// Helper function to convert date from YYYY-MM-DD to DD/MM/YYYY
+function convertDateFromApi(dateString: string): string {
+  if (!dateString) return '';
+  
+  // If already in DD/MM/YYYY format, return as is
+  if (dateString.includes('/')) return dateString;
+  
+  // Convert from YYYY-MM-DD to DD/MM/YYYY
+  const parts = dateString.split('-');
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  }
+  
+  return dateString;
+}
+
+// Helper function to convert ApiUserResponse to LoginUser
+function convertApiUserToLoginUser(apiUser: ApiUserResponse): LoginUser {
+  return {
+    id: apiUser.id.toString(),
+    email: apiUser.email,
+    username: apiUser.username,
+    firstName: '', // API doesn't have firstName/lastName, will be empty
+    lastName: '',
+    phone: apiUser.phone,
+    avatar: apiUser.avatarUrl || undefined,
+    dob: convertDateFromApi(apiUser.dob), // Convert YYYY-MM-DD to DD/MM/YYYY
+    role: 'USER' as const,
+    enabled: apiUser.active,
+    createdAt: apiUser.createdAt,
+    updatedAt: apiUser.updatedAt,
+    avatarUrl: apiUser.avatarUrl,
+    reason: apiUser.reason,
+    lastLoginAt: apiUser.lastLoginAt,
+    emailVerified: apiUser.emailVerified,
+    phoneVerified: apiUser.phoneVerified,
+    roles: apiUser.roles,
+    active: apiUser.active,
+  };
+}
 
 /**
  * Get Profile Saga
  */
 function* getProfileSaga(): Generator<unknown, void, unknown> {
   try {
-    const response = (yield call(profileApiService.getProfile)) as ApiResponse<User>;
+    const response = (yield call(profileApiService.getProfile)) as ApiResponse<ApiUserResponse>;
     
     if (response.success) {
-      yield put(getProfileSuccess(response.data));
+      const user = convertApiUserToLoginUser(response.data);
+      // Update user in auth store instead of profile store
+      yield put(setUser(user));
+      yield put(getProfileSuccess()); // Only update loading state
     } else {
       yield put(getProfileFailure({
         message: response.message || 'Failed to get profile',
@@ -72,10 +121,13 @@ function* getProfileSaga(): Generator<unknown, void, unknown> {
  */
 function* updateProfileSaga(action: PayloadAction<UpdateProfileRequest>): Generator<unknown, void, unknown> {
   try {
-    const response = (yield call(profileApiService.updateProfile, action.payload)) as ApiResponse<User>;
+    const response = (yield call(profileApiService.updateProfile, action.payload)) as ApiResponse<ApiUserResponse>;
     
     if (response.success) {
-      yield put(updateProfileSuccess(response.data));
+      const user = convertApiUserToLoginUser(response.data);
+      // Update user in auth store instead of profile store
+      yield put(updateUserProfile(user));
+      yield put(updateProfileSuccess()); // Only update loading state
     } else {
       yield put(updateProfileFailure({
         message: response.message || 'Failed to update profile',
