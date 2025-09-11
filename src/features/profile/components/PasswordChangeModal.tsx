@@ -56,9 +56,9 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 w-full max-w-md mx-4">
-        <h3 className="text-xl font-semibold mb-4 text-center">
+        <h3 className="text-xl text-black font-semibold mb-4 text-center">
           Change Password
         </h3>
 
@@ -146,7 +146,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 border border-gray-300 rounded-md bg-white cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border text-black border-gray-300 rounded-md bg-white cursor-pointer hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isChangingPassword}
             >
               Cancel

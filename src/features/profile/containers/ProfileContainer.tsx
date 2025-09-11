@@ -26,7 +26,6 @@ import {
   selectPasswordChangeSuccess,
 } from '../redux/profileSlice';
 import { selectUser } from '../../auth/login/redux/loginSlice';
-import { User } from '../../auth/login/types/login.types';
 import { 
   ProfileContainerProps, 
   ProfileFormData, 
