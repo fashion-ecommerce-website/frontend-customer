@@ -25,9 +25,10 @@ export interface PaginatedProductsResponse {
 }
 
 // Product search/filter request interface
+// Note: page is 1-based in UI, will be converted to 0-based for server
 export interface ProductsRequest {
   category: string;  // Required - API yêu cầu bắt buộc
-  page?: number;
+  page?: number;     // 1-based page number (UI), converted to 0-based for server
   pageSize?: number;
   colors?: string[]; // Nhiều màu thì: ?colors=Red&colors=Blue
   sizes?: string[];  // sizes tương tự như màu
@@ -45,7 +46,8 @@ const PRODUCT_ENDPOINTS = {
 export class ProductApiService {
   /**
    * Get paginated products with filters
-   * URL example: /products?category=ao-thun&page=1&pageSize=12&sort=productTitle_asc
+   * URL example: /products?category=ao-thun&page=0&pageSize=12&sort=productTitle_asc
+   * Note: UI sends page=1, converted to page=0 for server
    */
   async getProducts(params?: ProductsRequest): Promise<ApiResponse<PaginatedProductsResponse>> {
     const searchParams = new URLSearchParams();
@@ -54,9 +56,10 @@ export class ProductApiService {
     const category = params?.category || 'ao-thun'; // Default category
     searchParams.append('category', category);
     
-    // Pagination - Bắt đầu từ 0 nên FE trừ 1 trước khi gửi qua nha
+    // Pagination - Convert from UI (1-based) to Server (0-based)
     if (params?.page) {
-      searchParams.append('page', params.page.toString());
+      const serverPage = params.page - 1; // Convert: UI page 1 → Server page 0
+      searchParams.append('page', serverPage.toString());
     }
     
     // Page size

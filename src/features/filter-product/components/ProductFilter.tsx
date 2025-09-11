@@ -15,12 +15,12 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
   onOpenSidebar
 }) => {
   const sortOptions: FilterDropdownOption[] = [
-    { value: 'productTitle_asc', label: 'Tên: A-Z' },
-    { value: 'productTitle_desc', label: 'Tên: Z-A' },
-    { value: 'price_asc', label: 'Giá: Tăng dần' },
-    { value: 'price_desc', label: 'Giá: Giảm dần' },
-    { value: 'newest', label: 'Cũ nhất' },
-    { value: 'popular', label: 'Mới nhất' },
+    { value: 'productTitle_asc', label: 'Name: A-Z' },
+    { value: 'productTitle_desc', label: 'Name: Z-A' },
+    { value: 'price_asc', label: 'Price: Low to High' },
+    { value: 'price_desc', label: 'Price: High to Low' },
+    { value: 'newest', label: 'Oldest' },
+    { value: 'popular', label: 'Newest' },
   ];
 
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
@@ -34,16 +34,16 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     <div className="flex items-center justify-between mb-6">
       {/* Breadcrumb */}
       <div className="flex items-center text-sm text-black">
-        <span className="text-gray-500">TRANG CHỦ</span>
+        <span className="text-gray-500">HOME</span>
         <span className="mx-2 text-gray-400">›</span>
-        <span className="text-gray-500">DANH MỤC</span>
+        <span className="text-gray-500">CATEGORY</span>
         <span className="mx-2 text-gray-400">›</span>
-        <span className="text-black font-medium">ÁO THUN</span>
+        <span className="text-black font-medium">T-SHIRT</span>
       </div>
 
       {/* Filter Button and Sort Dropdown */}
       <div className="flex items-center gap-4">
-        {/* Bộ lọc Button */}
+        {/* Filter Button */}
         <button 
           onClick={onOpenSidebar}
           className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-black"
@@ -51,7 +51,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
           </svg>
-          Bộ lọc
+          Filters
         </button>
 
         {/* Sort Dropdown */}

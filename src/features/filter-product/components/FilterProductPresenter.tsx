@@ -1,12 +1,29 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ProductFilter } from './ProductFilter';
 import { FilterSidebar } from './FilterSidebar';
 import { ProductList } from './ProductList';
 import { Pagination } from './Pagination';
 import { ProductFilters, FilterProductItem } from '../types';
 import { productApi } from '../../../services/api/productApi';
+
+// Debounce hook for API calls
+const useDebounce = (value: any, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 interface FilterProductPresenterProps {
   onProductClick: (slug: string) => void;
@@ -25,6 +42,9 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
     page: 1,
     pageSize: 12
   });
+
+  // Debounce filters to avoid too many API calls
+  const debouncedFilters = useDebounce(filters, 300); // 300ms delay
   
   const [pagination, setPagination] = useState({
     page: 1,
@@ -45,7 +65,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
       if (response.success && response.data) {
         setProducts(response.data.items);
         setPagination({
-          page: response.data.page,
+          page: response.data.page + 1, // Convert: Server page 0 → UI page 1
           pageSize: response.data.pageSize,
           totalItems: response.data.totalItems,
           totalPages: response.data.totalPages,
@@ -53,11 +73,11 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
           hasPrevious: response.data.hasPrevious
         });
       } else {
-        setError(response.message || 'Có lỗi xảy ra khi tải sản phẩm');
+        setError(response.message || 'An error occurred while loading products');
         setProducts([]);
       }
     } catch (err) {
-      setError('Không thể kết nối đến server');
+      setError('Unable to connect to server');
       setProducts([]);
     } finally {
       setIsLoading(false);
@@ -65,33 +85,35 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   };
 
   useEffect(() => {
-    fetchProducts(filters);
-  }, []);
+    fetchProducts(debouncedFilters);
+  }, [debouncedFilters]); // Listen to debounced filter changes
 
-  const handleFiltersChange = (newFilters: ProductFilters) => {
+  const handleFiltersChange = useCallback((newFilters: ProductFilters) => {
     const updatedFilters = {
       ...newFilters,
       category: newFilters.category || 'ao-thun', // Ensure category is always set
       page: 1 // Reset to first page when filters change
     };
     setFilters(updatedFilters);
-  };
+    // Auto-fetch will be triggered by useEffect with debounce
+  }, []);
 
   const handleSearch = () => {
+    // Manual search - just trigger fetch with current filters
     fetchProducts(filters);
   };
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     const updatedFilters = {
       ...filters,
       page
     };
     setFilters(updatedFilters);
-    fetchProducts(updatedFilters);
+    // Auto-fetch will be triggered by useEffect with debounce
     
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [filters]);
 
   const handleClearError = () => {
     setError(null);
@@ -126,22 +148,27 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
         onClose={() => setIsSidebarOpen(false)}
         filters={filters}
         onFiltersChange={handleFiltersChange}
-        onSearch={handleSearch}
       />
 
       {/* Results Info */}
       <div className="flex justify-between items-center mb-6 mt-6">
-        <div className="text-sm text-black">
+        <div className="text-sm text-black flex items-center gap-2">
+          {isLoading && (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+          )}
           {!isLoading && (
             <>
-              Hiển thị {products.length > 0 ? ((pagination.page - 1) * pagination.pageSize + 1) : 0} - {Math.min(pagination.page * pagination.pageSize, pagination.totalItems)} 
-              {' '}trong tổng số {pagination.totalItems} sản phẩm
+              Showing {products.length > 0 ? ((pagination.page - 1) * pagination.pageSize + 1) : 0} - {Math.min(pagination.page * pagination.pageSize, pagination.totalItems)} 
+              {' '}of {pagination.totalItems} products
             </>
+          )}
+          {isLoading && (
+            <span>Loading...</span>
           )}
         </div>
         
         <div className="text-sm text-black">
-          Trang {pagination.page} / {pagination.totalPages}
+          Page {pagination.page} / {pagination.totalPages}
         </div>
       </div>
 

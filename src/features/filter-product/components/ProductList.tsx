@@ -32,7 +32,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   if (products.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-black text-lg">Không tìm thấy sản phẩm nào</p>
+        <p className="text-black text-lg">No products found</p>
       </div>
     );
   }
@@ -78,11 +78,11 @@ export const ProductList: React.FC<ProductListProps> = ({
               
               {product.quantity > 0 ? (
                 <span className="text-xs text-black font-medium">
-                  Còn {product.quantity} sp
+                  {product.quantity} items left
                 </span>
               ) : (
                 <span className="text-xs text-black font-medium">
-                  Hết hàng
+                  Out of stock
                 </span>
               )}
             </div>

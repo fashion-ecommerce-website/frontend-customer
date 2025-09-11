@@ -52,7 +52,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
         }`}
       >
-        Trước
+        Previous
       </button>
 
       {/* Page numbers */}
@@ -80,7 +80,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
         }`}
       >
-        Sau
+        Next
       </button>
     </div>
   );
