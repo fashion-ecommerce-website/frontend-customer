@@ -1,11 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { useGoogleAuthState } from '../hooks/useGoogleAuthState';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { googleLoginRequest, selectIsAuthenticated, selectUser, selectIsLoading, selectError } from '../features/auth/login/redux/loginSlice';
+import { useAuth } from '../hooks/useAuth';
 import { BackendUser } from '../services/api/authApi';
 
 interface GoogleAuthProps {
-  onSuccess?: (user: BackendUser) => void;
+  onSuccess?: (user: any) => void;
   onError?: (error: string) => void;
   showFullStatus?: boolean; // Hiển thị thông tin đầy đủ của user khi đã đăng nhập
   hideLoginButton?: boolean; // Ẩn button đăng nhập khi chưa đăng nhập (chỉ hiển thị text)
@@ -17,12 +19,22 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
   showFullStatus = false,
   hideLoginButton = false
 }) => {
-  const { user, isAuthenticated, loading, error, signInWithGoogle, signOut } = useGoogleAuthState();
+  const dispatch = useAppDispatch();
+  const { logout } = useAuth();
+  
+  // ✅ Sử dụng Redux state thay vì local state
+  const user = useAppSelector(selectUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const loading = useAppSelector(selectIsLoading);
+  const error = useAppSelector(selectError);
 
   const handleSignIn = async () => {
     try {
-      const backendUser = await signInWithGoogle();
-      onSuccess?.(backendUser);
+      // ✅ Dispatch Redux action thay vì gọi trực tiếp
+      dispatch(googleLoginRequest());
+      if (user) {
+        onSuccess?.(user);
+      }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Đăng nhập thất bại';
       
@@ -40,7 +52,8 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      // ✅ Sử dụng unified logout từ useAuth
+      logout();
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Đăng xuất thất bại';
       onError?.(errorMessage);
@@ -91,7 +104,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
   if (error) {
     return (
       <div className="text-red-600 text-sm">
-        Lỗi: {error}
+        Lỗi: {error.message || 'Có lỗi xảy ra'}
       </div>
     );
   }
@@ -102,10 +115,10 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
       // Hiển thị thông tin đầy đủ (dùng cho trang profile hoặc header)
       return (
         <div className="flex items-center gap-3 bg-green-50 p-3 rounded-lg border border-green-200">
-          {user.picture && (
+          {(user.picture || user.avatar) && (
             <Image 
-              src={user.picture} 
-              alt={user.name}
+              src={user.picture || user.avatar || ''} 
+              alt={user.name || user.username}
               width={32}
               height={32}
               className="rounded-full"
@@ -113,7 +126,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
           )}
           <div className="flex-1">
             <div className="text-sm font-medium text-green-800">
-              Chào {user.name}!
+              Chào {user.name || user.username}!
             </div>
             <div className="text-xs text-green-600">
               {user.email}
@@ -139,10 +152,10 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
           {loading ? (
             <div className="w-3 h-3 border-2 border-green-300 border-t-green-600 rounded-full animate-spin" />
           ) : (
-            user.picture && (
+            (user.picture || user.avatar) && (
               <Image 
-                src={user.picture} 
-                alt={user.name}
+                src={user.picture || user.avatar || ''} 
+                alt={user.name || user.username}
                 width={16}
                 height={16}
                 className="rounded-full"

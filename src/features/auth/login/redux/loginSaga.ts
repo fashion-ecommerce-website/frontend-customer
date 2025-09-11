@@ -11,6 +11,9 @@ import {
   loginRequest, 
   loginSuccess, 
   loginFailure,
+  googleLoginRequest,
+  googleLoginSuccess,
+  googleLoginFailure,
   logoutRequest,
   logoutSuccess,
   refreshTokenRequest,
@@ -27,7 +30,7 @@ interface ApiResponse<T = unknown> {
   success: boolean;
 }
 
-import { authApi } from '../../../../services/api/authApi';
+import { authApi, type BackendUser } from '../../../../services/api/authApi';
 import { profileApiService, ApiUserResponse } from '../../../../services/api/profileApi';
 import { setUser } from './loginSlice';
 
@@ -208,6 +211,44 @@ function* handleRefreshToken(action: PayloadAction<RefreshTokenRequest>) {
   }
 }
 
+// Google Login saga
+function* handleGoogleLogin() {
+  try {
+    yield put(setLoading(true));
+    
+    // Call Google authentication service
+    const backendUser: BackendUser = yield call(() => authApi.authenticateWithGoogle());
+    
+    // Get token from localStorage (authApi now saves it as 'accessToken')
+    const token = localStorage.getItem('accessToken');
+    
+    const googleResponse = {
+      user: backendUser,
+      jwtToken: token || '',
+    };
+    
+    yield put(googleLoginSuccess(googleResponse));
+    
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Google login failed';
+    
+    // Don't show error for user cancellation cases
+    const isCancelledByUser = errorMessage.includes('đóng cửa sổ') || 
+                             errorMessage.includes('bị hủy') || 
+                             errorMessage.includes('cancelled') ||
+                             errorMessage.includes('popup-closed-by-user');
+    
+    if (!isCancelledByUser) {
+      yield put(googleLoginFailure({
+        message: errorMessage,
+        status: 500
+      }));
+    }
+  } finally {
+    yield put(setLoading(false));
+  }
+}
+
 // Watch functions
 function* watchLogin() {
   yield takeEvery(loginRequest.type, handleLogin);
@@ -221,12 +262,17 @@ function* watchRefreshToken() {
   yield takeEvery(refreshTokenRequest.type, handleRefreshToken);
 }
 
+function* watchGoogleLogin() {
+  yield takeEvery(googleLoginRequest.type, handleGoogleLogin);
+}
+
 // Root login saga
 export function* loginSaga() {
   yield fork(watchLogin);
   yield fork(watchLogout);
   yield fork(watchRefreshToken);
+  yield fork(watchGoogleLogin);
 }
 
 // Export individual sagas for testing
-export { handleLogin, handleLogout, handleRefreshToken };
+export { handleLogin, handleLogout, handleRefreshToken, handleGoogleLogin };

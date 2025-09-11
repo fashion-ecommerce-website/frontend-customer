@@ -123,6 +123,8 @@ export const useAuth = () => {
 
   const logout = () => {
     dispatch({ type: 'login/logoutRequest' });
+    
+    // Clear all auth-related storage
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
   };

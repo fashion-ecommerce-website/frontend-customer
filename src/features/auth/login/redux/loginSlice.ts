@@ -77,6 +77,47 @@ const loginSlice = createSlice({
       state.isAuthenticated = false;
     },
     
+    // Google Login Actions
+    googleLoginRequest: (state) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    
+    googleLoginSuccess: (state, action: PayloadAction<{user: any; jwtToken: string}>) => {
+      state.isLoading = false;
+      
+      // Create user object from Google response with all needed fields
+      const user = {
+        id: action.payload.user.id,
+        username: action.payload.user.name || action.payload.user.email.split('@')[0],
+        email: action.payload.user.email,
+        firstName: action.payload.user.name?.split(' ')[0] || '',
+        lastName: action.payload.user.name?.split(' ').slice(1).join(' ') || '',
+        role: 'USER' as const,
+        enabled: true,
+        createdAt: action.payload.user.createdAt,
+        updatedAt: action.payload.user.updatedAt,
+        // Google-specific fields
+        name: action.payload.user.name,
+        picture: action.payload.user.picture,
+        provider: 'GOOGLE' as const,
+      };
+      
+      state.user = user;
+      state.accessToken = action.payload.jwtToken;
+      state.isAuthenticated = true;
+      state.error = null;
+      state.lastLoginAt = new Date().toISOString();
+    },
+    
+    googleLoginFailure: (state, action: PayloadAction<ApiError>) => {
+      state.isLoading = false;
+      state.error = action.payload;
+      state.user = null;
+      state.accessToken = null;
+      state.isAuthenticated = false;
+    },
+    
     // Logout Actions
     logoutRequest: (state) => {
       state.isLoading = true;
@@ -189,6 +230,9 @@ export const {
   loginRequest,
   loginSuccess,
   loginFailure,
+  googleLoginRequest,
+  googleLoginSuccess,
+  googleLoginFailure,
   logoutRequest,
   logoutSuccess,
   setLoading,

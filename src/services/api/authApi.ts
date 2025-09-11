@@ -212,9 +212,9 @@ export class AuthApiService {
         picture: firebaseUser.photoURL,
       });
       
-      // Step 3: Save tokens
+      // Step 3: Save tokens with standardized keys
       if (backendResponse.jwtToken) {
-        localStorage.setItem('token', backendResponse.jwtToken);
+        localStorage.setItem('accessToken', backendResponse.jwtToken);
         localStorage.setItem('user', JSON.stringify(backendResponse.user));
       }
       
