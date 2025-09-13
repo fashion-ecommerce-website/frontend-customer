@@ -154,4 +154,24 @@ export interface ProfilePresenterProps {
   onClearSuccess: () => void;
 }
 
-// ProfileCallStateProps removed - component no longer needed
+// ProfileCallState Props (render props pattern)
+export interface ProfileCallStateProps {
+  children: (props: {
+    user: User | null;
+    isLoading: boolean;
+    isUpdating: boolean;
+    isChangingPassword: boolean;
+    error: ApiError | null;
+    updateError: ApiError | null;
+    passwordError: ApiError | null;
+    updateSuccess: boolean;
+    passwordChangeSuccess: boolean;
+    getProfile: () => void;
+    updateProfile: (data: UpdateProfileRequest) => void;
+    changePassword: (data: ChangePasswordRequest) => void;
+    clearError: () => void;
+    clearUpdateError: () => void;
+    clearPasswordError: () => void;
+    clearSuccess: () => void;
+  }) => React.ReactNode;
+}

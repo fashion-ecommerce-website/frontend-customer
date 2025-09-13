@@ -11,6 +11,9 @@ import {
   loginRequest, 
   loginSuccess, 
   loginFailure,
+  googleLoginRequest,
+  googleLoginSuccess,
+  googleLoginFailure,
   logoutRequest,
   logoutSuccess,
   refreshTokenRequest,
@@ -18,7 +21,7 @@ import {
   refreshTokenFailure,
   setLoading 
 } from './loginSlice';
-import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse } from '../types/login.types';
+import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, User } from '../types/login.types';
 
 // API Response interface
 interface ApiResponse<T = unknown> {
@@ -27,7 +30,7 @@ interface ApiResponse<T = unknown> {
   success: boolean;
 }
 
-import { authApi } from '../../../../services/api/authApi';
+import { authApi, type BackendUser } from '../../../../services/api/authApi';
 import { profileApiService, ApiUserResponse } from '../../../../services/api/profileApi';
 import { setUser } from './loginSlice';
 
@@ -70,6 +73,38 @@ function convertApiUserToUser(apiUser: ApiUserResponse) {
     phoneVerified: apiUser.phoneVerified,
     roles: apiUser.roles,
     active: apiUser.active,
+  };
+}
+
+// Helper function to convert BackendUser to User for Google login
+function convertBackendUserToUser(backendUser: BackendUser): User {
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    username: backendUser.email, // Use email as username since backend doesn't provide username
+    firstName: '', // Backend only provides 'name', no firstName/lastName split
+    lastName: '',
+    phone: undefined, // BackendUser doesn't include phone
+    avatar: backendUser.picture,
+    role: 'USER' as const,
+    enabled: true, // Assume enabled for Google users
+    createdAt: backendUser.createdAt,
+    updatedAt: backendUser.updatedAt,
+    // Google-specific fields
+    name: backendUser.name,
+    picture: backendUser.picture,
+    provider: backendUser.provider as 'EMAIL' | 'GOOGLE',
+    // Default values for missing fields
+    dob: undefined,
+    gender: undefined,
+    avatarUrl: backendUser.picture,
+    reason: null,
+    lastLoginAt: undefined,
+    emailVerified: true, // Assume Google users have verified emails
+    phoneVerified: false,
+    roles: ['USER'],
+    active: true,
+    isEmailVerified: true,
   };
 }
 
@@ -208,6 +243,50 @@ function* handleRefreshToken(action: PayloadAction<RefreshTokenRequest>) {
   }
 }
 
+// Google Login saga
+function* handleGoogleLogin() {
+  try {
+    yield put(setLoading(true));
+    
+    // Call Google authentication service
+    const backendUser: BackendUser = yield call(() => authApi.authenticateWithGoogle());
+    
+    // Convert BackendUser to User format
+    const convertedUser = convertBackendUserToUser(backendUser);
+    
+    // Get token from localStorage (authApi now saves it as 'accessToken')
+    const token = localStorage.getItem('accessToken');
+    
+    // Update localStorage with converted user data for consistency
+    localStorage.setItem('user', JSON.stringify(convertedUser));
+    
+    const googleResponse = {
+      user: convertedUser, // Use converted user instead of backendUser
+      jwtToken: token || '',
+    };
+    
+    yield put(googleLoginSuccess(googleResponse));
+    
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Google login failed';
+    
+    // Don't show error for user cancellation cases
+    const isCancelledByUser = errorMessage.includes('đóng cửa sổ') || 
+                             errorMessage.includes('bị hủy') || 
+                             errorMessage.includes('cancelled') ||
+                             errorMessage.includes('popup-closed-by-user');
+    
+    if (!isCancelledByUser) {
+      yield put(googleLoginFailure({
+        message: errorMessage,
+        status: 500
+      }));
+    }
+  } finally {
+    yield put(setLoading(false));
+  }
+}
+
 // Watch functions
 function* watchLogin() {
   yield takeEvery(loginRequest.type, handleLogin);
@@ -221,12 +300,17 @@ function* watchRefreshToken() {
   yield takeEvery(refreshTokenRequest.type, handleRefreshToken);
 }
 
+function* watchGoogleLogin() {
+  yield takeEvery(googleLoginRequest.type, handleGoogleLogin);
+}
+
 // Root login saga
 export function* loginSaga() {
   yield fork(watchLogin);
   yield fork(watchLogout);
   yield fork(watchRefreshToken);
+  yield fork(watchGoogleLogin);
 }
 
 // Export individual sagas for testing
-export { handleLogin, handleLogout, handleRefreshToken };
+export { handleLogin, handleLogout, handleRefreshToken, handleGoogleLogin };

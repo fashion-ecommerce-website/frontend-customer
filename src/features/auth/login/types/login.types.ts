@@ -27,6 +27,10 @@ export interface User {
   roles?: string[];
   active?: boolean;
   isEmailVerified?: boolean;
+  // Google-specific fields
+  name?: string; // For Google display name
+  picture?: string; // For Google profile picture
+  provider?: 'EMAIL' | 'GOOGLE'; // Authentication provider
 }
 
 export interface ApiError {
