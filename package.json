@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.8",
     "@reduxjs/toolkit": "^2.8.2",
     "clsx": "^2.1.1",
     "firebase": "^12.2.1",

@@ -48,17 +48,9 @@ export interface RegisterContainerProps {
 }
 
 export interface RegisterPresenterProps {
-  user: User | null;
-  isAuthenticated: boolean;
   isLoading: boolean;
-  error: ApiError | null;
   formData: RegisterFormData;
-  isRegistered?: boolean;
-  registrationMessage?: string | null;
-  redirectTo?: string;
   onFormDataChange: (data: Partial<RegisterFormData>) => void;
   onSubmit: (data: RegisterFormData) => void;
-  onClearError: () => void;
-  onResetRegistration?: () => void;
 }
 

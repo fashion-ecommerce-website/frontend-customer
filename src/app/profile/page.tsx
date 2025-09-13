@@ -1,8 +1,3 @@
-/**
- * Profile Page
- * User profile management page with authentication guard
- */
-
 'use client';
 
 import { ProfileContainer } from '@/features/profile';

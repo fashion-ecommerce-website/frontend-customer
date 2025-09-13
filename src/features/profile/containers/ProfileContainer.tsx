@@ -26,7 +26,6 @@ import {
   selectPasswordChangeSuccess,
 } from '../redux/profileSlice';
 import { selectUser } from '../../auth/login/redux/loginSlice';
-import { User } from '../../auth/login/types/login.types';
 import { 
   ProfileContainerProps, 
   ProfileFormData, 
@@ -254,7 +253,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
       onClearError={handleClearError}
       onClearUpdateError={handleClearUpdateError}
       onClearPasswordError={handleClearPasswordError}
-      onClearSuccess={handleClearSuccess}
+      onClearSuccess={() => {}} // Empty function as it's not needed anymore
     />
   );
 };

@@ -127,7 +127,7 @@ function* updateProfileSaga(action: PayloadAction<UpdateProfileRequest>): Genera
       const user = convertApiUserToLoginUser(response.data);
       // Update user in auth store instead of profile store
       yield put(updateUserProfile(user));
-      yield put(updateProfileSuccess()); // Only update loading state
+      yield put(updateProfileSuccess()); // Reset loading state only
     } else {
       yield put(updateProfileFailure({
         message: response.message || 'Failed to update profile',

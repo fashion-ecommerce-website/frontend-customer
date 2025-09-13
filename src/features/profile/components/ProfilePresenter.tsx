@@ -11,7 +11,6 @@ import { useFormValidation } from '../hooks/useValidation';
 import { 
   PageLoadingSpinner, 
   ErrorMessage, 
-  SuccessMessage, 
   Breadcrumb 
 } from '../../../components';
 import { ProfileSidebar } from './ProfileSidebar';
@@ -46,7 +45,6 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     validationErrors,
     clearAllErrors,
     validateAndSetErrors,
-    handleInputChange,
   } = useFormValidation();
 
   // Close update info modal on successful update
@@ -130,7 +128,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   // No user data
   if (!user) {
     return (
-      <div className="min-h-screen bg-white py-8">
+      <div className="px-35 py-15 bg-white">
         <div className="flex items-center justify-center p-8">
           <p>No profile data available</p>
         </div>
@@ -140,15 +138,17 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
 
   return (
     <div className="min-h-screen bg-white py-8">
-      <div className="max-w-6xl mx-auto px-4 flex gap-8 flex-col lg:flex-row">
+      <div className="max-w-7xl mx-auto px-4 flex gap-8 flex-col lg:flex-row">
         {/* Sidebar */}
-        <ProfileSidebar 
-          activeSection={activeSidebarSection}
-          onSectionChange={handleSidebarSectionChange}
-        />
+        <div className="w-full lg:w-64 lg:flex-shrink-0">
+          <ProfileSidebar 
+            activeSection={activeSidebarSection}
+            onSectionChange={handleSidebarSectionChange}
+          />
+        </div>
 
         {/* Main Content */}
-        <main className="bg-white overflow-hidden">
+        <main className="bg-white overflow-hidden flex-1">
           {/* Breadcrumb */}
           <Breadcrumb items={breadcrumbItems} />
 
@@ -156,14 +156,6 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {error && (
             <ErrorMessage 
               message={error.message}
-              className="m-4"
-            />
-          )}
-
-          {/* Update Success Message */}
-          {updateSuccess && (
-            <SuccessMessage 
-              message="Profile updated successfully"
               className="m-4"
             />
           )}

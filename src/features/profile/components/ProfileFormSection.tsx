@@ -26,28 +26,10 @@ interface ProfileFormSectionProps {
 export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
   user,
   profileFormData,
-  isUpdating,
-  validationErrors,
-  onProfileFormDataChange,
-  onSubmit,
-  onInputFocus,
   onShowPasswordModal,
   onShowUpdateInfoModal,
   isChangingPassword,
 }) => {
-  // Handle profile input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    onProfileFormDataChange({
-      [name]: value,
-    });
-  };
-
-  // Handle profile form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(profileFormData);
-  };
 
   return (
     <main className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
@@ -64,7 +46,7 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
         {/* Change password button */}
         <div>
           <button 
-            className="bg-white text-black border border-gray-300 rounded ml-[220px] px-3 py-4 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-200 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-white text-black border border-gray-300 rounded ml-[220px] px-3 py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-200 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onShowPasswordModal}
             disabled={isChangingPassword}
           >
@@ -99,7 +81,7 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
           <button
             type="button"
             onClick={onShowUpdateInfoModal}
-            className="bg-black text-white ml-[220px] border-none rounded px-6 py-2 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-800 focus:outline-none"
+            className="bg-black text-white ml-[220px] border-none rounded px-6 py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-800 focus:outline-none"
           >
             Update information
           </button>

@@ -70,7 +70,7 @@ export interface UpdateProfileRequest {
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
+  confirmPassword?: string;
 }
 
 export interface ProfileResponse {
@@ -110,7 +110,7 @@ export interface ProfileFormData {
 export interface ChangePasswordFormData {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
+  confirmPassword?: string;
 }
 
 // Component Props

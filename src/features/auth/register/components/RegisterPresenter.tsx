@@ -5,14 +5,10 @@ import Link from 'next/link';
 import { RegisterPresenterProps } from '../types/register.types';
 
 export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
-  user,
-  isAuthenticated,
   isLoading,
-  error,
   formData,
   onFormDataChange,
   onSubmit,
-  onClearError,
 }) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -81,12 +77,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
     onSubmit(formData);
   };
 
-  // Clear error when user starts typing
-  const handleInputFocus = () => {
-    if (error) {
-      onClearError();
-    }
-  };
 
   // Show register form
   return (
@@ -104,33 +94,9 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           </p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <div className="text-red-500 flex-shrink-0">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-red-800 mb-1">Registration Failed</div>
-                <p className="text-red-700 text-sm">{error.message}</p>
-              </div>
-              <button
-                type="button"
-                onClick={onClearError}
-                className="text-red-500 hover:text-red-700 p-0 bg-none border-none cursor-pointer flex items-center justify-center rounded"
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-[430px]">
-          <div className="flex flex-col">
+    <div className="flex flex-col">
             <label
               htmlFor="email"
               className="font-medium text-black mb-2 text-sm tracking-wider"
@@ -143,7 +109,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
               placeholder="Email"
               required
               disabled={isLoading}
@@ -171,7 +136,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
               placeholder="Phone Number"
               required
               disabled={isLoading}
@@ -199,7 +163,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="username"
               value={formData.username}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
               placeholder="Username"
               required
               disabled={isLoading}
@@ -227,7 +190,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
               placeholder="Password"
               required
               disabled={isLoading}
@@ -255,7 +217,6 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              onFocus={handleInputFocus}
               placeholder="Confirm Password"
               required
               disabled={isLoading}
