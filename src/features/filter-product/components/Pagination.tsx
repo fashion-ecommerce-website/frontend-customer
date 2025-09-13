@@ -41,26 +41,28 @@ export const Pagination: React.FC<PaginationProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-center space-x-1 mt-8">
-      {/* Previous button */}
+    <div className="flex items-center justify-center space-x-2 mt-8">
+      {/* Previous button (circular with '<') */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!hasPrevious}
-        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+        aria-label="Previous page"
+        className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-colors ${
           hasPrevious
             ? 'text-black bg-white border border-gray-300 hover:bg-gray-50'
-            : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
+            : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed opacity-60'
         }`}
       >
-        Previous
+        &lt;
       </button>
 
-      {/* Page numbers */}
+      {/* Page numbers (circular) */}
       {generatePageNumbers().map(pageNum => (
         <button
           key={pageNum}
           onClick={() => onPageChange(pageNum)}
-          className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+          aria-label={`Go to page ${pageNum}`}
+          className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-colors ${
             pageNum === currentPage
               ? 'text-white bg-black border border-black'
               : 'text-black bg-white border border-gray-300 hover:bg-gray-50'
@@ -70,17 +72,18 @@ export const Pagination: React.FC<PaginationProps> = ({
         </button>
       ))}
 
-      {/* Next button */}
+      {/* Next button (circular with '>') */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!hasNext}
-        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+        aria-label="Next page"
+        className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-colors ${
           hasNext
             ? 'text-black bg-white border border-gray-300 hover:bg-gray-50'
-            : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
+            : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed opacity-60'
         }`}
       >
-        Next
+        &gt;
       </button>
     </div>
   );

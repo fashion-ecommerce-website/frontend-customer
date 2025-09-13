@@ -310,6 +310,13 @@ export class AuthApiService {
   async getInfo(): Promise<ApiResponse<{ version: string; name: string }>> {
     return apiClient.get<{ version: string; name: string }>(PUBLIC_ENDPOINTS.INFO);
   }
+
+  /**
+   * Verify OTP code
+   */
+  async verifyOtp(request: { email: string; otpCode: string }): Promise<ApiResponse<null>> {
+    return apiClient.post<null>(AUTH_ENDPOINTS.VERIFY_OTP, request);
+  }
 }
 
 // Export singleton instance
@@ -325,6 +332,7 @@ export const authApi = {
   // Traditional Authentication
   login: (credentials: LoginRequest) => authApiService.login(credentials),
   register: (userData: RegisterRequest) => authApiService.register(userData),
+  verifyOtp: (request: { email: string; otpCode: string }) => authApiService.verifyOtp(request),
   refreshToken: (refreshTokenData: RefreshTokenRequest) => authApiService.refreshToken(refreshTokenData),
   getCurrentUser: () => authApiService.getCurrentUser(),
   

@@ -24,7 +24,7 @@ const PROFILE_ENDPOINTS = {
   GET_PROFILE: '/users',
   UPDATE_PROFILE: '/users',
   UPLOAD_AVATAR: '/profile/avatar',
-  CHANGE_PASSWORD: '/profile/change-password',
+  CHANGE_PASSWORD: '/auth/change-password',
 } as const;
 
 // Update profile request interface (for backward compatibility)
@@ -54,7 +54,8 @@ export interface UpdateProfileRequest {
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
+  // confirmPassword is optional on the API side; UI may include it for validation
+  confirmPassword?: string;
 }
 
 // Profile API service
@@ -113,7 +114,13 @@ export class ProfileApiService {
    * Change user password
    */
   async changePassword(data: ChangePasswordRequest): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(PROFILE_ENDPOINTS.CHANGE_PASSWORD, data);
+    // Only send the fields expected by the auth/change-password endpoint
+    const payload = {
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    };
+
+    return apiClient.post<void>(PROFILE_ENDPOINTS.CHANGE_PASSWORD, payload);
   }
 }
 

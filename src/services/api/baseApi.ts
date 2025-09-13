@@ -198,20 +198,36 @@ class BaseApi {
         }
       }
 
-      const data = await response.json();
+      // Check if response has content before parsing JSON
+      let data: any = null;
+      const contentType = response.headers.get('content-type');
+      const contentLength = response.headers.get('content-length');
+      
+      // Only parse JSON if there's content
+      if (contentLength !== '0' && contentType && contentType.includes('application/json')) {
+        try {
+          const text = await response.text();
+          if (text.trim()) {
+            data = JSON.parse(text);
+          }
+        } catch (parseError) {
+          // If JSON parsing fails, it's not a JSON response
+          data = null;
+        }
+      }
 
       if (!response.ok) {
         return {
           success: false,
           data: null,
-          message: data.message || `HTTP Error: ${response.status}`,
+          message: data?.message || `HTTP Error: ${response.status}`,
         };
       }
 
       return {
         success: true,
         data: data,
-        message: data.message,
+        message: data?.message,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Network error occurred';

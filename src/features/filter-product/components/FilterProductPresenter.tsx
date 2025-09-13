@@ -120,7 +120,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="w-full bg-gray-50 px-16 py-8">
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-black px-4 py-3 relative mb-6 rounded-lg">
@@ -156,19 +156,9 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
           {isLoading && (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
           )}
-          {!isLoading && (
-            <>
-              Showing {products.length > 0 ? ((pagination.page - 1) * pagination.pageSize + 1) : 0} - {Math.min(pagination.page * pagination.pageSize, pagination.totalItems)} 
-              {' '}of {pagination.totalItems} products
-            </>
-          )}
           {isLoading && (
             <span>Loading...</span>
           )}
-        </div>
-        
-        <div className="text-sm text-black">
-          Page {pagination.page} / {pagination.totalPages}
         </div>
       </div>
 

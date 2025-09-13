@@ -39,30 +39,38 @@ export const ProductList: React.FC<ProductListProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {products.map((product) => (
+      {products.map((product) => {
+        const firstImage = product.imageUrls?.[0] ?? '';
+        const secondImage = product.imageUrls?.[1] ?? null;
+
+        return (
         <div
           key={product.detailId}
-          className="group cursor-pointer transition-transform duration-200 hover:scale-105"
+          className="group cursor-pointer"
           onClick={() => onProductClick(product.productSlug)}
         >
           {/* Product Image */}
           <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
-            <div
-              className="w-full h-full transition-transform duration-300 group-hover:scale-110"
-              style={{
-                backgroundImage: `url(${product.imageUrls[0]})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
-            />
-            
-            {/* Color indicator */}
-            <div className="absolute bottom-2 left-2">
-              <span className="bg-white/90 text-xs font-medium px-2 py-1 rounded">
-                {product.colorName}
-              </span>
-            </div>
+            {firstImage ? (
+              <>
+                {/* base image */}
+                <div
+                  className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat"
+                  style={{ backgroundImage: `url(${firstImage})` }}
+                />
+
+                {/* hover: show next image with fade only */}
+                {secondImage && (
+                  <div
+                    className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat opacity-0 transition-opacity duration-300 ease-linear group-hover:opacity-100"
+                    style={{ backgroundImage: `url(${secondImage})` }}
+                  />
+                )}
+              </>
+            ) : (
+              <div className="w-full h-full bg-gray-200" />
+            )}
+
           </div>
 
           {/* Product Info */}
@@ -75,21 +83,11 @@ export const ProductList: React.FC<ProductListProps> = ({
               <p className="text-lg font-semibold text-black">
                 {formatPrice(product.price)}
               </p>
-              
-              {product.quantity > 0 ? (
-                <span className="text-xs text-black font-medium">
-                  {product.quantity} items left
-                </span>
-              ) : (
-                <span className="text-xs text-black font-medium">
-                  Out of stock
-                </span>
-              )}
             </div>
 
             {/* Available colors */}
             <div className="flex items-center gap-1">
-              {product.colors.slice(0, 3).map((color, index) => (
+              {product.colors.map((color, index) => (
                 <div
                   key={index}
                   className={`w-4 h-4 rounded-full border border-gray-300 ${
@@ -105,15 +103,11 @@ export const ProductList: React.FC<ProductListProps> = ({
                   title={color}
                 />
               ))}
-              {product.colors.length > 3 && (
-                <span className="text-xs text-black">
-                  +{product.colors.length - 3}
-                </span>
-              )}
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

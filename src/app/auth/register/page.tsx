@@ -8,13 +8,10 @@ export default function RegisterPage() {
 
   return (
     <RegisterContainer
-      redirectTo="/auth/login"
       onRegisterSuccess={(user) => {
         console.log('Registration successful:', user);
-        // Redirect to login page after 2 seconds to show success message
-        setTimeout(() => {
-          router.push('/auth/login');
-        }, 2000);
+        // Redirect to OTP verification page with email query
+        router.push(`/auth/verify-otp?email=${encodeURIComponent(user.email)}`);
       }}
       onRegisterError={(error) => {
         console.error('Registration error:', error);

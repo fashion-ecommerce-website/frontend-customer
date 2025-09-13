@@ -8,10 +8,10 @@
 import React, { useState, useCallback } from 'react';
 import { RegisterPresenter } from '../components/RegisterPresenter';
 import { authApi } from '@/services/api/authApi';
+import { useToast } from '@/providers/ToastProvider';
 import { 
   RegisterContainerProps, 
-  RegisterFormData,
-  ApiError 
+  RegisterFormData
 } from '../types/register.types';
 
 export const RegisterContainer: React.FC<RegisterContainerProps> = ({
@@ -21,9 +21,7 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
 }) => {
   // Simple local state
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [registrationMessage, setRegistrationMessage] = useState<string | null>(null);
+  const { showSuccess, showError } = useToast();
 
   // Local form state
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -46,7 +44,7 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
   const handleSubmit = useCallback(async (formData: RegisterFormData) => {
     try {
       setIsLoading(true);
-      setError(null);
+  // clear previous toasts
 
       const response = await authApi.register({
         email: formData.email,
@@ -56,12 +54,8 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
       });
 
       if (response.success) {
-        // Just show success message
-        setIsRegistered(true);
-        setRegistrationMessage('Registration successful! Please login to continue.');
-        
+        showSuccess('Registration successful! Please check your email for OTP.');
         if (onRegisterSuccess) {
-          // Minimal user object for callback compatibility
           const tempUser = {
             id: '',
             username: formData.username,
@@ -77,14 +71,14 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
         }
       } else {
         const errorMessage = response.message || 'Registration failed';
-        setError({ message: errorMessage });
+        showError(errorMessage);
         if (onRegisterError) {
           onRegisterError({ message: errorMessage });
         }
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
-      setError({ message: errorMessage });
+      showError(errorMessage);
       if (onRegisterError) {
         onRegisterError({ message: errorMessage });
       }
@@ -94,31 +88,14 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
   }, [onRegisterSuccess, onRegisterError, formData.username, formData.email]);
 
   // Handle clear error
-  const handleClearError = () => {
-    setError(null);
-  };
-
-  // Handle reset registration state
-  const handleResetRegistration = () => {
-    setIsRegistered(false);
-    setRegistrationMessage(null);
-    setError(null);
-  };
+  // no internal error state, errors shown via toast
 
   return (
     <RegisterPresenter
-      user={null}
-      isAuthenticated={false}
       isLoading={isLoading}
-      error={error}
       formData={formData}
-      isRegistered={isRegistered}
-      registrationMessage={registrationMessage}
-      redirectTo={redirectTo}
       onFormDataChange={handleFormDataChange}
       onSubmit={handleSubmit}
-      onClearError={handleClearError}
-      onResetRegistration={handleResetRegistration}
     />
   );
 };
