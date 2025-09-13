@@ -90,14 +90,15 @@ export const ProductList: React.FC<ProductListProps> = ({
               {product.colors.map((color, index) => (
                 <div
                   key={index}
-                  className={`w-4 h-4 rounded-full border border-gray-300 ${
+                  className={`w-4 h-4 rounded-full ${
                     color === 'black' ? 'bg-black' :
-                    color === 'white' ? 'bg-white' :
+                    color === 'white' ? 'bg-white border border-black' :
                     color === 'red' ? 'bg-red-500' :
                     color === 'blue' || color === 'dark blue' ? 'bg-blue-500' :
                     color === 'mint' ? 'bg-green-300' :
                     color === 'brown' ? 'bg-amber-700' :
                     color === 'yellow' ? 'bg-yellow-400' :
+                    color === 'pink' ? 'bg-pink-400' :
                     'bg-gray-400'
                   }`}
                   title={color}

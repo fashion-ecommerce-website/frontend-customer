@@ -164,93 +164,93 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             </button>
             {expandedSections.colors && (
               <div className="pb-4">
-                <div className="grid grid-cols-9 gap-2">
+                <div className="grid grid-cols-9 gap-6">
                   <button
-                    className={`w-6 h-6 rounded-full bg-black border-2 ${
+                    className={`w-8 h-8 rounded-full bg-black ${
                       filters.colors?.includes('black') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Black"
                     onClick={() => handleMultiSelectChange('colors', 'black')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-white border-2 ${
+                    className={`w-8 h-8 rounded-full bg-white border-2 ${
                       filters.colors?.includes('white') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="White"
                     onClick={() => handleMultiSelectChange('colors', 'white')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-red-500 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-red-500 ${
                       filters.colors?.includes('red') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Red"
                     onClick={() => handleMultiSelectChange('colors', 'red')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-gray-500 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-gray-500 ${
                       filters.colors?.includes('gray') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Gray"
                     onClick={() => handleMultiSelectChange('colors', 'gray')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-blue-600 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-blue-600 ${
                       filters.colors?.includes('blue') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Blue"
                     onClick={() => handleMultiSelectChange('colors', 'blue')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-pink-400 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-pink-400 ${
                       filters.colors?.includes('pink') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Pink"
                     onClick={() => handleMultiSelectChange('colors', 'pink')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-yellow-400 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-yellow-400 ${
                       filters.colors?.includes('yellow') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Yellow"
                     onClick={() => handleMultiSelectChange('colors', 'yellow')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-purple-600 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-purple-600 ${
                       filters.colors?.includes('purple') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Purple"
                     onClick={() => handleMultiSelectChange('colors', 'purple')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-amber-800 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-amber-800 ${
                       filters.colors?.includes('brown') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Brown"
                     onClick={() => handleMultiSelectChange('colors', 'brown')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-green-500 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-green-500 ${
                       filters.colors?.includes('green') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Green"
                     onClick={() => handleMultiSelectChange('colors', 'green')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-yellow-200 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-yellow-200 ${
                       filters.colors?.includes('beige') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Beige"
                     onClick={() => handleMultiSelectChange('colors', 'beige')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full bg-orange-500 border-2 ${
+                    className={`w-8 h-8 rounded-full bg-orange-500 ${
                       filters.colors?.includes('orange') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     title="Orange"
                     onClick={() => handleMultiSelectChange('colors', 'orange')}
                   />
                   <button
-                    className={`w-6 h-6 rounded-full border-2 bg-white ${
+                    className={`w-8 h-8 rounded-full bg-white ${
                       filters.colors?.includes('checkered') ? 'border-black ring-2 ring-gray-300' : 'border-gray-300'
                     }`}
                     style={{
@@ -260,40 +260,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     onClick={() => handleMultiSelectChange('colors', 'checkered')}
                   />
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Product Category */}
-          <div>
-            <button
-              onClick={() => toggleSection('category')}
-              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3 hover:text-gray-600"
-            >
-              <span>Product Category</span>
-              <svg 
-                className={`w-4 h-4 transition-transform ${expandedSections.category ? 'rotate-180' : ''}`}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {expandedSections.category && (
-              <div className="space-y-2">
-                {categoryOptions.map(option => (
-                  <label key={option.value} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="category"
-                      checked={filters.category === option.value}
-                      onChange={() => handleFilterChange('category', option.value)}
-                      className="border-gray-300 text-black focus:ring-black"
-                    />
-                    <span className="ml-2 text-sm text-black">{option.label}</span>
-                  </label>
-                ))}
               </div>
             )}
           </div>
@@ -398,7 +364,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         <div className="p-4 border-t">
           <button
             onClick={clearFilters}
-            className="w-full px-4 py-2 text-sm text-black border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="w-full px-4 py-2 text-sm text-white bg-black border border-gray-300 rounded-md hover:bg-white hover:text-black transition-colors"
           >
             Clear filters
           </button>
