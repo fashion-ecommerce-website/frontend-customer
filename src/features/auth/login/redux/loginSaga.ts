@@ -21,7 +21,7 @@ import {
   refreshTokenFailure,
   setLoading 
 } from './loginSlice';
-import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse } from '../types/login.types';
+import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, User } from '../types/login.types';
 
 // API Response interface
 interface ApiResponse<T = unknown> {
@@ -73,6 +73,38 @@ function convertApiUserToUser(apiUser: ApiUserResponse) {
     phoneVerified: apiUser.phoneVerified,
     roles: apiUser.roles,
     active: apiUser.active,
+  };
+}
+
+// Helper function to convert BackendUser to User for Google login
+function convertBackendUserToUser(backendUser: BackendUser): User {
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    username: backendUser.email, // Use email as username since backend doesn't provide username
+    firstName: '', // Backend only provides 'name', no firstName/lastName split
+    lastName: '',
+    phone: undefined, // BackendUser doesn't include phone
+    avatar: backendUser.picture,
+    role: 'USER' as const,
+    enabled: true, // Assume enabled for Google users
+    createdAt: backendUser.createdAt,
+    updatedAt: backendUser.updatedAt,
+    // Google-specific fields
+    name: backendUser.name,
+    picture: backendUser.picture,
+    provider: backendUser.provider as 'EMAIL' | 'GOOGLE',
+    // Default values for missing fields
+    dob: undefined,
+    gender: undefined,
+    avatarUrl: backendUser.picture,
+    reason: null,
+    lastLoginAt: undefined,
+    emailVerified: true, // Assume Google users have verified emails
+    phoneVerified: false,
+    roles: ['USER'],
+    active: true,
+    isEmailVerified: true,
   };
 }
 
@@ -219,11 +251,17 @@ function* handleGoogleLogin() {
     // Call Google authentication service
     const backendUser: BackendUser = yield call(() => authApi.authenticateWithGoogle());
     
+    // Convert BackendUser to User format
+    const convertedUser = convertBackendUserToUser(backendUser);
+    
     // Get token from localStorage (authApi now saves it as 'accessToken')
     const token = localStorage.getItem('accessToken');
     
+    // Update localStorage with converted user data for consistency
+    localStorage.setItem('user', JSON.stringify(convertedUser));
+    
     const googleResponse = {
-      user: backendUser,
+      user: convertedUser, // Use converted user instead of backendUser
       jwtToken: token || '',
     };
     

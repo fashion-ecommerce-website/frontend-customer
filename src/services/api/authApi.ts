@@ -180,7 +180,7 @@ export class AuthApiService {
    * Google Login - Send Firebase token to backend
    */
   async googleLogin(request: GoogleLoginRequest): Promise<GoogleAuthResponse> {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google/login`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google-login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -204,6 +204,16 @@ export class AuthApiService {
       // Step 1: Firebase authentication
       const firebaseUser = await googleAuth.signInWithGoogle();
       
+      // ✅ Firebase authentication successful - show full token for testing
+      console.log('✅ Firebase authentication successful:');
+      console.log('🔑 Full ID Token:', firebaseUser.idToken);
+      console.log('📤 Sending to backend API with data:', {
+        idToken: firebaseUser.idToken,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName,
+        picture: firebaseUser.photoURL,
+      });
+      
       // Step 2: Send to backend
       const backendResponse = await this.googleLogin({
         idToken: firebaseUser.idToken,
@@ -212,12 +222,17 @@ export class AuthApiService {
         picture: firebaseUser.photoURL,
       });
       
+      // ✅ Backend response received
+      console.log('✅ Backend authentication successful:', backendResponse);
+      
       // Step 3: Save tokens with standardized keys
       if (backendResponse.jwtToken) {
         localStorage.setItem('accessToken', backendResponse.jwtToken);
         localStorage.setItem('user', JSON.stringify(backendResponse.user));
+        console.log('💾 Token and user data saved to localStorage');
       }
       
+      console.log('✅ Google authentication flow completed successfully');
       return backendResponse.user;
       
     } catch (error: unknown) {

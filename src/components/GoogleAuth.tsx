@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { googleLoginRequest, selectIsAuthenticated, selectUser, selectIsLoading, selectError } from '../features/auth/login/redux/loginSlice';
 import { useAuth } from '../hooks/useAuth';
-import { BackendUser } from '../services/api/authApi';
 
 interface GoogleAuthProps {
   onSuccess?: (user: any) => void;
@@ -97,14 +96,6 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
             }}
           ></div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-600 text-sm">
-        Lỗi: {error.message || 'Có lỗi xảy ra'}
       </div>
     );
   }
@@ -230,7 +221,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
         </svg>
       )}
       <span className="text-gray-700 font-medium">
-        {loading ? '' : 'Tiếp tục với Google'}
+        {loading ? '' : 'Login with Google'}
       </span>
     </button>
   );
