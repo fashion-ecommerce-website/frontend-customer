@@ -7,6 +7,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProfilePresenterProps } from '../types/profile.types';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 import { useFormValidation } from '../hooks/useValidation';
 import { 
   PageLoadingSpinner, 
@@ -17,6 +19,7 @@ import { ProfileSidebar } from './ProfileSidebar';
 import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
 import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
+import { RecentlyViewed } from './RecentlyViewed';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   user,
@@ -40,6 +43,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
   const [activeSidebarSection, setActiveSidebarSection] = useState('purchase-info');
+  const router = useRouter();
+  const { logout } = useAuth();
   
   const {
     validationErrors,
@@ -109,15 +114,31 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
 
   // Handle sidebar section change
   const handleSidebarSectionChange = (section: string) => {
+    if (section === 'logout') {
+      logout();
+      router.push('/auth/login');
+      return;
+    }
     setActiveSidebarSection(section);
     // Here you can add logic to show different content based on section
   };
 
-  // Breadcrumb items
+  // Breadcrumb items with dynamic section label
+  const getSectionLabel = (section: string) => {
+    switch (section) {
+      case 'recently-viewed':
+        return 'RECENTLY VIEWED';
+      case 'my-info':
+        return 'MY INFORMATION';
+      // Add other cases as needed
+      default:
+        return 'MY INFORMATION';
+    }
+  };
   const breadcrumbItems = [
     { label: 'HOME', href: '/' },
     { label: 'ACCOUNT', href: '/account' },
-    { label: 'INFORMATION', isActive: true }
+    { label: getSectionLabel(activeSidebarSection), isActive: true }
   ];
 
   // Loading state
@@ -168,18 +189,25 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             />
           )}
 
-          <ProfileFormSection
-            user={user}
-            profileFormData={profileFormData}
-            isUpdating={isUpdating}
-            validationErrors={validationErrors}
-            onProfileFormDataChange={onProfileFormDataChange}
-            onSubmit={handleProfileSubmit}
-            onInputFocus={handleInputFocus}
-            onShowPasswordModal={handlePasswordModalOpen}
-            onShowUpdateInfoModal={handleUpdateInfoModalOpen}
-            isChangingPassword={isChangingPassword}
-          />
+          {/* Render content based on active section */}
+          {activeSidebarSection === 'recently-viewed' && (
+            <RecentlyViewed />
+          )}
+          {activeSidebarSection === 'my-info' && (
+            <ProfileFormSection
+              user={user}
+              profileFormData={profileFormData}
+              isUpdating={isUpdating}
+              validationErrors={validationErrors}
+              onProfileFormDataChange={onProfileFormDataChange}
+              onSubmit={handleProfileSubmit}
+              onInputFocus={handleInputFocus}
+              onShowPasswordModal={handlePasswordModalOpen}
+              onShowUpdateInfoModal={handleUpdateInfoModalOpen}
+              isChangingPassword={isChangingPassword}
+            />
+          )}
+          {/* TODO: add other sections (membership-info, order-info, etc) */}
         </main>
       </div>
 
