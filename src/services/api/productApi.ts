@@ -13,6 +13,25 @@ export interface ProductItem {
   imageUrls: string[];
 }
 
+// Product detail interface - for individual product page
+export interface ProductDetail {
+  id: number;
+  productTitle: string;
+  productSlug: string;
+  price: number;
+  originalPrice?: number;
+  colors: string[];
+  sizes: string[];
+  imageUrls: string[];
+  description?: string;
+  features?: string[];
+  specifications?: string[];
+  category: string;
+  isInStock: boolean;
+  quantity: number;
+  styleCode?: string;
+}
+
 // Paginated products response interface
 export interface PaginatedProductsResponse {
   items: ProductItem[];
@@ -40,10 +59,20 @@ export interface ProductsRequest {
 // Product API endpoints
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
+  GET_PRODUCT_BY_ID: '/products',
 } as const;
 
 // Product API service
 export class ProductApiService {
+  /**
+   * Get product by ID
+   * URL example: /products/123
+   */
+  async getProductById(id: string): Promise<ApiResponse<ProductDetail>> {
+    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_ID}/${id}`;
+    return apiClient.get<ProductDetail>(url);
+  }
+
   /**
    * Get paginated products with filters
    * URL example: /products?category=ao-thun&page=0&pageSize=12&sort=productTitle_asc
@@ -110,4 +139,5 @@ export const productApiService = new ProductApiService();
 // Export API functions for saga factories
 export const productApi = {
   getProducts: (params?: ProductsRequest) => productApiService.getProducts(params),
+  getProductById: (id: string) => productApiService.getProductById(id),
 };
