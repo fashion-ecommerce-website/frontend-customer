@@ -21,8 +21,10 @@ import { PasswordChangeModal } from './PasswordChangeModal';
 import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
 import { AccountOverview } from './AccountOverview';
+import { AddressContainer } from '../containers/AddressContainer';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
+  initialSection = 'account',
   user,
   isLoading,
   isUpdating,
@@ -43,8 +45,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
-  // Default to account overview
-  const [activeSidebarSection, setActiveSidebarSection] = useState('account');
+  // Default to account overview or use initialSection
+  const [activeSidebarSection, setActiveSidebarSection] = useState(initialSection);
   const router = useRouter();
   const { logout } = useAuth();
   
@@ -134,6 +136,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'RECENTLY VIEWED';
       case 'my-info':
         return 'MY INFO';
+      case 'shipping-address':
+        return 'ADDRESSES';
       // Add other cases as needed
       default:
         return '';
@@ -203,6 +207,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             <AccountOverview user={user} />
           )}
           {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
+          {activeSidebarSection === 'shipping-address' && (
+            <AddressContainer />
+          )}
           {activeSidebarSection === 'my-info' && (
             <ProfileFormSection
               user={user}

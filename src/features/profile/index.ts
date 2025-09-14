@@ -5,6 +5,8 @@ export { ProfileSidebar } from './components/ProfileSidebar';
 export { ProfileFormSection } from './components/ProfileFormSection';
 export { PasswordChangeModal } from './components/PasswordChangeModal';
 export { UpdateInfoModal } from './components/UpdateInfoModal';
+export { AddressSection } from './components/AddressSection';
+export { AddressModal } from './components/AddressModal';
 
 export { useFormValidation, useProfileValidation, usePasswordValidation } from './hooks/useValidation';
 
