@@ -54,14 +54,14 @@ export const useRecentlyViewed = () => {
     }
   }, []);
 
-  const deleteItems = useCallback(async (slugs: string[]) => {
+  const deleteItems = useCallback(async (slugs: number[]) => {
     setLoading(true);
     try {
-      const res = await recentlyViewedApiService.deleteItems(slugs);
+      const res = await recentlyViewedApiService.removeItems(slugs);
       if (res.success) {
-        setItems(prev => prev.filter(item => !slugs.includes(item.productSlug)));
+        setItems(prev => prev.filter(item => !slugs.includes(item.detailId)));
       } else {
-        throw new Error(res.message || 'Error deleting items');
+        throw new Error(res.message || 'Error removing items');
       }
     } catch (err: any) {
       setError(err.message);

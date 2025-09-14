@@ -282,9 +282,14 @@ class BaseApi {
 
   async delete<T>(
     endpoint: string,
+    body?: Record<string, unknown> | unknown,
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, { method: 'DELETE', headers });
+    return this.makeRequest<T>(endpoint, {
+      method: 'DELETE',
+      body: body ? JSON.stringify(body) : undefined,
+      headers,
+    });
   }
 }
 

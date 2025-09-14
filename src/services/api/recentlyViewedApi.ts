@@ -5,7 +5,7 @@ import { RecentlyViewedItem } from '@/hooks/useRecentlyViewed';
 const RECENTLY_ENDPOINTS = {
   GET: '/users/recently',
   CLEAR: '/users/recently/clear',
-  DELETE: '/users/recently/delete',
+  REMOVE: '/users/recently/remove',
 } as const;
 
 class RecentlyViewedApiService {
@@ -24,10 +24,10 @@ class RecentlyViewedApiService {
   }
 
   /**
-   * Delete selected recently viewed items
+   * Remove selected recently viewed items by IDs
    */
-  async deleteItems(slugs: string[]): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(RECENTLY_ENDPOINTS.DELETE, { slugs });
+  async removeItems(productIds: number[]): Promise<ApiResponse<void>> {
+    return apiClient.delete<void>(RECENTLY_ENDPOINTS.REMOVE, { productIds });
   }
 }
 

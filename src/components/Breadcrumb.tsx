@@ -6,6 +6,7 @@ import Link from 'next/link';
 interface BreadcrumbItem {
   label: string;
   href?: string;
+  onClick?: () => void;
   isActive?: boolean;
 }
 
@@ -23,7 +24,14 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
             {index > 0 && (
               <span className="text-gray-300">&gt;</span>
             )}
-            {item.href && !item.isActive ? (
+            {item.onClick ? (
+              <button
+                onClick={item.onClick}
+                className="text-black bg-transparent border-none cursor-pointer p-0"
+              >
+                {item.label}
+              </button>
+            ) : item.href && !item.isActive ? (
               <Link 
                 href={item.href} 
                 className="text-black no-underline"

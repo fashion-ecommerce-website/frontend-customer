@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProductList } from "@/features/filter-product/components";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
@@ -8,9 +9,9 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 export const RecentlyViewed: React.FC = () => {
   const router = useRouter();
   const { items, loading, error, clearAll, deleteItems } = useRecentlyViewed();
-  const [editMode, setEditMode] = React.useState(false);
-  const [selected, setSelected] = React.useState<string[]>([]);
-  const [confirmConfig, setConfirmConfig] = React.useState<{
+  const [editMode, setEditMode] = useState(false);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [confirmConfig, setConfirmConfig] = useState<{
     message: string;
     onConfirm: () => Promise<void>;
   } | null>(null);
@@ -89,19 +90,19 @@ export const RecentlyViewed: React.FC = () => {
                   key={item.detailId}
                   className="group cursor-pointer relative"
                   onClick={() => {
-                    if (!editMode) router.push(`/products/${item.productSlug}`);
+                    if (!editMode) router.push(`/products/${item.detailId}`);
                   }}
                 >
                   <input
                     type="checkbox"
                     className="absolute top-2 left-2 z-10"
-                    checked={selected.includes(item.productSlug)}
+                    checked={selected.includes(item.detailId)}
                     onClick={(e) => e.stopPropagation()}
                     onChange={() => {
                       setSelected((prev) =>
-                        prev.includes(item.productSlug)
-                          ? prev.filter((s) => s !== item.productSlug)
-                          : [...prev, item.productSlug]
+                        prev.includes(item.detailId)
+                          ? prev.filter((s) => s !== item.detailId)
+                          : [...prev, item.detailId]
                       );
                     }}
                   />

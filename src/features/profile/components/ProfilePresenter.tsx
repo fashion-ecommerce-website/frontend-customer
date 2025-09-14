@@ -20,6 +20,7 @@ import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
 import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
+import { AccountOverview } from './AccountOverview';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   user,
@@ -42,7 +43,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
-  const [activeSidebarSection, setActiveSidebarSection] = useState('purchase-info');
+  // Default to account overview
+  const [activeSidebarSection, setActiveSidebarSection] = useState('account');
   const router = useRouter();
   const { logout } = useAuth();
   
@@ -126,20 +128,27 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   // Breadcrumb items with dynamic section label
   const getSectionLabel = (section: string) => {
     switch (section) {
+      case 'account':
+        return 'ACCOUNT';
       case 'recently-viewed':
         return 'RECENTLY VIEWED';
       case 'my-info':
-        return 'MY INFORMATION';
+        return 'MY INFO';
       // Add other cases as needed
       default:
-        return 'MY INFORMATION';
+        return '';
     }
   };
-  const breadcrumbItems = [
-    { label: 'HOME', href: '/' },
-    { label: 'ACCOUNT', href: '/account' },
-    { label: getSectionLabel(activeSidebarSection), isActive: true }
-  ];
+  const breadcrumbItems = activeSidebarSection === 'account'
+    ? [
+        { label: 'HOME', href: '/' },
+        { label: 'ACCOUNT', onClick: () => handleSidebarSectionChange('account') }
+      ]
+    : [
+        { label: 'HOME', href: '/' },
+        { label: 'ACCOUNT', onClick: () => handleSidebarSectionChange('account') },
+        { label: getSectionLabel(activeSidebarSection), isActive: true }
+      ];
 
   // Loading state
   if (isLoading) {
@@ -190,9 +199,10 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           )}
 
           {/* Render content based on active section */}
-          {activeSidebarSection === 'recently-viewed' && (
-            <RecentlyViewed />
+          {activeSidebarSection === 'account' && (
+            <AccountOverview user={user} />
           )}
+          {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
           {activeSidebarSection === 'my-info' && (
             <ProfileFormSection
               user={user}
