@@ -13,8 +13,20 @@ export interface ProductItem {
   imageUrls: string[];
 }
 
-// Product detail interface - for individual product page
+// Product detail interface - matches the new API response format
 export interface ProductDetail {
+  detailId: number;
+  title: string;
+  price: number;
+  activeColor: string;
+  images: string[];
+  colors: string[];
+  mapSizeToQuantity: { [size: string]: number };
+  description: string[];
+}
+
+// Legacy interface for backward compatibility (deprecated)
+export interface LegacyProductDetail {
   id: number;
   productTitle: string;
   productSlug: string;

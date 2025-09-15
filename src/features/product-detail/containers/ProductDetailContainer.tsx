@@ -5,7 +5,7 @@ import { ProductDetail, productApi } from '@/services/api/productApi';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '.';
 import { LoadingSpinner } from '@/components';
-import { mockProductData } from '../mockData';
+import { mockProductData, mockFetchProductByColor } from '../mockData';
 
 export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const [product, setProduct] = useState<ProductDetail | null>(null);
@@ -13,6 +13,22 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+
+  // Handle color change with API call
+  const handleColorChange = async (color: string) => {
+    try {
+      // Fetch new product data for this color
+      const newProduct = await mockFetchProductByColor(parseInt(productId), color);
+      setProduct(newProduct);
+      setSelectedColor(color);
+      
+      // Reset size selection when color changes
+      setSelectedSize(null);
+    } catch (error) {
+      console.error('Error fetching color variant:', error);
+      // Keep current product if API call fails
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -25,14 +41,17 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
           const response = await productApi.getProductById(productId);
           
           if (response.success && response.data) {
-            setProduct(response.data);
-            // Set default selections
-            if (response.data.colors.length > 0) {
-              setSelectedColor(response.data.colors[0]);
+            const productData = response.data;
+            setProduct(productData);
+            
+            // Set default selections based on new API structure
+            if (productData.colors.length > 0) {
+              // Use activeColor if available, otherwise first color
+              setSelectedColor(productData.activeColor || productData.colors[0]);
             }
-            if (response.data.sizes.length > 0) {
-              setSelectedSize(response.data.sizes[0]);
-            }
+            
+            // Don't auto-select any size - let user choose
+            setSelectedSize(null);
             return;
           }
         } catch (apiError) {
@@ -42,17 +61,17 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
         // Fallback to mock data for development
         const mockData = {
           ...mockProductData,
-          id: parseInt(productId)
+          detailId: parseInt(productId) // Update to use detailId instead of id
         };
         
         setProduct(mockData);
         // Set default selections
         if (mockData.colors.length > 0) {
-          setSelectedColor(mockData.colors[0]);
+          setSelectedColor(mockData.activeColor || mockData.colors[0]);
         }
-        if (mockData.sizes.length > 0) {
-          setSelectedSize(mockData.sizes[0]);
-        }
+        
+        // Don't auto-select any size - let user choose
+        setSelectedSize(null);
         
         } catch (err) {
         setError('An error occurred while loading the product');
@@ -89,6 +108,7 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
       selectedSize={selectedSize}
       onColorSelect={setSelectedColor}
       onSizeSelect={setSelectedSize}
+      onColorChange={handleColorChange}
     />
   );
 }

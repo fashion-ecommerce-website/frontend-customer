@@ -24,21 +24,19 @@ export function ProductTabs({ product }: ProductTabsProps) {
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">Key Features</h3>
               <ul className="space-y-2 text-gray-800">
-                <li>• Classic round neck t-shirt with sporty design</li>
-                <li>• Handcrafted MLB logo on chest for authentic look</li>
-                <li>• Cotton material, breathable and comfortable for active wear</li>
-                <li>• Fine stitching, durable and beautiful</li>
-                <li>• Perfect for casual photos and sport chic style</li>
+                {product.description.map((feature, index) => (
+                  <li key={index}>• {feature}</li>
+                ))}
               </ul>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">Product Information</h3>
               <ul className="space-y-2 text-gray-800">
-                <li>• Brand: MLB</li>
-                <li>• Origin: South Korea</li>
+                <li>• Brand: FIT</li>
+                <li>• Origin: Vietnam</li>
                 <li>• Type: Unisex</li>
-                <li>• Colors: Beige, Navy</li>
+                <li>• Colors: {product.colors.join(', ')}</li>
                 <li>• Care: Machine washable</li>
                 <li>• Style: Sporty chic</li>
                 <li>• Composition: 74% Cotton, 20% Polyester, 6% Spandex</li>
