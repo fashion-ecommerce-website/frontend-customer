@@ -2,6 +2,7 @@ import { loginSaga } from '../../features/auth/login';
 import { homeSaga } from '../../features/home';
 import { profileSaga } from '../../features/profile/redux/profileSaga';
 import { productDetailSaga } from '../../features/product-detail';
+import { addressSaga } from '../../features/profile/redux/addressSaga';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const effects = require('redux-saga/effects');
@@ -13,5 +14,6 @@ export function* rootSaga(): Generator<unknown, void, unknown> {
     fork(homeSaga),
     fork(profileSaga),
     fork(productDetailSaga),
+    fork(addressSaga),
   ]);
 }

@@ -33,6 +33,7 @@ import {
 } from '../types/profile.types';
 
 export const ProfileContainer: React.FC<ProfileContainerProps> = ({
+  initialSection,
   onUpdateSuccess,
   onUpdateError,
   onPasswordChangeSuccess,
@@ -235,6 +236,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
 
   return (
     <ProfilePresenter
+      initialSection={initialSection}
       user={user}
       isLoading={isLoading}
       isUpdating={isUpdating}

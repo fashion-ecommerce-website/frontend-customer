@@ -115,6 +115,7 @@ export interface ChangePasswordFormData {
 
 // Component Props
 export interface ProfileContainerProps {
+  initialSection?: string;
   onUpdateSuccess?: (user: User) => void;
   onUpdateError?: (error: ApiError) => void;
   onPasswordChangeSuccess?: () => void;
@@ -122,6 +123,9 @@ export interface ProfileContainerProps {
 }
 
 export interface ProfilePresenterProps {
+  // Configuration
+  initialSection?: string;
+  
   // Data
   user: User | null;
   
