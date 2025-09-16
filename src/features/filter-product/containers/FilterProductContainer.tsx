@@ -13,9 +13,11 @@ export const FilterProductContainer: React.FC<FilterProductContainerProps> = ({
 }) => {
   const router = useRouter();
 
-  // Handle product click - navigate to product detail page
-  const handleProductClick = useCallback((slug: string) => {
-    router.push(`/products/${slug}`);
+  // Handle product click - navigate to product detail page using detailId
+  const handleProductClick = useCallback((detailId: number, slug: string) => {
+    // Use detailId for navigation since backend expects Long ID
+    console.log('Product clicked:', { detailId, slug });
+    router.push(`/products/${detailId}`);
   }, [router]);
 
   return (

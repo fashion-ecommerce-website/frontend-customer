@@ -3,6 +3,7 @@ export { Header } from './Header';
 export { Footer } from './Footer';
 export { AuthInitializer } from './AuthInitializer';
 export { AuthGuard } from './AuthGuard';
+export { PromotionalBanner } from './PromotionalBanner';
 
 // Authentication Components
 export { default as LoginForm } from './LoginForm';

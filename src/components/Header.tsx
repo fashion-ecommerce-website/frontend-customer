@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { PromotionalBanner } from './PromotionalBanner';
 
 export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,21 +75,8 @@ export const Header: React.FC = () => {
 
   return (
     <>
-      {/* Promotional Banner */}
-      <div className="bg-black text-white text-center py-2 px-4 relative">
-        <p className="text-sm">
-          Sign up and get 20% off to your first order.{' '}
-          <Link href="/auth/register" className="underline font-medium hover:text-gray-200">
-            Sign Up Now
-          </Link>
-        </p>
-        <button
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-lg"
-          aria-label="Close banner"
-        >
-          ✕
-        </button>
-      </div>
+      {/* Promotional Banner - Smart with auto-sliding */}
+      <PromotionalBanner isAuthenticated={isAuthenticated} />
 
       {/* Header */}
       <header className="bg-white shadow-sm">

@@ -24,3 +24,77 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* MLB Style Enhancements */
+.product-button {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.product-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Hide scrollbar for clean design */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Product detail layout enhancements */
+.product-sidebar-thumb {
+  transition: all 0.2s ease;
+}
+
+.product-sidebar-thumb:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+/* Navigation arrows */
+.nav-arrow {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.nav-arrow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Size selector improvements */
+.size-selector {
+  transition: all 0.2s ease;
+}
+
+.size-selector:hover {
+  transform: translateY(-1px);
+}
+
+/* Sale badge styling */
+.sale-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

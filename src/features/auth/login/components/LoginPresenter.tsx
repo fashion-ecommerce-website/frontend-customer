@@ -14,6 +14,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
   onSubmit,
   onClearError,
   onLogout,
+  isAuthenticated,
 }) => {
   const { showSuccess, showError } = useToast();
   // Show toast on error prop change and clear error state
@@ -147,14 +148,11 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
 
           <div>
             <GoogleAuth
+              hideWhenAuthenticated={true}
               onSuccess={(user) => {
-                showSuccess(
-                  `Welcome ${user.name}! Login successfull.`
-                );
-                // TODO: Redirect to home or dashboard
-                setTimeout(() => {
-                  window.location.href = "/";
-                }, 1500);
+                // Remove success message - just log for debugging
+                console.log('Google login successful:', user);
+                // Don't show any toast message to avoid the green "logout" text
               }}
               onError={(error) => {
                 showError(error);

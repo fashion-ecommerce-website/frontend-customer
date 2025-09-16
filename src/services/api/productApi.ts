@@ -13,6 +13,37 @@ export interface ProductItem {
   imageUrls: string[];
 }
 
+// Product detail interface - matches the new API response format
+export interface ProductDetail {
+  detailId: number;
+  title: string;
+  price: number;
+  activeColor: string;
+  images: string[];
+  colors: string[];
+  mapSizeToQuantity: { [size: string]: number };
+  description: string[];
+}
+
+// Legacy interface for backward compatibility (deprecated)
+export interface LegacyProductDetail {
+  id: number;
+  productTitle: string;
+  productSlug: string;
+  price: number;
+  originalPrice?: number;
+  colors: string[];
+  sizes: string[];
+  imageUrls: string[];
+  description?: string;
+  features?: string[];
+  specifications?: string[];
+  category: string;
+  isInStock: boolean;
+  quantity: number;
+  styleCode?: string;
+}
+
 // Paginated products response interface
 export interface PaginatedProductsResponse {
   items: ProductItem[];
@@ -40,10 +71,30 @@ export interface ProductsRequest {
 // Product API endpoints
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
+  GET_PRODUCT_BY_ID: '/products',
+  GET_PRODUCT_BY_COLOR: '/products', // GET /products/{id}/color?activeColor={color}
 } as const;
 
 // Product API service
 export class ProductApiService {
+  /**
+   * Get product by ID
+   * URL example: /products/123
+   */
+  async getProductById(id: string): Promise<ApiResponse<ProductDetail>> {
+    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_ID}/${id}`;
+    return apiClient.get<ProductDetail>(url);
+  }
+
+  /**
+   * Get product by ID and color
+   * URL example: /products/1/color?activeColor=white
+   */
+  async getProductByColor(id: string, activeColor: string): Promise<ApiResponse<ProductDetail>> {
+    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_COLOR}/${id}/color?activeColor=${encodeURIComponent(activeColor)}`;
+    return apiClient.get<ProductDetail>(url);
+  }
+
   /**
    * Get paginated products with filters
    * URL example: /products?category=ao-thun&page=0&pageSize=12&sort=productTitle_asc
@@ -110,4 +161,6 @@ export const productApiService = new ProductApiService();
 // Export API functions for saga factories
 export const productApi = {
   getProducts: (params?: ProductsRequest) => productApiService.getProducts(params),
+  getProductById: (id: string) => productApiService.getProductById(id),
+  getProductByColor: (id: string, activeColor: string) => productApiService.getProductByColor(id, activeColor),
 };

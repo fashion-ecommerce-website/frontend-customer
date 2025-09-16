@@ -178,10 +178,12 @@ const homeSlice = createSlice({
       state.error = null;
     },
 
-    // Initialize home
+    // Initialize home - No loading needed for mock data
     initializeHome: (state) => {
-      state.isLoading = true;
       state.error = null;
+      // state.isLoading = true; // Comment out to prevent unnecessary loading
+      // Since we have mock data, set isInitialized immediately
+      state.isInitialized = true;
     },
 
     initializeHomeSuccess: (state, action: PayloadAction<{ navigation: NavigationItem[], footer: FooterData }>) => {
