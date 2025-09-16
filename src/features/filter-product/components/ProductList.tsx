@@ -6,7 +6,7 @@ import { FilterProductItem } from '../types';
 interface ProductListProps {
   products: FilterProductItem[];
   isLoading: boolean;
-  onProductClick: (slug: string) => void;
+  onProductClick: (detailId: number, slug: string) => void;
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
@@ -47,7 +47,7 @@ export const ProductList: React.FC<ProductListProps> = ({
         <div
           key={product.detailId}
           className="group cursor-pointer"
-          onClick={() => onProductClick(product.productSlug)}
+          onClick={() => onProductClick(product.detailId, product.productSlug)}
         >
           {/* Product Image */}
           <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">

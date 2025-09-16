@@ -171,46 +171,34 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Features List */}
-      <div className="space-y-3">
-        <ul className="space-y-2 text-sm text-gray-800">
-          <li className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>MLB Clothes Sale over 9%</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>Join our community for exclusive member benefits and styling tips</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>Premium cotton fabric, breathable and comfortable for active wear</span>
-          </li>
-          <li className="flex items-start">
+      {/* BLACK TUESDAY REWARDS - Simple Promotion Box */}
+      <div className="bg-gray-100 rounded-lg p-4">
+        <div className="space-y-2 text-sm text-gray-800">
+          <div className="flex items-start">
             <span className="text-black mr-2">•</span>
             <span className="font-semibold">BLACK TUESDAY REWARDS</span>
-          </li>
-          <li className="flex items-start">
+          </div>
+          <div className="flex items-start">
             <span className="text-black mr-2">•</span>
-            <span>Get 10% OFF LOYALTY points every Tuesday</span>
-          </li>
-          <li className="flex items-start">
+            <span>Earn 10% Loyalty points back on any invoice value every Tuesday</span>
+          </div>
+          <div className="flex items-start">
             <span className="text-black mr-2">•</span>
-            <span>Apply with OTALO code</span>
-          </li>
-          <li className="flex items-start">
+            <span>Valid from: April 1, 2025</span>
+          </div>
+          <div className="flex items-start">
             <span className="text-black mr-2">•</span>
-            <span>Special Tuesday discounts for loyalty members</span>
-          </li>
-          <li className="flex items-start">
+            <span>Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)</span>
+          </div>
+          <div className="flex items-start">
             <span className="text-black mr-2">•</span>
-            <span>Use Loyalty points within the valid period for maximum savings</span>
-          </li>
-          <li className="flex items-start">
+            <span>Loyalty points will be credited in addition to your regular membership benefits</span>
+          </div>
+          <div className="flex items-start">
             <span className="text-black mr-2">•</span>
-            <span>Don't miss our weekly Tuesday specials</span>
-          </li>
-        </ul>
+            <span>*Applicable every Tuesday only</span>
+          </div>
+        </div>
       </div>
 
       {/* Size Guide Modal */}

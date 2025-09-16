@@ -26,7 +26,7 @@ const useDebounce = (value: any, delay: number) => {
 };
 
 interface FilterProductPresenterProps {
-  onProductClick: (slug: string) => void;
+  onProductClick: (detailId: number, slug: string) => void;
 }
 
 export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({

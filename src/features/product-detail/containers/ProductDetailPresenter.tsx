@@ -7,6 +7,7 @@ import {
   ProductInfo,
   ProductTabs,
   RelatedProducts,
+  ProductDetailRecentlyViewed,
 } from '../components';
 
 interface ProductDetailPresenterProps {
@@ -230,6 +231,9 @@ export function ProductDetailPresenter({
           <RelatedProducts category="ao-thun" />
         </div>
       </div>
+
+      {/* Recently Viewed Products */}
+      <ProductDetailRecentlyViewed />
     </div>
   );
 }

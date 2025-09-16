@@ -169,7 +169,7 @@ export const RecentlyViewed: React.FC = () => {
           <ProductList
             products={items}
             isLoading={loading}
-            onProductClick={(slug) => router.push(`/products/${slug}`)}
+            onProductClick={(detailId, slug) => router.push(`/products/${detailId}`)}
           />
         )}
       </div>

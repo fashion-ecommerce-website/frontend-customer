@@ -29,21 +29,6 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 ))}
               </ul>
             </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-gray-900">Product Information</h3>
-              <ul className="space-y-2 text-gray-800">
-                <li>• Brand: FIT</li>
-                <li>• Origin: Vietnam</li>
-                <li>• Type: Unisex</li>
-                <li>• Colors: {product.colors.join(', ')}</li>
-                <li>• Care: Machine washable</li>
-                <li>• Style: Sporty chic</li>
-                <li>• Composition: 74% Cotton, 20% Polyester, 6% Spandex</li>
-                <li>• Trend: Basic must-have</li>
-                <li>• Fabric texture: Premium cotton blend for comfort</li>
-              </ul>
-            </div>
           </div>
         );
 

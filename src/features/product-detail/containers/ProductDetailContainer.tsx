@@ -4,6 +4,8 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/rootReducer';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
+import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '.';
 // import { LoadingSpinner } from '@/components'; // Removed for faster loading
@@ -17,6 +19,7 @@ import {
 
 export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const { product, isLoading, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
     (state) => state.productDetail
   );
@@ -51,6 +54,25 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
     // Fetch product data when productId changes
     dispatch(fetchProductRequest(productId));
   }, [productId, dispatch]);
+
+  // Add product to recently viewed when product is loaded successfully
+  useEffect(() => {
+    const addToRecentlyViewed = async () => {
+      // Only add if user is authenticated and product is loaded
+      if (isAuthenticated && product && product.detailId) {
+        try {
+          console.log('🔍 Adding product to recently viewed:', product.detailId);
+          await recentlyViewedApiService.addRecentlyViewed(product.detailId);
+          console.log('✅ Successfully added to recently viewed');
+        } catch (error) {
+          console.error('❌ Failed to add to recently viewed:', error);
+          // Fail silently - don't show error to user for this background operation
+        }
+      }
+    };
+
+    addToRecentlyViewed();
+  }, [product, isAuthenticated]); // Trigger when product or auth status changes
 
   // Clean up on unmount
   useEffect(() => {
