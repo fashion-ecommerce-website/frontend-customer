@@ -5,7 +5,7 @@ import { ProductDetailState } from '../types';
 // Initial state
 const initialState: ProductDetailState = {
   product: null,
-  isLoading: false,
+  isLoading: true, // Start with loading state
   error: null,
   selectedColor: null,
   selectedSize: null,
@@ -19,10 +19,12 @@ const productDetailSlice = createSlice({
   reducers: {
     // Fetch product by ID actions
     fetchProductRequest: (state, action: PayloadAction<string>) => {
+      console.log('Redux: fetchProductRequest', action.payload);
       state.isLoading = true;
       state.error = null;
     },
     fetchProductSuccess: (state, action: PayloadAction<ProductDetail>) => {
+      console.log('Redux: fetchProductSuccess', action.payload.title);
       state.isLoading = false;
       state.product = action.payload;
       state.error = null;
@@ -33,6 +35,7 @@ const productDetailSlice = createSlice({
       state.selectedSize = null; // Reset size selection
     },
     fetchProductFailure: (state, action: PayloadAction<string>) => {
+      console.log('Redux: fetchProductFailure', action.payload);
       state.isLoading = false;
       state.error = action.payload;
       state.product = null;
@@ -67,6 +70,7 @@ const productDetailSlice = createSlice({
     // Reset action
     resetProductDetail: () => ({
       ...initialState,
+      isLoading: true, // Reset to loading state
       isColorLoading: false,
     }),
   },

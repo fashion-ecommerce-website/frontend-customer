@@ -6,7 +6,7 @@ import { RootState } from '@/store/rootReducer';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '.';
-import { ProductDetailSkeleton } from '../components';
+// import { LoadingSpinner } from '@/components'; // Removed for faster loading
 import {
   fetchProductRequest,
   fetchProductByColorRequest,
@@ -20,6 +20,16 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const { product, isLoading, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
     (state) => state.productDetail
   );
+
+  // Debug logging
+  console.log('ProductDetailContainer render:', { 
+    productId, 
+    isLoading, 
+    hasProduct: !!product, 
+    error,
+    selectedColor,
+    productTitle: product?.title
+  });
 
   // Handle color change with Redux action
   const handleColorChange = async (color: string) => {
@@ -38,10 +48,7 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   };
 
   useEffect(() => {
-    // Clean up previous state when productId changes
-    dispatch(resetProductDetail());
-    
-    // Fetch product data
+    // Fetch product data when productId changes
     dispatch(fetchProductRequest(productId));
   }, [productId, dispatch]);
 
@@ -52,21 +59,32 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
     };
   }, [dispatch]);
 
-  if (isLoading) {
-    return <ProductDetailSkeleton />;
-  }
+  // Removed loading spinner for faster loading experience
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center min-h-screen">
+  //       <LoadingSpinner />
+  //     </div>
+  //   );
+  // }
 
-  if (error || !product) {
+  // Only show error if there's actually an error, not just no product yet
+  if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            {error || 'Product not found'}
+            {error}
           </h2>
           <p className="text-gray-600">Please try again later</p>
         </div>
       </div>
     );
+  }
+
+  // Show empty/loading state while waiting for product
+  if (!product) {
+    return <div className="min-h-screen bg-white"></div>;
   }
 
   return (

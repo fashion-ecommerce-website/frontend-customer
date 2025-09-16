@@ -17,16 +17,26 @@ import {
 function* fetchProductSaga(action: PayloadAction<string>) {
   try {
     const productId = action.payload;
+    console.log('fetchProductSaga called with productId:', productId);
     
     // Call API
     const response: ApiResponse<ProductDetail> = yield call(productApi.getProductById, productId);
+    console.log('fetchProductSaga API response:', {
+      success: response.success,
+      hasData: !!response.data,
+      message: response.message,
+      productTitle: response.data?.title
+    });
     
     if (response.success && response.data) {
+      console.log('Dispatching fetchProductSuccess');
       yield put(fetchProductSuccess(response.data));
     } else {
+      console.log('Dispatching fetchProductFailure:', response.message);
       yield put(fetchProductFailure(response.message || 'Failed to fetch product'));
     }
   } catch (error: any) {
+    console.error('fetchProductSaga error:', error);
     const errorMessage = error?.message || 'An error occurred while fetching product';
     yield put(fetchProductFailure(errorMessage));
   }
