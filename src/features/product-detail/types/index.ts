@@ -6,6 +6,7 @@ export interface ProductDetailState {
   error: string | null;
   selectedColor: string | null;
   selectedSize: string | null;
+  isColorLoading: boolean; // Separate loading for color changes
 }
 
 export interface ProductDetailProps {

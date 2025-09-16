@@ -72,6 +72,7 @@ export interface ProductsRequest {
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
   GET_PRODUCT_BY_ID: '/products',
+  GET_PRODUCT_BY_COLOR: '/products', // GET /products/{id}/color?activeColor={color}
 } as const;
 
 // Product API service
@@ -82,6 +83,15 @@ export class ProductApiService {
    */
   async getProductById(id: string): Promise<ApiResponse<ProductDetail>> {
     const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_ID}/${id}`;
+    return apiClient.get<ProductDetail>(url);
+  }
+
+  /**
+   * Get product by ID and color
+   * URL example: /products/1/color?activeColor=white
+   */
+  async getProductByColor(id: string, activeColor: string): Promise<ApiResponse<ProductDetail>> {
+    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_COLOR}/${id}/color?activeColor=${encodeURIComponent(activeColor)}`;
     return apiClient.get<ProductDetail>(url);
   }
 
@@ -152,4 +162,5 @@ export const productApiService = new ProductApiService();
 export const productApi = {
   getProducts: (params?: ProductsRequest) => productApiService.getProducts(params),
   getProductById: (id: string) => productApiService.getProductById(id),
+  getProductByColor: (id: string, activeColor: string) => productApiService.getProductByColor(id, activeColor),
 };

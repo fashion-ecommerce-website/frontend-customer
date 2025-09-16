@@ -1,91 +1,59 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { ProductDetail, productApi } from '@/services/api/productApi';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store/rootReducer';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '.';
-import { LoadingSpinner } from '@/components';
-import { mockProductData, mockFetchProductByColor } from '../mockData';
+import { ProductDetailSkeleton } from '../components';
+import {
+  fetchProductRequest,
+  fetchProductByColorRequest,
+  setSelectedColor,
+  setSelectedSize,
+  resetProductDetail,
+} from '../redux/productDetailSlice';
 
 export function ProductDetailContainer({ productId }: ProductDetailProps) {
-  const [product, setProduct] = useState<ProductDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { product, isLoading, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
+    (state) => state.productDetail
+  );
 
-  // Handle color change with API call
+  // Handle color change with Redux action
   const handleColorChange = async (color: string) => {
-    try {
-      // Fetch new product data for this color
-      const newProduct = await mockFetchProductByColor(parseInt(productId), color);
-      setProduct(newProduct);
-      setSelectedColor(color);
-      
-      // Reset size selection when color changes
-      setSelectedSize(null);
-    } catch (error) {
-      console.error('Error fetching color variant:', error);
-      // Keep current product if API call fails
-    }
+    // Dispatch action to fetch product by color
+    dispatch(fetchProductByColorRequest({ id: productId, color }));
+  };
+
+  // Handle color selection (local UI state)
+  const handleColorSelect = (color: string) => {
+    dispatch(setSelectedColor(color));
+  };
+
+  // Handle size selection
+  const handleSizeSelect = (size: string) => {
+    dispatch(setSelectedSize(size));
   };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Try to fetch from API first
-        try {
-          const response = await productApi.getProductById(productId);
-          
-          if (response.success && response.data) {
-            const productData = response.data;
-            setProduct(productData);
-            
-            // Set default selections based on new API structure
-            if (productData.colors.length > 0) {
-              // Use activeColor if available, otherwise first color
-              setSelectedColor(productData.activeColor || productData.colors[0]);
-            }
-            
-            // Don't auto-select any size - let user choose
-            setSelectedSize(null);
-            return;
-          }
-        } catch (apiError) {
-          console.log('API not available, using mock data');
-        }
-        
-        // Fallback to mock data for development
-        const mockData = {
-          ...mockProductData,
-          detailId: parseInt(productId) // Update to use detailId instead of id
-        };
-        
-        setProduct(mockData);
-        // Set default selections
-        if (mockData.colors.length > 0) {
-          setSelectedColor(mockData.activeColor || mockData.colors[0]);
-        }
-        
-        // Don't auto-select any size - let user choose
-        setSelectedSize(null);
-        
-        } catch (err) {
-        setError('An error occurred while loading the product');
-        console.error('Error fetching product:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // Clean up previous state when productId changes
+    dispatch(resetProductDetail());
+    
+    // Fetch product data
+    dispatch(fetchProductRequest(productId));
+  }, [productId, dispatch]);
 
-    fetchProduct();
-  }, [productId]);
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(resetProductDetail());
+    };
+  }, [dispatch]);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <ProductDetailSkeleton />;
   }
 
   if (error || !product) {
@@ -106,9 +74,10 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
       product={product}
       selectedColor={selectedColor}
       selectedSize={selectedSize}
-      onColorSelect={setSelectedColor}
-      onSizeSelect={setSelectedSize}
+      onColorSelect={handleColorSelect}
+      onSizeSelect={handleSizeSelect}
       onColorChange={handleColorChange}
+      isLoading={isColorLoading} // Pass color loading state
     />
   );
 }

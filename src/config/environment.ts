@@ -33,5 +33,12 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     ME: '/auth/me',
     USER: '/auth/user'
+  },
+
+  // Product endpoints
+  PRODUCT: {
+    LIST: '/products',
+    DETAIL: '/products', // GET /products/{id}
+    COLOR: '/products', // GET /products/{id}/color?activeColor={color}
   }
 };

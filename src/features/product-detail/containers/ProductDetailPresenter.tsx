@@ -30,7 +30,7 @@ export function ProductDetailPresenter({
 }: ProductDetailPresenterProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isColorLoading, setIsColorLoading] = useState(false);
+  // Removed local isColorLoading state - using Redux state via isLoading prop
   
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
@@ -67,9 +67,8 @@ export function ProductDetailPresenter({
 
   // Handle color change with API call
   const handleColorChange = async (color: string) => {
-    if (isColorLoading || color === selectedColor) return;
+    if (isLoading || color === selectedColor) return;
     
-    setIsColorLoading(true);
     setSelectedImageIndex(0); // Reset to first image
     
     try {
@@ -80,8 +79,6 @@ export function ProductDetailPresenter({
       onSizeSelect(''); // Clear selected size when color changes
     } catch (error) {
       console.error('Error loading color variant:', error);
-    } finally {
-      setIsColorLoading(false);
     }
   };
 
@@ -152,23 +149,16 @@ export function ProductDetailPresenter({
                     </svg>
                   </button>
 
-                  {/* Main Image Display - With Loading State */}
+                  {/* Main Image Display - Clean without loading overlay */}
                   <div className="aspect-square bg-white relative overflow-hidden border border-gray-200">
-                    {(isLoading || isColorLoading) && (
-                      <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-10">
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-                          <span className="text-sm text-gray-600">Loading images...</span>
-                        </div>
-                      </div>
-                    )}
                     <img
                       src={product.images[selectedImageIndex]}
                       alt={`${product.title} - Image ${selectedImageIndex + 1}`}
-                      className={`w-full h-full object-cover transition-opacity duration-250 ${
-                        isLoading || isColorLoading ? 'opacity-50' : 'opacity-100'
-                      }`}
+                      className="w-full h-full object-cover transition-all duration-300 ease-in-out"
                       loading="eager"
+                      onLoad={() => {
+                        // Smooth transition when image loads
+                      }}
                     />
                   </div>
 
@@ -228,6 +218,7 @@ export function ProductDetailPresenter({
               selectedSize={selectedSize}
               onColorSelect={handleColorChange}
               onSizeSelect={onSizeSelect}
+              isColorLoading={isLoading}
             />
           </div>
         </div>

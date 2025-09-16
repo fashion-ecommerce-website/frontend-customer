@@ -120,8 +120,8 @@ export const mockProductVariants: Record<string, ProductDetail> = {
 
 // Mock API function to simulate color change
 export const mockFetchProductByColor = async (productId: number, color: string): Promise<ProductDetail> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  // Simulate API delay - Reduced for better UX
+  await new Promise(resolve => setTimeout(resolve, 150));
   
   const variant = mockProductVariants[color];
   if (!variant) {

@@ -9,6 +9,7 @@ interface ProductInfoProps {
   selectedSize: string | null;
   onColorSelect: (color: string) => void;
   onSizeSelect: (size: string) => void;
+  isColorLoading?: boolean;
 }
 
 export function ProductInfo({
@@ -17,6 +18,7 @@ export function ProductInfo({
   selectedSize,
   onColorSelect,
   onSizeSelect,
+  isColorLoading = false,
 }: ProductInfoProps) {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
@@ -64,15 +66,15 @@ export function ProductInfo({
                   key={color}
                   className={`item-swatch cursor-pointer ${
                     selectedColor === color ? 'active' : ''
-                  }`}
+                  } ${isColorLoading ? 'pointer-events-none' : ''}`}
                   data-color={color}
-                  onClick={() => onColorSelect(color)}
+                  onClick={() => !isColorLoading && onColorSelect(color)}
                 >
                   <div className={`w-10 h-10 rounded-full border-4 ring-2 ring-white transition-all duration-200 ${
                     selectedColor === color
                       ? 'border-black'
                       : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                  } ${isColorLoading ? 'opacity-70' : 'opacity-100'}`}
                   style={{ backgroundColor: color.toLowerCase() }}
                   title={color}
                   />
