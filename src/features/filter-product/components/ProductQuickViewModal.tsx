@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { productApi, ProductDetail } from "@/services/api/productApi";
 
 interface ProductQuickViewModalProps {
@@ -20,6 +20,35 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [selectedAmount, setSelectedAmount] = useState<number>(1);
+  const [colorPreviewImages, setColorPreviewImages] = useState<{[color: string]: string}>({});
+
+  // Handle escape key to close modal - MOVED UP
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  // Get display images with fallback
+  const displayImages = product?.images && product.images.length > 0 
+    ? product.images 
+    : ['/images/placeholder-product.jpg'];
 
   // Fetch product detail when modal opens
   useEffect(() => {
@@ -35,8 +64,44 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
       setSelectedSize("");
       setSelectedImageIndex(0);
       setShowSizeNotice(false);
+      // Don't reset image loading states - let images load naturally
+      
+      // Fetch color preview images
+      fetchColorPreviewImages();
     }
   }, [product]);
+
+  // Simplified preload effect - avoid complex dependencies
+  useEffect(() => {
+    if (product?.images && product.images.length > 0) {
+      // Preload first two images immediately when product loads
+      const firstImage = product.images[0];
+      if (firstImage) {
+        preloadImage(firstImage, 0);
+      }
+      
+      if (product.images.length > 1) {
+        const secondImage = product.images[1];
+        setTimeout(() => preloadImage(secondImage, 1), 100);
+      }
+    }
+  }, [product?.images]);
+
+  // Preload adjacent images when user changes selection
+  useEffect(() => {
+    if (product?.images && product.images.length > 1) {
+      const nextIndex = selectedImageIndex + 1;
+      const prevIndex = selectedImageIndex - 1;
+      
+      if (nextIndex < product.images.length) {
+        setTimeout(() => preloadImage(product.images[nextIndex], nextIndex), 50);
+      }
+      
+      if (prevIndex >= 0) {
+        setTimeout(() => preloadImage(product.images[prevIndex], prevIndex), 50);
+      }
+    }
+  }, [selectedImageIndex, product?.images]);
 
   const fetchProductDetail = async () => {
     if (!productId) return;
@@ -44,7 +109,17 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     setLoading(true);
     try {
       const response = await productApi.getProductById(productId.toString());
-      setProduct(response.data);
+      if (response.data) {
+        setProduct(response.data);
+        
+        // Immediately preload first image after setting product
+        if (response.data.images && response.data.images.length > 0) {
+          const firstImage = response.data.images[0];
+          if (firstImage) {
+            preloadImage(firstImage, 0);
+          }
+        }
+      }
     } catch (error) {
       console.error("Error fetching product detail:", error);
     } finally {
@@ -52,14 +127,66 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN").format(price) + "₫";
+  // Fetch color preview images
+  const fetchColorPreviewImages = async () => {
+    if (!productId || !product?.colors) return;
+
+    const previewImages: {[color: string]: string} = {};
+    
+    // Fetch preview for each color (except current active color)
+    for (const color of product.colors) {
+      if (color !== product.activeColor) {
+        try {
+          const response = await productApi.getProductByColor(productId.toString(), color);
+          if (response.data?.images && response.data.images.length > 0) {
+            previewImages[color] = response.data.images[0];
+          }
+        } catch (error) {
+          console.error(`Error fetching preview for color ${color}:`, error);
+        }
+      } else {
+        // Use current product's first image for active color
+        if (product.images && product.images.length > 0) {
+          previewImages[color] = product.images[0];
+        }
+      }
+    }
+    
+    setColorPreviewImages(previewImages);
   };
 
-  const handleColorSelect = (color: string) => {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-US").format(price) + " VND";
+  };
+
+  // Handle color change with smooth transition (no loading states)
+  const handleColorChange = async (color: string) => {
+    if (color === selectedColor || !productId) return;
+    
+    // Update UI immediately for instant feedback
     setSelectedColor(color);
-    // Reset size selection when color changes
-    setSelectedSize("");
+    setSelectedSize(""); // Clear selected size when color changes
+    setSelectedImageIndex(0); // Reset to first image
+    
+    try {
+      // Fetch in background without showing loading state
+      const response = await productApi.getProductByColor(productId.toString(), color);
+      if (response.data) {
+        // Update product silently
+        setProduct(response.data);
+        
+        // Only update color if it's different from what user selected
+        if (response.data.activeColor !== color) {
+          setSelectedColor(response.data.activeColor);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading color variant:", error);
+      // On error, revert to previous color if available
+      if (product) {
+        setSelectedColor(product.activeColor || product.colors[0] || "");
+      }
+    }
   };
 
   const handleSizeSelect = (size: string) => {
@@ -97,9 +224,42 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
+  // Image handling functions
+  const handleImageLoad = (index: number) => {
+    setLoadedImages(prev => new Set(prev).add(index));
+    if (index === selectedImageIndex) {
+      setImageError(false);
+    }
+  };
 
-  const [selectedAmount, setSelectedAmount] = useState<number>(1);
+  const handleImageError = (index: number) => {
+    if (index === selectedImageIndex) {
+      setImageError(true);
+    }
+  };
+
+  const handleImageSelect = (index: number) => {
+    setSelectedImageIndex(index);
+    // Preload image immediately if not loaded, but don't show loading state
+    if (!loadedImages.has(index)) {
+      const targetImage = displayImages[index];
+      if (targetImage) {
+        preloadImage(targetImage, index);
+      }
+    }
+  };
+
+  // Preload image function
+  const preloadImage = (src: string, index: number) => {
+    if (!loadedImages.has(index) && src) {
+      const img = new Image();
+      img.onload = () => handleImageLoad(index);
+      img.onerror = () => handleImageError(index);
+      img.src = src;
+    }
+  };
+
+  if (!isOpen) return null;
 
   function handleDecreaseAmount(
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -122,19 +282,28 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-4 w-full max-w-4xl h-1/2 mx-4 relative shadow-2xl border border-gray-200 overflow-hidden">
+    <div 
+      className="fixed inset-0 bg-black/75 flex items-center justify-center z-50"
+      onClick={onClose} // Click backdrop to close
+    >
+      <div 
+        className="bg-white rounded-lg p-4 w-full max-w-4xl h-1/2 mx-4 relative shadow-2xl border border-gray-200 overflow-hidden"
+        onClick={(e) => e.stopPropagation()} // Prevent close when clicking modal content
+      >
         {/* Close button */}
         <button
-          className="absolute top-3 right-3 text-gray-400 hover:text-black text-xl z-10"
+          className="absolute top-3 right-6 text-gray-400 text-xl z-10"
           onClick={onClose}
           aria-label="Close modal"
         >
-          ×
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </button>
 
         {loading ? (
-          // Loading state
+          // Simple loading state - no skeleton
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
           </div>
@@ -142,30 +311,49 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
           <div className="flex gap-4 h-full">
             {/* Product Images */}
             <div className="w-1/3 flex flex-col h-full">
-              <div className="flex-1 mb-1 min-h-0">
+              <div className="flex-1 mb-1 min-h-0 relative">
+                {/* Error fallback only */}
+                {imageError && (
+                  <div className="absolute inset-0 bg-gray-100 flex items-center justify-center rounded">
+                    <div className="text-center text-gray-400">
+                      <svg className="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-xs">Unable to load image</p>
+                    </div>
+                  </div>
+                )}
+
                 <img
-                  src={product.images[selectedImageIndex] || ""}
+                  src={displayImages[selectedImageIndex] || displayImages[0]}
                   alt={product.title}
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded transition-opacity duration-300"
+                  onLoad={() => handleImageLoad(selectedImageIndex)}
+                  onError={() => handleImageError(selectedImageIndex)}
+                  style={{ display: imageError ? 'none' : 'block' }}
                 />
               </div>
               {/* Image thumbnails */}
-              {product.images.length > 1 && (
+              {displayImages.length > 1 && (
                 <div className="flex gap-1 overflow-x-auto flex-shrink-0 h-12">
-                  {product.images.map((image, index) => (
+                  {displayImages.map((image, index) => (
                     <button
                       key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`flex-shrink-0 w-10 h-10 rounded border overflow-hidden ${
+                      onClick={() => handleImageSelect(index)}
+                      onMouseEnter={() => preloadImage(image, index)}
+                      className={`flex-shrink-0 w-10 h-10 rounded border overflow-hidden relative transition-all duration-200 ${
                         selectedImageIndex === index
                           ? "border-black border-2"
-                          : "border-gray-200"
+                          : "border-gray-200 hover:border-gray-400"
                       }`}
                     >
                       <img
                         src={image}
                         alt={`${product.title} ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-opacity duration-200"
+                        onLoad={() => handleImageLoad(index)}
+                        onError={() => handleImageError(index)}
+                        loading="lazy"
                       />
                     </button>
                   ))}
@@ -175,7 +363,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
             {/* Product Info */}
             <div className="w-2/3 flex flex-col justify-between overflow-y-auto">
-              <div className="space-y-3">
+              <div className="space-y-9 my-4">
                 {/* Title */}
                 <h2 className="text-lg font-bold text-black line-clamp-2">
                   {product.title}
@@ -184,20 +372,43 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                 {/* Color Selection */}
                 {product.colors && product.colors.length > 0 && (
                   <div>
-                    <h3 className="text-xs font-bold text-gray-900 mb-1">Colors</h3>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-4 ml-2">
                       {product.colors.map((color) => (
-                        <button
+                        <div 
                           key={color}
-                          className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
-                            selectedColor === color
-                              ? "border-black"
-                              : "border-gray-300"
+                          className={`cursor-pointer transition-all duration-300 ease-out ${
+                            selectedColor === color ? 'active' : ''
                           }`}
-                          style={{ backgroundColor: color.toLowerCase() }}
-                          onClick={() => handleColorSelect(color)}
-                          title={color}
-                        />
+                          onClick={() => handleColorChange(color)}
+                        >
+                          <div className={`w-24 h-24 rounded-xl border-2 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${
+                            selectedColor === color
+                              ? 'border-gray-800 transform scale-105'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
+                            {colorPreviewImages[color] ? (
+                              <img
+                                src={colorPreviewImages[color]}
+                                alt={`${product.title} in ${color}`}
+                                className="w-full h-full object-cover transition-transform duration-300"
+                                title={color}
+                              />
+                            ) : (
+                              <div 
+                                className="w-full h-full flex items-center justify-center"
+                                style={{ backgroundColor: color.toLowerCase() }}
+                                title={color}
+                              >
+                                <span className="text-sm text-white bg-black bg-opacity-60 px-2 py-1 rounded-md font-medium">
+                                  {color.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-sm text-center mt-2 text-gray-700 capitalize font-medium">
+                            {color}
+                          </p>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -241,7 +452,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                             key={size}
                             onClick={() => handleSizeSelect(size)}
                             disabled={quantity === 0}
-                            className={`w-10 h-8 text-xs font-medium border rounded transition-all duration-200 ${
+                            className={`w-12 h-8 text-xs font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${
                               selectedSize === size
                                 ? "border-black bg-black text-white"
                                 : quantity === 0
@@ -262,9 +473,11 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   <div className="flex h-12 w-full text-gray-900 border border-gray-300 rounded overflow-hidden">
                     <button
                       onClick={handleDecreaseAmount}
-                      className="flex items-center ml-4 w-1/3 text-sm"
+                      className="flex items-center justify-start ml-4 w-1/3 text-sm"
                     >
-                      -
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </button>
                     <input
                       type="number"
@@ -277,7 +490,10 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       onClick={handleIncreaseAmount}
                       className="flex items-center justify-end mr-4 w-1/3 text-sm"
                     >
-                      +
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -290,14 +506,14 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   type="button"
                   className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300"
                 >
-                  Add to cart
+                  ADD TO CART
                 </button>
                 <button
                   onClick={handleBuyNow}
                   type="button"
                   className="bg-black text-white py-4 px-3 font-bold text-xs uppercase"
                 >
-                  Buy Now
+                  BUY NOW
                 </button>
               </div>
             </div>
@@ -305,7 +521,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         ) : (
           // Error state
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500 text-sm">Không thể tải thông tin sản phẩm</p>
+            <p className="text-gray-500 text-sm">Unable to load product information</p>
           </div>
         )}
       </div>
