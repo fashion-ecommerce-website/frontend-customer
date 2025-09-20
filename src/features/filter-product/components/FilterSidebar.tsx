@@ -344,15 +344,18 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             {expandedSections.price && (
               <div className="space-y-2">
                 {priceOptions.map(option => (
-                  <label key={option.value} className="flex items-center">
+                  <label
+                    key={option.value}
+                    className="flex items-center cursor-pointer px-2 py-1 rounded transition-colors"
+                  >
                     <input
-                      type="radio"
+                      type="checkbox"
                       name="price"
-                      checked={filters.price === option.value}
+                      checked={filters.price === option.value || (!filters.price && option.value === '')}
                       onChange={() => handleFilterChange('price', option.value || undefined)}
-                      className="border-gray-300 text-black focus:ring-black"
+                      className="border-gray-300 w-4 h-4 text-black focus:ring-black accent-black"
                     />
-                    <span className="ml-2 text-sm text-black">{option.label}</span>
+                    <span className='ml-2 text-black'>{option.label}</span>
                   </label>
                 ))}
               </div>

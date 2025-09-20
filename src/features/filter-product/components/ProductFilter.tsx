@@ -47,7 +47,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
         {/* Filter Button */}
         <button 
           onClick={onOpenSidebar}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-500 rounded-md text-black"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-black"
         >
           Filters
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
         {/* Sort Dropdown */}
         <Listbox value={filters.sort || sortOptions[0].value} onChange={(value) => handleFilterChange('sort', value)}>
           <div className="relative">
-            <ListboxButton className="flex items-center justify-between w-48 px-4 py-2 border border-gray-500 rounded-md bg-white text-black">
+            <ListboxButton className="flex items-center justify-between w-48 px-4 py-2 border border-gray-300 rounded-md bg-white text-black">
               <span>{sortOptions.find(opt => opt.value === filters.sort)?.label || sortOptions[0].label}</span>
               <svg className="h-4 w-4 text-black" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path fillRule="evenodd" clipRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" />

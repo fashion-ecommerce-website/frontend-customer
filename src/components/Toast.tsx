@@ -39,14 +39,14 @@ export const Toast: React.FC<ToastProps> = ({
     
     switch (type) {
       case 'success':
-        return `${baseStyles} bg-green-500 text-white translate-x-0 opacity-100`;
+        return `${baseStyles} bg-white text-green-500 translate-x-0 opacity-100`;
       case 'error':
-        return `${baseStyles} bg-red-500 text-white translate-x-0 opacity-100`;
+        return `${baseStyles} bg-white text-red-500 translate-x-0 opacity-100`;
       case 'warning':
-        return `${baseStyles} bg-yellow-500 text-white translate-x-0 opacity-100`;
+        return `${baseStyles} bg-white text-yellow-500 translate-x-0 opacity-100`;
       case 'info':
       default:
-        return `${baseStyles} bg-blue-500 text-white translate-x-0 opacity-100`;
+        return `${baseStyles} bg-white text-blue-500 translate-x-0 opacity-100`;
     }
   };
 

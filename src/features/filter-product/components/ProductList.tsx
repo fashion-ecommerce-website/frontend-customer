@@ -75,12 +75,12 @@ export const ProductList: React.FC<ProductListProps> = ({
 
           {/* Product Info */}
           <div className="space-y-2">
-            <h3 className="font-medium text-black text-sm line-clamp-2 group-hover:text-gray-600 transition-colors">
+            <h3 className="font-semibold h-12 text-black text-[16px] line-clamp-2">
               {product.productTitle}
             </h3>
             
             <div className="flex items-center justify-between">
-              <p className="text-lg font-semibold text-black">
+              <p className="text-sm font-semibold text-black">
                 {formatPrice(product.price)}
               </p>
             </div>
@@ -90,9 +90,9 @@ export const ProductList: React.FC<ProductListProps> = ({
               {product.colors.map((color, index) => (
                 <div
                   key={index}
-                  className={`w-4 h-4 rounded-full ${
+                  className={`w-3 h-3 rounded-full ${
                     color === 'black' ? 'bg-black' :
-                    color === 'white' ? 'bg-white border border-black' :
+                    color === 'white' ? 'bg-white border border-gray-500' :
                     color === 'red' ? 'bg-red-500' :
                     color === 'blue' || color === 'dark blue' ? 'bg-blue-500' :
                     color === 'mint' ? 'bg-green-300' :

@@ -153,8 +153,10 @@ class BaseApi {
     retry: boolean = true
   ): Promise<ApiResponse<T>> {
     try {
-      // Proactively check and refresh token if needed (only for authenticated endpoints)
-      if (!endpoint.includes('/auth/') && !endpoint.includes('/public/')) {
+      // Chỉ kiểm tra token với các endpoint thực sự cần đăng nhập
+      // Không kiểm tra với GET /products hoặc các API public
+      const isGetProducts = options.method === 'GET' && endpoint.startsWith('/products');
+      if (!endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts) {
         const tokenValid = await this.ensureValidToken();
         if (!tokenValid) {
           return {

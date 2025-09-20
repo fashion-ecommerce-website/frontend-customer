@@ -95,7 +95,7 @@ export const RecentlyViewed: React.FC = () => {
                 >
                   <input
                     type="checkbox"
-                    className="absolute top-2 left-2 z-10"
+                    className={`absolute top-2 left-2 w-5 h-5 z-10 appearance-none border-2 border-gray-400 rounded bg-white checked:bg-black checked:border-black flex items-center justify-center transition-colors duration-200`}
                     checked={selected.includes(item.detailId)}
                     onClick={(e) => e.stopPropagation()}
                     onChange={() => {
@@ -106,6 +106,22 @@ export const RecentlyViewed: React.FC = () => {
                       );
                     }}
                   />
+                  {selected.includes(item.detailId) && (
+                    <svg
+                      className="absolute top-2 left-2 w-5 h-5 z-20 pointer-events-none"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5 10.5L9 14.5L15 7.5"
+                        stroke="white"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
                   <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
                     {firstImage ? (
                       <>
