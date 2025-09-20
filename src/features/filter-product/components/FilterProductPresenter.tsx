@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { ProductFilter } from './ProductFilter';
 import { FilterSidebar } from './FilterSidebar';
 import { ProductList } from './ProductList';
@@ -34,6 +34,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
 }) => {
   const [products, setProducts] = useState<FilterProductItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -56,12 +57,15 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   });
 
   const fetchProducts = async (searchFilters: ProductFilters) => {
+    // Đảm bảo skeleton hiển thị tối thiểu 400ms
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
     setIsLoading(true);
     setError(null);
-    
+    const start = Date.now();
     try {
       const response = await productApi.getProducts(searchFilters);
-      
       if (response.success && response.data) {
         setProducts(response.data.items);
         setPagination({
@@ -80,7 +84,15 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
       setError('Unable to connect to server');
       setProducts([]);
     } finally {
-      setIsLoading(false);
+      const elapsed = Date.now() - start;
+      const minDelay = 200;
+      if (elapsed < minDelay) {
+        loadingTimeoutRef.current = setTimeout(() => {
+          setIsLoading(false);
+        }, minDelay - elapsed);
+      } else {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -135,6 +147,8 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
         </div>
       )}
 
+      <div className="mb-4 text-black flex justify-center font-bold text-[32px]">T-SHIRT</div>
+
       {/* Header với Breadcrumb và Sort */}
       <ProductFilter
         filters={filters}
@@ -149,18 +163,6 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
         filters={filters}
         onFiltersChange={handleFiltersChange}
       />
-
-      {/* Results Info */}
-      <div className="flex justify-between items-center mb-6 mt-6">
-        <div className="text-sm text-black flex items-center gap-2">
-          {isLoading && (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
-          )}
-          {isLoading && (
-            <span>Loading...</span>
-          )}
-        </div>
-      </div>
 
       {/* Product List */}
       <ProductList
