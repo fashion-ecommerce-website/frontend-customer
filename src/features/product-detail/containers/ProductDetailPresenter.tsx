@@ -91,8 +91,8 @@ export function ProductDetailPresenter({
   return (
     <div className="min-h-screen bg-white">
       {/* Main Product Section */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 gap-8">
+      <div className="mx-auto px-12 max-w-none">
+        <div className="grid grid-cols-2 gap-8 py-6">
           {/* Left Side: Image Gallery + Tabs */}
           <div className="space-y-6">
             {/* MLB Korea Style Gallery - Simplified and Fixed */}
@@ -226,11 +226,7 @@ export function ProductDetailPresenter({
       </div>
 
       {/* Related Products */}
-      <div className="bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <RelatedProducts category="ao-thun" />
-        </div>
-      </div>
+      <RelatedProducts category="ao-thun" />
 
       {/* Recently Viewed Products */}
       <ProductDetailRecentlyViewed />
