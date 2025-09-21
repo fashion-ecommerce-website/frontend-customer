@@ -204,7 +204,6 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
               {displayItems.map((item, index) => {
                 const firstImage = item.imageUrls?.[0] ?? '';
                 const secondImage = item.imageUrls?.[1] ?? null;
-                const originalPrice = Math.round(item.price * 1.3);
 
                 return (
                   <div
@@ -237,50 +236,39 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
 
                     {/* Product Info */}
                     <div className="space-y-2">
-                      <h3 className="text-sm font-medium text-gray-900 line-clamp-2 leading-tight min-h-[2.5rem]">
+                      <h3 className="font-semibold h-12 text-black text-[14px] sm:text-[16px] line-clamp-2 leading-tight">
                         {item.productTitle}
                       </h3>
 
-                      <div className="flex items-center gap-2">
-                        {/* Color indicators */}
-                        {item.colors && item.colors.length > 0 && (
-                          <div className="flex gap-1">
-                            {item.colors.slice(0, 3).map((color) => (
-                              <div
-                                key={color}
-                                className={`w-3 h-3 rounded-full transition-transform hover:scale-110 ${
-                                  color === 'white' ? 'bg-white border border-gray-300' :
-                                  color === 'black' ? 'bg-black' :
-                                  color === 'gray' ? 'bg-gray-500' :
-                                  color === 'navy' ? 'bg-blue-900' :
-                                  color === 'pink' ? 'bg-pink-400' :
-                                  color === 'mint' ? 'bg-green-200' :
-                                  color === 'brown' ? 'bg-amber-800' :
-                                  color === 'olive' ? 'bg-yellow-600' :
-                                  color === 'cream' ? 'bg-yellow-100' :
-                                  color === 'red' ? 'bg-red-500' :
-                                  color === 'blue' ? 'bg-blue-500' :
-                                  color === 'yellow' ? 'bg-yellow-400' :
-                                  'bg-gray-300'
-                                }`}
-                                title={color}
-                              />
-                            ))}
-                            {item.colors.length > 3 && (
-                              <div className="text-xs text-gray-500 ml-1">+{item.colors.length - 3}</div>
-                            )}
-                          </div>
-                        )}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-black">
+                          {formatPrice(item.price)}
+                        </p>
                       </div>
 
-                      {/* Price */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-semibold text-gray-900">
-                          {formatPrice(item.price)}
-                        </span>
-                        <span className="text-sm text-gray-500 line-through">
-                          {formatPrice(originalPrice)}
-                        </span>
+                      {/* Available colors */}
+                      <div className="flex items-center gap-1">
+                        {item.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className={`w-3 h-3 rounded-full transition-transform hover:scale-110 ${
+                              color === 'black' ? 'bg-black' :
+                              color === 'white' ? 'bg-white border border-gray-500' :
+                              color === 'red' ? 'bg-red-500' :
+                              color === 'blue' || color === 'dark blue' ? 'bg-blue-500' :
+                              color === 'mint' ? 'bg-green-300' :
+                              color === 'brown' ? 'bg-amber-700' :
+                              color === 'yellow' ? 'bg-yellow-400' :
+                              color === 'pink' ? 'bg-pink-400' :
+                              color === 'olive' ? 'bg-green-600' :
+                              color === 'cream' ? 'bg-yellow-100' :
+                              color === 'light blue' ? 'bg-blue-200' :
+                              color === 'gray' ? 'bg-gray-400' :
+                              'bg-gray-400'
+                            }`}
+                            title={color}
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>
