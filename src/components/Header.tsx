@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppSelector } from "@/hooks/redux";
+import { selectCartItemCount } from "@/features/cart/redux/cartSlice";
 import { PromotionalBanner } from "./PromotionalBanner";
 
 export const Header: React.FC = () => {
@@ -15,6 +17,9 @@ export const Header: React.FC = () => {
 
   // Get authentication state from custom hook
   const { isAuthenticated, user, logout } = useAuth();
+  
+  // Get cart item count from Redux store
+  const cartItemCount = useAppSelector(selectCartItemCount);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -131,7 +136,7 @@ export const Header: React.FC = () => {
               </div>
               <Link
                 href="/cart"
-                className="text-black"
+                className="text-black relative"
               >
                 <svg
                   className="h-6 w-6"
@@ -146,6 +151,12 @@ export const Header: React.FC = () => {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
+                {/* Cart item count badge */}
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+                    {cartItemCount > 99 ? '99+' : cartItemCount}
+                  </span>
+                )}
               </Link>
 
               {/* Profile/Login Button with Authentication Check */}

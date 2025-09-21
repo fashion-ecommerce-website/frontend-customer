@@ -2,6 +2,7 @@
 export { Header } from './Header';
 export { Footer } from './Footer';
 export { AuthInitializer } from './AuthInitializer';
+export { CartInitializer } from './CartInitializer';
 export { AuthGuard } from './AuthGuard';
 export { PromotionalBanner } from './PromotionalBanner';
 

@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
+import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { ProductDetail } from '@/services/api/productApi';
 
 interface ProductInfoProps {
@@ -20,21 +23,41 @@ export function ProductInfo({
   onSizeSelect,
   isColorLoading = false,
 }: ProductInfoProps) {
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
-      setTimeout(() => setShowSizeNotice(false), 3000); // Hide after 3 seconds
+      setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
-    // Add to cart logic here
-    console.log('Adding to cart:', { product: product.detailId, color: selectedColor, size: selectedSize });
+
+    if (!isAuthenticated) {
+      alert('Please login to add items to cart');
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      
+      dispatch(addToCartAsync({
+        productDetailId: product.detailId,
+        quantity: quantity
+      }));
+    } catch (error) {
+      // Handle error silently or show user-friendly message
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   const handleBuyNow = () => {
@@ -153,14 +176,36 @@ export function ProductInfo({
         </div>
       )}
 
+      {/* Quantity Selector */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-800">Quantity</label>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            disabled={quantity <= 1}
+            className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            −
+          </button>
+          <span className="w-12 text-center font-medium text-gray-800">{quantity}</span>
+          <button
+            onClick={() => setQuantity(quantity + 1)}
+            className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
       {/* Action Buttons */}
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={handleAddToCart}
-            className="bg-black text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all duration-200"
+            disabled={addingToCart || !selectedSize}
+            className="bg-black text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ADD TO CART
+            {addingToCart ? "ADDING..." : "ADD TO CART"}
           </button>
           <button
             onClick={handleBuyNow}

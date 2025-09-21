@@ -40,5 +40,14 @@ export const API_ENDPOINTS = {
     LIST: '/products',
     DETAIL: '/products', // GET /products/{id}
     COLOR: '/products', // GET /products/{id}/color?activeColor={color}
+  },
+
+  // Cart endpoints
+  CART: {
+    LIST: '/cart',
+    ADD: '/cart',
+    UPDATE: '/cart', // PUT /cart/{id}
+    REMOVE: '/cart', // DELETE /cart/{id}
+    CLEAR: '/cart'
   }
 };

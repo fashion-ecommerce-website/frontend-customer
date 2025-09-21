@@ -1,0 +1,154 @@
+"use client";
+
+// Cart Presenter Component
+// Presentational component for cart page UI
+
+import React from "react";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { CartItemComponent } from "./CartItem";
+import { CartSummaryComponent } from "./CartSummary";
+import { CartPresenterProps } from "../types";
+
+export const CartPresenter: React.FC<CartPresenterProps> = ({
+  cartItems,
+  cartSummary,
+  loading,
+  error,
+  allItemsSelected,
+  onRemoveItem,
+  onSelectItem,
+  onUnselectItem,
+  onSelectAll,
+  onUnselectAll,
+  onCheckout,
+  onContinueShopping,
+  onClearError,
+  onEditItem,
+}) => {
+  const breadcrumbItems = [
+    {
+      label: "HOME",
+      className: "text-gray-400 font-semibold font-[12px]",
+      href: "/",
+    },
+    {
+      label: "SHOPPING CART",
+      className: "text-black font-semibold font-[12px]",
+      href: "/cart",
+    },
+  ];
+
+  // Handle select all toggle
+  const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      onSelectAll();
+    } else {
+      onUnselectAll();
+    }
+  };
+
+  // Empty cart state
+  if (cartItems.length === 0 && !loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Breadcrumb items={breadcrumbItems} />
+
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold mb-4 text-black">
+              Your cart is empty
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Add products to your cart to continue shopping
+            </p>
+            <button
+              onClick={onContinueShopping}
+              className="bg-black text-white px-6 py-2 rounded-lg font-[14px] hover:bg-gray-800 transition-colors"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <Breadcrumb items={breadcrumbItems} />
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 mb-4 rounded-lg relative">
+            <span className="block sm:inline">{error}</span>
+            <button
+              onClick={onClearError}
+              className="absolute top-0 bottom-0 right-0 px-4 py-3 hover:bg-red-100 transition-colors"
+            >
+              <span className="sr-only">Dismiss</span>✕
+            </button>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+          </div>
+        )}
+
+        {/* Header with select all */}
+        <div className="bg-white mb-4 px-10 py-4">
+          <div className="flex items-center space-x-4">
+            <input
+              type="checkbox"
+              checked={allItemsSelected}
+              onChange={handleSelectAllChange}
+              className="border-gray-300 w-5 h-5 text-gray-800 focus:ring-gray-800 accent-gray-800 transition-all duration-200"
+            />
+            <span className="font-semibold text-black">Select All</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-10">
+          {/* Cart Items */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg">
+              {cartItems.map((item) => (
+                <CartItemComponent
+                  key={item.id}
+                  item={item}
+                  onRemove={onRemoveItem}
+                  onSelect={onSelectItem}
+                  onUnselect={onUnselectItem}
+                  onEdit={onEditItem}
+                  loading={loading}
+                />
+              ))}
+            </div>
+
+            {/* Continue Shopping Button */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={onContinueShopping}
+                className=" bg-white border border-gray-300 text-black px-6 py-3 rounded-[4px] font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+
+          {/* Cart Summary */}
+          <div className="lg:col-span-1">
+            <CartSummaryComponent
+              summary={cartSummary}
+              onCheckout={onCheckout}
+              loading={loading}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

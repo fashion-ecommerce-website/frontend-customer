@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { selectIsAuthenticated } from "@/features/auth/login/redux/loginSlice";
+import { addToCartAsync } from "@/features/cart/redux/cartSaga";
 import { productApi, ProductDetail } from "@/services/api/productApi";
 
 interface ProductQuickViewModalProps {
@@ -14,8 +17,11 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   onClose,
   productId,
 }) => {
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -194,19 +200,40 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     setShowSizeNotice(false);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
       setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
-    // TODO: Add to cart logic
-    console.log("Adding to cart:", {
-      product: product?.detailId,
-      color: selectedColor,
-      size: selectedSize,
-    });
-    onClose();
+
+    if (!product) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      alert('Please login to add items to cart');
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      
+      const payload = {
+        productDetailId: product.detailId,
+        quantity: selectedAmount
+      };
+
+      dispatch(addToCartAsync(payload));
+
+      // Close modal after adding to cart
+      onClose();
+    } catch (error) {
+      console.error("❌ Failed to add to cart:", error);
+    } finally {
+      console.log("🏁 Setting addingToCart to false");
+      setAddingToCart(false);
+    }
   };
 
   const handleBuyNow = () => {
@@ -503,10 +530,11 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
               <div className="grid grid-cols-2 gap-2 mt-3">
                 <button
                   onClick={handleAddToCart}
+                  disabled={addingToCart || !selectedSize}
                   type="button"
-                  className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300"
+                  className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
-                  ADD TO CART
+                  {addingToCart ? "ADDING..." : "ADD TO CART"}
                 </button>
                 <button
                   onClick={handleBuyNow}
