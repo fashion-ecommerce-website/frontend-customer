@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useCallback, useMemo, useEffect } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import { FilterProductItem } from '@/features/filter-product';
 
 interface RelatedProductsProps {
@@ -12,6 +11,8 @@ interface RelatedProductsProps {
 
 export function RelatedProducts({ category }: RelatedProductsProps) {
   const router = useRouter();
+  const [items, setItems] = useState<FilterProductItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Mock data similar to recently viewed
   const getMockRelatedProducts = (): FilterProductItem[] => [
@@ -95,11 +96,11 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
     }
   ];
 
-  const items = getMockRelatedProducts();
-
   const displayItems = useMemo(() => {
-    if (items.length === 0) return [];
-    return [...items, ...items, ...items];
+    if (items.length === 0) return []
+    // Create multiple copies for smooth infinite loop
+    else if (items.length > 5) return [...items, ...items];
+    return [...items];
   }, [items]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -110,15 +111,8 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
       skipSnaps: false,
       dragFree: false,
       startIndex: items.length,
-    },
-    [
-      Autoplay({
-        delay: 10000,
-        stopOnInteraction: true,
-        stopOnMouseEnter: true,
-        rootNode: (emblaRoot) => emblaRoot.parentElement,
-      })
-    ]
+    }
+    
   );
 
   useEffect(() => {
@@ -143,9 +137,48 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
     router.push(`/products/${detailId}`);
   }, [router]);
 
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+  // Format price function
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(price);
   };
+
+  useEffect(() => {
+    const fetchRelatedProducts = async () => {
+      try {
+        setLoading(true);
+        // Use mock data for now
+        const mockItems = getMockRelatedProducts();
+        setItems(mockItems);
+      } catch (error) {
+        console.error('❌ Failed to fetch related products:', error);
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRelatedProducts();
+  }, [category]);
+
+  if (loading) {
+    return (
+      <div className="bg-gray-50 py-8 md:py-12">
+        <div className="mx-auto px-12 max-w-none">
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-[20px] leading-7 font-bold text-gray-900 border-b-[3px] border-black pb-2">
+              You may also like
+            </h2>
+          </div>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!items || items.length === 0) {
     return null;
@@ -162,41 +195,48 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
         </div>
 
         {/* Embla Carousel with Navigation */}
-        <div className="relative">
-          {/* Navigation Buttons */}
-          <div className="absolute left-0 right-0 top-[42%] -translate-y-1/2 hidden sm:flex justify-between items-center pointer-events-none z-10 px-2.5">
-            <button
-              type="button"
-              onClick={scrollPrev}
-              className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
-              style={{
-                transform: 'translateY(-50%)',
-                WebkitTransform: 'translateY(-50%)',
-                msTransform: 'translateY(-50%)',
-                OTransform: 'translateY(-50%)'
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
-                <path d="M22.5 43.8335L1.66666 23.0002L22.5 2.16683" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
-              </svg>
-            </button>
 
-            <button
-              type="button"
-              onClick={scrollNext}
-              className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
-              style={{
-                transform: 'translateY(-50%)',
-                WebkitTransform: 'translateY(-50%)',
-                msTransform: 'translateY(-50%)',
-                OTransform: 'translateY(-50%)'
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
-                <path d="M1.66675 2.1665L22.5001 22.9998L1.66675 43.8332" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
-              </svg>
-            </button>
-          </div>
+        <div className="relative">
+          {/* Navigation Buttons - Hidden on mobile, positioned in center */}
+          {items.length > 5 && (
+            <div className="absolute left-0 right-0 top-[42%] -translate-y-1/2 hidden sm:flex justify-between items-center pointer-events-none z-10 px-2.5">
+              <button
+                type="button"
+                onClick={scrollPrev}
+                className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
+                style={{
+                  transform: 'translateY(-50%)',
+                  WebkitTransform: 'translateY(-50%)',
+                  msTransform: 'translateY(-50%)',
+                  OTransform: 'translateY(-50%)'
+                }}
+              >
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
+                  <path d="M22.5 43.8335L1.66666 23.0002L22.5 2.16683" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
+                </svg>
+
+
+              </button>
+
+              <button
+                type="button"
+                onClick={scrollNext}
+                className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
+                style={{
+                  transform: 'translateY(-50%)',
+                  WebkitTransform: 'translateY(-50%)',
+                  msTransform: 'translateY(-50%)',
+                  OTransform: 'translateY(-50%)'
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
+                  <path d="M1.66675 2.1665L22.5001 22.9998L1.66675 43.8332" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
+                </svg>
+              </button>
+            </div>
+          )}
 
           {/* Carousel */}
           <div className="overflow-hidden" ref={emblaRef}>
@@ -277,6 +317,7 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

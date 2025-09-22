@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import { useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
@@ -24,12 +23,12 @@ export function ProductDetailRecentlyViewed() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [items, setItems] = useState<RecentlyViewedItem[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   const displayItems = useMemo(() => {
-    if (items.length === 0) return [];
-    
+    if (items.length === 0) return []
     // Create multiple copies for smooth infinite loop
-    return [...items, ...items, ...items];
+    else if (items.length > 5) return [...items, ...items];
+    return [...items];
   }, [items]);
   const router = useRouter();
 
@@ -41,15 +40,8 @@ export function ProductDetailRecentlyViewed() {
       skipSnaps: false,
       dragFree: false,
       startIndex: items.length,
-    },
-    [
-      Autoplay({
-        delay: 10000,
-        stopOnInteraction: true,
-        stopOnMouseEnter: true,
-        rootNode: (emblaRoot) => emblaRoot.parentElement,
-      })
-    ]
+    }
+    
   );
 
   useEffect(() => {
@@ -144,121 +136,127 @@ export function ProductDetailRecentlyViewed() {
         </div>
 
         {/* Embla Carousel with Navigation */}
+
         <div className="relative">
           {/* Navigation Buttons - Hidden on mobile, positioned in center */}
-          <div className="absolute left-0 right-0 top-[42%] -translate-y-1/2 hidden sm:flex justify-between items-center pointer-events-none z-10 px-2.5">
-            <button
-              type="button"
-              onClick={scrollPrev}
-              className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
-              style={{
-                transform: 'translateY(-50%)',
-                WebkitTransform: 'translateY(-50%)',
-                msTransform: 'translateY(-50%)',
-                OTransform: 'translateY(-50%)'
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
-                <path d="M22.5 43.8335L1.66666 23.0002L22.5 2.16683" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
-              </svg>
-            </button>
+          {items.length > 5 && (
+            <div className="absolute left-0 right-0 top-[42%] -translate-y-1/2 hidden sm:flex justify-between items-center pointer-events-none z-10 px-2.5">
+              <button
+                type="button"
+                onClick={scrollPrev}
+                className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
+                style={{
+                  transform: 'translateY(-50%)',
+                  WebkitTransform: 'translateY(-50%)',
+                  msTransform: 'translateY(-50%)',
+                  OTransform: 'translateY(-50%)'
+                }}
+              >
 
-            <button
-              type="button"
-              onClick={scrollNext}
-              className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
-              style={{
-                transform: 'translateY(-50%)',
-                WebkitTransform: 'translateY(-50%)',
-                msTransform: 'translateY(-50%)',
-                OTransform: 'translateY(-50%)'
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
-                <path d="M1.66675 2.1665L22.5001 22.9998L1.66675 43.8332" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
-              </svg>
-            </button>
-          </div>
 
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
+                  <path d="M22.5 43.8335L1.66666 23.0002L22.5 2.16683" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
+                </svg>
+
+
+              </button>
+
+              <button
+                type="button"
+                onClick={scrollNext}
+                className="pointer-events-auto w-10 h-10 flex items-center justify-center rounded-full text-[0] transition-all duration-300 bg-black/40 hover:bg-black/60"
+                style={{
+                  transform: 'translateY(-50%)',
+                  WebkitTransform: 'translateY(-50%)',
+                  msTransform: 'translateY(-50%)',
+                  OTransform: 'translateY(-50%)'
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 46" fill="none">
+                  <path d="M1.66675 2.1665L22.5001 22.9998L1.66675 43.8332" stroke="white" strokeWidth="2" strokeLinecap="square"></path>
+                </svg>
+              </button>
+            </div>
+          )}
           {/* Carousel */}
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-6">
               {displayItems.map((item, index) => {
-              const firstImage = item.imageUrls?.[0] ?? '';
-              const secondImage = item.imageUrls?.[1] ?? null;
+                const firstImage = item.imageUrls?.[0] ?? '';
+                const secondImage = item.imageUrls?.[1] ?? null;
 
-              return (
-                <div
-                  key={`${item.detailId}-${index}`}
-                  className="flex-[0_0_calc(20%-1.2rem)] sm:flex-[0_0_calc(33.333%-1rem)] lg:flex-[0_0_calc(20%-1.2rem)] min-w-0 group cursor-pointer"
-                  onClick={() => handleProductClick(item.detailId, item.productSlug)}
-                >
-                  {/* Product Image */}
-                  <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
-                    {firstImage ? (
-                      <>
-                        {/* Base image */}
-                        <div
-                          className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat transition-opacity duration-300"
-                          style={{ backgroundImage: `url(${firstImage})` }}
-                        />
-
-                        {/* Hover image */}
-                        {secondImage && (
+                return (
+                  <div
+                    key={`${item.detailId}-${index}`}
+                    className="flex-[0_0_calc(20%-1.2rem)] sm:flex-[0_0_calc(33.333%-1rem)] lg:flex-[0_0_calc(20%-1.2rem)] min-w-0 group cursor-pointer"
+                    onClick={() => handleProductClick(item.detailId, item.productSlug)}
+                  >
+                    {/* Product Image */}
+                    <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+                      {firstImage ? (
+                        <>
+                          {/* Base image */}
                           <div
-                            className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat opacity-0 transition-opacity duration-300 ease-linear group-hover:opacity-100"
-                            style={{ backgroundImage: `url(${secondImage})` }}
+                            className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat transition-opacity duration-300"
+                            style={{ backgroundImage: `url(${firstImage})` }}
                           />
-                        )}
-                      </>
-                    ) : (
-                      <div className="w-full h-full bg-gray-200" />
-                    )}
-                  </div>
 
-                  {/* Product Info */}
-                  <div className="space-y-2">
-                    <h3 className="font-semibold h-12 text-black text-[14px] sm:text-[16px] line-clamp-2 leading-tight">
-                      {item.productTitle}
-                    </h3>
-
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-black">
-                        {formatPrice(item.price)}
-                      </p>
+                          {/* Hover image */}
+                          {secondImage && (
+                            <div
+                              className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat opacity-0 transition-opacity duration-300 ease-linear group-hover:opacity-100"
+                              style={{ backgroundImage: `url(${secondImage})` }}
+                            />
+                          )}
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gray-200" />
+                      )}
                     </div>
 
-                    {/* Available colors */}
-                    <div className="flex items-center gap-1">
-                      {item.colors.map((color, index) => (
-                        <div
-                          key={index}
-                          className={`w-3 h-3 rounded-full transition-transform hover:scale-110 ${
-                            color === 'black' ? 'bg-black' :
-                            color === 'white' ? 'bg-white border border-gray-500' :
-                            color === 'red' ? 'bg-red-500' :
-                            color === 'blue' || color === 'dark blue' ? 'bg-blue-500' :
-                            color === 'mint' ? 'bg-green-300' :
-                            color === 'brown' ? 'bg-amber-700' :
-                            color === 'yellow' ? 'bg-yellow-400' :
-                            color === 'pink' ? 'bg-pink-400' :
-                            color === 'olive' ? 'bg-green-600' :
-                            color === 'cream' ? 'bg-yellow-100' :
-                            color === 'light blue' ? 'bg-blue-200' :
-                            color === 'gray' ? 'bg-gray-400' :
-                            'bg-gray-400'
-                          }`}
-                          title={color}
-                        />
-                      ))}
+                    {/* Product Info */}
+                    <div className="space-y-2">
+                      <h3 className="font-semibold h-12 text-black text-[14px] sm:text-[16px] line-clamp-2 leading-tight">
+                        {item.productTitle}
+                      </h3>
+
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-black">
+                          {formatPrice(item.price)}
+                        </p>
+                      </div>
+
+                      {/* Available colors */}
+                      <div className="flex items-center gap-1">
+                        {item.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className={`w-3 h-3 rounded-full transition-transform hover:scale-110 ${color === 'black' ? 'bg-black' :
+                              color === 'white' ? 'bg-white border border-gray-500' :
+                                color === 'red' ? 'bg-red-500' :
+                                  color === 'blue' || color === 'dark blue' ? 'bg-blue-500' :
+                                    color === 'mint' ? 'bg-green-300' :
+                                      color === 'brown' ? 'bg-amber-700' :
+                                        color === 'yellow' ? 'bg-yellow-400' :
+                                          color === 'pink' ? 'bg-pink-400' :
+                                            color === 'olive' ? 'bg-green-600' :
+                                              color === 'cream' ? 'bg-yellow-100' :
+                                                color === 'light blue' ? 'bg-blue-200' :
+                                                  color === 'gray' ? 'bg-gray-400' :
+                                                    'bg-gray-400'
+                              }`}
+                            title={color}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-        </div>
+
       </div>
     </div>
   );
