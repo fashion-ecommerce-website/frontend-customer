@@ -7,12 +7,14 @@ interface ProductListProps {
   products: FilterProductItem[];
   isLoading: boolean;
   onProductClick: (detailId: number, slug: string) => void;
+  gridColumns?: string; // Custom grid columns classes
 }
 
 export const ProductList: React.FC<ProductListProps> = ({
   products,
   isLoading,
-  onProductClick
+  onProductClick,
+  gridColumns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" // Default layout
 }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -38,7 +40,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className={`grid ${gridColumns} gap-6`}>
       {products.map((product) => {
         const firstImage = product.imageUrls?.[0] ?? '';
         const secondImage = product.imageUrls?.[1] ?? null;
