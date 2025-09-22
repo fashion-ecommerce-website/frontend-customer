@@ -8,7 +8,7 @@ import {
   ProductTabs,
   RelatedProducts,
   ProductDetailRecentlyViewed,
-} from '../components';
+} from '.';
 
 interface ProductDetailPresenterProps {
   product: ProductDetail;
@@ -31,7 +31,6 @@ export function ProductDetailPresenter({
 }: ProductDetailPresenterProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  // Removed local isColorLoading state - using Redux state via isLoading prop
   
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
@@ -97,91 +96,7 @@ export function ProductDetailPresenter({
           <div className="space-y-6">
             {/* MLB Korea Style Gallery - Simplified and Fixed */}
             <div className="px-[70px]">
-              <div className="flex gap-4 items-start">
-                {/* Thumbnail Sidebar - Left Side */}
-                <div className="wrapper-list-thumb-image-detail w-24 flex-shrink-0">
-                  <div 
-                    className="list-thumb-image-detail flex flex-col space-y-2 overflow-y-auto overflow-x-hidden" 
-                    style={{
-                      height: '616px',
-                      scrollbarWidth: 'thin',
-                      scrollbarColor: '#9CA3AF transparent'
-                    }}
-                  >
-                    {product.images.map((image, index) => (
-                      <div
-                        key={index}
-                        className={`item-image-detail w-24 h-24 bg-white border transition-all duration-200 hover:border-gray-400 cursor-pointer ${
-                          selectedImageIndex === index ? 'active border-black border-2' : 'border-gray-200'
-                        }`}
-                        onClick={() => handleThumbnailClick(index)}
-                        data-image={image}
-                      >
-                        <img
-                          src={image}
-                          alt={`${product.title} view ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Main Carousel - Right Side */}
-                <div className="flex-1 relative">
-                  {/* Navigation Arrows - Inverted Colors */}
-                  <button 
-                    onClick={handlePreviousImage}
-                    disabled={isTransitioning}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-transparent rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="46" viewBox="0 0 24 46" fill="none">
-                      <path d="M22.5 43.8335L1.66666 23.0002L22.5 2.16683" stroke="black" strokeWidth="2" strokeLinecap="square"></path>
-                    </svg>
-                  </button>
-                  <button 
-                    onClick={handleNextImage}
-                    disabled={isTransitioning}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-transparent rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="46" viewBox="0 0 24 46" fill="none">
-                      <path d="M1.66675 2.1665L22.5001 22.9998L1.66675 43.8332" stroke="black" strokeWidth="2" strokeLinecap="square"></path>
-                    </svg>
-                  </button>
-
-                  {/* Main Image Display - Clean without loading overlay */}
-                  <div className="aspect-square bg-white relative overflow-hidden border border-gray-200">
-                    <img
-                      src={product.images[selectedImageIndex]}
-                      alt={`${product.title} - Image ${selectedImageIndex + 1}`}
-                      className="w-full h-full object-cover transition-all duration-300 ease-in-out"
-                      loading="eager"
-                      onLoad={() => {
-                        // Smooth transition when image loads
-                      }}
-                    />
-                  </div>
-
-                  {/* Dot Pagination */}
-                  <div className="flex justify-center mt-4 space-x-2">
-                    {product.images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleDotClick(index)}
-                        disabled={isTransitioning}
-                        className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                          selectedImageIndex === index 
-                            ? 'bg-black' 
-                            : 'bg-gray-300 hover:bg-gray-400'
-                        }`}
-                      >
-                        <span className="sr-only">Go to image {index + 1}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <ProductImageGallery images={product.images} productTitle={product.title} />
             </div>
             
             {/* Product Details Tabs */}
@@ -191,7 +106,7 @@ export function ProductDetailPresenter({
           </div>
 
           {/* Right Side: Product Information */}
-          <div className="pl-[44px] sticky top-0 max-h-[620px] overflow-y-auto pr-2">
+          <div className="pl-[44px] sticky top-0 max-h[620px] overflow-y-auto pr-2">
             {/* Header with Share/Wishlist */}
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -240,3 +155,5 @@ export function ProductDetailPresenter({
     </div>
   );
 }
+
+
