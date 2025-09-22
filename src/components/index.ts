@@ -13,6 +13,7 @@ export { GoogleAuth } from './GoogleAuth';
 
 // Toast Components
 export { Toast } from './Toast';
+export { ProductToast } from './ProductToast';
 export { useToast } from '../providers/ToastProvider';
 
 // UI Components

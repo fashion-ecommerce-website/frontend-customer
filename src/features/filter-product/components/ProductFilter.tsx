@@ -125,7 +125,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-400 rounded-[8px] shadow-2xl z-10 max-h-60">
+              <ListboxOptions className="absolute mt-1 w-full bg-white border border-gray-400 rounded-[8px] shadow-2xl max-h-60 z-20">
                 {sortOptions.map((option) => (
                   <ListboxOption
                     key={option.value}

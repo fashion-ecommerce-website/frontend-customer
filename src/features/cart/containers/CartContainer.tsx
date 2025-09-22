@@ -31,6 +31,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   // Quick view modal state
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [selectedProductDetailId, setSelectedProductDetailId] = useState<number | null>(null);
+  const [selectedItemSize, setSelectedItemSize] = useState<string | undefined>(undefined);
 
   // Handle item removal
   const handleRemoveItem = useCallback(async (cartItemId: number) => {
@@ -80,6 +81,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   // Handle edit item - open quick view modal
   const handleEditItem = useCallback((item: CartItem) => {
     setSelectedProductDetailId(item.productDetailId);
+    setSelectedItemSize(item.sizeName);
     setIsQuickViewOpen(true);
   }, []);
 
@@ -114,8 +116,13 @@ export const CartContainer: React.FC<CartContainerProps> = ({
             {/* Quick View Modal */}
             <ProductQuickViewModal
               isOpen={isQuickViewOpen}
-              onClose={() => setIsQuickViewOpen(false)}
+              onClose={() => {
+                setIsQuickViewOpen(false);
+                setSelectedProductDetailId(null);
+                setSelectedItemSize(undefined);
+              }}
               productId={selectedProductDetailId}
+              currentSize={selectedItemSize}
             />
           </>
         )}

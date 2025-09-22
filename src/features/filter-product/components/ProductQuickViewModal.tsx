@@ -1,24 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import { useCartActions } from "@/hooks/useCartActions";
 import { selectIsAuthenticated } from "@/features/auth/login/redux/loginSlice";
-import { addToCartAsync } from "@/features/cart/redux/cartSaga";
 import { productApi, ProductDetail } from "@/services/api/productApi";
 
 interface ProductQuickViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   productId: number | null;
+  currentSize?: string; // Size hiện tại trong cart (optional)
 }
 
 export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   isOpen,
   onClose,
   productId,
+  currentSize,
 }) => {
-  const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const { addToCartWithToast } = useCartActions({
+    onSuccess: () => {
+      setAddingToCart(false);
+      onClose(); // Close modal after successful add
+    },
+    onError: () => {
+      setAddingToCart(false);
+    }
+  });
+  
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -60,6 +71,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   useEffect(() => {
     if (isOpen && productId) {
       fetchProductDetail();
+      // Reset quantity when modal opens
+      setSelectedAmount(1);
     }
   }, [isOpen, productId]);
 
@@ -67,15 +80,17 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   useEffect(() => {
     if (product) {
       setSelectedColor(product.activeColor || product.colors[0] || "");
-      setSelectedSize("");
+      // Set size từ cart nếu có, nếu không thì để trống
+      setSelectedSize(currentSize || "");
       setSelectedImageIndex(0);
       setShowSizeNotice(false);
+      setSelectedAmount(1); // Reset quantity to 1 when product changes
       // Don't reset image loading states - let images load naturally
       
       // Fetch color preview images
       fetchColorPreviewImages();
     }
-  }, [product]);
+  }, [product, currentSize]);
 
   // Simplified preload effect - avoid complex dependencies
   useEffect(() => {
@@ -219,19 +234,17 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     try {
       setAddingToCart(true);
       
-      const payload = {
+      await addToCartWithToast({
         productDetailId: product.detailId,
-        quantity: selectedAmount
-      };
+        quantity: selectedAmount,
+        // Additional data for toast
+        productImage: product.images[0] || '/images/placeholder.jpg',
+        productTitle: product.title,
+        price: product.price
+      });
 
-      dispatch(addToCartAsync(payload));
-
-      // Close modal after adding to cart
-      onClose();
     } catch (error) {
       console.error("❌ Failed to add to cart:", error);
-    } finally {
-      console.log("🏁 Setting addingToCart to false");
       setAddingToCart(false);
     }
   };

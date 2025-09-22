@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useAppSelector } from '@/hooks/redux';
+import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
-import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { ProductDetail } from '@/services/api/productApi';
 
 interface ProductInfoProps {
@@ -23,8 +23,16 @@ export function ProductInfo({
   onSizeSelect,
   isColorLoading = false,
 }: ProductInfoProps) {
-  const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const { addToCartWithToast } = useCartActions({
+    onSuccess: () => {
+      setAddingToCart(false);
+    },
+    onError: () => {
+      setAddingToCart(false);
+    }
+  });
+  
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -49,13 +57,16 @@ export function ProductInfo({
     try {
       setAddingToCart(true);
       
-      dispatch(addToCartAsync({
+      await addToCartWithToast({
         productDetailId: product.detailId,
-        quantity: quantity
-      }));
+        quantity: quantity,
+        // Additional data for toast
+        productImage: product.images[0] || '/images/placeholder.jpg',
+        productTitle: product.title,
+        price: product.price
+      });
     } catch (error) {
-      // Handle error silently or show user-friendly message
-    } finally {
+      // Error handling is done in the hook
       setAddingToCart(false);
     }
   };
