@@ -16,8 +16,8 @@ import {
 import {
   mockBanners,
   mockNewArrivals,
-  mockRecommendedProducts,
-  mockProductCategories
+  mockProductCategories,
+  mockRankingProducts
 } from '../data/mockData';
 
 // Initial state
@@ -102,7 +102,7 @@ const initialState: HomeState = {
   },
   banners: mockBanners,
   newArrivals: mockNewArrivals,
-  recommendedProducts: mockRecommendedProducts,
+  recommendedProducts: mockRankingProducts,
   productCategories: mockProductCategories,
   isLoading: false,
   error: null,
