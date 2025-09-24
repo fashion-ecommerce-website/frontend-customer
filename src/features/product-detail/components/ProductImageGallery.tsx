@@ -65,7 +65,7 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
                     alt={`${productTitle} - View ${index + 1}`}
                     width={96}
                     height={96}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-pointer"
                   />
                 </button>
               ))}
@@ -82,7 +82,7 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
                 type="button"
                 aria-label="Previous image"
                 onClick={scrollPrev}
-                className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-transparent hover:bg-transparent shadow-none ring-0 backdrop-blur-0 transition-colors"
+                className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-transparent hover:bg-transparent shadow-none ring-0 backdrop-blur-0 transition-colors cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 46" fill="none">
                   <path d="M22.5 43.8335L1.66666 23.0002L22.5 2.16683" stroke="black" strokeWidth="2" strokeLinecap="square">
@@ -93,7 +93,7 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
                 type="button"
                 aria-label="Next image"
                 onClick={scrollNext}
-                className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-transparent hover:bg-transparent shadow-none ring-0 backdrop-blur-0 transition-colors"
+                className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 w-12 h-12 items-center justify-center rounded-full bg-transparent hover:bg-transparent shadow-none ring-0 backdrop-blur-0 transition-colors cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 46" fill="none">
                   <path d="M1.66675 2.1665L22.5001 22.9998L1.66675 43.8332" stroke="black" strokeWidth="2" strokeLinecap="square">
@@ -103,7 +103,7 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
             </>
           )}
 
-          <div className="overflow-hidden bg-white aspect-[4/5]" ref={emblaRef}>
+          <div className="overflow-hidden bg-white aspect-[4/5] active:cursor-grab select-none" ref={emblaRef}>
             <div className="flex h-full">
               {displayImages.map((image, index) => (
                 <div key={index} className="flex-[0_0_100%] min-w-0 h-full">
@@ -112,7 +112,7 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
                     alt={`${productTitle} - View ${index + 1}`}
                     width={1000}
                     height={1000}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover "
                     priority={index === 0}
                   />
                 </div>

@@ -20,6 +20,7 @@ const initialState: LoginState = {
   
   // Loading states
   isLoading: false,
+  isGoogleLoading: false,
   
   // Error states
   error: null,
@@ -79,12 +80,12 @@ const loginSlice = createSlice({
     
     // Google Login Actions
     googleLoginRequest: (state) => {
-      state.isLoading = true;
+      state.isGoogleLoading = true;
       state.error = null;
     },
     
     googleLoginSuccess: (state, action: PayloadAction<{user: any; jwtToken: string}>) => {
-      state.isLoading = false;
+      state.isGoogleLoading = false;
       
       // Create user object from Google response with all needed fields
       const user = {
@@ -111,7 +112,7 @@ const loginSlice = createSlice({
     },
     
     googleLoginFailure: (state, action: PayloadAction<ApiError>) => {
-      state.isLoading = false;
+      state.isGoogleLoading = false;
       state.error = action.payload;
       state.user = null;
       state.accessToken = null;
@@ -275,6 +276,7 @@ export const selectLoginState = (state: RootState) => state.login;
 export const selectUser = (state: RootState) => state.login.user;
 export const selectIsAuthenticated = (state: RootState) => state.login.isAuthenticated;
 export const selectIsLoading = (state: RootState) => state.login.isLoading;
+export const selectIsGoogleLoading = (state: RootState) => state.login.isGoogleLoading;
 export const selectError = (state: RootState) => state.login.error;
 export const selectAccessToken = (state: RootState) => state.login.accessToken;
 export const selectRefreshToken = (state: RootState) => state.login.refreshToken;

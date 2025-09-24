@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ProductDetail } from '@/services/api/productApi';
 
 interface ProductInfoProps {
@@ -22,6 +23,10 @@ export function ProductInfo({
 }: ProductInfoProps) {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
+  const isAllSizesOut = (() => {
+    const quantities = Object.values(product.mapSizeToQuantity || {});
+    return quantities.length > 0 && quantities.every((q) => q === 0);
+  })();
   
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
@@ -59,7 +64,7 @@ export function ProductInfo({
 
       {/* Color Selection - MLB Style */}
       {product.colors && product.colors.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-3 pl-1">
           <div className="swatch-color" data-index="option1">
             <div className="flex items-center space-x-3">
               {product.colors.map((color) => (
@@ -140,12 +145,12 @@ export function ProductInfo({
                 key={size}
                 onClick={() => onSizeSelect(size)}
                 disabled={quantity === 0}
-                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center cursor-pointer ${  
+                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${
                   selectedSize === size
                     ? 'border-black bg-black text-white'
                     : quantity === 0
-                    ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100'
-                    : 'border-gray-300 text-gray-800 hover:border-gray-400'
+                    ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-default'
+                    : 'border-gray-300 text-gray-800 hover:border-gray-400 cursor-pointer'
                 }`}
               >
                 {size}
@@ -157,28 +162,39 @@ export function ProductInfo({
 
       {/* Action Buttons */}
       <div className="space-y-3">
-        <div className="w-full h-14 bg-black flex justify-between items-center mt-6">
-          <div
-            className="flex-1 h-14 inline-flex flex-col justify-center items-center cursor-pointer select-none"
-            onClick={handleAddToCart}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="self-stretch text-center justify-center text-white text-base font-normal uppercase leading-5">
-              Add to cart
+        {isAllSizesOut ? (
+          <div className="w-full h-14 flex items-center justify-center mt-6">
+            <button
+              disabled
+              className="w-full h-full text-center uppercase text-base font-normal text-black font-bold bg-gray-100"
+            >
+              Out of stock
+            </button>
+          </div>
+        ) : (
+          <div className="w-full h-14 bg-black flex justify-between items-center mt-6">
+            <div
+              className="flex-1 h-14 inline-flex flex-col justify-center items-center cursor-pointer select-none"
+              onClick={handleAddToCart}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="self-stretch text-center justify-center text-white text-base font-normal uppercase leading-5">
+                Add to cart
+              </div>
+            </div>
+            <div
+              className="flex-1 h-14 bg-[#B01722] flex flex-col justify-center items-center cursor-pointer select-none"
+              onClick={handleBuyNow}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="self-stretch text-center justify-center text-white text-base font-normal uppercase leading-5">
+                Buy now
+              </div>
             </div>
           </div>
-          <div
-            className="flex-1 h-14 bg-[#B01722] flex flex-col justify-center items-center cursor-pointer select-none"
-            onClick={handleBuyNow}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="self-stretch text-center justify-center text-white text-base font-normal uppercase leading-5">
-              Buy now
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* BLACK TUESDAY REWARDS - Styled Promotion Box */}
@@ -198,9 +214,9 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Size Guide Modal */}
-      {showSizeGuide && (
-        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(107, 114, 128, 0.4)' }} onClick={() => setShowSizeGuide(false)}>
+      {/* Size Guide Modal (portal to body to escape stacking contexts) */}
+      {showSizeGuide && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center z-[9999]" style={{ backgroundColor: 'rgba(107, 114, 128, 0.4)' }} onClick={() => setShowSizeGuide(false)}>
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">SIZE GUIDE</h2>
@@ -279,7 +295,8 @@ export function ProductInfo({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

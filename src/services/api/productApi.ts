@@ -19,6 +19,7 @@ export interface ProductDetail {
   title: string;
   price: number;
   activeColor: string;
+  activeSize?: string;
   images: string[];
   colors: string[];
   mapSizeToQuantity: { [size: string]: number };
@@ -71,8 +72,8 @@ export interface ProductsRequest {
 // Product API endpoints
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
-  GET_PRODUCT_BY_ID: '/products',
-  GET_PRODUCT_BY_COLOR: '/products', // GET /products/{id}/color?activeColor={color}
+  GET_PRODUCT_BY_ID: '/products/details',
+  GET_PRODUCT_BY_COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
 } as const;
 
 // Product API service
@@ -90,8 +91,10 @@ export class ProductApiService {
    * Get product by ID and color
    * URL example: /products/1/color?activeColor=white
    */
-  async getProductByColor(id: string, activeColor: string): Promise<ApiResponse<ProductDetail>> {
-    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_COLOR}/${id}/color?activeColor=${encodeURIComponent(activeColor)}`;
+  async getProductByColor(id: string, activeColor: string, activeSize?: string): Promise<ApiResponse<ProductDetail>> {
+    const search = new URLSearchParams({ activeColor });
+    if (activeSize) search.append('activeSize', activeSize);
+    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_COLOR}/${id}/color?${search.toString()}`;
     return apiClient.get<ProductDetail>(url);
   }
 
@@ -162,5 +165,5 @@ export const productApiService = new ProductApiService();
 export const productApi = {
   getProducts: (params?: ProductsRequest) => productApiService.getProducts(params),
   getProductById: (id: string) => productApiService.getProductById(id),
-  getProductByColor: (id: string, activeColor: string) => productApiService.getProductByColor(id, activeColor),
+  getProductByColor: (id: string, activeColor: string, activeSize?: string) => productApiService.getProductByColor(id, activeColor, activeSize),
 };

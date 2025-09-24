@@ -8,7 +8,6 @@ import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '../components';
-// import { LoadingSpinner } from '@/components'; // Removed for faster loading
 import {
   fetchProductRequest,
   fetchProductByColorRequest,
@@ -24,20 +23,10 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
     (state) => state.productDetail
   );
 
-  // Debug logging
-  console.log('ProductDetailContainer render:', { 
-    productId, 
-    isLoading, 
-    hasProduct: !!product, 
-    error,
-    selectedColor,
-    productTitle: product?.title
-  });
-
   // Handle color change with Redux action
   const handleColorChange = async (color: string) => {
-    // Dispatch action to fetch product by color
-    dispatch(fetchProductByColorRequest({ id: productId, color }));
+    // Dispatch action to fetch product by color (include current selected size if present)
+    dispatch(fetchProductByColorRequest({ id: productId, color, size: selectedSize || undefined }));
   };
 
   // Handle color selection (local UI state)
@@ -48,6 +37,13 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   // Handle size selection
   const handleSizeSelect = (size: string) => {
     dispatch(setSelectedSize(size));
+    // Only refetch when user selects a concrete size (non-empty)
+    if (size) {
+      const colorToUse = selectedColor || product?.activeColor || product?.colors?.[0];
+      if (colorToUse) {
+        dispatch(fetchProductByColorRequest({ id: productId, color: colorToUse, size }));
+      }
+    }
   };
 
   useEffect(() => {
@@ -81,14 +77,6 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
     };
   }, [dispatch]);
 
-  // Removed loading spinner for faster loading experience
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center min-h-screen">
-  //       <LoadingSpinner />
-  //     </div>
-  //   );
-  // }
 
   // Only show error if there's actually an error, not just no product yet
   if (error) {

@@ -76,7 +76,6 @@ export function ProductDetailPresenter({
         await onColorChange(color);
       }
       onColorSelect(color);
-      onSizeSelect(''); // Clear selected size when color changes
     } catch (error) {
       console.error('Error loading color variant:', error);
     }
@@ -106,7 +105,8 @@ export function ProductDetailPresenter({
           </div>
 
           {/* Right Side: Product Information */}
-          <div className="pl-[44px] sticky top-0 max-h[620px] overflow-y-auto pr-2">
+          <div className="pl-[44px] sticky top-20 self-start pr-2">
+            <div className="max-h-[calc(100vh-5rem)] overflow-y-auto">
             {/* Header with Share/Wishlist */}
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -143,6 +143,7 @@ export function ProductDetailPresenter({
               onSizeSelect={onSizeSelect}
               isColorLoading={isLoading}
             />
+            </div>
           </div>
         </div>
       </div>

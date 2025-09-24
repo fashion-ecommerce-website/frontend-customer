@@ -19,7 +19,6 @@ const productDetailSlice = createSlice({
   reducers: {
     // Fetch product by ID actions
     fetchProductRequest: (state, action: PayloadAction<string>) => {
-      console.log('Redux: fetchProductRequest', action.payload);
       state.isLoading = true;
       state.error = null;
     },
@@ -32,7 +31,7 @@ const productDetailSlice = createSlice({
       if (action.payload.colors.length > 0) {
         state.selectedColor = action.payload.activeColor || action.payload.colors[0];
       }
-      state.selectedSize = null; // Reset size selection
+      state.selectedSize = null;
     },
     fetchProductFailure: (state, action: PayloadAction<string>) => {
       console.log('Redux: fetchProductFailure', action.payload);
@@ -42,7 +41,7 @@ const productDetailSlice = createSlice({
     },
 
     // Fetch product by color actions
-    fetchProductByColorRequest: (state, action: PayloadAction<{ id: string; color: string }>) => {
+    fetchProductByColorRequest: (state, action: PayloadAction<{ id: string; color: string; size?: string }>) => {
       state.isColorLoading = true; // Use separate loading state
       state.error = null;
     },
@@ -51,7 +50,9 @@ const productDetailSlice = createSlice({
       state.product = action.payload;
       state.error = null;
       state.selectedColor = action.payload.activeColor;
-      state.selectedSize = null; // Reset size selection when color changes
+      // Do NOT override user's size selection with API's activeSize on color change
+      // Keep whatever user had selected; if none, remain null
+      state.selectedSize = state.selectedSize ? state.selectedSize : null;
     },
     fetchProductByColorFailure: (state, action: PayloadAction<string>) => {
       state.isColorLoading = false; // Use separate loading state

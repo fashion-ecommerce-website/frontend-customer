@@ -83,6 +83,7 @@ export interface LoginState {
   
   // Loading states
   isLoading: boolean;
+  isGoogleLoading: boolean;
   
   // Error states
   error: ApiError | null;

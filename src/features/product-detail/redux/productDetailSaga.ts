@@ -17,22 +17,13 @@ import {
 function* fetchProductSaga(action: PayloadAction<string>) {
   try {
     const productId = action.payload;
-    console.log('fetchProductSaga called with productId:', productId);
     
     // Call API
-    const response: ApiResponse<ProductDetail> = yield call(productApi.getProductById, productId);
-    console.log('fetchProductSaga API response:', {
-      success: response.success,
-      hasData: !!response.data,
-      message: response.message,
-      productTitle: response.data?.title
-    });
+    const response: ApiResponse<ProductDetail> = yield call(productApi.getProductById, productId)
     
     if (response.success && response.data) {
-      console.log('Dispatching fetchProductSuccess');
       yield put(fetchProductSuccess(response.data));
     } else {
-      console.log('Dispatching fetchProductFailure:', response.message);
       yield put(fetchProductFailure(response.message || 'Failed to fetch product'));
     }
   } catch (error: any) {
@@ -43,16 +34,11 @@ function* fetchProductSaga(action: PayloadAction<string>) {
 }
 
 // Worker saga: fetch product by color
-function* fetchProductByColorSaga(action: PayloadAction<{ id: string; color: string }>) {
+function* fetchProductByColorSaga(action: PayloadAction<{ id: string; color: string; size?: string }>) {
   try {
-    const { id, color } = action.payload;
-    
+    const { id, color, size } = action.payload;
     // Call API
-    const response: ApiResponse<ProductDetail> = yield call(
-      productApi.getProductByColor, 
-      id, 
-      color
-    );
+    const response: ApiResponse<ProductDetail> = yield call(productApi.getProductByColor, id, color, size);
     
     if (response.success && response.data) {
       yield put(fetchProductByColorSuccess(response.data));
