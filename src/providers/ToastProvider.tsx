@@ -122,7 +122,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       </div>
 
       {/* Render product toasts */}
-      <div className="fixed top-2/5 right-0 transform -translate-y-2/5 z-50">
+      <div className="fixed top-1/5 right-0 transform -translate-y-1/5 z-50">
         {productToasts.map((toast, index) => {
           return (
             <div 

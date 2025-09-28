@@ -7,13 +7,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAppSelector } from "@/hooks/redux";
 import { selectCartItemCount } from "@/features/cart/redux/cartSlice";
 import { PromotionalBanner } from "./PromotionalBanner";
+import { useCategories } from '@/hooks/useCategories';
 
 export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [hoveredCat, setHoveredCat] = useState<number | null>(null);
   const router = useRouter();
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
   // Get authentication state from custom hook
   const { isAuthenticated, user, logout } = useAuth();
@@ -37,6 +41,8 @@ export const Header: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // categories are loaded by useCategories hook
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,22 +80,17 @@ export const Header: React.FC = () => {
     router.push("/");
   };
 
-  const navigationItems = [
-    { id: "shop", label: "SHOP", href: "/shop" },
-    { id: "on-sale", label: "ON SALE", href: "/sale" },
-    { id: "new-arrivals", label: "NEW ARRIVALS", href: "/new-arrivals" },
-    { id: "brands", label: "BRANDS", href: "/brands" },
-  ];
+  // navigation now driven by `categories` fetched from API
 
   return (
     <>
       {/* Promotional Banner - Smart with auto-sliding */}
       <PromotionalBanner isAuthenticated={isAuthenticated} />
 
-      {/* Header */}
-      <header className="bg-white shadow-sm px-2">
+  {/* Header */}
+  <header className="bg-white px-2 relative" onMouseLeave={() => setHoveredCat(null)}>
         <div className="sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between min-h-[64px]">
             {/* Logo */}
             <div className="flex-shrink-0">
               <Link
@@ -100,18 +101,40 @@ export const Header: React.FC = () => {
               </Link>
             </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8 ml-12">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="text-black text-[17px] px-1 py-2 text-base font-bold"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            {/* Navigation (categories from API) */}
+            <div className="hidden md:block ml-12">
+              {/* wrapper keeps nav + overlay panel together so mouseleave can hide the panel */}
+              <div className="relative">
+                <nav className="flex items-end space-x-8">
+                  {categoriesLoading ? (
+                    <div className="text-sm text-gray-500">Loading...</div>
+                  ) : categories.length > 0 ? (
+                    categories.map((cat) => (
+                      // hover sets hoveredCat; wrapper onMouseLeave clears it
+                      <div
+                        key={cat.id}
+                        onMouseEnter={() => setHoveredCat(cat.id)}
+                      >
+                        <Link
+                          href={`/products?category=${encodeURIComponent(cat.slug)}`}
+                          className="text-black hover:text-[#BB9244] text-[17px] px-1 py-2 text-base font-bold inline-block"
+                        >
+                          {cat.name.toUpperCase()}
+                        </Link>
+                      </div>
+                    ))
+                  ) : (
+                    // fallback: single SHOP link if API empty/fails
+                    <Link
+                      href="/shop"
+                      className="text-black text-[17px] px-1 py-2 text-base font-bold"
+                    >
+                      SHOP
+                    </Link>
+                  )}
+                </nav>
+              </div>
+            </div>
 
             {/* Right side icons */}
             <div className="flex items-center space-x-6">
@@ -260,16 +283,52 @@ export const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100">
             <div className="px-4 pt-2 pb-3 space-y-1">
-              {navigationItems.map((item) => (
+              {categories.length > 0 ? (
+                categories.map((cat) => (
+                  <div key={cat.id}>
+                    <Link
+                      href={`/products?category=${encodeURIComponent(cat.slug)}`}
+                      className="block px-3 py-3 text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {cat.name}
+                    </Link>
+                    {cat.children && (
+                      <div className="pl-4">
+                        {cat.children.map((child) => (
+                          <div key={child.id}>
+                            <Link
+                              href={`/products?category=${encodeURIComponent(child.slug)}`}
+                              className="block px-3 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-50 rounded-md transition-colors"
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              {child.name}
+                            </Link>
+                            {child.children && child.children.map((g) => (
+                              <Link
+                                key={g.id}
+                                href={`/products?category=${encodeURIComponent(g.slug)}`}
+                                className="block px-3 py-1 text-sm text-gray-500 hover:text-black"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {g.name}
+                              </Link>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
                 <Link
-                  key={item.id}
-                  href={item.href}
+                  href="/shop"
                   className="block px-3 py-3 text-base font-medium text-gray-900 hover:text-black hover:bg-gray-50 rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {item.label}
+                  SHOP
                 </Link>
-              ))}
+              )}
 
               {/* Mobile Profile/Login Button */}
               <button
@@ -346,6 +405,60 @@ export const Header: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Desktop overlay children panel - absolute so it sits above other content (z-index) */}
+        <div className="hidden md:block">
+          <div
+            className={`absolute left-0 right-0 top-full z-50 transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)] transform ${hoveredCat ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'}`}
+            style={{
+              // pointer events enabled only when visible
+              pointerEvents: hoveredCat ? 'auto' : 'none',
+            }}
+          >
+            {/* full-bleed background to span entire viewport width */}
+            <div className="w-full">
+              <div className="bg-white px-[20em] py-6">
+                {/* find hovered category data */}
+                {hoveredCat && categories.find((c) => c.id === hoveredCat) ? (
+                  (() => {
+                    const cat = categories.find((c) => c.id === hoveredCat)!;
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {cat.children && cat.children.map((child) => (
+                          <div key={child.id}>
+                            <Link
+                              href={`/products?category=${encodeURIComponent(child.slug)}`}
+                              className="block text-sm font-bold text-black hover:text-[#BB9244] mb-2"
+                            >
+                              {child.name}
+                            </Link>
+
+                            {child.children && child.children.length > 0 && (
+                              <ul className="text-sm text-black space-y-1">
+                                {child.children.map((g) => (
+                                  <li key={g.id}>
+                                    <Link
+                                      href={`/products?category=${encodeURIComponent(g.slug)}`}
+                                      className="hover:text-[#BB9244]"
+                                    >
+                                      {g.name}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
     </>
   );

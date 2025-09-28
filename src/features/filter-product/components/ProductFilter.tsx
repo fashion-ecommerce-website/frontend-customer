@@ -1,6 +1,7 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React, { Fragment, useMemo } from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Listbox,
   Transition,
@@ -14,13 +15,45 @@ interface ProductFilterProps {
   filters: ProductFilters;
   onFiltersChange: (filters: ProductFilters) => void;
   onOpenSidebar?: () => void;
+  // Optional title (from parent or URL param). If provided, used in breadcrumb.
+  title?: string;
 }
 
 export const ProductFilter: React.FC<ProductFilterProps> = ({
   filters,
   onFiltersChange,
   onOpenSidebar,
+  title,
 }) => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const breadcrumbTitle = useMemo(() => {
+    // Priority: prop > URL param 'name'/'title' > formatted category
+    if (title && title.trim().length > 0) return title;
+    const paramName = searchParams?.get('name') || searchParams?.get('title');
+    if (paramName && paramName.trim().length > 0) return paramName;
+    // format slug: ao-thun -> AO THUN
+    const parts = (filters.category || '').replace(/_/g, '-').split('-').filter(Boolean);
+    const formatted = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    return formatted.toUpperCase();
+  }, [title, filters.category, searchParams]);
+
+  const handleHomeClick = () => {
+    router.push('/');
+  };
+
+  const handleCategoryClick = () => {
+    // Navigate to product listing filtered by category
+    const category = filters.category || '';
+    router.push(`/products?category=${encodeURIComponent(category)}`);
+  };
+
+  const handleTitleClick = () => {
+    // Navigate to product listing with category and name/title param
+    const category = filters.category || '';
+    router.push(`/products?category=${encodeURIComponent(category)}&name=${encodeURIComponent(breadcrumbTitle)}`);
+  };
   const sortOptions: FilterDropdownOption[] = [
     { value: "productTitle_asc", label: "Name: A-Z" },
     { value: "productTitle_desc", label: "Name: Z-A" },
@@ -41,7 +74,13 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     <div className="flex items-center justify-between mb-6">
       {/* Breadcrumb */}
       <div className="flex items-center text-sm gap-1">
-        <span className="text-gray-600">HOME</span>
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={handleHomeClick}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleHomeClick()}
+          className="text-gray-600 cursor-pointer"
+        >HOME</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="7"
@@ -55,7 +94,13 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
             strokeLinecap="square"
           ></path>
         </svg>
-        <span className="text-gray-600">CATEGORY</span>
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={handleCategoryClick}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCategoryClick()}
+          className="text-gray-600 cursor-pointer"
+        >CATEGORY</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="7"
@@ -69,7 +114,13 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
             strokeLinecap="square"
           ></path>
         </svg>
-        <span className="font-medium text-gray-900">T-SHIRT</span>
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={handleTitleClick}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTitleClick()}
+          className="font-medium text-gray-900 cursor-pointer"
+        >{breadcrumbTitle}</span>
       </div>
 
       {/* Filter Button and Sort Dropdown */}

@@ -9,9 +9,10 @@ interface FilterSidebarProps {
   onClose: () => void
   filters: ProductFilters
   onFiltersChange: (filters: ProductFilters) => void
+  productCount?: number
 }
 
-export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, filters, onFiltersChange }) => {
+export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, filters, onFiltersChange, productCount }) => {
   const [searchTitle, setSearchTitle] = useState(filters.title || "")
   const [expandedSections, setExpandedSections] = useState({
     colors: false,
@@ -126,7 +127,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 right-0 h-full w-100 bg-white z-50 shadow-2xl overflow-y-auto transform transition-transform duration-250 ease-out ${
+        className={`fixed top-0 right-0 h-full w-100 bg-white z-50 shadow-2xl transform transition-transform duration-250 ease-out flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -141,7 +142,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-6 flex-1 overflow-y-auto">
           {/* Colors */}
           <div>
             <button
@@ -162,92 +163,92 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
               <div className="pb-4 animate-in slide-in-from-top-2 duration-300">
                 <div className="grid grid-cols-9 gap-6">
                   <button
-                    className={`w-8 h-8 rounded-full bg-black transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("black") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-black transition-all duration-200 ${
+                      filters.colors?.includes("black") ? "border-white border-2 ring-2 ring-black" : "border-black"
                     }`}
                     title="Black"
                     onClick={() => handleMultiSelectChange("colors", "black")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-white border-2 transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("white") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-white border-2 transition-all duration-200 ${
+                      filters.colors?.includes("white") ? "border-white ring-2 ring-black" : "border-gray-300"
                     }`}
                     title="White"
                     onClick={() => handleMultiSelectChange("colors", "white")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#FF0000] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("red") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#FF0000] transition-all duration-200 ${
+                      filters.colors?.includes("red") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Red"
                     onClick={() => handleMultiSelectChange("colors", "red")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#CCCACA] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("gray") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#CCCACA] transition-all duration-200 ${
+                      filters.colors?.includes("gray") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Gray"
                     onClick={() => handleMultiSelectChange("colors", "gray")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#5100FF] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("blue") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#5100FF] transition-all duration-200 ${
+                      filters.colors?.includes("blue") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Blue"
                     onClick={() => handleMultiSelectChange("colors", "blue")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#DB999B] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("pink") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#DB999B] transition-all duration-200 ${
+                      filters.colors?.includes("pink") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Pink"
                     onClick={() => handleMultiSelectChange("colors", "pink")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#FFFF05] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("yellow") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#FFFF05] transition-all duration-200 ${
+                      filters.colors?.includes("yellow") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Yellow"
                     onClick={() => handleMultiSelectChange("colors", "yellow")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#B5129A] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("purple") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#B5129A] transition-all duration-200 ${
+                      filters.colors?.includes("purple") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Purple"
                     onClick={() => handleMultiSelectChange("colors", "purple")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#753A3A] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("brown") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#753A3A] transition-all duration-200 ${
+                      filters.colors?.includes("brown") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Brown"
                     onClick={() => handleMultiSelectChange("colors", "brown")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#3CFA08] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("green") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#3CFA08] transition-all duration-200 ${
+                      filters.colors?.includes("green") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Green"
                     onClick={() => handleMultiSelectChange("colors", "green")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#DCB49E] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("beige") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#DCB49E] transition-all duration-200 ${
+                      filters.colors?.includes("beige") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Beige"
                     onClick={() => handleMultiSelectChange("colors", "beige")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-[#F5B505] transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("orange") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-[#F5B505] transition-all duration-200 ${
+                      filters.colors?.includes("orange") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     title="Orange"
                     onClick={() => handleMultiSelectChange("colors", "orange")}
                   />
                   <button
-                    className={`w-8 h-8 rounded-full bg-white transition-all duration-200 hover:scale-110 ${
-                      filters.colors?.includes("checkered") ? "border-black ring-2 ring-gray-300" : "border-gray-300"
+                    className={`w-8 h-8 rounded-full bg-white transition-all duration-200 ${
+                      filters.colors?.includes("checkered") ? "border-black ring-2 ring-black" : "border-gray-800"
                     }`}
                     style={{
                       backgroundImage: "repeating-linear-gradient(45deg, black 0px, black 2px, white 2px, white 4px)",
@@ -359,14 +360,89 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t">
-          <button
-            onClick={clearFilters}
-            className="w-full px-4 py-2 text-sm text-white bg-black border border-gray-300 rounded-md hover:bg-white hover:text-black transition-all duration-300 hover:scale-105"
-          >
-            Clear filters
-          </button>
+        {/* Footer - Fixed at bottom */}
+        <div className="sticky bottom-0 bg-white p-4 mt-auto">
+          {/* Selected Filters List */}
+          {(filters.colors?.length || filters.sizes?.length || (filters.price && filters.price !== "") || filters.title) && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-black mb-2">Selected Filters</h4>
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                {/* Clear All filter item */}
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
+                >
+                  <span className="mr-1">Clear All</span>
+                  <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+
+                {/* Title filter */}
+                {filters.title && (
+                  <button
+                    onClick={() => {
+                      setSearchTitle("")
+                      handleFilterChange("title", undefined)
+                    }}
+                    className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
+                  >
+                    <span className="mr-1">Title: {filters.title}</span>
+                    <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+                
+                {/* Colors filter */}
+                {filters.colors?.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => handleMultiSelectChange("colors", color)}
+                    className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
+                  >
+                    <span className="mr-1">Color: {colorOptions.find(opt => opt.value === color)?.label}</span>
+                    <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                ))}
+                
+                {/* Sizes filter */}
+                {filters.sizes?.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => handleMultiSelectChange("sizes", size)}
+                    className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
+                  >
+                    <span className="mr-1">Size: {size}</span>
+                    <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                ))}
+                
+                {/* Price filter */}
+                {filters.price && filters.price !== "" && (
+                  <button
+                    onClick={() => handleFilterChange("price", undefined)}
+                    className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
+                  >
+                    <span className="mr-1">Price: {priceOptions.find(opt => opt.value === filters.price)?.label}</span>
+                    <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {(filters.colors?.length || filters.sizes?.length || (filters.price && filters.price !== "") || filters.title) && (
+            <div className="text-center text-sm text-gray-600">
+              <span>Showing {productCount || 0} products</span>
+            </div>
+          )}
         </div>
       </div>
     </>
