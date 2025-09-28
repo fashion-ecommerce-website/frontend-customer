@@ -61,8 +61,8 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
   const currentMessage = messages[currentMessageIndex];
 
   return (
-    <div className="bg-black text-white text-center py-2 px-4 relative">
-      <p className="text-sm transition-opacity duration-500">
+    <div className="bg-black text-white text-center py-3 px-4 relative">
+      <p className="font-bold text-sm">
         {currentMessage.text}{' '}
         {currentMessage.action && (
           <Link 
