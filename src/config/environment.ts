@@ -38,8 +38,8 @@ export const API_ENDPOINTS = {
   // Product endpoints
   PRODUCT: {
     LIST: '/products',
-    DETAIL: '/products', // GET /products/{id}
-    COLOR: '/products', // GET /products/{id}/color?activeColor={color}
+    DETAIL: '/products/details/', // GET /products/{id}
+     COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
   },
 
   // Cart endpoints
