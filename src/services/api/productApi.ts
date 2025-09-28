@@ -72,7 +72,7 @@ export interface ProductsRequest {
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
   GET_PRODUCT_BY_ID: '/products',
-  GET_PRODUCT_BY_COLOR: '/products', // GET /products/{id}/color?activeColor={color}
+  GET_PRODUCT_BY_COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
 } as const;
 
 // Product API service
@@ -82,7 +82,7 @@ export class ProductApiService {
    * URL example: /products/123
    */
   async getProductById(id: string): Promise<ApiResponse<ProductDetail>> {
-    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_ID}/${id}`;
+    const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_ID}/details/${id}`;
     return apiClient.get<ProductDetail>(url);
   }
 

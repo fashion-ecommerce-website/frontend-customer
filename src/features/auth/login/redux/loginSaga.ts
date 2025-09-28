@@ -21,6 +21,7 @@ import {
   refreshTokenFailure,
   setLoading 
 } from './loginSlice';
+import { clearCart } from '../../../cart/redux/cartSlice';
 import { LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, User } from '../types/login.types';
 
 // API Response interface
@@ -187,12 +188,18 @@ function* handleLogout() {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     
+    // Clear cart data when user logs out
+    yield put(clearCart());
+    
     yield put(logoutSuccess());
   } catch (_error: unknown) {
     // Clear tokens even on error
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    
+    // Clear cart data even on error
+    yield put(clearCart());
     
     // Still dispatch success since logout should always succeed locally
     yield put(logoutSuccess());

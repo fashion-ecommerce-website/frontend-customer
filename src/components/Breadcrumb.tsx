@@ -8,6 +8,7 @@ interface BreadcrumbItem {
   href?: string;
   onClick?: () => void;
   isActive?: boolean;
+  className?: string;
 }
 
 interface BreadcrumbProps {
@@ -27,19 +28,19 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
             {item.onClick ? (
               <button
                 onClick={item.onClick}
-                className="text-black bg-transparent border-none cursor-pointer p-0"
+                className={`bg-transparent border-none cursor-pointer p-0 ${item.className || 'text-black'}`}
               >
                 {item.label}
               </button>
             ) : item.href && !item.isActive ? (
               <Link 
                 href={item.href} 
-                className="text-black no-underline"
+                className={`no-underline ${item.className || 'text-black'}`}
               >
                 {item.label}
               </Link>
             ) : (
-              <span className={item.isActive ? "text-black font-medium" : "text-gray-500"}>
+              <span className={item.className || (item.isActive ? "text-black font-medium" : "text-gray-500")}>
                 {item.label}
               </span>
             )}
