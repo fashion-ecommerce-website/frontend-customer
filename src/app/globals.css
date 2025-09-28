@@ -97,3 +97,19 @@ body {
     opacity: 0.8;
   }
 }
+
+/* Product Sans Local font (self-hosted) */
+@font-face {
+  font-family: 'Product Sans Local';
+  src: url('/fonts/product-sans/product_sans_regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Product Sans Local';
+  src: url('/fonts/product-sans/product_sans_bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

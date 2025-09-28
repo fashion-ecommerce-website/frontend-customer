@@ -13,6 +13,8 @@
     "@headlessui/react": "^2.2.8",
     "@reduxjs/toolkit": "^2.8.2",
     "clsx": "^2.1.1",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "firebase": "^12.2.1",
     "next": "15.4.5",
     "react": "19.1.0",

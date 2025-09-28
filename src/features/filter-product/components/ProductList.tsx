@@ -9,6 +9,7 @@ interface ProductListProps {
   products: FilterProductItem[];
   isLoading: boolean;
   onProductClick: (detailId: number, slug: string) => void;
+  gridColumns?: string; // Custom grid columns classes
 }
 
 export const ProductList: React.FC<ProductListProps> = ({

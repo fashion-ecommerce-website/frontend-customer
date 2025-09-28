@@ -17,7 +17,7 @@ export const HomeContainer: React.FC<HomeContainerProps> = ({
   // Handle product click
   const handleProductClick = useCallback((productId: string) => {
     // Navigate to product detail page
-    router.push(`/product/${productId}`);
+    router.push(`/products/${productId}`);
   }, [router]);
 
   // Handle category click

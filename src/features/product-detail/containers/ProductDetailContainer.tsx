@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
 import { ProductDetailProps } from '../types';
-import { ProductDetailPresenter } from '.';
+import { ProductDetailPresenter } from '../components';
 // import { LoadingSpinner } from '@/components'; // Removed for faster loading
 import {
   fetchProductRequest,

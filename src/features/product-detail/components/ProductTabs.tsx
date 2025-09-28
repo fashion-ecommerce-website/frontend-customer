@@ -8,75 +8,92 @@ interface ProductTabsProps {
 }
 
 export function ProductTabs({ product }: ProductTabsProps) {
-  const [activeTab, setActiveTab] = useState('PRODUCT INFORMATION');
+  const [activeTab, setActiveTab] = useState('INFORMATION');
 
   const tabs = [
-    'PRODUCT INFORMATION',
-    'CARE INSTRUCTIONS',
-    'SUPPORT POLICY'
+    { key: 'INFORMATION', label: 'INFORMATION' },
+    { key: 'PRODUCT CARE', label: 'PRODUCT CARE' },
+    { key: 'EXCHANGE & RETURN', label: 'EXCHANGE & RETURN' }
   ];
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'PRODUCT INFORMATION':
+      case 'INFORMATION':
         return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-gray-900">Key Features</h3>
-              <ul className="space-y-2 text-gray-800">
+          <div className="w-full relative min-h-[200px]">
+            <div className="w-full pl-5 py-2.5 inline-flex flex-col justify-start items-start">
+              <ul className="list-disc pl-8 py-2.5 space-y-2 text-sm leading-5 text-[#202846]">
                 {product.description.map((feature, index) => (
-                  <li key={index}>• {feature}</li>
+                  <li key={index}>
+                    <p className="text-[#202846]">{feature}</p>
+                  </li>
                 ))}
               </ul>
             </div>
           </div>
         );
 
-      case 'CARE INSTRUCTIONS':
+      case 'PRODUCT CARE':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Care Instructions</h3>
-            <ul className="space-y-2 text-gray-800">
-              <li>• Machine wash at normal temperature with gentle cycle</li>
-              <li>• Do not use bleach</li>
-              <li>• Air dry naturally, avoid direct sunlight</li>
-              <li>• Iron at low temperature</li>
-              <li>• Do not dry clean</li>
-              <li>• Store in dry, well-ventilated place</li>
-            </ul>
+          <div className="w-full relative min-h-[200px]">
+            <div className="w-full pl-5 py-2.5 inline-flex flex-col justify-start items-start">
+              <div className="self-stretch h-7 relative">
+                <div className="w-2 h-7 left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose"> </div>
+                <div className="left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose">Wash with water at 30℃</div>
+              </div>
+              <div className="self-stretch h-7 relative">
+                <div className="w-2 h-7 left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose"> </div>
+                <div className="left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose">Dry in a well-ventilated area with mild sunlight</div>
+              </div>
+              <div className="self-stretch h-7 relative">
+                <div className="w-2 h-7 left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose"> </div>
+                <div className="left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose">Do not wash with items of different colors</div>
+              </div>
+              <div className="self-stretch h-7 relative">
+                <div className="w-2 h-7 left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose"> </div>
+                <div className="left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose">Avoid using strong detergents or bleach</div>
+              </div>
+              <div className="self-stretch h-7 relative">
+                <div className="w-2 h-7 left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose"> </div>
+                <div className="left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose">Do not dry under direct sunlight</div>
+              </div>
+              <div className="self-stretch h-7 relative">
+                <div className="w-2 h-7 left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose"> </div>
+                <div className="left-0 top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Product Sans'] leading-loose">Select the appropriate washing mode as indicated on the product tag</div>
+              </div>
+            </div>
           </div>
         );
 
-      case 'SUPPORT POLICY':
+      case 'EXCHANGE & RETURN':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Support Policy</h3>
-            <div className="space-y-4 text-gray-800">
-              <div>
-                <h4 className="font-medium mb-2">Returns & Exchanges:</h4>
-                <ul className="space-y-1 ml-4">
-                  <li>• 30-day return policy</li>
-                  <li>• Items must have original tags</li>
-                  <li>• No washing, staining, or damage</li>
+          <div className="w-full relative min-h-[200px]">
+            <div className="w-full inline-flex flex-col justify-start items-start">
+              <div className="item-content-tab content-policy-return active" data-tab="tab4">
+                <p className="text-sm leading-5 text-[#202846]">Applicable to all apparel products at full price or with a discount of no more than 30%.</p>
+                <p className="text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">Return/Exchange Period:</strong></p>
+                <ul className="list-disc pl-8 py-2.5 space-y-3 text-sm leading-5 text-[#202846]">
+                  <li>
+                    <p className="text-[#202846]"><strong className="text-[#202846]">Exchange:</strong> Within 30 days from the date the customer receives the product.</p>
+                  </li>
+                  <li>
+                    <p className="text-[#202846]"><strong className="text-[#202846]">Return:</strong> Within 3 days from the date the customer receives the product.</p>
+                  </li>
                 </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-medium mb-2">Shipping:</h4>
-                <ul className="space-y-1 ml-4">
-                  <li>• Nationwide delivery</li>
-                  <li>• Free shipping on orders over 500,000₫</li>
-                  <li>• Delivery time: 2-5 business days</li>
+                <p className="text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">Notes:</strong></p>
+                <ul className="list-disc pl-8 py-2.5 space-y-3 text-sm leading-5 text-[#202846]">
+                  <li>
+                    <p className="text-[#202846]">Not applicable to products discounted by 30% or more or products purchased directly at Maison’s retail stores.</p>
+                  </li>
+                  <li>
+                    <p className="text-[#202846]">For orders using promotional programs, only product exchanges and coupon refunds are allowed — no cash refunds.</p>
+                  </li>
                 </ul>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2">Customer Support:</h4>
-                <ul className="space-y-1 ml-4">
-                  <li>• Hotline: 1900-1234</li>
-                  <li>• Email: support@mlb.vietnam.com</li>
-                  <li>• Online chat: 8:00 AM - 10:00 PM</li>
-                </ul>
+                <p className="text-sm leading-5 text-[#202846] mt-2">
+                  <strong className="text-[#202846]">Remark:</strong><br />
+                  The return/exchange period is calculated from the date the customer receives the product to the date it is handed over to the shipping carrier for return/exchange.<br />
+                  Please refer to our Return &amp; Exchange Policy for more information.
+                </p>
               </div>
             </div>
           </div>
@@ -88,29 +105,34 @@ export function ProductTabs({ product }: ProductTabsProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-12">
+    <div
+      className="w-full inline-flex flex-col justify-start items-start"
+      style={{ fontFamily: "'Product Sans Local', Arial, Helvetica, sans-serif" }}
+    >
+      <div className="self-stretch flex flex-col justify-start items-start gap-5">
+        {/* Tab Navigation */}
+        <div className="self-stretch pr-[0.02px] inline-flex justify-between items-center">
           {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`py-4 px-1 border-b-2 font-medium text-sm uppercase transition-colors duration-200 ${
-                activeTab === tab
-                  ? 'border-black text-black'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            <div
+              key={tab.key}
+              className={`flex-1 py-4 border-b-[3px] inline-flex flex-col justify-start items-center cursor-pointer ${
+                activeTab === tab.key
+                  ? 'border-black'
+                  : 'border-white'
               }`}
+              onClick={() => setActiveTab(tab.key)}
             >
-              {tab}
-            </button>
+              <div className="self-stretch text-center justify-center text-black text-sm font-normal font-['Product Sans'] uppercase leading-5">
+                {tab.label}
+              </div>
+            </div>
           ))}
-        </nav>
-      </div>
+        </div>
 
-      {/* Tab Content */}
-      <div className="py-6">
-        {renderTabContent()}
+        {/* Tab Content */}
+        <div className="self-stretch transition-all duration-300 ease-in-out">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );
