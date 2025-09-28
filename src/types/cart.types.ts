@@ -39,7 +39,10 @@ export interface CartState {
 
 // Cart actions payload types
 export interface UpdateCartItemPayload {
-  cartItemId: number;
+  // The cart detail id (cart item id)
+  cartDetailId: number;
+  // Optional new productDetailId if variant/size changed
+  newProductDetailId?: number;
   quantity: number;
 }
 

@@ -20,8 +20,16 @@ import {
 export const CART_ACTIONS = {
   FETCH_CART: 'cart/fetchCart',
   ADD_TO_CART: 'cart/addToCart',
-  UPDATE_CART_ITEM: 'cart/updateCartItem',
-  REMOVE_CART_ITEM: 'cart/removeCartItem',
+  // Use a distinct async action type to avoid colliding with the slice reducer's
+  // `updateCartItem` action (which shares the same type string when generated
+  // by the slice). If they share the same type string the saga and reducer
+  // can trigger each other leading to duplicate API calls.
+  UPDATE_CART_ITEM: 'cart/updateCartItemAsync',
+  // Use a distinct async action type for remove to avoid colliding with
+  // the slice reducer's `removeCartItem` action which has the same
+  // type string. When they share the same type the saga and reducer
+  // can trigger each other leading to duplicate API calls.
+  REMOVE_CART_ITEM: 'cart/removeCartItemAsync',
   CLEAR_CART: 'cart/clearCart'
 } as const;
 
@@ -80,15 +88,21 @@ function* addToCartSaga(action: PayloadAction<AddToCartPayload>) {
 function* updateCartItemSaga(action: PayloadAction<UpdateCartItemPayload>) {
   try {
     yield put(setLoading(true));
-    const { cartItemId, quantity } = action.payload;
+    const { cartDetailId, newProductDetailId, quantity } = action.payload;
+    const request = {
+      cartDetailId,
+      newProductDetailId,
+      quantity,
+    };
+
+    // cartApi.updateCartItem expects a single UpdateCartItemRequest object
     const response: ApiResponse<CartItem> = yield call(
-      cartApi.updateCartItem, 
-      cartItemId, 
-      { quantity }
+      cartApi.updateCartItem,
+      request
     );
     
     if (response.success && response.data) {
-      yield put(updateCartItem({ cartItemId, updatedItem: response.data }));
+      yield put(updateCartItem({ cartItemId: cartDetailId, updatedItem: response.data }));
     } else {
       yield put(setError(response.message || 'Failed to update cart item'));
     }
@@ -141,7 +155,10 @@ function* clearCartSaga() {
 export function* cartSaga() {
   yield takeLatest(CART_ACTIONS.FETCH_CART, fetchCartSaga);
   yield takeEvery(CART_ACTIONS.ADD_TO_CART, addToCartSaga);
-  yield takeEvery(CART_ACTIONS.UPDATE_CART_ITEM, updateCartItemSaga);
+  // Use takeLatest so if the update action is dispatched multiple times
+  // (for example due to UI duplicate events or HMR/dev double-invocation),
+  // only the most recent update will be processed and previous ones will be cancelled.
+  yield takeLatest(CART_ACTIONS.UPDATE_CART_ITEM, updateCartItemSaga);
   yield takeLatest(CART_ACTIONS.REMOVE_CART_ITEM, removeCartItemSaga);
   yield takeLatest(CART_ACTIONS.CLEAR_CART, clearCartSaga);
 }

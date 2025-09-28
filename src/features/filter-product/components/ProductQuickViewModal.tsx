@@ -1,16 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAppSelector } from "@/hooks/redux";
+import { useState, useEffect, useRef } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useCartActions } from "@/hooks/useCartActions";
 import { selectIsAuthenticated } from "@/features/auth/login/redux/loginSlice";
 import { productApi, ProductDetail } from "@/services/api/productApi";
+import {
+  fetchProductByColorRequest,
+  setSelectedSize as setSelectedSizeAction,
+} from '@/features/product-detail/redux/productDetailSlice';
 
 interface ProductQuickViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   productId: number | null;
   currentSize?: string; // Size hiện tại trong cart (optional)
+  // Edit mode props
+  isEditMode?: boolean;
+  // The cart item id being edited (so caller can identify which cart item to update)
+  cartItemId?: number;
+  // Current quantity for the cart item when opening in edit mode
+  currentQuantity?: number;
+  // Callback invoked when user confirms edit. Receives { cartItemId, productDetailId, sizeName, quantity }
+  onConfirmEdit?: (payload: { cartItemId?: number; productDetailId?: number; sizeName?: string; quantity?: number }) => void;
 }
 
 export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
@@ -18,6 +30,10 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   onClose,
   productId,
   currentSize,
+  isEditMode,
+  cartItemId,
+  currentQuantity,
+  onConfirmEdit,
 }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const { addToCartWithToast } = useCartActions({
@@ -31,16 +47,23 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   });
   
   const [product, setProduct] = useState<ProductDetail | null>(null);
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
-  const [selectedSize, setSelectedSize] = useState<string>("");
+  // Local selected size state (renamed to avoid colliding with Redux action name)
+  const [selectedSizeLocal, setSelectedSizeLocal] = useState<string>("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
+  const [isVariantLoading, setIsVariantLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [selectedAmount, setSelectedAmount] = useState<number>(1);
   const [colorPreviewImages, setColorPreviewImages] = useState<{[color: string]: string}>({});
+  // Request token to ignore stale variant/color responses
+  const variantRequestIdRef = useRef(0);
+  // When true, the next product change should not trigger preview refetch or reset UI
+  const suppressProductChangeEffectsRef = useRef(false);
 
   // Handle escape key to close modal - MOVED UP
   useEffect(() => {
@@ -72,23 +95,56 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     if (isOpen && productId) {
       fetchProductDetail();
       // Reset quantity when modal opens
-      setSelectedAmount(1);
+      // Default amount to 1 unless editing an existing cart item with a provided quantity
+      if (!(isEditMode && typeof currentQuantity === 'number')) {
+        setSelectedAmount(1);
+      } else {
+        setSelectedAmount(Math.max(1, currentQuantity));
+      }
     }
   }, [isOpen, productId]);
+
+  // If modal opened for edit, preselect size from prop when product loads
+  useEffect(() => {
+    if (isOpen && isEditMode && currentSize) {
+      setSelectedSizeLocal(currentSize);
+    }
+  }, [isOpen, isEditMode, currentSize]);
+
+  // Prefill amount when opening in edit mode
+  useEffect(() => {
+    if (isOpen && isEditMode && typeof currentQuantity === 'number') {
+      setSelectedAmount(Math.max(1, currentQuantity));
+    }
+  }, [isOpen, isEditMode, currentQuantity]);
 
   // Reset state when product changes
   useEffect(() => {
     if (product) {
       setSelectedColor(product.activeColor || product.colors[0] || "");
-      // Set size từ cart nếu có, nếu không thì để trống
-      setSelectedSize(currentSize || "");
-      setSelectedImageIndex(0);
-      setShowSizeNotice(false);
-      setSelectedAmount(1); // Reset quantity to 1 when product changes
-      // Don't reset image loading states - let images load naturally
-      
-      // Fetch color preview images
-      fetchColorPreviewImages();
+
+      // If this product change was caused by an internal variant fetch (size selection),
+      // skip resetting the UI and avoid re-fetching preview images which would cause
+      // additional API calls. Otherwise, perform the normal reset logic.
+      if (suppressProductChangeEffectsRef.current) {
+        // Clear the suppress flag for subsequent product changes
+        suppressProductChangeEffectsRef.current = false;
+      } else {
+        // Set size từ cart nếu có, nếu không thì để trống
+        setSelectedSizeLocal(currentSize || "");
+        setSelectedImageIndex(0);
+        setShowSizeNotice(false);
+        // Reset quantity to 1 when product changes, except preserve edit-mode initial quantity
+        if (!(isEditMode && typeof currentQuantity === 'number')) {
+          setSelectedAmount(1);
+        } else {
+          setSelectedAmount(Math.max(1, currentQuantity));
+        }
+        // Don't reset image loading states - let images load naturally
+
+        // Fetch color preview images
+        fetchColorPreviewImages();
+      }
     }
   }, [product, currentSize]);
 
@@ -131,8 +187,11 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     try {
       const response = await productApi.getProductById(productId.toString());
       if (response.data) {
+        // Set product (don't suppress product-change effects here - we want
+        // the product useEffect to run so color preview images are fetched
+        // when the modal opens).
         setProduct(response.data);
-        
+
         // Immediately preload first image after setting product
         if (response.data.images && response.data.images.length > 0) {
           const firstImage = response.data.images[0];
@@ -153,26 +212,34 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     if (!productId || !product?.colors) return;
 
     const previewImages: {[color: string]: string} = {};
-    
-    // Fetch preview for each color (except current active color)
-    for (const color of product.colors) {
-      if (color !== product.activeColor) {
-        try {
-          const response = await productApi.getProductByColor(productId.toString(), color);
-          if (response.data?.images && response.data.images.length > 0) {
-            previewImages[color] = response.data.images[0];
-          }
-        } catch (error) {
-          console.error(`Error fetching preview for color ${color}:`, error);
-        }
-      } else {
+
+    // Build an array of promises to fetch each color variant in parallel
+    const colorPromises = product.colors.map(async (color) => {
+      if (color === product.activeColor) {
         // Use current product's first image for active color
         if (product.images && product.images.length > 0) {
           previewImages[color] = product.images[0];
         }
+        return;
       }
+
+      try {
+        const response = await productApi.getProductByColor(productId.toString(), color);
+        if (response.data?.images && response.data.images.length > 0) {
+          previewImages[color] = response.data.images[0];
+        }
+      } catch (error) {
+        console.error(`Error fetching preview for color ${color}:`, error);
+      }
+    });
+
+    // Wait for all requests to settle
+    try {
+      await Promise.all(colorPromises);
+    } catch (e) {
+      // Individual errors already logged above; no-op here
     }
-    
+
     setColorPreviewImages(previewImages);
   };
 
@@ -186,19 +253,47 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     
     // Update UI immediately for instant feedback
     setSelectedColor(color);
-    setSelectedSize(""); // Clear selected size when color changes
     setSelectedImageIndex(0); // Reset to first image
-    
+
+    // Try to preserve the currently selected size if possible
+    const sizeToPreserve = selectedSizeLocal || undefined;
+
+    // Create a new request token to ignore stale responses
+    const requestId = ++variantRequestIdRef.current;
+    // mark variant loading for UX (only for this request)
+    setIsVariantLoading(true);
+
     try {
-      // Fetch in background without showing loading state
-      const response = await productApi.getProductByColor(productId.toString(), color);
+      const response = await productApi.getProductByColor(
+        productId.toString(),
+        color,
+        sizeToPreserve
+      );
+
+      // Ignore if another request started afterwards
+      if (requestId !== variantRequestIdRef.current) return;
+
       if (response.data) {
-        // Update product silently
         setProduct(response.data);
-        
-        // Only update color if it's different from what user selected
-        if (response.data.activeColor !== color) {
-          setSelectedColor(response.data.activeColor);
+
+        // Set the active color from API if available
+        setSelectedColor(response.data.activeColor || color);
+
+        // If we tried to preserve a size but it's not available for this color, clear it
+        if (sizeToPreserve) {
+          const stillAvailable = !!response.data.mapSizeToQuantity?.[sizeToPreserve];
+          if (!stillAvailable) {
+            setSelectedSizeLocal("");
+            try { dispatch(setSelectedSizeAction("")); } catch (e) { /* noop */ }
+            setSelectedAmount(1);
+          } else {
+            // Clamp amount to available stock for preserved size
+            const available = response.data.mapSizeToQuantity?.[sizeToPreserve] ?? 0;
+            setSelectedAmount((prev) => Math.max(1, Math.min(prev, available || 1)));
+          }
+        } else {
+          // No preserved size: keep default behavior
+          setSelectedAmount(1);
         }
       }
     } catch (error) {
@@ -207,16 +302,69 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
       if (product) {
         setSelectedColor(product.activeColor || product.colors[0] || "");
       }
+    } finally {
+      // Only clear loading if this is the latest request
+      if (requestId === variantRequestIdRef.current) {
+        setIsVariantLoading(false);
+      }
     }
   };
 
-  const handleSizeSelect = (size: string) => {
-    setSelectedSize(size);
-    setShowSizeNotice(false);
-  };
+  // Handle size selection
+    const handleSizeSelect = async (size: string) => {
+      // Update local UI state
+      setSelectedSizeLocal(size);
+
+      // Update shared Redux state (for consistency with ProductDetail flow)
+      try {
+        dispatch(setSelectedSizeAction(size));
+      } catch (err) {
+        console.warn('Failed to dispatch setSelectedSizeAction', err);
+      }
+
+      // Fetch variant directly so modal's local product (and detailId) reflect selected size
+      if (!size || !productId) return;
+      const colorToUse = selectedColor || product?.activeColor || product?.colors?.[0];
+      if (!colorToUse) return; // guard for TypeScript and safety
+
+      // Create request token and mark loading
+      const requestId = ++variantRequestIdRef.current;
+      setIsVariantLoading(true);
+
+      try {
+        const response = await productApi.getProductByColor(productId.toString(), colorToUse, size);
+
+        // Ignore stale responses
+        if (requestId !== variantRequestIdRef.current) return;
+
+        if (response.data) {
+          // Mark that this product update is from an internal variant fetch
+          suppressProductChangeEffectsRef.current = true;
+          setProduct(response.data);
+          setSelectedColor(response.data.activeColor || colorToUse);
+
+          // Clamp selected amount to available quantity for chosen size
+          const available = response.data.mapSizeToQuantity?.[size] ?? 0;
+          setSelectedAmount((prev) => Math.max(1, Math.min(prev, available || 1)));
+        }
+      } catch (error) {
+        console.error('Error fetching product variant for size selection:', error);
+        // Fallback: attempt to trigger global redux fetch flow if needed
+        try {
+          dispatch(fetchProductByColorRequest({ id: productId.toString(), color: colorToUse, size }));
+        } catch (err) {
+          // noop
+        }
+      } finally {
+        // Only clear loading if this is the latest request
+        if (requestId === variantRequestIdRef.current) {
+          setIsVariantLoading(false);
+        }
+      }
+    };
 
   const handleAddToCart = async () => {
-    if (!selectedSize) {
+    if (!selectedSizeLocal) {
       setShowSizeNotice(true);
       setTimeout(() => setShowSizeNotice(false), 3000);
       return;
@@ -232,7 +380,15 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     }
 
     try {
-      setAddingToCart(true);
+        // Verify availability for selected size
+        const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0;
+        if (selectedAmount > availableQty) {
+          setShowSizeNotice(true);
+          setTimeout(() => setShowSizeNotice(false), 3000);
+          return;
+        }
+
+        setAddingToCart(true);
       
       await addToCartWithToast({
         productDetailId: product.detailId,
@@ -250,7 +406,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   };
 
   const handleBuyNow = () => {
-    if (!selectedSize) {
+    if (!selectedSizeLocal) {
       setShowSizeNotice(true);
       setTimeout(() => setShowSizeNotice(false), 3000);
       return;
@@ -259,7 +415,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     console.log("Buy now:", {
       product: product?.detailId,
       color: selectedColor,
-      size: selectedSize,
+      size: selectedSizeLocal,
     });
     onClose();
   };
@@ -493,7 +649,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                             onClick={() => handleSizeSelect(size)}
                             disabled={quantity === 0}
                             className={`w-12 h-8 text-xs font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${
-                              selectedSize === size
+                              selectedSizeLocal === size
                                 ? "border-black bg-black text-white"
                                 : quantity === 0
                                 ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100"
@@ -541,21 +697,58 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2 mt-3">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={addingToCart || !selectedSize}
-                  type="button"
-                  className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-                >
-                  {addingToCart ? "ADDING..." : "ADD TO CART"}
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  type="button"
-                  className="bg-black text-white py-4 px-3 font-bold text-xs uppercase"
-                >
-                  BUY NOW
-                </button>
+                {isEditMode ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        // Validate selection
+                        if (!selectedSizeLocal) {
+                          setShowSizeNotice(true);
+                          setTimeout(() => setShowSizeNotice(false), 3000);
+                          return;
+                        }
+
+                        if (onConfirmEdit) {
+                          onConfirmEdit({
+                            cartItemId: cartItemId,
+                            productDetailId: product?.detailId,
+                            sizeName: selectedSizeLocal,
+                            quantity: selectedAmount,
+                          });
+                        }
+                      }}
+                      type="button"
+                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={onClose}
+                      type="button"
+                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={addingToCart || !selectedSizeLocal || isVariantLoading}
+                      type="button"
+                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                    >
+                      {addingToCart ? "ADDING..." : "ADD TO CART"}
+                    </button>
+                    <button
+                      onClick={handleBuyNow}
+                      type="button"
+                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase"
+                    >
+                      BUY NOW
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

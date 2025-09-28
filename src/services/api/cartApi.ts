@@ -19,6 +19,11 @@ export interface CartItem {
 
 // Update cart item request
 export interface UpdateCartItemRequest {
+  // The id of the cart detail being updated (cart item id)
+  cartDetailId: number;
+  // If changing variant/size, indicate the new productDetailId
+  newProductDetailId?: number;
+  // The desired quantity
   quantity: number;
 }
 
@@ -52,8 +57,8 @@ class CartApi {
   /**
    * Update cart item quantity
    */
-  async updateCartItem(cartItemId: number, request: UpdateCartItemRequest): Promise<ApiResponse<CartItem>> {
-    return apiClient.put<CartItem>(`/cart/${cartItemId}`, request);
+  async updateCartItem(request: UpdateCartItemRequest): Promise<ApiResponse<CartItem>> {
+    return apiClient.put<CartItem>(`/cart/update`, request);
   }
 
   /**
