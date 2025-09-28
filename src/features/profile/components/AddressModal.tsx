@@ -60,6 +60,38 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     }
   }, [isOpen, address]);
 
+  const validatePhoneNumber = (phone: string, countryCode: string): string | null => {
+    // Remove all non-digit characters for validation
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    if (!cleanPhone) {
+      return 'Phone number is required';
+    }
+
+    // Vietnam phone number validation
+    if (countryCode === 'VN') {
+      // Vietnamese phone numbers: 10-11 digits starting with 0 or +84
+      if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+        return 'Vietnamese phone number must be 10-11 digits';
+      }
+      
+      // Check if it starts with valid Vietnamese mobile prefixes
+      const validPrefixes = ['03', '05', '07', '08', '09'];
+      const firstTwoDigits = cleanPhone.substring(0, 2);
+      
+      if (!validPrefixes.includes(firstTwoDigits)) {
+        return 'Invalid Vietnamese mobile number format';
+      }
+    } else {
+      // International phone number validation (basic)
+      if (cleanPhone.length < 7 || cleanPhone.length > 15) {
+        return 'Phone number must be 7-15 digits';
+      }
+    }
+
+    return null;
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<Address> = {};
 
@@ -67,10 +99,10 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       newErrors.fullName = 'Full name is required';
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^\+?[\d\s-()]+$/.test(formData.phone)) {
-      newErrors.phone = 'Please enter a valid phone number';
+    // Enhanced phone validation
+    const phoneError = validatePhoneNumber(formData.phone, formData.countryCode);
+    if (phoneError) {
+      newErrors.phone = phoneError;
     }
 
     if (!formData.line.trim()) {
@@ -117,6 +149,22 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         ...prev,
         [field]: undefined,
       }));
+    }
+
+    // Re-validate phone number when country code changes
+    if (field === 'countryCode' && formData.phone) {
+      const phoneError = validatePhoneNumber(formData.phone, value as string);
+      if (phoneError) {
+        setErrors(prev => ({
+          ...prev,
+          phone: phoneError,
+        }));
+      } else {
+        setErrors(prev => ({
+          ...prev,
+          phone: undefined,
+        }));
+      }
     }
   };
 
@@ -188,11 +236,16 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
                 errors.phone ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter your phone number"
+              placeholder={formData.countryCode === 'VN' ? 'e.g., 0901234567' : 'Enter your phone number'}
               disabled={isLoading}
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+            {formData.countryCode === 'VN' && !errors.phone && formData.phone && (
+              <p className="mt-1 text-xs text-gray-500">
+                Vietnamese mobile numbers: 03xx, 05xx, 07xx, 08xx, 09xx
+              </p>
             )}
           </div>
 

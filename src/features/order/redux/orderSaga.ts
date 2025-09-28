@@ -1,0 +1,123 @@
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
+import { addressApi, Address, CreateAddressRequest, UpdateAddressRequest } from '@/services/api/addressApi';
+import { OrderApi, Order, CreateOrderRequest } from '@/services/api/orderApi';
+import { ApiResponse } from '@/types/api.types';
+import {
+  // Address actions
+  getAddressesRequest,
+  getAddressesSuccess,
+  getAddressesFailure,
+  selectAddress,
+  createAddressRequest,
+  createAddressSuccess,
+  createAddressFailure,
+  updateAddressRequest,
+  updateAddressSuccess,
+  updateAddressFailure,
+  deleteAddressRequest,
+  deleteAddressSuccess,
+  deleteAddressFailure,
+
+  // Order actions
+  createOrderRequest,
+  createOrderSuccess,
+  createOrderFailure,
+} from './orderSlice';
+
+// Address sagas
+function* getAddressesSaga(): Generator<any, void, any> {
+  try {
+    const response: ApiResponse<Address[]> = yield call(addressApi.getAddresses);
+    
+    if (response.success && response.data) {
+      yield put(getAddressesSuccess(response.data));
+      
+      // Auto-select default address if available
+      const defaultAddress = response.data.find(addr => addr.isDefault || addr.default);
+      if (defaultAddress) {
+        yield put(selectAddress(defaultAddress));
+      }
+    } else {
+      yield put(getAddressesFailure(response.message || 'Failed to load addresses'));
+    }
+  } catch (error: any) {
+    console.error('getAddressesSaga error:', error);
+    yield put(getAddressesFailure(error?.message || 'Failed to load addresses'));
+  }
+}
+
+function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Generator<any, void, any> {
+  try {
+    const response: ApiResponse<Address> = yield call(addressApi.createAddress, action.payload);
+    
+    if (response.success && response.data) {
+      yield put(createAddressSuccess(response.data));
+    } else {
+      yield put(createAddressFailure(response.message || 'Failed to create address'));
+    }
+  } catch (error: any) {
+    console.error('createAddressSaga error:', error);
+    yield put(createAddressFailure(error?.message || 'Failed to create address'));
+  }
+}
+
+function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Generator<any, void, any> {
+  try {
+    const response: ApiResponse<Address> = yield call(addressApi.updateAddress, action.payload);
+    
+    if (response.success && response.data) {
+      yield put(updateAddressSuccess(response.data));
+    } else {
+      yield put(updateAddressFailure(response.message || 'Failed to update address'));
+    }
+  } catch (error: any) {
+    console.error('updateAddressSaga error:', error);
+    yield put(updateAddressFailure(error?.message || 'Failed to update address'));
+  }
+}
+
+function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
+  try {
+    const response: ApiResponse<void> = yield call(addressApi.deleteAddress, action.payload);
+    
+    if (response.success) {
+      yield put(deleteAddressSuccess(action.payload));
+    } else {
+      yield put(deleteAddressFailure(response.message || 'Failed to delete address'));
+    }
+  } catch (error: any) {
+    console.error('deleteAddressSaga error:', error);
+    yield put(deleteAddressFailure(error?.message || 'Failed to delete address'));
+  }
+}
+
+// Order sagas
+function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<any, void, any> {
+  try {
+    const response: ApiResponse<Order> = yield call(OrderApi.createOrder, action.payload);
+    
+    if (response.success && response.data) {
+      yield put(createOrderSuccess(response.data));
+    } else {
+      yield put(createOrderFailure(response.message || 'Failed to create order'));
+    }
+  } catch (error: any) {
+    console.error('createOrderSaga error:', error);
+    yield put(createOrderFailure(error?.message || 'Failed to create order'));
+  }
+}
+
+// Root order saga
+export function* orderSaga(): Generator<any, void, any> {
+  // Address sagas
+  yield takeLatest(getAddressesRequest.type, getAddressesSaga);
+  yield takeLatest(createAddressRequest.type, createAddressSaga);
+  yield takeLatest(updateAddressRequest.type, updateAddressSaga);
+  yield takeLatest(deleteAddressRequest.type, deleteAddressSaga);
+
+  // Order sagas
+  yield takeLatest(createOrderRequest.type, createOrderSaga);
+}
+
+export default orderSaga;

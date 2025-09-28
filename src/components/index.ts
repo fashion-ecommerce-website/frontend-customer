@@ -18,3 +18,7 @@ export { useToast } from '../providers/ToastProvider';
 export { LoadingSpinner, PageLoadingSpinner } from './LoadingSpinner';
 export { ErrorMessage, SuccessMessage, InfoMessage, WarningMessage } from './Messages';
 export { Breadcrumb } from './Breadcrumb';
+
+// Modal Components
+export { OrderModal } from './modals/OrderModal';
+export { ConfirmModal } from './modals/ConfirmModal';

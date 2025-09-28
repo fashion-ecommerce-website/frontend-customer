@@ -1,8 +1,8 @@
 import React from 'react';
-import { CheckoutContainer } from '@/features/checkout/containers/CheckoutContainer';
+import { OrderContainer } from '@/features/order/containers/OrderContainer';
 
-export default function CheckoutPage() {
-  return <CheckoutContainer />;
+export default function OrderPage() {
+  return <OrderContainer />;
 }
 
 
