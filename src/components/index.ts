@@ -2,6 +2,7 @@
 export { Header } from './Header';
 export { Footer } from './Footer';
 export { AuthInitializer } from './AuthInitializer';
+export { CartInitializer } from './CartInitializer';
 export { AuthGuard } from './AuthGuard';
 export { PromotionalBanner } from './PromotionalBanner';
 
@@ -12,6 +13,7 @@ export { GoogleAuth } from './GoogleAuth';
 
 // Toast Components
 export { Toast } from './Toast';
+export { ProductToast } from './ProductToast';
 export { useToast } from '../providers/ToastProvider';
 
 // UI Components

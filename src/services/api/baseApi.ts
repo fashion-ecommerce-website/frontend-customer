@@ -168,9 +168,10 @@ class BaseApi {
       }
 
       const url = `${this.baseUrl}${endpoint}`;
+      const authHeaders = this.getAuthHeaders();
       const headers = {
         'Content-Type': 'application/json',
-        ...this.getAuthHeaders(),
+        ...authHeaders,
         ...options.headers,
       };
 

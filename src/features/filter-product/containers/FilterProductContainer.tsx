@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { FilterProductPresenter } from '../components/FilterProductPresenter';
+import { useSearchParams } from 'next/navigation';
 
 interface FilterProductContainerProps {
   className?: string;
@@ -12,6 +13,9 @@ export const FilterProductContainer: React.FC<FilterProductContainerProps> = ({
   className = ''
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams?.get('category') || undefined;
+  const initialTitle = searchParams?.get('name') || searchParams?.get('title') || undefined;
 
   // Handle product click - navigate to product detail page using detailId
   const handleProductClick = useCallback((detailId: number, slug: string) => {
@@ -22,7 +26,11 @@ export const FilterProductContainer: React.FC<FilterProductContainerProps> = ({
 
   return (
     <div className={className}>
-      <FilterProductPresenter onProductClick={handleProductClick} />
+  <FilterProductPresenter
+    onProductClick={handleProductClick}
+    initialCategory={initialCategory}
+    title={initialTitle}
+  />
     </div>
   );
 };

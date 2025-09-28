@@ -13,10 +13,8 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
   onFormDataChange,
   onSubmit,
   onClearError,
-  onLogout,
-  isAuthenticated,
 }) => {
-  const { showSuccess, showError } = useToast();
+  const { showError } = useToast();
   // Show toast on error prop change and clear error state
   useEffect(() => {
     if (error) {

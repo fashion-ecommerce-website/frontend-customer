@@ -4,6 +4,7 @@ import { homeReducer } from '../features/home';
 import { profileReducer } from '../features/profile/redux/profileSlice';
 import { productDetailReducer } from '../features/product-detail';
 import { addressReducer } from '../features/profile/redux/addressSlice';
+import { cartReducer } from '../features/cart/redux/cartSlice';
 
 export const rootReducer = combineReducers({
   login: loginReducer,
@@ -11,6 +12,7 @@ export const rootReducer = combineReducers({
   profile: profileReducer,
   productDetail: productDetailReducer,
   address: addressReducer,
+  cart: cartReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

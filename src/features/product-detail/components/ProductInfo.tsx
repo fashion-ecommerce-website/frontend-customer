@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useAppSelector } from '@/hooks/redux';
+import { useCartActions } from '@/hooks/useCartActions';
+import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { ProductDetail } from '@/services/api/productApi';
 
 interface ProductInfoProps {
@@ -21,25 +24,56 @@ export function ProductInfo({
   onSizeSelect,
   isColorLoading = false,
 }: ProductInfoProps) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const { addToCartWithToast } = useCartActions({
+    onSuccess: () => {
+      setAddingToCart(false);
+    },
+    onError: () => {
+      setAddingToCart(false);
+    }
+  });
+  
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
   const isAllSizesOut = (() => {
     const quantities = Object.values(product.mapSizeToQuantity || {});
     return quantities.length > 0 && quantities.every((q) => q === 0);
   })();
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
-      setTimeout(() => setShowSizeNotice(false), 3000); // Hide after 3 seconds
+      setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
-    // Add to cart logic here
-    console.log('Adding to cart:', { product: product.detailId, color: selectedColor, size: selectedSize });
+
+    if (!isAuthenticated) {
+      alert('Please login to add items to cart');
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      
+      await addToCartWithToast({
+        productDetailId: product.detailId,
+        quantity: quantity,
+        // Additional data for toast
+        productImage: product.images[0] || '/images/placeholder.jpg',
+        productTitle: product.title,
+        price: product.price
+      });
+    } catch (error) {
+      // Error handling is done in the hook
+      setAddingToCart(false);
+    }
   };
 
   const handleBuyNow = () => {
@@ -53,11 +87,10 @@ export function ProductInfo({
   };
 
   return (
-    <div className="space-y-6"
-    style={{ fontFamily: "'Product Sans Local', Arial, Helvetica, sans-serif" }}>
+    <div className="space-y-6">
       {/* Price */}
       <div className="space-y-1">
-        <div className="text-2xl font-normal font-['Product Sans'] text-[#202846]">
+        <div className="text-3xl font-bold text-black">
           {formatPrice(product.price)}
         </div>
       </div>
@@ -68,20 +101,21 @@ export function ProductInfo({
           <div className="swatch-color" data-index="option1">
             <div className="flex items-center space-x-3">
               {product.colors.map((color) => (
-                <div
+                <div 
                   key={color}
-                  className={`p-[3px] border border-white rounded-full cursor-pointer transition-all duration-200 ${
-                    selectedColor === color
-                      ? 'shadow-[0_0_1px_1px_#000000]'
-                      : 'shadow-[0_0_1px_1px_#e6e6e6]'
-                  } ${isColorLoading ? 'pointer-events-none opacity-70' : ''}`}
+                  className={`item-swatch cursor-pointer ${
+                    selectedColor === color ? 'active' : ''
+                  } ${isColorLoading ? 'pointer-events-none' : ''}`}
                   data-color={color}
                   onClick={() => !isColorLoading && onColorSelect(color)}
                 >
-                  <div
-                    className="w-8 h-8 rounded-full"
-                    style={{ backgroundColor: color.toLowerCase() === 'white' ? '#e6e6e6' : color.toLowerCase() }}
-                    title={color}
+                  <div className={`w-10 h-10 rounded-full border-4 ring-2 ring-white transition-all duration-200 ${
+                    selectedColor === color
+                      ? 'border-black'
+                      : 'border-gray-300 hover:border-gray-400'
+                  } ${isColorLoading ? 'opacity-70' : 'opacity-100'}`}
+                  style={{ backgroundColor: color.toLowerCase() }}
+                  title={color}
                   />
                 </div>
               ))}
@@ -122,24 +156,22 @@ export function ProductInfo({
           </div>
           
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-normal text-gray-900">Choose size</h3>
+            <h3 className="text-sm font-bold text-gray-900">Choose size</h3>
             <button 
               onClick={() => setShowSizeGuide(true)}
-              className="text-sm text-gray-800 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
+              className="text-sm text-gray-800 hover:text-gray-900 flex items-center space-x-1"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="9" viewBox="0 0 20 9" fill="none">
-                <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
-                <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
-                <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
-                <rect x="12.5" y="6" width="1" height="2" fill="black"></rect>
-                <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
-                <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth={1.5}/>
+                <line x1="16" y1="2" x2="16" y2="6" strokeWidth={1.5}/>
+                <line x1="8" y1="2" x2="8" y2="6" strokeWidth={1.5}/>
+                <line x1="3" y1="10" x2="21" y2="10" strokeWidth={1.5}/>
               </svg>
               <span>Size guide</span>
             </button>
           </div>
           
-          <div className="flex space-x-3 ">
+          <div className="flex space-x-3">
             {Object.entries(product.mapSizeToQuantity).map(([size, quantity]) => (
               <button
                 key={size}
@@ -160,6 +192,27 @@ export function ProductInfo({
         </div>
       )}
 
+      {/* Quantity Selector */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-800">Quantity</label>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            disabled={quantity <= 1}
+            className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            −
+          </button>
+          <span className="w-12 text-center font-medium text-gray-800">{quantity}</span>
+          <button
+            onClick={() => setQuantity(quantity + 1)}
+            className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
       {/* Action Buttons */}
       <div className="space-y-3">
         {isAllSizesOut ? (
@@ -172,44 +225,50 @@ export function ProductInfo({
             </button>
           </div>
         ) : (
-          <div className="w-full h-14 bg-black flex justify-between items-center mt-6">
-            <div
-              className="flex-1 h-14 inline-flex flex-col justify-center items-center cursor-pointer select-none"
-              onClick={handleAddToCart}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="self-stretch text-center justify-center text-white text-base font-normal uppercase leading-5">
-                Add to cart
-              </div>
-            </div>
-            <div
-              className="flex-1 h-14 bg-[#B01722] flex flex-col justify-center items-center cursor-pointer select-none"
-              onClick={handleBuyNow}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="self-stretch text-center justify-center text-white text-base font-normal uppercase leading-5">
-                Buy now
-              </div>
-            </div>
-          </div>
+           <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={handleAddToCart}
+            disabled={addingToCart || !selectedSize}
+            className="bg-black text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {addingToCart ? "ADDING..." : "ADD TO CART"}
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="bg-red-600 text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-red-700 transition-all duration-200"
+          >
+            BUY NOW
+          </button>
+        </div>
         )}
       </div>
 
-      {/* BLACK TUESDAY REWARDS - Styled Promotion Box */}
-      <div className="w-full px-[10px] py-3 bg-[#fafafa] border border-[#dfdfdf] rounded relative mt-2.5 mb-2.5 inline-flex flex-col justify-start items-start">
-        <div className="self-stretch pl-4 flex flex-col justify-center items-start">
-          <div className="self-stretch relative flex flex-col justify-start items-start">
-            <div className="w-3 h-7 left-[-20px] top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Products Sans'] leading-loose">◈</div>
-            <div className="justify-center text-[#202846] text-sm font-bold font-['Products Sans'] leading-loose">BLACK TUESDAY REWARDS</div>
+      {/* BLACK TUESDAY REWARDS - Simple Promotion Box */}
+      <div className="bg-gray-100 rounded-lg p-4">
+        <div className="space-y-2 text-sm text-gray-800">
+          <div className="flex items-start">
+            <span className="text-black mr-2">•</span>
+            <span className="font-semibold">BLACK TUESDAY REWARDS</span>
           </div>
-          <div className="justify-center text-[#202846] text-sm font-normal font-['Products Sans'] leading-loose">
-            Earn 10% Loyalty points back on any invoice value every Tuesday<br/>
-            Valid from: April 1, 2025<br/>
-            Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)<br/>
-            Loyalty points will be credited in addition to your regular membership benefits<br/>
-            *Applicable every Tuesday only
+          <div className="flex items-start">
+            <span className="text-black mr-2">•</span>
+            <span>Earn 10% Loyalty points back on any invoice value every Tuesday</span>
+          </div>
+          <div className="flex items-start">
+            <span className="text-black mr-2">•</span>
+            <span>Valid from: April 1, 2025</span>
+          </div>
+          <div className="flex items-start">
+            <span className="text-black mr-2">•</span>
+            <span>Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)</span>
+          </div>
+          <div className="flex items-start">
+            <span className="text-black mr-2">•</span>
+            <span>Loyalty points will be credited in addition to your regular membership benefits</span>
+          </div>
+          <div className="flex items-start">
+            <span className="text-black mr-2">•</span>
+            <span>*Applicable every Tuesday only</span>
           </div>
         </div>
       </div>

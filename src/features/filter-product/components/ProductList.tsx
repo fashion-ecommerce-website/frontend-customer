@@ -1,7 +1,9 @@
-'use client';
+"use client";
+import React, { useState } from "react";
 
-import React from 'react';
-import { FilterProductItem } from '../types';
+import AddToCartSvg from "../../../components/AddToCartSvg";
+import { FilterProductItem } from "../types";
+import { ProductQuickViewModal } from "./ProductQuickViewModal";
 
 interface ProductListProps {
   products: FilterProductItem[];
@@ -14,24 +16,35 @@ export const ProductList: React.FC<ProductListProps> = ({
   products,
   isLoading,
   onProductClick,
-  gridColumns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" // Default layout
 }) => {
+  // State for quick view modal
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
+  const [quickViewProductId, setQuickViewProductId] = useState<number | null>(null);
+
+  const handleOpenQuickView = (
+    product: FilterProductItem,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    setQuickViewProductId(product.detailId);
+    setQuickViewOpen(true);
+  };
+
+  const handleCloseQuickView = () => {
+    setQuickViewOpen(false);
+    setQuickViewProductId(null);
+  };
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
     }).format(price);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
-      </div>
-    );
-  }
+  // Số lượng skeleton card muốn hiển thị khi loading
+  const skeletonCount = 8;
 
-  if (products.length === 0) {
+  if (!isLoading && products.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-black text-lg">No products found</p>
@@ -40,77 +53,144 @@ export const ProductList: React.FC<ProductListProps> = ({
   }
 
   return (
-    <div className={`grid ${gridColumns} gap-6`}>
-      {products.map((product) => {
-        const firstImage = product.imageUrls?.[0] ?? '';
-        const secondImage = product.imageUrls?.[1] ?? null;
-
-        return (
-        <div
-          key={product.detailId}
-          className="group cursor-pointer"
-          onClick={() => onProductClick(product.detailId, product.productSlug)}
-        >
-          {/* Product Image */}
-          <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
-            {firstImage ? (
-              <>
-                {/* base image */}
-                <div
-                  className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat"
-                  style={{ backgroundImage: `url(${firstImage})` }}
-                />
-
-                {/* hover: show next image with fade only */}
-                {secondImage && (
-                  <div
-                    className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat opacity-0 transition-opacity duration-300 ease-linear group-hover:opacity-100"
-                    style={{ backgroundImage: `url(${secondImage})` }}
-                  />
-                )}
-              </>
-            ) : (
-              <div className="w-full h-full bg-gray-200" />
-            )}
-
-          </div>
-
-          {/* Product Info */}
-          <div className="space-y-2">
-            <h3 className="font-semibold h-12 text-black text-[16px] line-clamp-2">
-              {product.productTitle}
-            </h3>
-            
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-black">
-                {formatPrice(product.price)}
-              </p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {isLoading
+        ? Array.from({ length: skeletonCount }).map((_, idx) => (
+            <div key={idx} className="animate-pulse">
+              {/* Skeleton Image */}
+              <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-200">
+                <div className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-300 rounded-full" />
+                <div className="absolute inset-0 w-full h-full bg-gray-300" />
+              </div>
+              {/* Skeleton Info */}
+              <div className="space-y-2">
+                <div className="h-6 bg-gray-300 rounded w-3/4" />
+                <div className="h-4 bg-gray-300 rounded w-1/3" />
+                <div className="flex items-center gap-1 mt-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="w-3 h-3 rounded-full bg-gray-300" />
+                  ))}
+                </div>
+              </div>
             </div>
+          ))
+        : products.map((product) => {
+            const firstImage = product.imageUrls?.[0] ?? "";
+            const secondImage = product.imageUrls?.[1] ?? null;
 
-            {/* Available colors */}
-            <div className="flex items-center gap-1">
-              {product.colors.map((color, index) => (
-                <div
-                  key={index}
-                  className={`w-3 h-3 rounded-full ${
-                    color === 'black' ? 'bg-black' :
-                    color === 'white' ? 'bg-white border border-gray-500' :
-                    color === 'red' ? 'bg-red-500' :
-                    color === 'blue' || color === 'dark blue' ? 'bg-blue-500' :
-                    color === 'mint' ? 'bg-green-300' :
-                    color === 'brown' ? 'bg-amber-700' :
-                    color === 'yellow' ? 'bg-yellow-400' :
-                    color === 'pink' ? 'bg-pink-400' :
-                    'bg-gray-400'
-                  }`}
-                  title={color}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        );
-      })}
+            return (
+              <div
+                key={product.detailId}
+                className="group cursor-pointer"
+                onClick={() =>
+                  onProductClick(product.detailId, product.productSlug)
+                }
+              >
+                {/* Product Image + Add to Cart Icon */}
+                <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+                  {/* Add to Cart Icon */}
+                  <button
+                    className="absolute top-4 right-4 z-10"
+                    onClick={(e) => handleOpenQuickView(product, e)}
+                    aria-label="Quick view product"
+                  >
+                    <AddToCartSvg />
+                  </button>
+                  {firstImage ? (
+                    <>
+                      {/* base image */}
+                      <div
+                        className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat"
+                        style={{ backgroundImage: `url(${firstImage})` }}
+                      />
+
+                      {/* hover: show next image with fade only */}
+                      {secondImage && (
+                        <div
+                          className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat opacity-0 transition-opacity duration-300 ease-linear group-hover:opacity-100"
+                          style={{ backgroundImage: `url(${secondImage})` }}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-gray-200" />
+                  )}
+                </div>
+
+                {/* Product Info */}
+                <div className="space-y-2">
+                  <h3 className="font-semibold h-12 text-black text-[16px] line-clamp-2">
+                    {product.productTitle}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-black">
+                      {formatPrice(product.price)}
+                    </p>
+                  </div>
+                  {/* Available colors */}
+                  <div className="flex items-center gap-1">
+                    {product.colors.map((color, index) => {
+                      let colorClass = "";
+                      switch (color) {
+                        case "black":
+                          colorClass = "bg-black";
+                          break;
+                        case "white":
+                          colorClass = "bg-white border border-gray-500";
+                          break;
+                        case "red":
+                          colorClass = "bg-[#FF0000]";
+                          break;
+                        case "gray":
+                          colorClass = "bg-[#CCCACA]";
+                          break;
+                        case "blue":
+                          colorClass = "bg-[#5100FF]";
+                          break;
+                        case "pink":
+                          colorClass = "bg-[#DB999B]";
+                          break;
+                        case "yellow":
+                          colorClass = "bg-[#FFFF05]";
+                          break;
+                        case "purple":
+                          colorClass = "bg-[#B5129A]";
+                          break;
+                        case "brown":
+                          colorClass = "bg-[#753A3A]";
+                          break;
+                        case "green":
+                          colorClass = "bg-[#3CFA08]";
+                          break;
+                        case "beige":
+                          colorClass = "bg-[#DCB49E]";
+                          break;
+                        case "orange":
+                          colorClass = "bg-[#F5B505]";
+                          break;
+                        default:
+                          colorClass = "bg-gray-400";
+                      }
+                      return (
+                        <div
+                          key={index}
+                          className={`w-3 h-3 rounded-full ${colorClass}`}
+                          title={color}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+      
+      {/* Quick View Modal */}
+      <ProductQuickViewModal
+        isOpen={quickViewOpen}
+        onClose={handleCloseQuickView}
+        productId={quickViewProductId}
+      />
     </div>
   );
 };
