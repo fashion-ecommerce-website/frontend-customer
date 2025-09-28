@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAppSelector } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
@@ -35,6 +36,10 @@ export function ProductInfo({
   
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
+  const isAllSizesOut = (() => {
+    const quantities = Object.values(product.mapSizeToQuantity || {});
+    return quantities.length > 0 && quantities.every((q) => q === 0);
+  })();
   const [addingToCart, setAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
   
@@ -92,7 +97,7 @@ export function ProductInfo({
 
       {/* Color Selection - MLB Style */}
       {product.colors && product.colors.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-3 pl-1">
           <div className="swatch-color" data-index="option1">
             <div className="flex items-center space-x-3">
               {product.colors.map((color) => (
@@ -172,12 +177,12 @@ export function ProductInfo({
                 key={size}
                 onClick={() => onSizeSelect(size)}
                 disabled={quantity === 0}
-                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${  
+                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${
                   selectedSize === size
                     ? 'border-black bg-black text-white'
                     : quantity === 0
-                    ? 'border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100'
-                    : 'border-gray-300 text-gray-800 hover:border-gray-400'
+                    ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-default'
+                    : 'border-gray-300 text-gray-800 hover:border-gray-400 cursor-pointer'
                 }`}
               >
                 {size}
@@ -210,7 +215,17 @@ export function ProductInfo({
 
       {/* Action Buttons */}
       <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        {isAllSizesOut ? (
+          <div className="w-full h-14 flex items-center justify-center mt-6">
+            <button
+              disabled
+              className="w-full h-full text-center uppercase text-base font-normal text-black font-bold bg-gray-100"
+            >
+              Out of stock
+            </button>
+          </div>
+        ) : (
+           <div className="grid grid-cols-2 gap-3">
           <button
             onClick={handleAddToCart}
             disabled={addingToCart || !selectedSize}
@@ -225,6 +240,7 @@ export function ProductInfo({
             BUY NOW
           </button>
         </div>
+        )}
       </div>
 
       {/* BLACK TUESDAY REWARDS - Simple Promotion Box */}
@@ -257,9 +273,9 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Size Guide Modal */}
-      {showSizeGuide && (
-        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(107, 114, 128, 0.4)' }} onClick={() => setShowSizeGuide(false)}>
+      {/* Size Guide Modal (portal to body to escape stacking contexts) */}
+      {showSizeGuide && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center z-[9999]" style={{ backgroundColor: 'rgba(107, 114, 128, 0.4)' }} onClick={() => setShowSizeGuide(false)}>
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">SIZE GUIDE</h2>
@@ -338,7 +354,8 @@ export function ProductInfo({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

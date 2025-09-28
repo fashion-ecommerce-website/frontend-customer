@@ -146,7 +146,6 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
 
           <div>
             <GoogleAuth
-              hideWhenAuthenticated={true}
               onSuccess={(user) => {
                 // Remove success message - just log for debugging
                 console.log('Google login successful:', user);

@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.hstatic.net',
       },
+      {
+        protocol: 'https',
+        hostname: 'product.hstatic.net',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

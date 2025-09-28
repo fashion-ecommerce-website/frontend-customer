@@ -253,8 +253,6 @@ function* handleRefreshToken(action: PayloadAction<RefreshTokenRequest>) {
 // Google Login saga
 function* handleGoogleLogin() {
   try {
-    yield put(setLoading(true));
-    
     // Call Google authentication service
     const backendUser: BackendUser = yield call(() => authApi.authenticateWithGoogle());
     
@@ -283,14 +281,13 @@ function* handleGoogleLogin() {
                              errorMessage.includes('cancelled') ||
                              errorMessage.includes('popup-closed-by-user');
     
-    if (!isCancelledByUser) {
-      yield put(googleLoginFailure({
-        message: errorMessage,
-        status: 500
-      }));
-    }
+    // Always dispatch failure to reset google loading state
+    yield put(googleLoginFailure({
+      message: isCancelledByUser ? 'Google login cancelled by user' : errorMessage,
+      status: isCancelledByUser ? 0 : 500
+    }));
   } finally {
-    yield put(setLoading(false));
+    // No-op: google loading is managed by googleLoginRequest/success/failure
   }
 }
 
