@@ -79,7 +79,7 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
         </p>
         {/* Price moved here */}
         <div className="text-[16px] text-black">
-          {formatPrice(item.price * item.quantity)}
+          {formatPrice(item.price)}
         </div>
       </div>
 

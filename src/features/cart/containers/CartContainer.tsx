@@ -7,7 +7,7 @@ import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { CartItem } from '@/types/cart.types';
-import { removeCartItemAsync } from '../redux/cartSaga';
+import { removeCartItemAsync, updateCartItemAsync } from '../redux/cartSaga';
 import { 
   clearError, 
   selectCartItem, 
@@ -32,6 +32,8 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [selectedProductDetailId, setSelectedProductDetailId] = useState<number | null>(null);
   const [selectedItemSize, setSelectedItemSize] = useState<string | undefined>(undefined);
+  const [selectedCartItemId, setSelectedCartItemId] = useState<number | null>(null);
+  const [selectedItemQuantity, setSelectedItemQuantity] = useState<number | undefined>(undefined);
 
   // Handle item removal
   const handleRemoveItem = useCallback(async (cartItemId: number) => {
@@ -82,6 +84,8 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   const handleEditItem = useCallback((item: CartItem) => {
     setSelectedProductDetailId(item.productDetailId);
     setSelectedItemSize(item.sizeName);
+    setSelectedCartItemId(item.id);
+    setSelectedItemQuantity(item.quantity);
     setIsQuickViewOpen(true);
   }, []);
 
@@ -120,9 +124,36 @@ export const CartContainer: React.FC<CartContainerProps> = ({
                 setIsQuickViewOpen(false);
                 setSelectedProductDetailId(null);
                 setSelectedItemSize(undefined);
+                setSelectedCartItemId(null);
+                setSelectedItemQuantity(undefined);
               }}
               productId={selectedProductDetailId}
               currentSize={selectedItemSize}
+              isEditMode={true}
+              cartItemId={selectedCartItemId ?? undefined}
+              currentQuantity={selectedItemQuantity}
+              onConfirmEdit={({ cartItemId, productDetailId, sizeName, quantity }) => {
+                // Prefer to use cartItemId if provided; otherwise we don't have an id to update
+                const idToUse = cartItemId ?? selectedCartItemId;
+                if (!idToUse) {
+                  console.warn('No cartItemId provided to confirm edit');
+                  return;
+                }
+
+                // Build payload according to new API contract
+                const payload = {
+                  cartDetailId: idToUse,
+                  newProductDetailId: productDetailId ?? selectedProductDetailId ?? undefined,
+                  quantity: quantity ?? 1,
+                };
+
+                dispatch(updateCartItemAsync(payload));
+
+                // Close modal after dispatch
+                setIsQuickViewOpen(false);
+                setSelectedProductDetailId(null);
+                setSelectedItemSize(undefined);
+              }}
             />
           </>
         )}
