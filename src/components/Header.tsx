@@ -60,6 +60,16 @@ export const Header: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // Handle wishlist navigation
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isAuthenticated && user) {
+      router.push("/profile?tab=wishlist");
+    } else {
+      router.push("/auth/login?returnUrl=/profile?tab=wishlist");
+    }
+  };
+
   // Handle profile/login navigation
   const handleProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -181,7 +191,28 @@ export const Header: React.FC = () => {
                   </span>
                 )}
               </Link>
-
+              {/* Wishlist Button */}
+              <button
+                onClick={handleWishlistClick}
+                className="text-black relative cursor-pointer"
+                title={isAuthenticated ? "Wishlist" : "Login to view wishlist"}
+                aria-label="Wishlist"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.682 4.318 12.682a4.5 4.5 0 010-6.364z"
+                  />
+                </svg>
+              </button>
+                
               {/* Profile/Login Button with Authentication Check */}
               <div className="relative" ref={userMenuRef}>
                 <button

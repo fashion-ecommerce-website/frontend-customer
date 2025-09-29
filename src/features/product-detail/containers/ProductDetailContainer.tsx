@@ -8,6 +8,8 @@ import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '../components';
+import { selectWishlistItems, toggleWishlistRequest } from '@/features/profile/redux/wishlistSlice';
+import { useToast } from '@/providers/ToastProvider';
 import {
   fetchProductRequest,
   fetchProductByColorRequest,
@@ -22,6 +24,8 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const { product, isLoading, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
     (state) => state.productDetail
   );
+  const wishlistItems = useAppSelector((state) => selectWishlistItems(state as any));
+  const { showSuccess, showError } = useToast();
 
   // Handle color change with Redux action
   const handleColorChange = async (color: string) => {
@@ -106,6 +110,21 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
       onSizeSelect={handleSizeSelect}
       onColorChange={handleColorChange}
       isLoading={isColorLoading} // Pass color loading state
+      isInWishlist={wishlistItems.some((i) => i.productTitle === product.title && i.colorName === product.activeColor)}
+      wishlistBusy={false}
+      onToggleWishlist={() => {
+        if (!isAuthenticated) {
+          window.location.href = `/auth/login?returnUrl=/products/${product.detailId}`;
+          return;
+        }
+        const existingSameColor = wishlistItems.find((i) => i.productTitle === product.title && i.colorName === product.activeColor);
+        const isOn = !!existingSameColor;
+        // Dispatch toggle for target detail
+        dispatch(toggleWishlistRequest(isOn ? existingSameColor!.detailId : product.detailId));
+        // Immediately refresh via fetch to ensure state sync with server
+        dispatch({ type: 'wishlist/fetchWishlistRequest' });
+        showSuccess(isOn ? 'Removed from wishlist' : 'Added to wishlist');
+      }}
     />
   );
 }
