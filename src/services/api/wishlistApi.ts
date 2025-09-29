@@ -15,6 +15,7 @@ export interface WishlistItem {
 const WISHLIST_ENDPOINTS = {
   GET_ALL: '/wishlists',
   TOGGLE: '/wishlists/toggle', // POST /wishlists/toggle/{id}
+  CLEAR: '/wishlists/clear',
 } as const;
 
 class WishlistApiService {
@@ -43,15 +44,9 @@ class WishlistApiService {
     return apiClient.put<void>(`${WISHLIST_ENDPOINTS.TOGGLE}/${detailId}`, {});
   }
 
-  /** Clear entire wishlist by toggling all current items off */
+  /** Clear entire wishlist using backend endpoint */
   async clearAll(): Promise<ApiResponse<void>> {
-    const all = await this.getWishlist();
-    if (all.success && Array.isArray(all.data)) {
-      for (const item of all.data) {
-        await this.toggle(item.detailId);
-      }
-    }
-    return { success: true } as ApiResponse<void>;
+    return apiClient.delete<void>(WISHLIST_ENDPOINTS.CLEAR);
   }
 
   /** Remove selected wishlist items by product detail IDs via toggle */

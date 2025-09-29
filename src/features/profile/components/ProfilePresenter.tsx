@@ -20,7 +20,7 @@ import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
 import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
-import { Wishlist } from './Wishlist';
+import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
 import { AddressContainer } from '../containers/AddressContainer';
 
@@ -209,7 +209,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {activeSidebarSection === 'account' && (
             <AccountOverview user={user} />
           )}
-          {activeSidebarSection === 'wishlist' && <Wishlist />}
+          {activeSidebarSection === 'wishlist' && <WishlistContainer />}
           {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
           {activeSidebarSection === 'shipping-address' && (
             <AddressContainer />

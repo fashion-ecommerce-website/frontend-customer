@@ -37,6 +37,18 @@ const wishlistSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    clearWishlistRequest(state) {
+      state.loading = true;
+      state.error = null;
+    },
+    clearWishlistSuccess(state) {
+      state.loading = false;
+      state.items = [];
+    },
+    clearWishlistFailure(state, action: PayloadAction<string>) {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -45,8 +57,10 @@ export const {
   fetchWishlistSuccess,
   fetchWishlistFailure,
   toggleWishlistRequest,
-  toggleWishlistSuccess,
   toggleWishlistFailure,
+  clearWishlistRequest,
+  clearWishlistSuccess,
+  clearWishlistFailure,
 } = wishlistSlice.actions;
 
 export const wishlistReducer = wishlistSlice.reducer;

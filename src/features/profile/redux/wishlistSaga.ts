@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import {
   fetchWishlistRequest,
@@ -6,11 +6,14 @@ import {
   fetchWishlistFailure,
   toggleWishlistRequest,
   toggleWishlistFailure,
+  clearWishlistRequest,
+  clearWishlistSuccess,
+  clearWishlistFailure,
 } from './wishlistSlice';
 
 function* handleFetchWishlist(): any {
   try {
-    const res = yield call([wishlistApiService, wishlistApiService.getWishlist]);
+    const res = yield call(() => wishlistApiService.getWishlist());
     if (res.success) {
       yield put(fetchWishlistSuccess(res.data || []));
     } else {
@@ -24,12 +27,12 @@ function* handleFetchWishlist(): any {
 function* handleToggleWishlist(action: ReturnType<typeof toggleWishlistRequest>): any {
   const detailId = action.payload;
   try {
-    const res = yield call([wishlistApiService, wishlistApiService.toggle], detailId);
+    const res = yield call(() => wishlistApiService.toggle(detailId));
     if (!res.success) {
       yield put(toggleWishlistFailure(res.message || 'Failed to toggle wishlist'));
       return;
     }
-    const current = yield call([wishlistApiService, wishlistApiService.getWishlist]);
+    const current = yield call(() => wishlistApiService.getWishlist());
     if (current.success) {
       yield put(fetchWishlistSuccess(current.data || []));
     } else {
@@ -41,8 +44,25 @@ function* handleToggleWishlist(action: ReturnType<typeof toggleWishlistRequest>)
 }
 
 export function* wishlistSaga() {
+  const effects = require('redux-saga/effects');
+  const takeLatest = effects.takeLatest;
   yield takeLatest(fetchWishlistRequest.type, handleFetchWishlist);
   yield takeLatest(toggleWishlistRequest.type, handleToggleWishlist);
+  yield takeLatest(clearWishlistRequest.type, handleClearWishlist);
+}
+
+function* handleClearWishlist(): any {
+  try {
+    const res = yield call(() => wishlistApiService.clearAll());
+    if (!res.success) {
+      yield put(clearWishlistFailure(res.message || 'Failed to clear wishlist'));
+      return;
+    }
+    // After successful clear, set items to []
+    yield put(clearWishlistSuccess());
+  } catch (e: any) {
+    yield put(clearWishlistFailure(e.message || 'Failed to clear wishlist'));
+  }
 }
 
 
