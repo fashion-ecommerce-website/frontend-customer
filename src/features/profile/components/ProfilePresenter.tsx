@@ -20,6 +20,7 @@ import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
 import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
+import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
 import { AddressContainer } from '../containers/AddressContainer';
 
@@ -132,6 +133,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     switch (section) {
       case 'account':
         return 'ACCOUNT';
+      case 'wishlist':
+        return 'WISHLIST';
       case 'recently-viewed':
         return 'RECENTLY VIEWED';
       case 'my-info':
@@ -206,6 +209,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {activeSidebarSection === 'account' && (
             <AccountOverview user={user} />
           )}
+          {activeSidebarSection === 'wishlist' && <WishlistContainer />}
           {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
           {activeSidebarSection === 'shipping-address' && (
             <AddressContainer />

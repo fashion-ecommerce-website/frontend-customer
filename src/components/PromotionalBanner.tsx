@@ -58,7 +58,12 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
     return () => clearInterval(interval);
   }, [messages.length]);
 
-  const currentMessage = messages[currentMessageIndex];
+  // Reset index when message list length changes (e.g., after logout)
+  useEffect(() => {
+    setCurrentMessageIndex(0);
+  }, [messages.length]);
+
+  const currentMessage = messages[currentMessageIndex] ?? messages[0];
 
   return (
     <div className="bg-black text-white text-center py-3 px-4 relative">
