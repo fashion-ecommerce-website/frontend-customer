@@ -49,9 +49,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         </h2>
 
         {/* Modal message */}
-        <p className="text-gray-700 mb-6">
+        <div className="text-gray-700 mb-6 whitespace-pre-line">
           {message}
-        </p>
+        </div>
 
         {/* Action buttons */}
         <div className="flex gap-3 justify-end">

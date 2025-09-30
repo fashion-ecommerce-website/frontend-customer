@@ -98,7 +98,7 @@ export const Header: React.FC = () => {
       <PromotionalBanner isAuthenticated={isAuthenticated} />
 
   {/* Header */}
-  <header className="bg-white px-2 relative" onMouseLeave={() => setHoveredCat(null)}>
+  <header className="bg-white px-2 relative sticky top-0 z-50" onMouseLeave={() => setHoveredCat(null)}>
         <div className="sm:px-6 lg:px-8">
           <div className="flex items-center justify-between min-h-[64px]">
             {/* Logo */}

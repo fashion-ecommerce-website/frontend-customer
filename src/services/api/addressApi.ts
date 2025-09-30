@@ -124,6 +124,21 @@ export const addressApi = {
       };
     }
   },
+
+  // Get default address
+  getDefaultAddress: async (): Promise<Address | null> => {
+    try {
+      const response = await apiClient.get<Address[]>('/addresses');
+      if (response.success && response.data) {
+        const defaultAddress = response.data.find(addr => addr.isDefault || addr.default);
+        return defaultAddress || null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching default address:', error);
+      return null;
+    }
+  },
 };
 
 export default addressApi;

@@ -3,6 +3,7 @@ import { homeSaga } from '../../features/home';
 import { profileSaga } from '../../features/profile/redux/profileSaga';
 import { productDetailSaga } from '../../features/product-detail';
 import { addressSaga } from '../../features/profile/redux/addressSaga';
+import { orderSaga } from '../../features/order/redux';
 import { cartSaga } from '../../features/cart/redux/cartSaga';
 import { wishlistSaga } from '../../features/profile/redux/wishlistSaga';
 
@@ -17,6 +18,7 @@ export function* rootSaga(): Generator<unknown, void, unknown> {
     fork(profileSaga),
     fork(productDetailSaga),
     fork(addressSaga),
+    fork(orderSaga),
     fork(cartSaga),
     fork(wishlistSaga),
   ]);

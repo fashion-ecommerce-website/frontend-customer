@@ -3,16 +3,19 @@
 import { ProfileContainer } from '@/features/profile';
 import { useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/components';
+import { useSearchParams } from 'next/navigation';
 
 export default function ProfilePage() {
   const params = useSearchParams();
-  const tab = params?.get('tab');
-  const initialSection =
-    tab === 'wishlist' ? 'wishlist'
-    : tab === 'recently' ? 'recently-viewed'
-    : tab === 'addresses' ? 'shipping-address'
-    : 'account';
-
+  const sectionParam = params.get('section');
+  const tabParam = params.get('tab');
+  const initialSection = sectionParam || (
+    tabParam === 'wishlist' ? 'wishlist'
+    : tabParam === 'recently' ? 'recently-viewed'
+    : tabParam === 'addresses' ? 'shipping-address'
+    : tabParam ? 'account'
+    : undefined
+  );
   return (
     <AuthGuard>
       <ProfileContainer

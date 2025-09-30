@@ -20,6 +20,8 @@ import { CartPresenter } from '../components/CartPresenter';
 import { CartCallState } from '../states/CartCallState';
 import { CartContainerProps } from '../types';
 import { ProductQuickViewModal } from '@/features/filter-product/components/ProductQuickViewModal';
+import { OrderModal } from '@/components/modals/OrderModal';
+import { ProductItem } from '@/services/api/productApi';
 
 export const CartContainer: React.FC<CartContainerProps> = ({
   className = ''
@@ -34,6 +36,11 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   const [selectedItemSize, setSelectedItemSize] = useState<string | undefined>(undefined);
   const [selectedCartItemId, setSelectedCartItemId] = useState<number | null>(null);
   const [selectedItemQuantity, setSelectedItemQuantity] = useState<number | undefined>(undefined);
+
+  // Order modal state
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  // Note state
+  const [note, setNote] = useState<string>('');
 
   // Handle item removal
   const handleRemoveItem = useCallback(async (cartItemId: number) => {
@@ -63,12 +70,15 @@ export const CartContainer: React.FC<CartContainerProps> = ({
     dispatch(unselectAllCartItems());
   }, [dispatch]);
 
-  // Handle checkout
+  // Handle checkout - open order modal
   const handleCheckout = useCallback(() => {
-    // TODO: Navigate to checkout page
-    console.log('Proceeding to checkout...');
-    router.push('/checkout');
-  }, [router]);
+    setIsOrderModalOpen(true);
+  }, []);
+
+  // Handle close order modal
+  const handleCloseOrderModal = useCallback(() => {
+    setIsOrderModalOpen(false);
+  }, []);
 
   // Handle continue shopping
   const handleContinueShopping = useCallback(() => {
@@ -100,6 +110,25 @@ export const CartContainer: React.FC<CartContainerProps> = ({
           clearError: clearErrorFromState
         }) => (
           <>
+            {(() => {
+              // Map selected cart items to order products format
+              const selectedProducts: ProductItem[] = cartItems
+                .filter(item => item.selected !== false)
+                .map(item => ({
+                  detailId: item.productDetailId,
+                  productTitle: item.productTitle,
+                  productSlug: item.productSlug,
+                  price: item.price,
+                  quantity: item.quantity,
+                  colors: item.colorName ? [item.colorName] : [],
+                  colorName: item.colorName,
+                  imageUrls: item.imageUrl ? [item.imageUrl] : [],
+                }));
+              // Expose via a scoped variable for JSX below
+              // @ts-ignore - used in JSX
+              (globalThis as any).__selectedProducts = selectedProducts;
+              return null;
+            })()}
             <CartPresenter
               cartItems={cartItems}
               cartSummary={cartSummary}
@@ -115,6 +144,8 @@ export const CartContainer: React.FC<CartContainerProps> = ({
               onContinueShopping={handleContinueShopping}
               onClearError={clearErrorFromState}
               onEditItem={handleEditItem}
+              note={note}
+              onNoteChange={setNote}
             />
             
             {/* Quick View Modal */}
@@ -154,6 +185,14 @@ export const CartContainer: React.FC<CartContainerProps> = ({
                 setSelectedProductDetailId(null);
                 setSelectedItemSize(undefined);
               }}
+            />
+
+            {/* Order Modal */}
+            <OrderModal 
+              isOpen={isOrderModalOpen} 
+              onClose={handleCloseOrderModal}
+              products={(globalThis as any).__selectedProducts}
+              note={note}
             />
           </>
         )}
