@@ -74,13 +74,38 @@ const cartSlice = createSlice({
     },
 
     // Update cart item quantity
+    // Handles the case where the server may merge two cart details into one
+    // (for example when changing variant to an existing one). In that case
+    // the API returns the merged item (with a different id). We must remove
+    // the old cartDetail and update/merge into the existing one to avoid
+    // displaying duplicates in the UI.
     updateCartItem: (state, action: PayloadAction<{ cartItemId: number; updatedItem: CartItem }>) => {
       const { cartItemId, updatedItem } = action.payload;
-      const itemIndex = state.items.findIndex(item => item.id === cartItemId);
-      if (itemIndex !== -1) {
-        state.items[itemIndex] = updatedItem;
-        state.summary = calculateCartSummary(state.items);
+
+      // Find indices for the original item and any existing item with the
+      // same id as the updated item returned by the server.
+      const originalIndex = state.items.findIndex(item => item.id === cartItemId);
+      const existingIndex = state.items.findIndex(item => item.id === updatedItem.id);
+
+      if (existingIndex !== -1) {
+        // Server returned an item that already exists in the list (merge case).
+        // Preserve the selected flag from the existing item if present, otherwise
+        // default to true.
+        const preservedSelected = state.items[existingIndex].selected !== false;
+        state.items[existingIndex] = { ...updatedItem, selected: preservedSelected };
+
+        // If the original item still exists separately (different id), remove it.
+        if (originalIndex !== -1 && originalIndex !== existingIndex) {
+          state.items.splice(originalIndex, 1);
+        }
+      } else if (originalIndex !== -1) {
+        // Normal case: replace the original item with the updated item and
+        // preserve the selected flag if present.
+        const preservedSelected = state.items[originalIndex].selected !== false;
+        state.items[originalIndex] = { ...updatedItem, selected: preservedSelected };
       }
+
+      state.summary = calculateCartSummary(state.items);
       state.loading = false;
       state.error = null;
     },
