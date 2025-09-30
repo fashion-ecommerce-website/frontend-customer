@@ -3,7 +3,6 @@
 import { ProfileContainer } from '@/features/profile';
 import { useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/components';
-import { useSearchParams } from 'next/navigation';
 
 export default function ProfilePage() {
   const params = useSearchParams();
