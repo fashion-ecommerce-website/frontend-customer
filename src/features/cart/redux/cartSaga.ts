@@ -13,6 +13,7 @@ import {
   updateCartItem,
   removeCartItem,
   clearCart,
+  removeCartItems,
   setError
 } from './cartSlice';
 
@@ -30,6 +31,7 @@ export const CART_ACTIONS = {
   // type string. When they share the same type the saga and reducer
   // can trigger each other leading to duplicate API calls.
   REMOVE_CART_ITEM: 'cart/removeCartItemAsync',
+  REMOVE_MULTIPLE_CART_ITEMS: 'cart/removeMultipleCartItemsAsync',
   CLEAR_CART: 'cart/clearCart'
 } as const;
 
@@ -46,6 +48,10 @@ export const updateCartItemAsync = (payload: UpdateCartItemPayload) => ({
 export const removeCartItemAsync = (cartItemId: number) => ({ 
   type: CART_ACTIONS.REMOVE_CART_ITEM, 
   payload: cartItemId 
+});
+export const removeMultipleCartItemsAsync = (cartItemIds: number[]) => ({
+  type: CART_ACTIONS.REMOVE_MULTIPLE_CART_ITEMS,
+  payload: cartItemIds
 });
 export const clearCartAsync = () => ({ type: CART_ACTIONS.CLEAR_CART });
 
@@ -134,6 +140,23 @@ function* removeCartItemSaga(action: PayloadAction<number>) {
   }
 }
 
+function* removeMultipleCartItemsSaga(action: PayloadAction<number[]>) {
+  try {
+    yield put(setLoading(true));
+    const cartItemIds = action.payload;
+    const response: ApiResponse<void> = yield call(cartApi.removeMultipleCartItems, cartItemIds);
+    if (response.success) {
+      yield put(removeCartItems(cartItemIds));
+    } else {
+      yield put(setError(response.message || 'Failed to remove selected cart items'));
+    }
+  } catch (error) {
+    yield put(setError('Network error occurred while removing selected cart items'));
+  } finally {
+    yield put(setLoading(false));
+  }
+}
+
 function* clearCartSaga() {
   try {
     yield put(setLoading(true));
@@ -159,6 +182,8 @@ export function* cartSaga() {
   // (for example due to UI duplicate events or HMR/dev double-invocation),
   // only the most recent update will be processed and previous ones will be cancelled.
   yield takeLatest(CART_ACTIONS.UPDATE_CART_ITEM, updateCartItemSaga);
-  yield takeLatest(CART_ACTIONS.REMOVE_CART_ITEM, removeCartItemSaga);
+  // Process every remove action so multiple selected items can be removed sequentially
+  yield takeEvery(CART_ACTIONS.REMOVE_CART_ITEM, removeCartItemSaga);
+  yield takeLatest(CART_ACTIONS.REMOVE_MULTIPLE_CART_ITEMS, removeMultipleCartItemsSaga);
   yield takeLatest(CART_ACTIONS.CLEAR_CART, clearCartSaga);
 }

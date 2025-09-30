@@ -74,6 +74,14 @@ class CartApi {
   async clearCart(): Promise<ApiResponse<void>> {
     return apiClient.delete<void>('/cart');
   }
+
+  /**
+   * Remove multiple selected items from cart
+   */
+  async removeMultipleCartItems(ids: number[]): Promise<ApiResponse<void>> {
+    // Backend expects DELETE with body { cartDetailIds: number[] }
+    return apiClient.delete<void>('/cart/remove-multiple', { cartDetailIds: ids });
+  }
 }
 
 // Export singleton instance

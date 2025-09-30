@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AuthInitializer } from "@/components/AuthInitializer";
 import { CartInitializer } from "@/components/CartInitializer";
+import { WishlistInitializer } from "@/components/WishlistInitializer";
 import { ToastProvider } from "@/providers/ToastProvider";
 
 const productSans = Inter({
@@ -36,15 +37,17 @@ export default function RootLayout({
         <ReduxProvider>
           <AuthInitializer>
             <CartInitializer>
-              <ToastProvider>
-                <div className="min-h-screen flex flex-col">
-                  <Header />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                  <Footer />
-                </div>
-              </ToastProvider>
+              <WishlistInitializer>
+                <ToastProvider>
+                  <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                    <Footer />
+                  </div>
+                </ToastProvider>
+              </WishlistInitializer>
             </CartInitializer>
           </AuthInitializer>
         </ReduxProvider>

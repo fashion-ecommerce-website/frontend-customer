@@ -118,6 +118,15 @@ const cartSlice = createSlice({
       state.error = null;
     },
 
+    // Remove multiple items from cart
+    removeCartItems: (state, action: PayloadAction<number[]>) => {
+      const idsToRemove = new Set(action.payload);
+      state.items = state.items.filter(item => !idsToRemove.has(item.id));
+      state.summary = calculateCartSummary(state.items);
+      state.loading = false;
+      state.error = null;
+    },
+
     // Clear cart
     clearCart: (state) => {
       state.items = [];
@@ -180,6 +189,7 @@ export const {
   addCartItem,
   updateCartItem,
   removeCartItem,
+  removeCartItems,
   clearCart,
   selectCartItem,
   unselectCartItem,

@@ -10,7 +10,7 @@ import { useShippingFee, AddressData } from '@/features/order/hooks/useShippingF
 import { useToast } from '@/providers/ToastProvider';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectSelectedCartItems } from '@/features/cart/redux/cartSlice';
-import { removeCartItemAsync } from '@/features/cart/redux/cartSaga';
+import { removeMultipleCartItemsAsync } from '@/features/cart/redux/cartSaga';
 
 export type OrderPresenterProps = {
   onClose?: () => void;
@@ -80,9 +80,12 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
     // Reset order state after successful completion
     resetOrder();
 
-    // Remove selected items from cart (best-effort)
+    // Remove selected items from cart in bulk (best-effort)
     try {
-      selectedCartItems.forEach(item => dispatch(removeCartItemAsync(item.id)));
+      const ids = selectedCartItems.map(item => item.id);
+      if (ids.length > 0) {
+        dispatch(removeMultipleCartItemsAsync(ids));
+      }
     } catch {}
 
     // Close modal
