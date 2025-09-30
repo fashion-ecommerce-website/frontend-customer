@@ -2,13 +2,16 @@
 
 import React from 'react';
 import { OrderPresenter } from '@/features/order/components/OrderPresenter';
+import { ProductItem } from '@/services/api/productApi';
 
 interface OrderModalProps {
   isOpen: boolean;
   onClose: () => void;
+  products?: ProductItem[];
+  note?: string;
 }
 
-export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
+export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, products, note }) => {
   if (!isOpen) return null;
 
   return (
@@ -30,7 +33,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
         
         {/* Modal Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-          <OrderPresenter onClose={onClose} />
+          <OrderPresenter onClose={onClose} products={products} note={note} />
         </div>
       </div>
     </div>

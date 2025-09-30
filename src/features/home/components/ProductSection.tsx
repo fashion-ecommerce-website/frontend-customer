@@ -33,7 +33,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
     align: 'start',
     dragFree: false,
     loop: false,
-    skipSnaps: false
+    skipSnaps: false,
+    containScroll: 'trimSnaps'
   });
 
   const scrollPrev = useCallback(() => {
@@ -238,7 +239,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                 <div className="overflow-hidden w-full" ref={emblaRef}>
                   <div className="flex gap-3.5">
                     {(products && products.length > 0 ? products : mockRankingProducts).map((product, idx) => (
-                      <div key={product.id} className="relative flex-[0_0_calc(50%-0.9rem)] md:flex-[0_0_calc(20%-0.9rem)] min-w-0">
+                      <div key={product.id} className="relative flex-[0_0_calc((100%-0.875rem)/2)] md:flex-[0_0_calc((100%-3.5rem)/5)] min-w-0">
                         <div className="absolute left-0 top-0 z-10 select-none">
                           <img src="https://file.hstatic.net/200000642007/file/bg_rank_c21e90ddb3c74242970a777d424a1ae5.png" alt="rank badge" className="w-8 h-10" />
                           <div className="absolute inset-0 flex items-center justify-center">

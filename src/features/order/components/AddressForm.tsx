@@ -97,12 +97,10 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
 
   const handleAddNew = () => {
     openAddressFormModal(null);
-    closeAddressListModal();
   };
 
   const handleEditAddress = (address: Address) => {
     openAddressFormModal(address);
-    closeAddressListModal();
   };
 
   const handleAddressChange = () => {

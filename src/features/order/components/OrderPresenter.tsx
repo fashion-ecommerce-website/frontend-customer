@@ -5,14 +5,22 @@ import { AddressForm } from '@/features/order/components/AddressForm';
 import { PaymentMethods } from '@/features/order/components/PaymentMethods';
 import { OrderSummary } from '@/features/order/components/OrderSummary';
 import { useOrder } from '@/features/order/hooks/useOrder';
+import { ProductItem } from '@/services/api/productApi';
 import { useShippingFee, AddressData } from '@/features/order/hooks/useShippingFee';
 import { useToast } from '@/providers/ToastProvider';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { selectSelectedCartItems } from '@/features/cart/redux/cartSlice';
+import { removeCartItemAsync } from '@/features/cart/redux/cartSaga';
 
 export type OrderPresenterProps = {
   onClose?: () => void;
+  products?: ProductItem[];
+  note?: string;
 };
 
-export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose }) => {
+export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, products, note }) => {
+  const dispatch = useAppDispatch();
+  const selectedCartItems = useAppSelector(selectSelectedCartItems);
   const {
     selectedAddress,
     loadAddresses,
@@ -32,6 +40,17 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose }) => {
   useEffect(() => {
     loadAddresses();
   }, [loadAddresses]);
+
+  // If there is already a selected address, initialize shipping calculation
+  useEffect(() => {
+    if (selectedAddress) {
+      setAddressData({
+        province: selectedAddress.city,
+        district: selectedAddress.city,
+        ward: selectedAddress.ward,
+      });
+    }
+  }, [selectedAddress]);
 
   const handleAddressChange = (values: Record<string, string>) => {
     setAddressData({
@@ -60,6 +79,14 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose }) => {
     showSuccess(`Đơn hàng #${orderId} đã được tạo thành công!`);
     // Reset order state after successful completion
     resetOrder();
+
+    // Remove selected items from cart (best-effort)
+    try {
+      selectedCartItems.forEach(item => dispatch(removeCartItemAsync(item.id)));
+    } catch {}
+
+    // Close modal
+    if (onClose) onClose();
   };
 
   return (
@@ -80,6 +107,8 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose }) => {
             <OrderSummary 
               onClose={onClose} 
               shippingFee={shippingFee}
+              products={products}
+              note={note}
               onOrderComplete={handleOrderComplete}
             />
           </aside>

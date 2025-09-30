@@ -47,6 +47,7 @@ export interface OrderDetail {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  imageUrl?: string;
 }
 
 // Payment interface

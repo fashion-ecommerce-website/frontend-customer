@@ -33,7 +33,7 @@ export function ProductInfo({
       setAddingToCart(false);
     }
   });
-  
+
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
   const isAllSizesOut = (() => {
@@ -42,7 +42,7 @@ export function ProductInfo({
   })();
   const [addingToCart, setAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
   };
@@ -61,7 +61,7 @@ export function ProductInfo({
 
     try {
       setAddingToCart(true);
-      
+
       await addToCartWithToast({
         productDetailId: product.detailId,
         quantity: quantity,
@@ -95,27 +95,25 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Color Selection - MLB Style */}
+      {/* Color Selection*/}
       {product.colors && product.colors.length > 0 && (
         <div className="space-y-3 pl-1">
           <div className="swatch-color" data-index="option1">
             <div className="flex items-center space-x-3">
               {product.colors.map((color) => (
-                <div 
+                <div
                   key={color}
-                  className={`p-[3px] border border-white rounded-full cursor-pointer transition-all duration-200 ${
-                    selectedColor === color ? 'active' : ''
-                  } ${isColorLoading ? 'pointer-events-none' : ''}`}
+                  className={`p-[3px] border border-white rounded-full cursor-pointer transition-all duration-200 ${selectedColor === color
+                    ? 'shadow-[0_0_1px_1px_#000000]'
+                    : 'shadow-[0_0_1px_1px_#e6e6e6]'
+                    } ${isColorLoading ? 'pointer-events-none opacity-70' : ''}`}
                   data-color={color}
                   onClick={() => !isColorLoading && onColorSelect(color)}
                 >
-                  <div className={`w-10 h-10 rounded-full border-4 ring-2 ring-white transition-all duration-200 ${
-                    selectedColor === color
-                      ? 'border-black'
-                      : 'border-gray-300 hover:border-gray-400'
-                  } ${isColorLoading ? 'opacity-70' : 'opacity-100'}`}
-                  style={{ backgroundColor: color.toLowerCase() }}
-                  title={color}
+                  <div
+                    className="w-8 h-8 rounded-full"
+                    style={{ backgroundColor: color.toLowerCase() === 'white' ? '#e6e6e6' : color.toLowerCase() }}
+                    title={color}
                   />
                 </div>
               ))}
@@ -128,12 +126,11 @@ export function ProductInfo({
       {Object.keys(product.mapSizeToQuantity).length > 0 && (
         <div className="space-y-3 relative">
           {/* Size Selection Notice - Positioned above "Choose size" label */}
-          <div 
-            className={`absolute z-10 transition-all duration-250 ease-in-out pointer-events-none ${
-              showSizeNotice 
-                ? 'opacity-100 visible -top-16 left-0' 
-                : 'opacity-0 invisible -top-16 left-0'
-            }`}
+          <div
+            className={`absolute z-10 transition-all duration-250 ease-in-out pointer-events-none ${showSizeNotice
+              ? 'opacity-100 visible -top-16 left-0'
+              : 'opacity-0 invisible -top-16 left-0'
+              }`}
             style={{
               filter: 'drop-shadow(0px 0px 10px rgba(46, 46, 46, 0.4))',
               background: '#2E2E2E',
@@ -145,7 +142,7 @@ export function ProductInfo({
           >
             Please select size
             {/* Tooltip arrow pointing down */}
-            <div 
+            <div
               className="absolute -bottom-1 left-4 w-0 h-0"
               style={{
                 borderLeft: '6px solid transparent',
@@ -154,36 +151,37 @@ export function ProductInfo({
               }}
             ></div>
           </div>
-          
+
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-gray-900">Choose size</h3>
-            <button 
+            <h3 className="text-sm font-medium text-gray-900">Choose size</h3>
+            <button
               onClick={() => setShowSizeGuide(true)}
-              className="text-sm text-gray-800 hover:text-gray-900 flex items-center space-x-1"
+              className="text-sm text-gray-800 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth={1.5}/>
-                <line x1="16" y1="2" x2="16" y2="6" strokeWidth={1.5}/>
-                <line x1="8" y1="2" x2="8" y2="6" strokeWidth={1.5}/>
-                <line x1="3" y1="10" x2="21" y2="10" strokeWidth={1.5}/>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="9" viewBox="0 0 20 9" fill="none">
+                <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
+                <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
+                <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
+                <rect x="12.5" y="6" width="1" height="2" fill="black"></rect>
+                <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
+                <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
               </svg>
               <span>Size guide</span>
             </button>
           </div>
-          
+
           <div className="flex space-x-3">
             {Object.entries(product.mapSizeToQuantity).map(([size, quantity]) => (
               <button
                 key={size}
                 onClick={() => onSizeSelect(size)}
                 disabled={quantity === 0}
-                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${
-                  selectedSize === size
-                    ? 'border-black bg-black text-white'
-                    : quantity === 0
+                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSize === size
+                  ? 'border-black bg-black text-white'
+                  : quantity === 0
                     ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-default'
                     : 'border-gray-300 text-gray-800 hover:border-gray-400 cursor-pointer'
-                }`}
+                  }`}
               >
                 {size}
               </button>
@@ -225,50 +223,38 @@ export function ProductInfo({
             </button>
           </div>
         ) : (
-           <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={handleAddToCart}
-            disabled={addingToCart || !selectedSize}
-            className="bg-black text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {addingToCart ? "ADDING..." : "ADD TO CART"}
-          </button>
-          <button
-            onClick={handleBuyNow}
-            className="bg-red-600 text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-red-700 transition-all duration-200"
-          >
-            BUY NOW
-          </button>
-        </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleAddToCart}
+              disabled={addingToCart || !selectedSize}
+              className="bg-black text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {addingToCart ? "ADDING..." : "ADD TO CART"}
+            </button>
+            <button
+              onClick={handleBuyNow}
+              className="bg-red-600 text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-red-700 transition-all duration-200 cursor-pointer"
+            >
+              BUY NOW
+            </button>
+          </div>
         )}
       </div>
 
       {/* BLACK TUESDAY REWARDS - Simple Promotion Box */}
-      <div className="bg-gray-100 rounded-lg p-4">
-        <div className="space-y-2 text-sm text-gray-800">
-          <div className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span className="font-semibold">BLACK TUESDAY REWARDS</span>
+      <div className="w-full px-[10px] py-3 bg-[#fafafa] border border-[#dfdfdf] rounded relative mt-2.5 mb-2.5 inline-flex flex-col justify-start items-start">
+        <div className="self-stretch pl-4 flex flex-col justify-center items-start">
+          <div className="self-stretch relative flex flex-col justify-start items-start">
+            <div className="w-3 h-7 left-[-20px] top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Products Sans'] leading-loose">◈</div>
+            <div className="justify-center text-[#202846] text-sm font-bold font-['Products Sans'] leading-loose">BLACK TUESDAY REWARDS</div>
           </div>
-          <div className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>Earn 10% Loyalty points back on any invoice value every Tuesday</span>
-          </div>
-          <div className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>Valid from: April 1, 2025</span>
-          </div>
-          <div className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)</span>
-          </div>
-          <div className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>Loyalty points will be credited in addition to your regular membership benefits</span>
-          </div>
-          <div className="flex items-start">
-            <span className="text-black mr-2">•</span>
-            <span>*Applicable every Tuesday only</span>
+
+          <div className="justify-center text-[#202846] text-sm font-normal font-['Products Sans'] leading-loose">
+            Earn 10% Loyalty points back on any invoice value every Tuesday<br />
+            Valid from: April 1, 2025<br />
+            Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)<br />
+            Loyalty points will be credited in addition to your regular membership benefits<br />
+            *Applicable every Tuesday only
           </div>
         </div>
       </div>
@@ -281,7 +267,7 @@ export function ProductInfo({
               <h2 className="text-xl font-bold text-gray-900">SIZE GUIDE</h2>
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-800">FIT | Áo thun</span>
-                <button 
+                <button
                   onClick={() => setShowSizeGuide(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
@@ -291,7 +277,7 @@ export function ProductInfo({
                 </button>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               {/* Instructions */}
               <div>
@@ -300,7 +286,7 @@ export function ProductInfo({
                   Please measure accurately around your waist and chest to determine the correct size based on your body measurements.
                 </p>
               </div>
-              
+
               {/* Size Chart */}
               <div>
                 <div className="w-full">
@@ -347,7 +333,7 @@ export function ProductInfo({
                     </tbody>
                   </table>
                 </div>
-                
+
                 <p className="text-xs text-gray-700 mt-4">
                   *Size chart is for reference only, please refer to actual product measurements and your individual body measurements for accurate sizing.
                 </p>

@@ -24,6 +24,8 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
   onContinueShopping,
   onClearError,
   onEditItem,
+  note,
+  onNoteChange,
 }) => {
   const breadcrumbItems = [
     {
@@ -145,6 +147,8 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
               summary={cartSummary}
               onCheckout={onCheckout}
               loading={loading}
+              note={note}
+              onNoteChange={onNoteChange}
             />
           </div>
         </div>

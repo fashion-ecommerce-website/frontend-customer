@@ -21,6 +21,8 @@ export interface CartPresenterProps {
   onContinueShopping: () => void;
   onClearError: () => void;
   onEditItem?: (item: CartItem) => void;
+  note?: string;
+  onNoteChange?: (note: string) => void;
 }
 
 // Cart Item Component Props
@@ -38,6 +40,8 @@ export interface CartSummaryComponentProps {
   summary: CartSummary;
   onCheckout: () => void;
   loading?: boolean;
+  note?: string;
+  onNoteChange?: (note: string) => void;
 }
 
 // Cart Call State Props

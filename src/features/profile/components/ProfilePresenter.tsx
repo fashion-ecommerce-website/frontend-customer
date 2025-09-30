@@ -22,6 +22,9 @@ import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
 import { AccountOverview } from './AccountOverview';
 import { AddressContainer } from '../containers/AddressContainer';
+import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
+import OrderDetailPresenter from '../components/OrderDetailPresenter';
+import { Order } from '@/features/order/types';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   initialSection = 'account',
@@ -47,6 +50,17 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
   // Default to account overview or use initialSection
   const [activeSidebarSection, setActiveSidebarSection] = useState(initialSection);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  
+  // Sync with query-driven initialSection changes (e.g., /profile?section=order-info)
+  useEffect(() => {
+    if (initialSection && initialSection !== activeSidebarSection) {
+      setActiveSidebarSection(initialSection);
+    }
+    if (!initialSection && !activeSidebarSection) {
+      setActiveSidebarSection('account');
+    }
+  }, [initialSection]);
   const router = useRouter();
   const { logout } = useAuth();
   
@@ -134,6 +148,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'ACCOUNT';
       case 'recently-viewed':
         return 'RECENTLY VIEWED';
+      case 'order-info':
+        return 'ORDER INFORMATION';
       case 'my-info':
         return 'MY INFO';
       case 'shipping-address':
@@ -143,16 +159,27 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return '';
     }
   };
-  const breadcrumbItems = activeSidebarSection === 'account'
-    ? [
-        { label: 'HOME', href: '/' },
-        { label: 'ACCOUNT', onClick: () => handleSidebarSectionChange('account') }
-      ]
-    : [
+  const breadcrumbItems = (() => {
+    if (activeSidebarSection === 'account') {
+      return [
         { label: 'HOME', href: '/' },
         { label: 'ACCOUNT', onClick: () => handleSidebarSectionChange('account') },
-        { label: getSectionLabel(activeSidebarSection), isActive: true }
       ];
+    }
+    if (activeSidebarSection === 'order-detail' && selectedOrder) {
+      return [
+        { label: 'HOME', href: '/' },
+        { label: 'ACCOUNT', onClick: () => handleSidebarSectionChange('account') },
+        { label: 'ORDER INFORMATION', onClick: () => setActiveSidebarSection('order-info') },
+        { label: `V${selectedOrder.id}`, isActive: true },
+      ];
+    }
+    return [
+      { label: 'HOME', href: '/' },
+      { label: 'ACCOUNT', onClick: () => handleSidebarSectionChange('account') },
+      { label: getSectionLabel(activeSidebarSection), isActive: true },
+    ];
+  })();
 
   // Loading state
   if (isLoading) {
@@ -209,6 +236,21 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
           {activeSidebarSection === 'shipping-address' && (
             <AddressContainer />
+          )}
+          {activeSidebarSection === 'order-info' && (
+            <OrderHistoryContainer onOpenDetail={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-detail'); }} />
+          )}
+          {activeSidebarSection === 'order-detail' && selectedOrder && (
+            <div className="mt-6">
+              <OrderDetailPresenter 
+                order={selectedOrder} 
+                onBack={() => {
+                  setActiveSidebarSection('order-info');
+                  // keep selected order or clear depending on UX; clear to avoid stale breadcrumb
+                  setSelectedOrder(null);
+                }}
+              />
+            </div>
           )}
           {activeSidebarSection === 'my-info' && (
             <ProfileFormSection

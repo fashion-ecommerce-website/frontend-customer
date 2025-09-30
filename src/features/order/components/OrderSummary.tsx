@@ -12,13 +12,15 @@ interface OrderSummaryProps {
   shippingFee?: ShippingFeeData;
   products?: ProductItem[];
   onOrderComplete?: (orderId: number) => void;
+  note?: string;
 }
 
 export function OrderSummary({ 
   onClose, 
   shippingFee, 
   products = mockOrderProducts, 
-  onOrderComplete 
+  onOrderComplete,
+  note,
 }: OrderSummaryProps): React.ReactElement {
   const [isItemsVisible, setIsItemsVisible] = useState(true);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -95,7 +97,7 @@ export function OrderSummary({
 
     const orderData: CreateOrderRequest = {
       shippingAddressId: addressId!,
-      note: "Giao hàng nhanh trong ngày",
+      note: note || '',
       subtotalAmount: subtotal,
       discountAmount: 0,
       shippingFee: shippingFee?.fee || 0,
@@ -129,6 +131,8 @@ export function OrderSummary({
       }
     }
   }, [orderError]);
+  const isCompleteDisabled = isOrderLoading || !selectedAddress;
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -218,8 +222,10 @@ export function OrderSummary({
                 <span className="text-blue-600">Calculating...</span>
               ) : shippingFee?.error ? (
                 <span className="text-red-600">Error</span>
-              ) : (
+              ) : selectedAddress ? (
                 `+ ${formatPrice(shippingFee?.fee || 0)}`
+              ) : (
+                <span className="text-neutral-500">Select address to calculate</span>
               )}
             </span>
           </div>
@@ -257,11 +263,11 @@ export function OrderSummary({
             type="button" 
             className="w-full inline-flex cursor-pointer"
             onClick={handleCompleteOrder}
-            disabled={isOrderLoading}
+            disabled={isCompleteDisabled}
           >
             <div className="flex h-12 w-full items-center justify-center bg-zinc-800 hover:bg-zinc-700 px-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               <div className="text-center text-white text-sm font-semibold uppercase leading-tight tracking-wide">
-                {isOrderLoading ? 'PROCESSING...' : 'COMPLETE ORDER'}
+                {isOrderLoading ? 'PROCESSING...' : (!selectedAddress ? 'SELECT ADDRESS' : 'COMPLETE ORDER')}
               </div>
             </div>
           </button>

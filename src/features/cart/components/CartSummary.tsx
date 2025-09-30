@@ -7,6 +7,8 @@ export const CartSummaryComponent: React.FC<CartSummaryComponentProps> = ({
   summary,
   onCheckout,
   loading = false,
+  note,
+  onNoteChange,
 }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -58,8 +60,10 @@ export const CartSummaryComponent: React.FC<CartSummaryComponentProps> = ({
             placeholder="Enter order notes"
             className="w-full h-20 p-3 pb-6 border border-gray-300 rounded-[4px] resize-none focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
             maxLength={2000}
+            value={note || ''}
+            onChange={(e) => onNoteChange && onNoteChange(e.target.value)}
           />
-          <div className="absolute bottom-2 right-2 text-xs text-gray-500 pointer-events-none">0/2000</div>
+          <div className="absolute bottom-2 right-2 text-xs text-gray-500 pointer-events-none">{(note?.length || 0)}/2000</div>
         </div>
       </div>
 
