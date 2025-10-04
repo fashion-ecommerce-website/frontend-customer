@@ -41,24 +41,24 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 relative shadow-2xl border border-gray-200">
+    <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-md mx-auto shadow-2xl border border-gray-200">
         {/* Modal title */}
-        <h2 className="text-xl font-semibold text-black mb-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-black mb-4 px-6 pt-6">
           {title}
         </h2>
 
         {/* Modal message */}
-        <div className="text-gray-700 mb-6 whitespace-pre-line">
+        <div className="text-gray-700 mb-6 whitespace-pre-line px-6 text-sm sm:text-base">
           {message}
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex flex-col sm:flex-row gap-3 justify-end px-6 pb-6">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors order-2 sm:order-1"
             disabled={isLoading}
           >
             {cancelText}
@@ -66,7 +66,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <button
             type="button"
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${getButtonStyles()}`}
+            className={`w-full sm:w-auto px-4 py-2 text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2 ${getButtonStyles()}`}
             disabled={isLoading}
           >
             {isLoading ? 'Processing...' : confirmText}

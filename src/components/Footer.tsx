@@ -143,25 +143,25 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="bg-[#3a3839] border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-[#C4C4C4]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-[#C4C4C4]">
           {/* Company Info */}
-          <div className="md:col-span-1">
-            <h3 className="text-2xl font-bold text-white mb-4">{footerData.companyInfo.name}</h3>
-            <p className="mb-6 text-sm leading-relaxed">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">{footerData.companyInfo.name}</h3>
+            <p className="mb-6 text-sm sm:text-base leading-relaxed">
               {footerData.companyInfo.description}
             </p>
             
             {/* Social Links */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3 sm:space-x-4">
               {footerData.socialLinks.map((social) => (
                 <Link
                   key={social.id}
                   href={social.href}
-                  className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black transition-colors"
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black transition-all duration-200 hover:scale-110"
                   aria-label={social.platform}
                 >
-                  {getSocialIcon(social.platform, "w-5 h-5")}
+                  {getSocialIcon(social.platform, "w-4 h-4 sm:w-5 sm:h-5")}
                 </Link>
               ))}
             </div>
@@ -169,16 +169,16 @@ export const Footer: React.FC = () => {
 
           {/* Footer Sections */}
           {footerData.sections.map((section) => (
-            <div key={section.id} className="md:col-span-1">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <div key={section.id} className="sm:col-span-1">
+              <h4 className="text-sm sm:text-base font-semibold text-white uppercase tracking-wider mb-3 sm:mb-4">
                 {section.title}
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2 sm:space-y-3">
                 {section.links.map((link) => (
                   <li key={link.id}>
                     <Link
                       href={link.href}
-                      className="text-[#C4C4C4] hover:text-white text-sm transition-colors"
+                      className="text-[#C4C4C4] hover:text-white text-sm sm:text-base transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -190,16 +190,16 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Footer */}
-        <div className="mt-12 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-[#C4C4C4] text-sm mb-4 md:mb-0">
+        <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-600 flex flex-col lg:flex-row justify-between items-center gap-4">
+          <p className="text-[#C4C4C4] text-xs sm:text-sm text-center lg:text-left">
             {footerData.companyInfo.copyright}
           </p>
           
           {/* Payment Methods */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 justify-center lg:justify-end">
             {footerData.paymentMethods.map((payment) => (
-              <div key={payment.id} title={payment.name}>
-                {getPaymentIcon(payment.id, "w-14 h-9")}
+              <div key={payment.id} title={payment.name} className="transition-transform hover:scale-105">
+                {getPaymentIcon(payment.id, "w-12 h-8 sm:w-14 sm:h-9")}
               </div>
             ))}
           </div>

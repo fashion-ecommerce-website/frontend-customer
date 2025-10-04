@@ -11,6 +11,7 @@ export type Category = {
 export const categoryApi = {
   getTree: async () => {
     // Uses BaseApi which prepends getApiUrl() automatically
-    return apiClient.get<Category[]>('/categories/tree');
+    // categories are public; skip auth checks so unauthenticated users can fetch them
+    return apiClient.get<Category[]>('/categories/tree', undefined, true);
   },
 };

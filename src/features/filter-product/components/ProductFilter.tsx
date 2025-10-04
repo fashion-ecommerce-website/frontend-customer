@@ -71,9 +71,9 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
       {/* Breadcrumb */}
-      <div className="flex items-center text-sm gap-1">
+      <div className="flex items-center text-xs sm:text-sm gap-1 order-2 sm:order-1">
         <span
           role="button"
           tabIndex={0}
@@ -124,15 +124,15 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
       </div>
 
       {/* Filter Button and Sort Dropdown */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto order-1 sm:order-2">
         {/* Filter Button */}
         <button
           onClick={onOpenSidebar}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-black"
+          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm flex-1 sm:flex-none justify-center"
         >
           Filters
           <svg
-            className="w-4 h-4"
+            className="w-3 h-3 sm:w-4 sm:h-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -151,14 +151,14 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           value={filters.sort || sortOptions[0].value}
           onChange={(value) => handleFilterChange("sort", value)}
         >
-          <div className="relative">
-            <ListboxButton className="flex items-center justify-between w-48 px-4 py-2 border border-gray-300 rounded-md bg-white text-black">
-              <span>
+          <div className="relative flex-1 sm:flex-none">
+            <ListboxButton className="flex items-center justify-between w-full sm:w-48 px-3 sm:px-4 py-2 border border-gray-300 rounded-md bg-white text-black text-sm">
+              <span className="truncate">
                 {sortOptions.find((opt) => opt.value === filters.sort)?.label ||
                   sortOptions[0].label}
               </span>
               <svg
-                className="h-4 w-4 text-black"
+                className="h-3 w-3 sm:h-4 sm:w-4 text-black ml-2 flex-shrink-0"
                 viewBox="0 0 20 20"
                 fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg"

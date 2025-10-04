@@ -63,7 +63,7 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
           {[
             { label: 'Name', htmlFor: 'username', value: profileFormData.username, className: 'flex-1 py-2 text-black' },
             { label: 'Birthday', id: 'dob', value: profileFormData.dob, className: 'flex-1 py-2 text-black' },
-            { label: 'Gender', htmlFor: 'gender', value: profileFormData.gender, className: 'flex-1 py-2 text-black' },
+            // { label: 'Gender', htmlFor: 'gender', value: profileFormData.gender, className: 'flex-1 py-2 text-black' },
             { label: 'Phone', htmlFor: 'phone', value: profileFormData.phone, className: 'flex-1 py-2 text-black' },
           ].map((field) => (
             <div key={field.label} className="flex items-center">

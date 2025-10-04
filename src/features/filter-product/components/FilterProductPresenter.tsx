@@ -170,7 +170,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   };
 
   return (
-    <div className="w-full bg-gray-50 px-16 py-8">
+    <div className="w-full bg-gray-50 px-3 sm:px-6 md:px-8 lg:px-16 py-4 sm:py-6 md:py-8">
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-black px-4 py-3 relative mb-6 rounded-lg">
@@ -185,7 +185,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
         </div>
       )}
 
-  <div className="mb-4 text-black flex justify-center font-bold text-[32px]">{displayTitle}</div>
+  <div className="mb-3 sm:mb-4 text-black flex justify-center font-bold text-xl sm:text-2xl md:text-[32px]">{displayTitle}</div>
 
       {/* Header với Breadcrumb và Sort */}
       <ProductFilter

@@ -53,19 +53,24 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
   if (cartItems.length === 0 && !loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
           <Breadcrumb items={breadcrumbItems} />
 
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold mb-4 text-black">
+          <div className="text-center py-8 sm:py-12">
+            <div className="mb-6">
+              <svg className="w-16 h-16 sm:w-20 sm:h-20 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-black">
               Your cart is empty
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
               Add products to your cart to continue shopping
             </p>
             <button
               onClick={onContinueShopping}
-              className="bg-black text-white px-6 py-2 rounded-lg font-[14px] hover:bg-gray-800 transition-colors"
+              className="bg-black text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm sm:text-base"
             >
               Continue Shopping
             </button>
@@ -77,16 +82,17 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
         <Breadcrumb items={breadcrumbItems} />
 
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 mb-4 rounded-lg relative">
-            <span className="block sm:inline">{error}</span>
+            <span className="block sm:inline text-sm sm:text-base">{error}</span>
             <button
               onClick={onClearError}
               className="absolute top-0 bottom-0 right-0 px-4 py-3 hover:bg-red-100 transition-colors"
+              aria-label="Dismiss error"
             >
               <span className="sr-only">Dismiss</span>✕
             </button>
@@ -95,28 +101,28 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
 
         {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+          <div className="flex items-center justify-center h-32 sm:h-64">
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-black"></div>
           </div>
         )}
 
         {/* Header with select all */}
-        <div className="bg-white mb-4 px-10 py-4">
-          <div className="flex items-center space-x-4">
+        <div className="bg-white mb-4 px-4 sm:px-6 lg:px-10 py-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <input
               type="checkbox"
               checked={allItemsSelected}
               onChange={handleSelectAllChange}
-              className="border-gray-300 w-5 h-5 text-gray-800 focus:ring-gray-800 accent-gray-800 transition-all duration-200"
+              className="border-gray-300 w-4 h-4 sm:w-5 sm:h-5 text-gray-800 focus:ring-gray-800 accent-gray-800 transition-all duration-200"
             />
-            <span className="font-semibold text-black">Select All</span>
+            <span className="font-semibold text-black text-sm sm:text-base">Select All</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-10">
           {/* Cart Items */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg">
+            <div className="bg-white rounded-lg space-y-4">
               {cartItems.map((item) => (
                 <CartItemComponent
                   key={item.id}
@@ -134,7 +140,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
             <div className="mt-6 flex justify-center">
               <button
                 onClick={onContinueShopping}
-                className=" bg-white border border-gray-300 text-black px-6 py-3 rounded-[4px] font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                className="w-full sm:w-auto bg-white border border-gray-300 text-black px-6 py-3 rounded-[4px] font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-sm sm:text-base"
               >
                 Continue Shopping
               </button>
@@ -142,7 +148,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
           </div>
 
           {/* Cart Summary */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-first lg:order-last">
             <CartSummaryComponent
               summary={cartSummary}
               onCheckout={onCheckout}

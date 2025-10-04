@@ -13,6 +13,8 @@ interface RequestOptions {
   method: HttpMethod;
   headers?: Record<string, string>;
   body?: string | FormData;
+  // When true, skip any auth/token checks for this request (useful for public endpoints)
+  skipAuth?: boolean;
 }
 
 // Base API class
@@ -156,7 +158,8 @@ class BaseApi {
       // Chỉ kiểm tra token với các endpoint thực sự cần đăng nhập
       // Không kiểm tra với GET /products hoặc các API public
       const isGetProducts = options.method === 'GET' && endpoint.startsWith('/products');
-      if (!endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts) {
+      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts;
+      if (shouldCheckAuth) {
         const tokenValid = await this.ensureValidToken();
         if (!tokenValid) {
           return {
@@ -243,19 +246,21 @@ class BaseApi {
   }
 
   // HTTP methods
-  async get<T>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, { method: 'GET', headers });
+  async get<T>(endpoint: string, headers?: Record<string, string>, skipAuth?: boolean): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>(endpoint, { method: 'GET', headers, skipAuth });
   }
 
   async post<T>(
     endpoint: string,
     body?: Record<string, unknown> | unknown,
     headers?: Record<string, string>
+  , skipAuth?: boolean
   ): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(endpoint, { 
       method: 'POST', 
       body: body ? JSON.stringify(body) : undefined, 
-      headers 
+      headers,
+      skipAuth,
     });
   }
 
@@ -263,11 +268,13 @@ class BaseApi {
     endpoint: string,
     body?: Record<string, unknown> | unknown,
     headers?: Record<string, string>
+  , skipAuth?: boolean
   ): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(endpoint, { 
       method: 'PUT', 
       body: body ? JSON.stringify(body) : undefined, 
-      headers 
+      headers,
+      skipAuth,
     });
   }
 
@@ -275,11 +282,13 @@ class BaseApi {
     endpoint: string,
     body?: Record<string, unknown> | unknown,
     headers?: Record<string, string>
+  , skipAuth?: boolean
   ): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(endpoint, { 
       method: 'PATCH', 
       body: body ? JSON.stringify(body) : undefined, 
-      headers 
+      headers,
+      skipAuth,
     });
   }
 
@@ -287,11 +296,13 @@ class BaseApi {
     endpoint: string,
     body?: Record<string, unknown> | unknown,
     headers?: Record<string, string>
+  , skipAuth?: boolean
   ): Promise<ApiResponse<T>> {
     return this.makeRequest<T>(endpoint, {
       method: 'DELETE',
       body: body ? JSON.stringify(body) : undefined,
       headers,
+      skipAuth,
     });
   }
 }

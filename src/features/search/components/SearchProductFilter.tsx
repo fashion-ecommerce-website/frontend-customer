@@ -48,27 +48,7 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
   return (
     <div className="space-y-4">
       {/* Results count and Filter/Sort controls */}
-      <div className="flex items-center justify-between">
-        {/* Results count */}
-        <div className="text-black">
-          {!isLoading && resultsCount > 0 ? (
-            <>
-              Found {resultsCount} products
-              {searchQuery && (
-                <span>
-                  {" "}
-                  for "
-                  <span className="font-medium text-black">{searchQuery}</span>"
-                </span>
-              )}
-            </>
-          ) : !isLoading ? (
-            <span className="text-gray-500">No results</span>
-          ) : (
-            <span className="text-gray-500">Searching...</span>
-          )}
-        </div>
-
+      <div className="flex items-center justify-end">
         {/* Filter Button and Sort Dropdown */}
         <div className="flex items-center gap-4">
           {/* Filter Button */}

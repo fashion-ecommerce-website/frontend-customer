@@ -53,22 +53,22 @@ export const ProductList: React.FC<ProductListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
       {isLoading
         ? Array.from({ length: skeletonCount }).map((_, idx) => (
             <div key={idx} className="animate-pulse">
               {/* Skeleton Image */}
-              <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-200">
-                <div className="absolute top-4 right-4 z-10 w-8 h-8 bg-gray-300 rounded-full" />
+              <div className="relative w-full aspect-square mb-2 sm:mb-3 overflow-hidden rounded-lg bg-gray-200">
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 w-6 h-6 sm:w-8 sm:h-8 bg-gray-300 rounded-full" />
                 <div className="absolute inset-0 w-full h-full bg-gray-300" />
               </div>
               {/* Skeleton Info */}
-              <div className="space-y-2">
-                <div className="h-6 bg-gray-300 rounded w-3/4" />
-                <div className="h-4 bg-gray-300 rounded w-1/3" />
-                <div className="flex items-center gap-1 mt-2">
+              <div className="space-y-1 sm:space-y-2">
+                <div className="h-4 sm:h-6 bg-gray-300 rounded w-3/4" />
+                <div className="h-3 sm:h-4 bg-gray-300 rounded w-1/3" />
+                <div className="flex items-center gap-1 mt-1 sm:mt-2">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="w-3 h-3 rounded-full bg-gray-300" />
+                    <div key={i} className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gray-300" />
                   ))}
                 </div>
               </div>
@@ -87,14 +87,16 @@ export const ProductList: React.FC<ProductListProps> = ({
                 }
               >
                 {/* Product Image + Add to Cart Icon */}
-                <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative w-full aspect-square mb-2 sm:mb-3 overflow-hidden rounded-lg bg-gray-100">
                   {/* Add to Cart Icon */}
                   <button
-                    className="absolute top-4 right-4 z-10"
+                    className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10"
                     onClick={(e) => handleOpenQuickView(product, e)}
                     aria-label="Quick view product"
                   >
-                    <AddToCartSvg />
+                    <div className="scale-75 sm:scale-100">
+                      <AddToCartSvg />
+                    </div>
                   </button>
                   {firstImage ? (
                     <>
@@ -118,12 +120,12 @@ export const ProductList: React.FC<ProductListProps> = ({
                 </div>
 
                 {/* Product Info */}
-                <div className="space-y-2">
-                  <h3 className="font-semibold h-12 text-black text-[16px] line-clamp-2">
+                <div className="space-y-1 sm:space-y-2">
+                  <h3 className="font-semibold text-black text-sm sm:text-[16px] line-clamp-2 leading-tight">
                     {product.productTitle}
                   </h3>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-black">
+                    <p className="text-xs sm:text-sm font-semibold text-black">
                       {formatPrice(product.price)}
                     </p>
                   </div>
@@ -174,7 +176,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                       return (
                         <div
                           key={index}
-                          className={`w-3 h-3 rounded-full ${colorClass}`}
+                          className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${colorClass}`}
                           title={color}
                         />
                       );
