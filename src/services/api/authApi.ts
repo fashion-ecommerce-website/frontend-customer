@@ -224,16 +224,38 @@ export class AuthApiService {
       
       // ✅ Backend response received
       console.log('✅ Backend authentication successful:', backendResponse);
-      
-      // Step 3: Save tokens with standardized keys
-      if (backendResponse.jwtToken) {
-        localStorage.setItem('accessToken', backendResponse.jwtToken);
-        localStorage.setItem('user', JSON.stringify(backendResponse.user));
-        console.log('💾 Token and user data saved to localStorage');
+
+      // Step 3: Handle token-only login response 
+      if ((backendResponse as any)?.accessToken) {
+        const tokenResp = backendResponse as unknown as {
+          accessToken: string;
+          refreshToken?: string;
+          username?: string;
+          email?: string;
+          expiresIn?: number;
+        };
+        localStorage.setItem('accessToken', tokenResp.accessToken);
+        if (tokenResp.refreshToken) {
+          localStorage.setItem('refreshToken', tokenResp.refreshToken);
+        }
+
+        const normalizedUser: BackendUser = {
+          id: firebaseUser.uid,
+          email: tokenResp.email || firebaseUser.email || '',
+          name: tokenResp.username || firebaseUser.displayName || (firebaseUser.email || '').split('@')[0] || '',
+          picture: firebaseUser.photoURL || undefined,
+          provider: 'GOOGLE',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        localStorage.setItem('user', JSON.stringify(normalizedUser));
+        console.log('💾 Saved token-only response and constructed user from Firebase');
+        console.log('✅ Google authentication flow completed successfully');
+        return normalizedUser;
       }
-      
-      console.log('✅ Google authentication flow completed successfully');
-      return backendResponse.user;
+
+      // Fallback: unexpected response shape
+      throw new Error('Phản hồi xác thực không hợp lệ từ máy chủ');
       
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Đăng nhập Google thất bại';

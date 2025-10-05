@@ -272,6 +272,18 @@ function* handleGoogleLogin() {
     
     yield put(googleLoginSuccess(googleResponse));
     
+    // After Google login, mirror normal login flow: fetch full profile
+    try {
+      const profileResponse: ApiResponse<ApiUserResponse> = yield call(() => profileApiService.getProfile());
+      if (profileResponse.success && profileResponse.data) {
+        const fullUserData = convertApiUserToUser(profileResponse.data);
+        localStorage.setItem('user', JSON.stringify(fullUserData));
+        yield put(setUser(fullUserData));
+      }
+    } catch (profileError) {
+      // Do not fail the login if profile fetch fails
+      console.warn('Failed to fetch profile after Google login:', profileError);
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Google login failed';
     
