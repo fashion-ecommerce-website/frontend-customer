@@ -8,6 +8,7 @@ import {
   ProductTabs,
   RelatedProducts,
   ProductDetailRecentlyViewed,
+  ReviewsSection,
 } from '.';
 import { useRouter } from 'next/navigation';
 
@@ -169,11 +170,16 @@ export function ProductDetailPresenter({
         </div>
       </div>
 
+      
       {/* Related Products */}
       <RelatedProducts category="ao-thun" />
 
       {/* Recently Viewed Products */}
       <ProductDetailRecentlyViewed />
+
+      {/* Reviews */}
+      <ReviewsSection productDetailId={product.detailId} />
+
     </div>
   );
 }
