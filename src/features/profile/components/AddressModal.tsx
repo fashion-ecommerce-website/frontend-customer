@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ghnApi, GHNProvince, GHNDistrict, GHNWard } from '@/services/api/ghnApi';
 
 interface Address {
   id?: number;
@@ -15,6 +16,10 @@ interface Address {
   default?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  // GHN Integration fields
+  provinceId?: number;
+  districtId?: number;
+  wardCode?: string;
 }
 
 interface AddressModalProps {
@@ -32,6 +37,10 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   onSave,
   isLoading = false,
 }) => {
+  // Error map for form fields
+  type AddressField = keyof Address;
+  type AddressErrors = Partial<Record<AddressField, string>>;
+
   const [formData, setFormData] = useState<Address>({
     fullName: address?.fullName || '',
     phone: address?.phone || '',
@@ -40,9 +49,84 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     city: address?.city || '',
     countryCode: address?.countryCode || 'VN',
     isDefault: address?.isDefault || address?.default || false,
+    provinceId: address?.provinceId,
+    districtId: address?.districtId,
+    wardCode: address?.wardCode,
   });
 
-  const [errors, setErrors] = useState<Partial<Address>>({});
+  const [errors, setErrors] = useState<AddressErrors>({});
+
+  // GHN API states
+  const [provinces, setProvinces] = useState<GHNProvince[]>([]);
+  const [districts, setDistricts] = useState<GHNDistrict[]>([]);
+  const [wards, setWards] = useState<GHNWard[]>([]);
+  
+  const [selectedProvince, setSelectedProvince] = useState<number | null>(address?.provinceId || null);
+  const [selectedDistrict, setSelectedDistrict] = useState<number | null>(address?.districtId || null);
+  const [selectedWard, setSelectedWard] = useState<string | null>(address?.wardCode || null);
+  
+  const [loading, setLoading] = useState({
+    provinces: false,
+    districts: false,
+    wards: false
+  });
+  
+  const [ghnError, setGhnError] = useState<string | null>(null);
+
+  // Load provinces on mount
+  useEffect(() => {
+    if (isOpen) {
+      loadProvinces();
+    }
+  }, [isOpen]);
+
+  // Load districts when province changes
+  useEffect(() => {
+    if (selectedProvince) {
+      loadDistricts(selectedProvince);
+      // Reset district and ward selections
+      setSelectedDistrict(null);
+      setSelectedWard(null);
+      setDistricts([]);
+      setWards([]);
+    }
+  }, [selectedProvince]);
+
+  // Load wards when district changes
+  useEffect(() => {
+    if (selectedDistrict) {
+      loadWards(selectedDistrict);
+      // Reset ward selection
+      setSelectedWard(null);
+      setWards([]);
+    }
+  }, [selectedDistrict]);
+
+  // Update form data when GHN selections change
+  useEffect(() => {
+    if (selectedProvince && selectedDistrict && selectedWard) {
+      const province = provinces.find(p => p.ProvinceID === selectedProvince);
+      const district = districts.find(d => d.DistrictID === selectedDistrict);
+      const ward = wards.find(w => w.WardCode === selectedWard);
+      
+      setFormData(prev => ({
+        ...prev,
+        provinceId: selectedProvince,
+        districtId: selectedDistrict,
+        wardCode: selectedWard,
+        city: district?.DistrictName || prev.city,
+        ward: ward?.WardName || prev.ward,
+      }));
+
+      // Clear GHN-related errors
+      setErrors(prev => ({
+        ...prev,
+        provinceId: undefined,
+        districtId: undefined,
+        wardCode: undefined,
+      }));
+    }
+  }, [selectedProvince, selectedDistrict, selectedWard, provinces, districts, wards]);
 
   // Reset form when modal opens/closes or address changes
   React.useEffect(() => {
@@ -55,10 +139,85 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         city: address?.city || '',
         countryCode: address?.countryCode || 'VN',
         isDefault: address?.isDefault || address?.default || false,
+        provinceId: address?.provinceId,
+        districtId: address?.districtId,
+        wardCode: address?.wardCode,
       });
+      setSelectedProvince(address?.provinceId || null);
+      setSelectedDistrict(address?.districtId || null);
+      setSelectedWard(address?.wardCode || null);
       setErrors({});
     }
   }, [isOpen, address]);
+
+  const loadProvinces = async () => {
+    setLoading(prev => ({ ...prev, provinces: true }));
+    setGhnError(null);
+    
+    try {
+      const response = await ghnApi.getProvinces();
+      if (response.success && response.data) {
+        setProvinces(response.data);
+      } else {
+        setGhnError(response.message || 'Failed to load provinces');
+      }
+    } catch (err) {
+      setGhnError('Failed to load provinces');
+    } finally {
+      setLoading(prev => ({ ...prev, provinces: false }));
+    }
+  };
+
+  const loadDistricts = async (provinceId: number) => {
+    setLoading(prev => ({ ...prev, districts: true }));
+    setGhnError(null);
+    
+    try {
+      const response = await ghnApi.getDistricts(provinceId);
+      if (response.success && response.data) {
+        setDistricts(response.data);
+      } else {
+        setGhnError(response.message || 'Failed to load districts');
+      }
+    } catch (err) {
+      setGhnError('Failed to load districts');
+    } finally {
+      setLoading(prev => ({ ...prev, districts: false }));
+    }
+  };
+
+  const loadWards = async (districtId: number) => {
+    setLoading(prev => ({ ...prev, wards: true }));
+    setGhnError(null);
+    
+    try {
+      const response = await ghnApi.getWards(districtId);
+      if (response.success && response.data) {
+        setWards(response.data);
+      } else {
+        setGhnError(response.message || 'Failed to load wards');
+      }
+    } catch (err) {
+      setGhnError('Failed to load wards');
+    } finally {
+      setLoading(prev => ({ ...prev, wards: false }));
+    }
+  };
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedProvince(value ? parseInt(value) : null);
+  };
+
+  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedDistrict(value ? parseInt(value) : null);
+  };
+
+  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedWard(value || null);
+  };
 
   const validatePhoneNumber = (phone: string, countryCode: string): string | null => {
     // Remove all non-digit characters for validation
@@ -93,7 +252,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Address> = {};
+    const newErrors: AddressErrors = {};
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Full name is required';
@@ -105,9 +264,6 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       newErrors.phone = phoneError;
     }
 
-    if (!formData.line.trim()) {
-      newErrors.line = 'Address line is required';
-    }
 
     if (!formData.ward.trim()) {
       newErrors.ward = 'Ward is required';
@@ -115,6 +271,19 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
     if (!formData.city.trim()) {
       newErrors.city = 'City is required';
+    }
+
+    // Validate GHN fields
+    if (!formData.provinceId) {
+      newErrors.provinceId = 'Province is required';
+    }
+
+    if (!formData.districtId) {
+      newErrors.districtId = 'District is required';
+    }
+
+    if (!formData.wardCode) {
+      newErrors.wardCode = 'Ward is required';
     }
 
     if (!formData.countryCode.trim()) {
@@ -137,7 +306,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     }
   };
 
-  const handleInputChange = (field: keyof Address, value: string | boolean) => {
+  const handleInputChange = (field: AddressField, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
@@ -168,6 +337,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     }
   };
 
+
   const handleClose = () => {
     setFormData({
       fullName: '',
@@ -179,6 +349,13 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       isDefault: false,
     });
     setErrors({});
+    setSelectedProvince(null);
+    setSelectedDistrict(null);
+    setSelectedWard(null);
+    setProvinces([]);
+    setDistricts([]);
+    setWards([]);
+    setGhnError(null);
     onClose();
   };
 
@@ -232,7 +409,13 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               type="tel"
               id="phone"
               value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
+              onChange={(e) => {
+                // Only allow numbers
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                handleInputChange('phone', value);
+              }}
+              inputMode="numeric"
+              pattern="[0-9]*"
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
                 errors.phone ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -252,7 +435,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Address Line Field */}
           <div>
             <label htmlFor="line" className="block text-sm font-medium text-gray-700 mb-1">
-              Address Line <span className="text-red-500">*</span>
+              Address Line
             </label>
             <input
               type="text"
@@ -270,47 +453,90 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             )}
           </div>
 
-          {/* Ward Field */}
+          {/* Province Selection */}
           <div>
-            <label htmlFor="ward" className="block text-sm font-medium text-gray-700 mb-1">
-              Ward <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Province/City <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="ward"
-              value={formData.ward}
-              onChange={(e) => handleInputChange('ward', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
-                errors.ward ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Ward/Commune"
-              disabled={isLoading}
-            />
-            {errors.ward && (
-              <p className="mt-1 text-sm text-red-600">{errors.ward}</p>
+            <select
+              value={selectedProvince || ''}
+              onChange={handleProvinceChange}
+              disabled={isLoading || loading.provinces}
+              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+            >
+              <option value="">Select province/city</option>
+              {provinces.map((province) => (
+                <option key={province.ProvinceID} value={province.ProvinceID}>
+                  {province.ProvinceName}
+                </option>
+              ))}
+            </select>
+            {loading.provinces && (
+              <p className="text-xs text-gray-500 mt-1">Loading...</p>
+            )}
+            {errors.provinceId && (
+              <p className="mt-1 text-sm text-red-600">{errors.provinceId}</p>
             )}
           </div>
 
-          {/* City Field */}
+          {/* District Selection */}
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-              City <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              District <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              id="city"
-              value={formData.city}
-              onChange={(e) => handleInputChange('city', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
-                errors.city ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="City/District"
-              disabled={isLoading}
-            />
-            {errors.city && (
-              <p className="mt-1 text-sm text-red-600">{errors.city}</p>
+            <select
+              value={selectedDistrict || ''}
+              onChange={handleDistrictChange}
+              disabled={isLoading || loading.districts || !selectedProvince}
+              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+            >
+              <option value="">Select district</option>
+              {districts.map((district) => (
+                <option key={district.DistrictID} value={district.DistrictID}>
+                  {district.DistrictName}
+                </option>
+              ))}
+            </select>
+            {loading.districts && (
+              <p className="text-xs text-gray-500 mt-1">Loading...</p>
+            )}
+            {errors.districtId && (
+              <p className="mt-1 text-sm text-red-600">{errors.districtId}</p>
             )}
           </div>
+
+          {/* Ward Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ward <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={selectedWard || ''}
+              onChange={handleWardChange}
+              disabled={isLoading || loading.wards || !selectedDistrict}
+              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+            >
+              <option value="">Select ward</option>
+              {wards.map((ward) => (
+                <option key={ward.WardCode} value={ward.WardCode}>
+                  {ward.WardName}
+                </option>
+              ))}
+            </select>
+            {loading.wards && (
+              <p className="text-xs text-gray-500 mt-1">Loading...</p>
+            )}
+            {errors.wardCode && (
+              <p className="mt-1 text-sm text-red-600">{errors.wardCode}</p>
+            )}
+          </div>
+
+          {/* GHN Error Display */}
+          {ghnError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-red-600 text-sm">{ghnError}</p>
+            </div>
+          )}
 
           {/* Country Code Field */}
           <div>

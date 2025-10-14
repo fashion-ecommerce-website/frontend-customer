@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { CartContainer } from '@/features/cart/containers/CartContainer';
+import { CartContainer } from '@/features/cart/containers'
 
 export const metadata: Metadata = {
   title: 'Shopping Cart - Fashion Store',

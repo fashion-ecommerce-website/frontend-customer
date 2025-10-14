@@ -28,6 +28,22 @@ export class OrderApi {
   }
 
   /**
+   * Update order by ID (PUT /orders/{id})
+   */
+  static async updateOrder(orderId: number, payload: Partial<{
+    status: string;
+    paymentStatus: string;
+    currency: string;
+    subtotalAmount: number;
+    discountAmount: number;
+    shippingFee: number;
+    totalAmount: number;
+    note?: string;
+  }>): Promise<ApiResponse<Order>> {
+    return apiClient.put<Order>(`/orders/${orderId}`, payload as any);
+  }
+
+  /**
    * Update order status
    */
   static async updateOrderStatus(orderId: number, status: string): Promise<ApiResponse<Order>> {

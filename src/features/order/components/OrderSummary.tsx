@@ -6,289 +6,382 @@ import { useOrder } from '@/features/order/hooks/useOrder';
 import { CreateOrderRequest, PaymentMethod } from '../types';
 import { validateOrderData } from '@/utils/orderValidation';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { PaymentApi } from '@/services/api/paymentApi';
+import { useAppDispatch } from '@/hooks/redux';
+import { VoucherModal, Voucher } from '@/components/modals/VoucherModal';
+import { voucherApi } from '@/services/api/voucherApi';
 
 interface OrderSummaryProps {
-  onClose?: () => void;
-  shippingFee?: ShippingFeeData;
-  products?: ProductItem[];
-  onOrderComplete?: (orderId: number) => void;
-  note?: string;
+	onClose?: () => void;
+	shippingFee?: ShippingFeeData;
+	products?: ProductItem[];
+	onOrderComplete?: (orderId: number) => void;
+	note?: string;
 }
 
 export function OrderSummary({ 
-  onClose, 
-  shippingFee, 
-  products = mockOrderProducts, 
-  onOrderComplete,
-  note,
+	onClose, 
+	shippingFee, 
+	products = mockOrderProducts, 
+	onOrderComplete,
+	note,
 }: OrderSummaryProps): React.ReactElement {
-  const [isItemsVisible, setIsItemsVisible] = useState(true);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: 'danger' | 'warning' | 'info';
-    onConfirm: () => void;
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    type: 'info',
-    onConfirm: () => {},
-  });
-  
-  const {
-    selectedAddress,
-    selectedPaymentMethod,
-    createOrder,
-    isOrderLoading,
-    orderError,
-    order,
-  } = useOrder();
-  
-  // Calculate totals from products
-  const orderTotals = calculateOrderTotals(products);
-  const subtotal = orderTotals.subtotal;
-  const total = subtotal + (shippingFee?.fee || 0);
+	const [isItemsVisible, setIsItemsVisible] = useState(true);
+	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+	const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+	const [confirmModal, setConfirmModal] = useState<{
+		isOpen: boolean;
+		title: string;
+		message: string;
+		type: 'danger' | 'warning' | 'info';
+		onConfirm: () => void;
+	}>({
+		isOpen: false,
+		title: '',
+		message: '',
+		type: 'info',
+		onConfirm: () => {},
+	});
+	
+	const {
+		selectedAddress,
+		selectedPaymentMethod,
+		createOrder,
+		isOrderLoading,
+		orderError,
+		order,
+	} = useOrder();
+	const dispatch = useAppDispatch();
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+	const [vouchers, setVouchers] = React.useState<Voucher[]>([]);
+	const [isLoadingVouchers, setIsLoadingVouchers] = React.useState(false);
+	const [voucherError, setVoucherError] = React.useState<string | null>(null);
 
-  const handleCompleteOrder = () => {
-    // Use selectedAddress from Redux
-    const addressId = selectedAddress?.id;
-    
-    // Validate order data before showing confirmation
-    const validation = validateOrderData({
-      shippingAddressId: addressId,
-      products,
-      subtotalAmount: subtotal,
-      totalAmount: total
-    });
+	React.useEffect(() => {
+		let cancelled = false;
+		setIsLoadingVouchers(true);
+		setVoucherError(null);
+		voucherApi.getVouchersByUser()
+			.then(res => {
+				if (cancelled) return;
+				if (res.success && Array.isArray(res.data)) {
+					setVouchers(res.data as Voucher[]);
+				} else {
+					setVoucherError(res.message || 'Failed to load vouchers');
+				}
+			})
+			.catch(err => {
+				if (cancelled) return;
+				setVoucherError(err?.message || 'Failed to load vouchers');
+			})
+			.finally(() => { if (!cancelled) setIsLoadingVouchers(false); });
+		return () => { cancelled = true; };
+	}, []);
+	
+	// Calculate totals from products
+	const orderTotals = calculateOrderTotals(products);
+	const subtotal = orderTotals.subtotal;
+	const computeVoucherDiscount = (voucher: Voucher | null): number => {
+		if (!voucher) return 0;
+		if (voucher.discountType === 'amount') return Math.min(voucher.value, subtotal);
+		let byPercent = Math.floor((subtotal * voucher.value) / 100);
+		if (typeof voucher.maxDiscountAmount === 'number') {
+			byPercent = Math.min(byPercent, voucher.maxDiscountAmount);
+		}
+		return Math.min(byPercent, subtotal);
+	};
+	const discountAmount = computeVoucherDiscount(selectedVoucher);
+	const total = Math.max(0, subtotal - discountAmount) + (shippingFee?.fee || 0);
 
-    if (!validation.isValid) {
-      setSubmitError(validation.errors.join('. '));
-      return;
-    }
+	const formatPrice = (price: number) => {
+		return new Intl.NumberFormat('vi-VN', {
+			style: 'currency',
+			currency: 'VND',
+			minimumFractionDigits: 0,
+		}).format(price);
+	};
 
-    setSubmitError(null);
+	const handleCompleteOrder = () => {
+		// Use selectedAddress from Redux
+		const addressId = selectedAddress?.id;
+		
+		// Validate order data before showing confirmation
+		const validation = validateOrderData({
+			shippingAddressId: addressId,
+			products,
+			subtotalAmount: subtotal,
+			totalAmount: total
+		});
 
-    // Show confirmation modal
-    setConfirmModal({
-      isOpen: true,
-      title: 'Complete Order',
-      message: `Are you sure you want to complete this order?\n\nTotal Amount: ${formatPrice(total)}\nPayment Method: ${selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY ? 'Cash on Delivery' : 'Credit Card'}\n\nThis action cannot be undone.`,
-      type: 'info',
-      onConfirm: () => {
-        setConfirmModal(prev => ({ ...prev, isOpen: false }));
-        performOrderSubmission();
-      },
-    });
-  };
+		if (!validation.isValid) {
+			setSubmitError(validation.errors.join('. '));
+			return;
+		}
 
-  const performOrderSubmission = async () => {
-    const addressId = selectedAddress?.id;
+		setSubmitError(null);
 
-    const orderData: CreateOrderRequest = {
-      shippingAddressId: addressId!,
-      note: note || '',
-      subtotalAmount: subtotal,
-      discountAmount: 0,
-      shippingFee: shippingFee?.fee || 0,
-      totalAmount: total,
-      paymentMethod: selectedPaymentMethod,
-      orderDetails: products.map(product => ({
-        productDetailId: product.detailId,
-        quantity: product.quantity
-      }))
-    };
+		// Show confirmation modal
+		setConfirmModal({
+			isOpen: true,
+			title: 'Complete Order',
+			message: `Are you sure you want to complete this order?\n\nSubtotal: ${formatPrice(subtotal)}\nDiscount: ${formatPrice(discountAmount)}\nShipping: ${formatPrice(shippingFee?.fee || 0)}\nTotal Amount: ${formatPrice(total)}\nPayment Method: ${selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY ? 'Cash on Delivery' : 'Credit Card'}\n\nThis action cannot be undone.`,
+			type: 'info',
+			onConfirm: () => {
+				setConfirmModal(prev => ({ ...prev, isOpen: false }));
+				performOrderSubmission();
+			},
+		});
+	};
 
-    createOrder(orderData);
-  };
+	const performOrderSubmission = async () => {
+		const addressId = selectedAddress?.id;
 
-  // Handle order completion when order is successfully created
-  React.useEffect(() => {
-    if (order && onOrderComplete) {
-      onOrderComplete(order.id);
-    }
-  }, [order, onOrderComplete]);
+		const orderData: CreateOrderRequest = {
+			shippingAddressId: addressId!,
+			note: note || '',
+			subtotalAmount: subtotal,
+			discountAmount: discountAmount,
+			shippingFee: shippingFee?.fee || 0,
+			totalAmount: total,
+			paymentMethod: selectedPaymentMethod,
+			orderDetails: products.map(product => ({
+				productDetailId: product.detailId,
+				quantity: product.quantity
+			}))
+		};
 
-  // Handle order errors
-  React.useEffect(() => {
-    if (orderError) {
-      if (orderError.includes('does not belong to user')) {
-        setSubmitError('The selected shipping address is not valid. Please select a different address.');
-      } else if (orderError.includes('not found')) {
-        setSubmitError('The selected shipping address was not found. Please select a different address.');
-      } else {
-        setSubmitError(orderError);
-      }
-    }
-  }, [orderError]);
-  const isCompleteDisabled = isOrderLoading || !selectedAddress;
+		createOrder(orderData);
+	};
 
-  return (
-    <>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="text-zinc-800 text-base font-bold tracking-wide">ORDER SUMMARY</h3>
-          <button
-            type="button"
-            onClick={() => setIsItemsVisible(!isItemsVisible)}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
-          >
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 20 20" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className={`transition-transform ${isItemsVisible ? 'rotate-180' : 'rotate-0'}`}
-            >
-              <path d="M16.25 7.5L10 13.75L3.75 7.5" stroke="#2E2E2E" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
-        <div className="text-zinc-800 text-xl font-bold tracking-wide">{formatPrice(total)}</div>
-      </div>
+	// Trigger next step when order is created
+	React.useEffect(() => {
+		if (!order) return;
 
-      <div className="bg-gray-50 rounded-md p-4">
-        {isItemsVisible && (
-          <div className="flex flex-col gap-4">
-            {products.map((product) => (
-              <div key={product.detailId} className="flex gap-3">
-                <div className="h-24 w-24 shrink-0 rounded-lg bg-white overflow-hidden">
-                  <img
-                    alt={product.productTitle}
-                    src={product.imageUrls[0] || "https://placehold.co/100x100"}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="text-neutral-600 text-base font-bold uppercase tracking-wide">MLB</div>
-                  <p className="text-neutral-600 text-sm line-clamp-2">
-                    {product.productTitle}
-                  </p>
-                  <div className="mt-1 text-xs text-zinc-800">
-                    {product.colorName} / {product.detailId}
-                  </div>
-                  <div className="mt-1 flex items-start justify-between">
-                    <span className="text-sm font-bold text-neutral-600">
-                      {formatPrice(product.price)}
-                    </span>
-                    <span className="text-sm font-bold text-neutral-600">Quantity: {product.quantity}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+		// Find the latest payment created for this order
+		const latestPayment = Array.isArray(order.payments) ? [...order.payments].sort((a, b) => {
+			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+		})[0] : undefined;
 
-        <div className="mt-6 flex items-end">
-          <div className="flex-1">
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-neutral-400">Discount code</label>
-            <input
-              className="w-full h-12 rounded-l border border-neutral-400 px-3.5 py-3 text-sm text-black placeholder-neutral-300 focus:outline-none"
-              placeholder="Discount code"
-            />
-          </div>
-          <button className="h-12 shrink-0 rounded-r bg-zinc-800 hover:bg-zinc-700 px-5 text-xs font-bold uppercase tracking-widest text-white cursor-pointer transition-colors">
-            Use
-          </button>
-        </div>
+        if (selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY) {
+            const successUrl = `${window.location.origin}/checkout/success?status=success&orderId=${order.id}&payment=unpaid`;
+            if (onOrderComplete) onOrderComplete(order.id);
+            window.location.href = successUrl;
+            return;
+        }
 
-        <div className="mt-4">
-          <span className="text-base text-zinc-800">Loyal customers</span>
-        </div>
+        // Card/Stripe: create checkout session and redirect
+        if (selectedPaymentMethod === PaymentMethod.CREDIT_CARD && latestPayment?.id) {
+            const successUrl = `${window.location.origin}/checkout/success?orderId=${order.id}`; 
+            const cancelUrl = `${window.location.origin}/checkout/success?status=cancel&orderId=${order.id}`; // handle cancel on same page
+			PaymentApi.createCheckout({ paymentId: latestPayment.id, successUrl, cancelUrl })
+				.then(res => {
+					if (res.success && res.data?.checkoutUrl) {
+                if (onOrderComplete) onOrderComplete(order.id);
+						window.location.href = res.data.checkoutUrl;
+					} else {
+						setSubmitError(res.message || 'Failed to initiate payment');
+					}
+				})
+				.catch(err => {
+					setSubmitError(err?.message || 'Failed to initiate payment');
+				});
+		}
+	}, [order, onOrderComplete, selectedPaymentMethod]);
 
-        <div className="mt-4 rounded-sm bg-gray-50 p-4">
-          <div className="flex items-start justify-between py-1">
-            <span className="text-sm font-bold text-zinc-800">Subtotal</span>
-            <span className="text-sm font-bold text-neutral-600">{formatPrice(subtotal)}</span>
-          </div>
-          <div className="py-1">
-            <span className="text-sm font-bold text-zinc-800">Discount</span>
-          </div>
-          <div className="flex items-start justify-between py-1">
-            <span className="text-sm text-zinc-800">Shipping fee</span>
-            <span className="text-sm text-neutral-600">
-              {shippingFee?.isCalculating ? (
-                <span className="text-blue-600">Calculating...</span>
-              ) : shippingFee?.error ? (
-                <span className="text-red-600">Error</span>
-              ) : selectedAddress ? (
-                `+ ${formatPrice(shippingFee?.fee || 0)}`
-              ) : (
-                <span className="text-neutral-500">Select address to calculate</span>
-              )}
-            </span>
-          </div>
-          <div className="mt-4 flex items-start justify-between pt-4 border-t border-zinc-100">
-            <span className="text-xl font-bold uppercase tracking-wide text-neutral-600">Total payment</span>
-            <span className="text-xl font-bold uppercase tracking-wide text-neutral-600">
-              {shippingFee?.isCalculating ? (
-                <span className="text-blue-600">Calculating...</span>
-              ) : (
-                formatPrice(total)
-              )}
-            </span>
-          </div>
-        {submitError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-600 text-sm">{submitError}</p>
-          </div>
-        )}
+	// Handle order errors
+	React.useEffect(() => {
+		if (orderError) {
+			if (orderError.includes('does not belong to user')) {
+				setSubmitError('The selected shipping address is not valid. Please select a different address.');
+			} else if (orderError.includes('not found')) {
+				setSubmitError('The selected shipping address was not found. Please select a different address.');
+			} else {
+				setSubmitError(orderError);
+			}
+		}
+	}, [orderError]);
+	const isCompleteDisabled = isOrderLoading || !selectedAddress;
 
-        <div className="mt-4 w-full grid grid-cols-2 gap-3">
-          <button 
-            type="button" 
-            className="w-full inline-flex"
-            onClick={onClose}
-            disabled={isOrderLoading}
-          >
-            <div className="flex h-12 w-full items-center justify-center gap-2 bg-white px-6 cursor-pointer disabled:opacity-50">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11.4375 18.75L4.6875 12L11.4375 5.25M5.625 12H19.3125" stroke="#2E2E2E" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <div className="text-center text-zinc-800 text-sm font-bold uppercase leading-tight tracking-wide">Back to Cart</div>
-            </div>
-          </button>
-          <button 
-            type="button" 
-            className="w-full inline-flex cursor-pointer"
-            onClick={handleCompleteOrder}
-            disabled={isCompleteDisabled}
-          >
-            <div className="flex h-12 w-full items-center justify-center bg-zinc-800 hover:bg-zinc-700 px-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              <div className="text-center text-white text-sm font-semibold uppercase leading-tight tracking-wide">
-                {isOrderLoading ? 'PROCESSING...' : (!selectedAddress ? 'SELECT ADDRESS' : 'COMPLETE ORDER')}
-              </div>
-            </div>
-          </button>
-        </div>
-        </div>
-      </div>
+	return (
+		<>
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-2">
+					<h3 className="text-zinc-800 text-base font-bold tracking-wide">ORDER SUMMARY</h3>
+					<button
+						type="button"
+						onClick={() => setIsItemsVisible(!isItemsVisible)}
+						className="p-1 hover:bg-gray-100 rounded transition-colors"
+					>
+						<svg 
+							width="20" 
+							height="20" 
+							viewBox="0 0 20 20" 
+							fill="none" 
+							xmlns="http://www.w3.org/2000/svg"
+							className={`transition-transform ${isItemsVisible ? 'rotate-180' : 'rotate-0'}`}
+						>
+							<path d="M16.25 7.5L10 13.75L3.75 7.5" stroke="#2E2E2E" strokeLinecap="round" strokeLinejoin="round" />
+						</svg>
+					</button>
+				</div>
+				<div className="text-zinc-800 text-xl font-bold tracking-wide">{formatPrice(total)}</div>
+			</div>
 
-      {/* Confirm Modal */}
-      <ConfirmModal
-        isOpen={confirmModal.isOpen}
-        title={confirmModal.title}
-        message={confirmModal.message}
-        type={confirmModal.type}
-        confirmText="Complete Order"
-        cancelText="Cancel"
-        onConfirm={confirmModal.onConfirm}
-        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-        isLoading={isOrderLoading}
-      />
-    </>
-  );
+			<div className="bg-gray-50 rounded-md p-4">
+				{isItemsVisible && (
+					<div className="flex flex-col gap-4">
+						{products.map((product) => (
+							<div key={product.detailId} className="flex gap-3">
+								<div className="h-24 w-24 shrink-0 rounded-lg bg-white overflow-hidden">
+									<img
+										alt={product.productTitle}
+										src={product.imageUrls[0] || "https://placehold.co/100x100"}
+										className="h-full w-full object-cover"
+									/>
+								</div>
+								<div className="flex-1">
+									<div className="text-neutral-600 text-base font-bold uppercase tracking-wide">MLB</div>
+									<p className="text-neutral-600 text-sm line-clamp-2">
+										{product.productTitle}
+									</p>
+									<div className="mt-1 text-xs text-zinc-800">
+										{product.colorName} / {product.detailId}
+									</div>
+									<div className="mt-1 flex items-start justify-between">
+										<span className="text-sm font-bold text-neutral-600">
+											{formatPrice(product.price)}
+										</span>
+										<span className="text-sm font-bold text-neutral-600">Quantity: {product.quantity}</span>
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+
+				<div className="mt-6">
+					<label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-neutral-400">Voucher</label>
+					<button
+						type="button"
+						onClick={() => setIsVoucherModalOpen(true)}
+						className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-black rounded flex items-center justify-center gap-2 bg-white text-zinc-800 transition-colors"
+					>
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a2 2 0 110-4 2 2 0 010 4zM4 6h12a2 2 0 012 2v1a3 3 0 100 6v1a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+						<span className="text-sm font-semibold">{selectedVoucher ? 'Change Promotion' : 'Select Promotion'}</span>
+					</button>
+					{selectedVoucher && (
+						<div className="mt-2 text-sm text-zinc-800 flex items-center gap-2">
+							<span className="px-2 py-0.5 text-xs rounded-full border border-black">{selectedVoucher.code}</span>
+							<span className="font-semibold">{selectedVoucher.label}</span>
+							<span className="text-green-700">{selectedVoucher.discountType === 'amount' ? `- ${formatPrice(selectedVoucher.value)}` : `- ${selectedVoucher.value}%`}</span>
+						</div>
+					)}
+				</div>
+
+				<div className="mt-4">
+					<span className="text-base text-zinc-800">Loyal customers</span>
+				</div>
+
+				<div className="mt-4 rounded-sm bg-gray-50 p-4">
+					<div className="flex items-start justify-between py-1">
+						<span className="text-sm font-bold text-zinc-800">Subtotal</span>
+						<span className="text-sm font-bold text-neutral-600">{formatPrice(subtotal)}</span>
+					</div>
+					<div className="py-1 flex items-start justify-between">
+						<span className="text-sm font-bold text-zinc-800">Discount</span>
+						<span className="text-sm font-bold text-green-700">- {formatPrice(discountAmount)}</span>
+					</div>
+					<div className="flex items-start justify-between py-1">
+						<span className="text-sm text-zinc-800">Shipping fee</span>
+						<span className="text-sm text-neutral-600">
+							{shippingFee?.isCalculating ? (
+								<span className="text-blue-600">Calculating...</span>
+							) : shippingFee?.error ? (
+								<span className="text-red-600">Error</span>
+							) : selectedAddress ? (
+								`+ ${formatPrice(shippingFee?.fee || 0)}`
+							) : (
+								<span className="text-neutral-500">Select address to calculate</span>
+							)}
+						</span>
+					</div>
+					<div className="mt-4 flex items-start justify-between pt-4 border-t border-zinc-100">
+						<span className="text-xl font-bold uppercase tracking-wide text-neutral-600">Total payment</span>
+						<span className="text-xl font-bold uppercase tracking-wide text-neutral-600">
+							{shippingFee?.isCalculating ? (
+								<span className="text-blue-600">Calculating...</span>
+							) : (
+								formatPrice(total)
+							)}
+						</span>
+					</div>
+				{submitError && (
+					<div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+						<p className="text-red-600 text-sm">{submitError}</p>
+					</div>
+				)}
+
+				<div className="mt-4 w-full grid grid-cols-2 gap-3">
+					<button 
+						type="button" 
+						className="w-full inline-flex"
+						onClick={onClose}
+						disabled={isOrderLoading}
+					>
+						<div className="flex h-12 w-full items-center justify-center gap-2 bg-white px-6 cursor-pointer disabled:opacity-50">
+							<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M11.4375 18.75L4.6875 12L11.4375 5.25M5.625 12H19.3125" stroke="#2E2E2E" strokeLinecap="round" strokeLinejoin="round" />
+							</svg>
+							<div className="text-center text-zinc-800 text-sm font-bold uppercase leading-tight tracking-wide">Back to Cart</div>
+						</div>
+					</button>
+					<button 
+						type="button" 
+						className="w-full inline-flex cursor-pointer"
+						onClick={handleCompleteOrder}
+						disabled={isCompleteDisabled}
+					>
+						<div className="flex h-12 w-full items-center justify-center bg-zinc-800 hover:bg-zinc-700 px-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+							<div className="text-center text-white text-sm font-semibold uppercase leading-tight tracking-wide">
+								{isOrderLoading ? 'PROCESSING...' : (!selectedAddress ? 'SELECT ADDRESS' : 'COMPLETE ORDER')}
+							</div>
+						</div>
+					</button>
+				</div>
+				</div>
+			</div>
+
+			{/* Confirm Modal */}
+			<ConfirmModal
+				isOpen={confirmModal.isOpen}
+				title={confirmModal.title}
+				message={confirmModal.message}
+				type={confirmModal.type}
+				confirmText="Complete Order"
+				cancelText="Cancel"
+				onConfirm={confirmModal.onConfirm}
+				onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+				isLoading={isOrderLoading}
+			/>
+
+			{/* Voucher Modal */}
+			<VoucherModal
+				isOpen={isVoucherModalOpen}
+				vouchers={vouchers}
+				subtotal={subtotal}
+				onClose={() => setIsVoucherModalOpen(false)}
+				onSelect={(v) => { setSelectedVoucher(v); setIsVoucherModalOpen(false); }}
+				onApplyCode={(code) => {
+					const found = vouchers.find(v => v.code.toLowerCase() === code.toLowerCase());
+					if (found) {
+						setSelectedVoucher(found);
+						setIsVoucherModalOpen(false);
+					}
+				}}
+			/>
+		</>
+	);
 }
 
 

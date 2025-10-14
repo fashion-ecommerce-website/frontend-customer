@@ -5,6 +5,7 @@ import { Order, PaymentMethod } from '@/features/order/types';
 type OrderDetailPresenterProps = {
   order: Order;
   onBack?: () => void;
+  imagesByDetailId?: Record<number, string>;
 };
 
 const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
@@ -19,9 +20,9 @@ const getPaymentMethodLabel = (method?: PaymentMethod) => {
   }
 };
 
-export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack }) => {
+export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack, imagesByDetailId }) => {
   return (
-    <div className="px-4 pb-8">
+    <div className="px-4 pb-8 bg-white min-h-screen">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl text-black font-bold">Order Product Information</h1>
@@ -37,7 +38,7 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
             {order.orderDetails.map(item => (
               <div key={item.id} className="flex gap-4">
                 <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                  <img src={item.imageUrl || '/images/products/image1.jpg'} alt={item.title} className="w-full h-full object-cover" />
+                  <img src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} alt={item.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
                   <div className="text-black font-semibold">{item.title}</div>
