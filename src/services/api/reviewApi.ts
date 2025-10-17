@@ -5,6 +5,7 @@ export interface ReviewItem {
   id: number;
   userId: number;
   username: string;
+  avatar?: string; // Optional avatar URL
   productDetailId: number;
   rating: number;
   content: string;
@@ -13,6 +14,11 @@ export interface ReviewItem {
 
 export interface CreateReviewRequest {
   productDetailId: number;
+  rating: number;
+  content: string;
+}
+
+export interface UpdateReviewRequest {
   rating: number;
   content: string;
 }
@@ -33,6 +39,14 @@ class ReviewApiService {
 
   async getMyReviews(): Promise<ApiResponse<ReviewItem[]>> {
     return apiClient.get<ReviewItem[]>(REVIEW_ENDPOINTS.BASE);
+  }
+
+  async updateReview(reviewId: number, payload: UpdateReviewRequest): Promise<ApiResponse<ReviewItem>> {
+    return apiClient.put<ReviewItem>(`${REVIEW_ENDPOINTS.BASE}/${reviewId}`, payload);
+  }
+
+  async deleteReview(reviewId: number): Promise<ApiResponse<void>> {
+    return apiClient.delete<void>(`${REVIEW_ENDPOINTS.BASE}/${reviewId}`);
   }
 }
 
