@@ -34,7 +34,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       case 'warning':
         return 'bg-yellow-600 hover:bg-yellow-700 text-white';
       case 'info':
-        return 'bg-blue-600 hover:bg-blue-700 text-white';
+        return 'bg-gray-800 hover:bg-gray-900 text-white';
       default:
         return 'bg-gray-600 hover:bg-gray-700 text-white';
     }

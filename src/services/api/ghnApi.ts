@@ -71,6 +71,36 @@ export interface GHNShippingFeeResponse {
   };
 }
 
+// Tracking types
+export interface GHNTrackingEvent {
+  time: string; // ISO-like string from GHN, leave as string
+  status: string;
+  reason?: string | null;
+  location?: string | null;
+}
+
+// Create shipping order types (simplified)
+export interface GHNCreateOrderRequest {
+  to_name: string;
+  to_phone: string;
+  to_address: string;
+  to_ward_code: string; // e.g., "20108"
+  to_district_id: number; // e.g., 1442
+  weight: number; // grams
+  length?: number;
+  width?: number;
+  height?: number;
+  service_type_id?: number; // e.g., 2
+  payment_type_id?: 1 | 2; // 1: sender pays, 2: receiver pays
+  cod_amount?: number;
+  content?: string;
+  required_note?: 'CHOTHUHANG' | 'CHOXEMHANGKHONGTHU' | 'KHONGCHOXEMHANG';
+}
+
+export interface GHNCreateOrderResponse {
+  order_code: string;
+}
+
 // GHN API Headers
 const getGHNHeaders = () => ({
   'Content-Type': 'application/json',
@@ -111,7 +141,7 @@ export const ghnApi = {
         message: 'Provinces fetched successfully'
       };
     } catch (error) {
-      console.error('Error fetching provinces:', error);
+      
       return {
         success: false,
         data: null,
@@ -144,7 +174,7 @@ export const ghnApi = {
         message: 'Districts fetched successfully'
       };
     } catch (error) {
-      console.error('Error fetching districts:', error);
+      
       return {
         success: false,
         data: null,
@@ -177,7 +207,7 @@ export const ghnApi = {
         message: 'Wards fetched successfully'
       };
     } catch (error) {
-      console.error('Error fetching wards:', error);
+      
       return {
         success: false,
         data: null,
@@ -211,11 +241,138 @@ export const ghnApi = {
         message: 'Shipping fee calculated successfully'
       };
     } catch (error) {
-      console.error('Error calculating shipping fee:', error);
+      
       return {
         success: false,
         data: null,
         message: error instanceof Error ? error.message : 'Failed to calculate shipping fee'
+      };
+    }
+  },
+
+  // Track an order by GHN order_code (tracking number)
+  trackOrder: async (orderCode: string): Promise<ApiResponse<GHNTrackingEvent[]>> => {
+    try {
+      // Primary endpoint
+      const tryTrack = async () => {
+        const res = await fetch(`${GHN_API_URL}/v2/shipping-order/track`, {
+          method: 'POST',
+          headers: getGHNHeaders(),
+          body: JSON.stringify({ order_code: orderCode })
+        });
+        return res;
+      };
+
+      // Fallback endpoint: detail (some tenants expose logs here)
+      const tryDetail = async () => {
+        const res = await fetch(`${GHN_API_URL}/v2/shipping-order/detail`, {
+          method: 'POST',
+          headers: getGHNHeaders(),
+          body: JSON.stringify({ order_code: orderCode })
+        });
+        return res;
+      };
+
+      const normalizeEvents = (data: any): GHNTrackingEvent[] => {
+        const logs: any[] = Array.isArray(data?.data)
+          ? data.data
+          : (Array.isArray(data?.data?.logs) ? data.data.logs : (Array.isArray(data?.data?.log) ? data.data.log : []));
+        const events: GHNTrackingEvent[] = logs.map((e: any) => ({
+          time: e.time || e.created_at || e.createdAt || e.updated_date || '',
+          status: e.status || e.current_status || e.action || e.reason_code || 'UNKNOWN',
+          reason: e.reason || e.note || e.description || null,
+          location: e.location || e.hub || e.current_region || null,
+        }));
+        if (events.length === 0 && data?.data) {
+          // Synthesize an initial event from detail payload when logs are not available yet
+          const d = data.data;
+          events.push({
+            time: d.updated_date || d.created_date || new Date().toISOString(),
+            status: d.status || 'CREATED',
+            reason: d.content || d.note || null,
+            location: (d.current_warehouse_id ? `WH-${d.current_warehouse_id}` : null),
+          });
+        }
+        return events;
+      };
+
+      let response = await tryTrack();
+      let data = null as any;
+      if (response.ok) {
+        data = await response.json();
+        if (data?.code === 200) {
+          return { success: true, data: normalizeEvents(data), message: 'Tracking events fetched successfully' };
+        }
+      }
+
+      // If primary failed (404 or non-200), try detail
+      response = await tryDetail();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      data = await response.json();
+      if (data?.code !== 200) {
+        throw new Error(data?.message || 'Failed to track order');
+      }
+      return { success: true, data: normalizeEvents(data), message: 'Tracking events fetched successfully' };
+    } catch (error) {
+      
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Failed to track order'
+      };
+    }
+  },
+
+  // Create shipping order on GHN to obtain order_code
+  createShippingOrder: async (payload: GHNCreateOrderRequest): Promise<ApiResponse<GHNCreateOrderResponse>> => {
+    try {
+      const body = {
+        // GHN v2 expects snake_case keys per docs
+        to_name: payload.to_name,
+        to_phone: payload.to_phone,
+        to_address: payload.to_address,
+        to_ward_code: payload.to_ward_code,
+        to_district_id: payload.to_district_id,
+        weight: payload.weight,
+        length: payload.length || 10,
+        width: payload.width || 10,
+        height: payload.height || 10,
+        service_type_id: payload.service_type_id || 2,
+        payment_type_id: payload.payment_type_id || 2,
+        cod_amount: payload.cod_amount || 0,
+        content: payload.content || 'Order',
+        required_note: payload.required_note || 'KHONGCHOXEMHANG',
+        from_district_id: GHN_FROM_DISTRICT_ID ? Number(GHN_FROM_DISTRICT_ID) : undefined,
+      } as any;
+
+      const response = await fetch(`${GHN_API_URL}/v2/shipping-order/create`, {
+        method: 'POST',
+        headers: getGHNHeaders(),
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.code !== 200) {
+        throw new Error(data.message || 'Failed to create GHN order');
+      }
+
+      return {
+        success: true,
+        data: { order_code: data.data?.order_code },
+        message: 'GHN order created successfully'
+      };
+    } catch (error) {
+      
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Failed to create GHN order'
       };
     }
   },
@@ -248,7 +405,7 @@ export const ghnApi = {
         message: 'Available services fetched successfully'
       };
     } catch (error) {
-      console.error('Error fetching available services:', error);
+      
       return {
         success: false,
         data: null,
@@ -282,7 +439,7 @@ export const ghnApi = {
         message: 'Product categories fetched successfully'
       };
     } catch (error) {
-      console.error('Error fetching product categories:', error);
+      
       return {
         success: false,
         data: null,
@@ -315,7 +472,7 @@ export const ghnApi = {
         message: 'Products fetched successfully'
       };
     } catch (error) {
-      console.error('Error fetching products:', error);
+      
       return {
         success: false,
         data: null,
@@ -349,7 +506,7 @@ export const ghnApi = {
         message: 'Product created successfully'
       };
     } catch (error) {
-      console.error('Error creating product:', error);
+      
       return {
         success: false,
         data: null,

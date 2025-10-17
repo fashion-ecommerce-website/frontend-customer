@@ -29,6 +29,7 @@ import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 import OrderApi from '@/services/api/orderApi';
 import { productApi } from '@/services/api/productApi';
+import { OrderTrackingContainer } from '../containers/OrderTrackingContainer';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   initialSection = 'account',
@@ -203,6 +204,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'RECENTLY VIEWED';
       case 'order-info':
         return 'ORDER INFORMATION';
+      case 'order-tracking':
+        return 'ORDER TRACKING';
       case 'my-info':
         return 'MY INFO';
       case 'shipping-address':
@@ -292,7 +295,10 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             <AddressContainer />
           )}
           {activeSidebarSection === 'order-info' && (
-            <OrderHistoryContainer onOpenDetail={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-detail'); }} />
+            <OrderHistoryContainer 
+              onOpenDetail={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-detail'); }}
+              onTrack={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-tracking'); }}
+            />
           )}
           {activeSidebarSection === 'order-detail' && (
             <div className="mt-6">
@@ -303,6 +309,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
                 <OrderDetailPresenter 
                   order={selectedOrder}
                   imagesByDetailId={imagesByDetailId}
+                  onTrack={() => {
+                    setActiveSidebarSection('order-tracking');
+                  }}
                 onBack={() => {
                   setActiveSidebarSection('order-info');
                   // keep selected order or clear depending on UX; clear to avoid stale breadcrumb
@@ -310,6 +319,16 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
                 }}
               />
               )}
+            </div>
+          )}
+          {activeSidebarSection === 'order-tracking' && selectedOrder && (
+            <div className="mt-6">
+              <OrderTrackingContainer 
+                order={selectedOrder}
+                onBack={() => {
+                  setActiveSidebarSection('order-info');
+                }}
+              />
             </div>
           )}
           {activeSidebarSection === 'my-info' && (

@@ -5,7 +5,7 @@ import OrderApi from '@/services/api/orderApi';
 import { Order, OrderStatus, PaymentStatus, PaymentMethod } from '@/features/order/types';
 import { OrderHistoryPresenter } from '../components/OrderHistoryPresenter';
 
-export const OrderHistoryContainer: React.FC<{ onOpenDetail?: (order: Order) => void }> = ({ onOpenDetail }) => {
+export const OrderHistoryContainer: React.FC<{ onOpenDetail?: (order: Order) => void, onTrack?: (order: Order) => void }> = ({ onOpenDetail, onTrack }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -263,6 +263,7 @@ export const OrderHistoryContainer: React.FC<{ onOpenDetail?: (order: Order) => 
         error={error}
         onReload={fetchOrders}
         onOpenDetail={onOpenDetail}
+        onTrack={onTrack}
       />
     </div>
   );
