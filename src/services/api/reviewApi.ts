@@ -25,7 +25,7 @@ export interface UpdateReviewRequest {
 
 const REVIEW_ENDPOINTS = {
   BASE: '/reviews',
-  BY_PRODUCT: (productDetailId: number) => `/reviews/product/${productDetailId}`,
+  BY_PRODUCT: (productDetailId: number) => `/reviews/products/${productDetailId}`,
 } as const;
 
 class ReviewApiService {
