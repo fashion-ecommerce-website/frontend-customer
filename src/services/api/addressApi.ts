@@ -15,6 +15,10 @@ export interface Address {
   default?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  // GHN Integration fields
+  provinceId?: number;      // GHN Province ID
+  districtId?: number;       // GHN District ID
+  wardCode?: string;         // GHN Ward Code
 }
 
 // Request interface for creating/updating addresses
@@ -26,6 +30,10 @@ export interface CreateAddressRequest {
   city: string;
   countryCode: string;
   isDefault?: boolean;
+  // GHN Integration fields
+  provinceId?: number;
+  districtId?: number;
+  wardCode?: string;
 }
 
 export interface UpdateAddressRequest extends CreateAddressRequest {

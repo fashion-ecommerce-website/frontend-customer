@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ProfilePresenterProps } from '../types/profile.types';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -26,6 +27,9 @@ import { AddressContainer } from '../containers/AddressContainer';
 import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
+import OrderApi from '@/services/api/orderApi';
+import { productApi } from '@/services/api/productApi';
+import { OrderTrackingContainer } from '../containers/OrderTrackingContainer';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   initialSection = 'account',
@@ -52,6 +56,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   // Default to account overview or use initialSection
   const [activeSidebarSection, setActiveSidebarSection] = useState(initialSection);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isLoadingOrderFromQuery, setIsLoadingOrderFromQuery] = useState(false);
+  const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
+  const searchParams = useSearchParams();
   
   // Sync with query-driven initialSection changes (e.g., /profile?section=order-info)
   useEffect(() => {
@@ -86,6 +93,50 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
       setShowUpdateInfoModal(false);
     }
   };
+
+  // If arriving with ?orderId= in query, load that order and jump to detail view inside profile
+  useEffect(() => {
+    const orderIdParam = searchParams?.get('orderId');
+    if (!orderIdParam) return;
+    const id = parseInt(orderIdParam, 10);
+    if (!id || Number.isNaN(id)) return;
+    setIsLoadingOrderFromQuery(true);
+    OrderApi.getOrderById(id)
+      .then((res) => {
+        if (res.success && res.data) {
+          setSelectedOrder(res.data);
+          setActiveSidebarSection('order-detail');
+        } else {
+          // Fallback to order list if not found
+          setActiveSidebarSection('order-info');
+        }
+      })
+      .catch(() => {
+        setActiveSidebarSection('order-info');
+      })
+      .finally(() => setIsLoadingOrderFromQuery(false));
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!selectedOrder || !selectedOrder.orderDetails?.length) {
+      setImagesByDetailId({});
+      return;
+    }
+    const uniqueDetailIds = Array.from(new Set(selectedOrder.orderDetails.map(d => d.productDetailId)));
+    let cancelled = false;
+    Promise.all(uniqueDetailIds.map(detailId =>
+      productApi.getProductById(String(detailId))
+        .then(r => ({ id: detailId, img: r.success ? (r.data?.images?.[0] || '') : '' }))
+        .catch(() => ({ id: detailId, img: '' }))
+    ))
+    .then(results => {
+      if (cancelled) return;
+      const map: Record<number, string> = {};
+      results.forEach(({ id, img }) => { if (img) map[id] = img; });
+      setImagesByDetailId(map);
+    });
+    return () => { cancelled = true; };
+  }, [selectedOrder]);
 
   // Handle modal form submission with API format
   const handleModalSubmit = (data: UpdateProfileApiPayload) => {
@@ -153,6 +204,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'RECENTLY VIEWED';
       case 'order-info':
         return 'ORDER INFORMATION';
+      case 'order-tracking':
+        return 'ORDER TRACKING';
       case 'my-info':
         return 'MY INFO';
       case 'shipping-address':
@@ -242,16 +295,38 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             <AddressContainer />
           )}
           {activeSidebarSection === 'order-info' && (
-            <OrderHistoryContainer onOpenDetail={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-detail'); }} />
+            <OrderHistoryContainer 
+              onOpenDetail={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-detail'); }}
+              onTrack={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-tracking'); }}
+            />
           )}
-          {activeSidebarSection === 'order-detail' && selectedOrder && (
+          {activeSidebarSection === 'order-detail' && (
             <div className="mt-6">
-              <OrderDetailPresenter 
-                order={selectedOrder} 
+              {isLoadingOrderFromQuery && (
+                <div className="px-4 py-10 text-gray-600">Loading order...</div>
+              )}
+              {!isLoadingOrderFromQuery && selectedOrder && (
+                <OrderDetailPresenter 
+                  order={selectedOrder}
+                  imagesByDetailId={imagesByDetailId}
+                  onTrack={() => {
+                    setActiveSidebarSection('order-tracking');
+                  }}
                 onBack={() => {
                   setActiveSidebarSection('order-info');
                   // keep selected order or clear depending on UX; clear to avoid stale breadcrumb
                   setSelectedOrder(null);
+                }}
+              />
+              )}
+            </div>
+          )}
+          {activeSidebarSection === 'order-tracking' && selectedOrder && (
+            <div className="mt-6">
+              <OrderTrackingContainer 
+                order={selectedOrder}
+                onBack={() => {
+                  setActiveSidebarSection('order-info');
                 }}
               />
             </div>

@@ -64,7 +64,8 @@ const addressSlice = createSlice({
     },
 
     // Create address
-    createAddressRequest: (state, action: PayloadAction<CreateAddressRequest>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createAddressRequest: (state, _action: PayloadAction<CreateAddressRequest>) => {
       state.isCreating = true;
       state.createError = null;
       state.createSuccess = false;
@@ -82,7 +83,8 @@ const addressSlice = createSlice({
     },
 
     // Update address
-    updateAddressRequest: (state, action: PayloadAction<UpdateAddressRequest>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    updateAddressRequest: (state, _action: PayloadAction<UpdateAddressRequest>) => {
       state.isUpdating = true;
       state.updateError = null;
       state.updateSuccess = false;
@@ -103,7 +105,8 @@ const addressSlice = createSlice({
     },
 
     // Delete address
-    deleteAddressRequest: (state, action: PayloadAction<number>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    deleteAddressRequest: (state, _action: PayloadAction<number>) => {
       state.isDeleting = true;
       state.deleteError = null;
       state.deleteSuccess = false;
@@ -121,7 +124,8 @@ const addressSlice = createSlice({
     },
 
     // Set default address
-    setDefaultAddressRequest: (state, action: PayloadAction<number>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setDefaultAddressRequest: (state, _action: PayloadAction<number>) => {
       state.isUpdating = true;
       state.updateError = null;
     },

@@ -7,10 +7,10 @@ import { OrderSummary } from '@/features/order/components/OrderSummary';
 import { useOrder } from '@/features/order/hooks/useOrder';
 import { ProductItem } from '@/services/api/productApi';
 import { useShippingFee, AddressData } from '@/features/order/hooks/useShippingFee';
-import { useToast } from '@/providers/ToastProvider';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectSelectedCartItems } from '@/features/cart/redux/cartSlice';
 import { removeMultipleCartItemsAsync } from '@/features/cart/redux/cartSaga';
+import { CartItem } from '@/types/cart.types';
 
 export type OrderPresenterProps = {
   onClose?: () => void;
@@ -21,6 +21,21 @@ export type OrderPresenterProps = {
 export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, products, note }) => {
   const dispatch = useAppDispatch();
   const selectedCartItems = useAppSelector(selectSelectedCartItems);
+  
+  // Convert CartItem[] to ProductItem[]
+  const convertCartItemsToProductItems = (cartItems: CartItem[]): ProductItem[] => {
+    return cartItems.map(item => ({
+      detailId: item.productDetailId,
+      productTitle: item.productTitle,
+      productSlug: item.productSlug,
+      price: item.price,
+      quantity: item.quantity,
+      colorName: item.colorName,
+      sizeName: item.sizeName,
+      colors: [], // CartItem doesn't have colors array, will be empty
+      imageUrls: [item.imageUrl], // Convert single imageUrl to array
+    }));
+  };
   const {
     selectedAddress,
     loadAddresses,
@@ -32,7 +47,6 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
     resetOrder,
   } = useOrder();
 
-  const { showSuccess } = useToast();
   const [addressData, setAddressData] = React.useState<AddressData>({});
   const shippingFee = useShippingFee(addressData);
 
@@ -48,6 +62,10 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
         province: selectedAddress.city,
         district: selectedAddress.city,
         ward: selectedAddress.ward,
+        // Include GHN IDs if available
+        provinceId: selectedAddress.provinceId,
+        districtId: selectedAddress.districtId,
+        wardCode: selectedAddress.wardCode,
       });
     }
   }, [selectedAddress]);
@@ -71,12 +89,20 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
       name: address.fullName,
       phone: address.phone,
     });
+    
+    // Update address data with GHN IDs for accurate shipping calculation
+    setAddressData({
+      province: address.city,
+      district: address.city,
+      ward: address.ward,
+      provinceId: address.provinceId,
+      districtId: address.districtId,
+      wardCode: address.wardCode,
+    });
   };
 
   const handleOrderComplete = (orderId: number) => {
     console.log('Order completed successfully!', { orderId });
-    // Show success toast notification
-    showSuccess(`Đơn hàng #${orderId} đã được tạo thành công!`);
     // Reset order state after successful completion
     resetOrder();
 
@@ -110,7 +136,7 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
             <OrderSummary 
               onClose={onClose} 
               shippingFee={shippingFee}
-              products={products}
+              products={products || convertCartItemsToProductItems(selectedCartItems)}
               note={note}
               onOrderComplete={handleOrderComplete}
             />

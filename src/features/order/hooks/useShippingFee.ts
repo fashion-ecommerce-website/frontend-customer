@@ -1,9 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { ghnApi, GHNShippingFeeRequest } from '@/services/api/ghnApi';
+import { GHN_CONFIG } from '@/config/environment';
 
 export interface AddressData {
   province?: string;
   district?: string;
   ward?: string;
+  // GHN Integration fields
+  provinceId?: number;
+  districtId?: number;
+  wardCode?: string;
 }
 
 export interface ShippingFeeData {
@@ -12,10 +18,38 @@ export interface ShippingFeeData {
   error?: string;
 }
 
-// Mock shipping fee calculation based on address
-const calculateShippingFee = (address: AddressData): Promise<number> => {
+// GHN shipping fee calculation
+const calculateShippingFee = async (address: AddressData): Promise<number> => {
+  // Check if we have GHN IDs for accurate calculation
+  if (address.provinceId && address.districtId && address.wardCode) {
+    try {
+      const request: GHNShippingFeeRequest = {
+        from_district_id: parseInt(GHN_CONFIG.FROM_DISTRICT_ID || '0'),
+        to_district_id: address.districtId,
+        to_ward_code: address.wardCode,
+        height: GHN_CONFIG.DEFAULT_PACKAGE.height,
+        length: GHN_CONFIG.DEFAULT_PACKAGE.length,
+        weight: GHN_CONFIG.DEFAULT_PACKAGE.weight,
+        width: GHN_CONFIG.DEFAULT_PACKAGE.width,
+        insurance_value: GHN_CONFIG.DEFAULT_PACKAGE.insurance_value,
+        service_type_id: 2 // Standard delivery
+      };
+
+      const response = await ghnApi.calculateShippingFee(request);
+      
+      if (response.success && response.data !== null) {
+        return response.data;
+      } else {
+        throw new Error(response.message || 'Failed to calculate shipping fee');
+      }
+    } catch (error) {
+      console.error('GHN API error:', error);
+      throw error;
+    }
+  }
+
+  // Fallback to mock calculation for addresses without GHN IDs
   return new Promise((resolve) => {
-    // Simulate API call delay
     setTimeout(() => {
       if (!address.province) {
         resolve(0);
@@ -46,9 +80,25 @@ export const useShippingFee = (address: AddressData) => {
     isCalculating: false,
   });
 
+  // Create stable dependencies to prevent infinite loops
+  const addressKey = useMemo(() => {
+    return JSON.stringify({
+      province: address.province,
+      district: address.district,
+      ward: address.ward,
+      provinceId: address.provinceId,
+      districtId: address.districtId,
+      wardCode: address.wardCode,
+    });
+  }, [address.province, address.district, address.ward, address.provinceId, address.districtId, address.wardCode]);
+
   useEffect(() => {
     const calculateFee = async () => {
-      if (!address.province) {
+      // Check if we have enough data for calculation
+      const hasTextData = address.province;
+      const hasGHNData = address.provinceId && address.districtId && address.wardCode;
+      
+      if (!hasTextData && !hasGHNData) {
         setShippingFee({ fee: 0, isCalculating: false });
         return;
       }
@@ -59,16 +109,17 @@ export const useShippingFee = (address: AddressData) => {
         const fee = await calculateShippingFee(address);
         setShippingFee({ fee, isCalculating: false });
       } catch (error) {
+        console.error('Shipping fee calculation error:', error);
         setShippingFee({
           fee: 0,
           isCalculating: false,
-          error: 'Không thể tính phí ship. Vui lòng thử lại.'
+          error: error instanceof Error ? error.message : 'Không thể tính phí ship. Vui lòng thử lại.'
         });
       }
     };
 
     calculateFee();
-  }, [address.province, address.district, address.ward]);
+  }, [addressKey]);
 
   return shippingFee;
 };

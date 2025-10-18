@@ -5,6 +5,8 @@ import { Order, PaymentMethod } from '@/features/order/types';
 type OrderDetailPresenterProps = {
   order: Order;
   onBack?: () => void;
+  onTrack?: () => void;
+  imagesByDetailId?: Record<number, string>;
 };
 
 const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
@@ -19,17 +21,22 @@ const getPaymentMethodLabel = (method?: PaymentMethod) => {
   }
 };
 
-export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack }) => {
+export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack, onTrack, imagesByDetailId }) => {
   return (
-    <div className="px-4 pb-8">
+    <div className="px-4 pb-8 bg-white min-h-screen">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl text-black font-bold">Order Product Information</h1>
-          {onBack ? (
-            <button type="button" onClick={onBack} className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</button>
-          ) : (
-            <Link href="/profile?section=order-info" className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</Link>
-          )}
+          <div className="flex items-center gap-4">
+            {onTrack && (
+              <button type="button" onClick={onTrack} className="text-sm font-medium text-black hover:opacity-70">Track Order</button>
+            )}
+            {onBack ? (
+              <button type="button" onClick={onBack} className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</button>
+            ) : (
+              <Link href="/profile?section=order-info" className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</Link>
+            )}
+          </div>
         </div>
 
         <div className="border-t-3 border-black pt-2">
@@ -37,11 +44,11 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
             {order.orderDetails.map(item => (
               <div key={item.id} className="flex gap-4">
                 <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                  <img src={item.imageUrl || '/images/products/image1.jpg'} alt={item.title} className="w-full h-full object-cover" />
+                  <img src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} alt={item.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1">
                   <div className="text-black font-semibold">{item.title}</div>
-                  <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel} / {item.productDetailId}</div>
+                  <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel}</div>
                   <div className="text-xs text-gray-600 mt-1">Quantity: {item.quantity}</div>
                   <div className="text-black font-semibold mt-2">{formatPrice(item.unitPrice)}</div>
                 </div>
@@ -86,9 +93,9 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <div className="flex justify-between"><span className="text-gray-600">Shipping Status</span><span className="text-black">{order.shipments?.[0]?.status || 'PENDING'}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Name</span><span className="text-black">{order.shippingAddress.fullName}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Phone Number</span><span className="text-black">{order.shippingAddress.phone}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Address</span><span className="text-black">{order.shippingAddress.line}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Ward</span><span className="text-black">{order.shippingAddress.line}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">District</span><span className="text-black">{order.shippingAddress.ward}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Province</span><span className="text-black">{order.shippingAddress.city}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Country</span><span className="text-black">Vietnam</span></div>
             </div>
           </div>
         </div>
