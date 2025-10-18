@@ -246,7 +246,7 @@ export function OrderSummary({
 										{product.productTitle}
 									</p>
 									<div className="mt-1 text-xs text-zinc-800">
-										{product.colorName} / {product.detailId}
+										{product.colorName} / {product.sizeName}
 									</div>
 									<div className="mt-1 flex items-start justify-between">
 										<span className="text-sm font-bold text-neutral-600">
@@ -268,7 +268,7 @@ export function OrderSummary({
 						className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-black rounded flex items-center justify-center gap-2 bg-white text-zinc-800 transition-colors"
 					>
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a2 2 0 110-4 2 2 0 010 4zM4 6h12a2 2 0 012 2v1a3 3 0 100 6v1a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-						<span className="text-sm font-semibold">{selectedVoucher ? 'Change Promotion' : 'Select Promotion'}</span>
+						<span className="text-sm font-semibold">{selectedVoucher ? 'Change Voucher' : 'Select Voucher'}</span>
 					</button>
 					{selectedVoucher && (
 						<div className="mt-2 text-sm text-zinc-800 flex items-center gap-2">

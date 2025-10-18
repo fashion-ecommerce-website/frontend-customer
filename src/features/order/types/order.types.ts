@@ -118,6 +118,7 @@ export interface OrderSummary {
     price: number;
     quantity: number;
     colorName: string;
+    sizeName: string;
     imageUrls: string[];
   }[];
   shippingAddress: ShippingAddress;

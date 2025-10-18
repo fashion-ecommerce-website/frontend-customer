@@ -122,6 +122,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
                   quantity: item.quantity,
                   colors: item.colorName ? [item.colorName] : [],
                   colorName: item.colorName,
+                  sizeName: item.sizeName,
                   imageUrls: item.imageUrl ? [item.imageUrl] : [],
                 }));
               // Expose via a scoped variable for JSX below

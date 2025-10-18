@@ -56,7 +56,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black text-white">🏷️</span>
-            <h2 className="text-xl font-semibold text-black">Select Promotion</h2>
+            <h2 className="text-xl font-semibold text-black">Select Voucher</h2>
           </div>
           <button type="button" onClick={onClose} className="text-gray-600 hover:text-black">✕</button>
         </div>
@@ -65,12 +65,12 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
         <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
           {/* Enter code */}
           <div className="border border-gray-200 rounded-lg p-4 bg-white">
-            <label className="block text-sm font-semibold text-gray-800 mb-2">Enter Promotion Code</label>
+            <label className="block text-sm font-semibold text-gray-800 mb-2">Search Voucher</label>
             <div className="flex items-center gap-3">
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="Enter promotion code..."
+                placeholder="Enter voucher code..."
                 className="flex-1 h-11 rounded border border-gray-300 px-3.5 text-sm text-black placeholder-gray-400 focus:outline-none"
               />
               <button
@@ -85,17 +85,17 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                 }}
                 className="h-11 shrink-0 rounded bg-black hover:bg-gray-900 px-5 text-sm font-bold uppercase tracking-wide text-white transition-colors"
               >
-                Apply
+                Search
               </button>
             </div>
           </div>
 
           {/* Available list */}
           <div className="mt-6">
-            <div className="text-sm text-gray-700 font-semibold mb-3">Available Promotions</div>
+            <div className="text-sm text-gray-700 font-semibold mb-3">Available Vouchers</div>
             <div className="space-y-4">
               {vouchers.length === 0 && (
-                <div className="text-sm text-gray-600">No promotions available.</div>
+                <div className="text-sm text-gray-600">No vouchers available.</div>
               )}
               {vouchers.map((v) => {
                 const eligible = isEligible(v);
@@ -115,12 +115,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                         {!eligible && v.message && (
                           <div className="text-xs text-gray-500 mt-1">{v.message}</div>
                         )}
-                        <div className="mt-2">
-                          <div className="h-1.5 w-full bg-gray-100 rounded">
-                            <div className="h-1.5 bg-black rounded" style={{ width: `${Math.min(100, Math.max(0, v.globalUsagePercent || 0))}%` }} />
-                          </div>
-                          <div className="text-[11px] text-gray-500 mt-1">Global usage</div>
-                        </div>
+                        
                         <div className="flex items-center gap-6 text-[11px] text-gray-600 mt-2">
                           {typeof v.maxDiscountAmount === 'number' && (
                             <span>Max: {formatPrice(v.maxDiscountAmount)}</span>
@@ -128,9 +123,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                           {v.expiresAt && (
                             <span>Expires: {new Date(v.expiresAt).toLocaleDateString('vi-VN')}</span>
                           )}
-                          {v.userUsage && (
-                            <span>Your usage: {v.userUsage.used}/{v.userUsage.limit}</span>
-                          )}
+                          
                         </div>
                       </div>
                       <div className="pl-4 flex flex-col items-end">

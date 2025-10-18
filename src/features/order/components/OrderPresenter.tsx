@@ -10,6 +10,7 @@ import { useShippingFee, AddressData } from '@/features/order/hooks/useShippingF
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectSelectedCartItems } from '@/features/cart/redux/cartSlice';
 import { removeMultipleCartItemsAsync } from '@/features/cart/redux/cartSaga';
+import { CartItem } from '@/types/cart.types';
 
 export type OrderPresenterProps = {
   onClose?: () => void;
@@ -20,6 +21,21 @@ export type OrderPresenterProps = {
 export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, products, note }) => {
   const dispatch = useAppDispatch();
   const selectedCartItems = useAppSelector(selectSelectedCartItems);
+  
+  // Convert CartItem[] to ProductItem[]
+  const convertCartItemsToProductItems = (cartItems: CartItem[]): ProductItem[] => {
+    return cartItems.map(item => ({
+      detailId: item.productDetailId,
+      productTitle: item.productTitle,
+      productSlug: item.productSlug,
+      price: item.price,
+      quantity: item.quantity,
+      colorName: item.colorName,
+      sizeName: item.sizeName,
+      colors: [], // CartItem doesn't have colors array, will be empty
+      imageUrls: [item.imageUrl], // Convert single imageUrl to array
+    }));
+  };
   const {
     selectedAddress,
     loadAddresses,
@@ -120,7 +136,7 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
             <OrderSummary 
               onClose={onClose} 
               shippingFee={shippingFee}
-              products={products}
+              products={products || convertCartItemsToProductItems(selectedCartItems)}
               note={note}
               onOrderComplete={handleOrderComplete}
             />
