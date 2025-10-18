@@ -158,7 +158,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     try {
       const response = await ghnApi.getProvinces();
       if (response.success && response.data) {
-        setProvinces(response.data);
+        // Skip the first 4 test addresses in dev mode
+        const filteredProvinces = response.data.slice(4);
+        setProvinces(filteredProvinces);
       } else {
         setGhnError(response.message || 'Failed to load provinces');
       }

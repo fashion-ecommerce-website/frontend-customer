@@ -6,3 +6,4 @@ export { AddressForm } from './AddressForm';
 export { OrderPresenter } from './OrderPresenter';
 export { OrderSummary } from './OrderSummary';
 export { PaymentMethods } from './PaymentMethods';
+export { VoucherModal } from './VoucherModal';

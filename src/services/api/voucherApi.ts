@@ -1,6 +1,6 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
-import type { Voucher } from '@/components/modals/VoucherModal';
+import type { Voucher } from '@/features/order/components/VoucherModal';
 
 const VOUCHER_ENDPOINTS = {
   GET_BY_USER: '/vouchers/by-user',

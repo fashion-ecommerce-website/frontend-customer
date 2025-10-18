@@ -8,8 +8,9 @@ import { validateOrderData } from '@/utils/orderValidation';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { PaymentApi } from '@/services/api/paymentApi';
 import { useAppDispatch } from '@/hooks/redux';
-import { VoucherModal, Voucher } from '@/components/modals/VoucherModal';
+import { VoucherModal, Voucher, VoucherByUserResponse } from './VoucherModal';
 import { voucherApi } from '@/services/api/voucherApi';
+import { apiClient } from '@/services/api/baseApi';
 
 interface OrderSummaryProps {
 	onClose?: () => void;
@@ -78,6 +79,22 @@ export function OrderSummary({
 			.finally(() => { if (!cancelled) setIsLoadingVouchers(false); });
 		return () => { cancelled = true; };
 	}, []);
+
+	// Search voucher function
+	const handleSearchVoucher = async (code: string, subtotal: number): Promise<VoucherByUserResponse[]> => {
+		const params = new URLSearchParams();
+		if (subtotal) params.append('subtotal', subtotal.toString());
+		if (code.trim()) params.append('searchCode', code.trim());
+		
+		const endpoint = `/vouchers/by-user${params.toString() ? `?${params.toString()}` : ''}`;
+		const response = await apiClient.get<VoucherByUserResponse[]>(endpoint);
+		
+		if (!response.success || !response.data) {
+			throw new Error(response.message || 'Failed to search vouchers');
+		}
+		
+		return response.data;
+	};
 	
 	// Calculate totals from products
 	const orderTotals = calculateOrderTotals(products);
@@ -265,7 +282,7 @@ export function OrderSummary({
 					<button
 						type="button"
 						onClick={() => setIsVoucherModalOpen(true)}
-						className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-black rounded flex items-center justify-center gap-2 bg-white text-zinc-800 transition-colors"
+						className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-black rounded flex items-center justify-center gap-2 bg-white text-zinc-800 transition-colors cursor-pointer"
 					>
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a2 2 0 110-4 2 2 0 010 4zM4 6h12a2 2 0 012 2v1a3 3 0 100 6v1a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 						<span className="text-sm font-semibold">{selectedVoucher ? 'Change Voucher' : 'Select Voucher'}</span>
@@ -379,6 +396,7 @@ export function OrderSummary({
 						setIsVoucherModalOpen(false);
 					}
 				}}
+				onSearchVoucher={handleSearchVoucher}
 			/>
 		</>
 	);
