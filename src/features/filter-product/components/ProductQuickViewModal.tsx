@@ -86,14 +86,19 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     }
 
     if (isOpen) {
+      // Calculate scrollbar width before hiding it
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+      
       document.addEventListener("keydown", handleEscape)
-      // Prevent body scroll when modal is open
+      // Prevent body scroll when modal is open and compensate for scrollbar
       document.body.style.overflow = "hidden"
+      document.body.style.paddingRight = `${scrollbarWidth}px`
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape)
       document.body.style.overflow = "unset"
+      document.body.style.paddingRight = "0px"
     }
   }, [isOpen, onClose])
 
@@ -511,7 +516,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
       onClick={onClose} // Click backdrop to close
     >
       <div
-        className={`bg-white rounded-t-2xl md:rounded-lg p-4 w-full max-w-4xl mx-4 relative shadow-2xl border border-gray-200 overflow-hidden h-2/3 md:h-2/3 lg:h-1/2 transition-all duration-300 ${
+        className={`bg-white rounded-t-2xl md:rounded-lg p-4 w-full max-w-4xl mx-4 relative shadow-2xl border border-gray-200 overflow-hidden h-[70vh] transition-all duration-300 ${
           isAnimating
             ? "translate-y-0 md:scale-100 opacity-100"
             : "translate-y-full md:translate-y-0 md:scale-0 opacity-0"
@@ -776,7 +781,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           <div
                             className={`w-24 h-24 rounded-xl border-2 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${
                               selectedColor === color
-                                ? "border-gray-800 transform scale-105"
+                                ? "border-gray-800"
                                 : "border-gray-200 hover:border-gray-300"
                             }`}
                           >

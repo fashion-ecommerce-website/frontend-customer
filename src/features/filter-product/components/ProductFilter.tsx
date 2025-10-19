@@ -63,7 +63,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     { value: "popular", label: "Newest" },
   ];
 
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const handleFilterChange = (key: keyof ProductFilters, value: string | string[] | number | undefined) => {
     onFiltersChange({
       ...filters,
       [key]: value,
@@ -81,26 +81,6 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleHomeClick()}
           className="text-gray-600 cursor-pointer"
         >HOME</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="7"
-          height="11"
-          viewBox="0 0 7 11"
-          fill="none"
-        >
-          <path
-            d="M1 1L5.5 5.5L1 10"
-            stroke="#787878"
-            strokeLinecap="square"
-          ></path>
-        </svg>
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={handleCategoryClick}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCategoryClick()}
-          className="text-gray-600 cursor-pointer"
-        >CATEGORY</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="7"

@@ -104,28 +104,27 @@ export function ProductDetailPresenter({
   return (
     <div className="min-h-screen bg-white">
       {/* Main Product Section */}
-      <div className="mx-auto px-12 max-w-none">
-        <div className="grid grid-cols-2 gap-8 py-6">
+      <div className="mx-auto px-4 sm:px-6 lg:px-12 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 py-6 lg:py-8">
           {/* Left Side: Image Gallery + Tabs */}
           <div className="space-y-6">
             {/* MLB Korea Style Gallery - Simplified and Fixed */}
-            <div className="px-[70px]">
+            <div className="lg:px-[70px]">
               <ProductImageGallery images={product.images} productTitle={product.title} />
             </div>
             
             {/* Product Details Tabs */}
-            <div className="">
+            <div>
               <ProductTabs product={product} />
             </div>
           </div>
 
           {/* Right Side: Product Information */}
-          <div className="pl-[44px] sticky top-20 self-start pr-2">
-            <div className="max-h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="lg:pl-[44px]">
             {/* Header with Share/Wishlist */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-xl font-semibold text-gray-900 mb-3 leading-snug">
                   {product.title}
                 </h1>
               </div>
@@ -165,7 +164,6 @@ export function ProductDetailPresenter({
               onSizeSelect={onSizeSelect}
               isColorLoading={isLoading}
             />
-            </div>
           </div>
         </div>
       </div>

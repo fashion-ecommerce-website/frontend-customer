@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import { Header } from "@/components/Header";
@@ -8,13 +9,6 @@ import { AuthInitializer } from "@/components/AuthInitializer";
 import { CartInitializer } from "@/components/CartInitializer";
 import { WishlistInitializer } from "@/components/WishlistInitializer";
 import { ToastProvider } from "@/providers/ToastProvider";
-
-const productSans = Inter({
-  variable: "--font-product-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "FIT - Fashion E-commerce",
@@ -27,12 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link href="https://fonts.cdnfonts.com/css/product-sans?styles=15767" rel="stylesheet" />
-      </head>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body
-        className={`${productSans.variable} antialiased font-sans`}
+        className="antialiased font-sans"
       >
         <ReduxProvider>
           <AuthInitializer>

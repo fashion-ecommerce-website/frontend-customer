@@ -151,7 +151,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
             {/* Left large image */}
             <div className="w-full min-w-0 order-2 lg:order-1">
               <div className="w-full relative">
-                <div className="w-full aspect-square lg:aspect-[995/1287] bg-gray-100 overflow-hidden cursor-pointer group rounded-lg lg:rounded-none">
+                <div className="w-full aspect-square lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-lg lg:rounded-none">
                   <img
                     className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-95 group-hover:scale-105"
                     src={leftImageUrl || products[0]?.image}
@@ -170,14 +170,14 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
             </div>
 
             {/* Right grid panel */}
-            <div className="w-full min-w-0 h-full order-1 lg:order-2 p-4 sm:p-6 lg:p-8 lg:pr-[17px] bg-zinc-100 rounded-lg lg:rounded">
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-0">
+            <div className="w-full min-w-0 h-full order-1 lg:order-2 sm:p-6 lg:p-8 lg:pr-[17px] bg-white rounded-lg lg:rounded">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-4">
                 {products.slice(1, 5).map((product) => (
                   <ProductCard
                     key={product.id}
                     product={product}
                     onProductClick={onProductClick}
-                    className="w-full lg:pr-[15px] lg:pb-[15px]"
+                    className="w-full border-3 rounded-lg shadow-lg"
                   />
                 ))}
               </div>

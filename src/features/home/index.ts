@@ -6,6 +6,7 @@ export { HomeContainer } from './containers/HomeContainer';
 
 // Export components
 export { HomePresenter } from './components/HomePresenter';
+export { RankingSection } from './components/RankingSection';
 export * from './components/Icons';
 
 // Export states

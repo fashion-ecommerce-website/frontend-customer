@@ -7,6 +7,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CartItemComponent } from "./CartItem";
+import { CartItemSkeleton } from "./CartItemSkeleton";
 import { CartSummaryComponent } from "./CartSummary";
 import { CartPresenterProps } from "../types";
 
@@ -114,13 +115,6 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
           </div>
         )}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center h-32 sm:h-64">
-            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-black"></div>
-          </div>
-        )}
-
         {/* Header with select all */}
         <div className="bg-white mb-4 px-4 sm:px-6 lg:px-10 py-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -140,17 +134,27 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg space-y-4">
-              {cartItems.map((item) => (
-                <CartItemComponent
-                  key={item.id}
-                  item={item}
-                  onRemove={onRemoveItem}
-                  onSelect={onSelectItem}
-                  onUnselect={onUnselectItem}
-                  onEdit={onEditItem}
-                  loading={loading}
-                />
-              ))}
+              {loading && cartItems.length === 0 ? (
+                // Show skeletons when loading and no items yet
+                <>
+                  <CartItemSkeleton />
+                  <CartItemSkeleton />
+                  <CartItemSkeleton />
+                </>
+              ) : (
+                // Show actual cart items
+                cartItems.map((item) => (
+                  <CartItemComponent
+                    key={item.id}
+                    item={item}
+                    onRemove={onRemoveItem}
+                    onSelect={onSelectItem}
+                    onUnselect={onUnselectItem}
+                    onEdit={onEditItem}
+                    loading={loading}
+                  />
+                ))
+              )}
             </div>
 
             {/* Virtual Try-On Button */}
