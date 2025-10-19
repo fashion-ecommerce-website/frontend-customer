@@ -25,6 +25,7 @@ import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
 import { AddressContainer } from '../containers/AddressContainer';
 import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
+import { VoucherContainer } from '../containers/VoucherContainer';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 import OrderApi from '@/services/api/orderApi';
@@ -210,6 +211,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'MY INFO';
       case 'shipping-address':
         return 'ADDRESSES';
+      case 'my-vouchers':
+        return 'VOUCHERS';
       // Add other cases as needed
       default:
         return '';
@@ -291,6 +294,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           )}
           {activeSidebarSection === 'wishlist' && <WishlistContainer />}
           {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
+          {activeSidebarSection === 'my-vouchers' && <VoucherContainer />}
           {activeSidebarSection === 'shipping-address' && (
             <AddressContainer />
           )}
