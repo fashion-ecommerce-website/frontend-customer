@@ -24,6 +24,7 @@ import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
 import { AddressContainer } from '../containers/AddressContainer';
 import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
+import { ReviewContainer } from '../containers/ReviewContainer';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 
@@ -157,6 +158,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'MY INFO';
       case 'shipping-address':
         return 'ADDRESSES';
+      case 'my-reviews':
+        return 'MY REVIEWS';
       // Add other cases as needed
       default:
         return '';
@@ -269,6 +272,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
               onShowUpdateInfoModal={handleUpdateInfoModalOpen}
               isChangingPassword={isChangingPassword}
             />
+          )}
+          {activeSidebarSection === 'my-reviews' && (
+            <ReviewContainer />
           )}
           {/* TODO: add other sections (membership-info, order-info, etc) */}
         </main>

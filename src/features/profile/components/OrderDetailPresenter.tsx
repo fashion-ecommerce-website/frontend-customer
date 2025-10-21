@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Order, PaymentMethod } from '@/features/order/types';
+import { useEnums } from '@/hooks/useEnums';
 
 type OrderDetailPresenterProps = {
   order: Order;
@@ -20,8 +21,9 @@ const getPaymentMethodLabel = (method?: PaymentMethod) => {
 };
 
 export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack }) => {
+  const { data: enums } = useEnums();
   return (
-    <div className="px-4 pb-8">
+    <div className="p6">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl text-black font-bold">Order Product Information</h1>
@@ -76,8 +78,8 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
           <div>
             <h3 className="text-base text-black font-semibold mb-3 border-b-3 border-black pb-3">Billing Address</h3>
             <div className="text-sm space-y-2">
-              <div className="flex justify-between"><span className="text-gray-600">Payment Status</span><span className="text-black">{order.paymentStatus}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Payment Method</span><span className="text-black">{getPaymentMethodLabel(order.payments?.[0]?.method)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Payment Status</span><span className="text-black">{enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Payment Method</span><span className="text-black">{enums?.paymentMethod?.[order.payments?.[0]?.method || ''] || getPaymentMethodLabel(order.payments?.[0]?.method)}</span></div>
             </div>
           </div>
           <div>

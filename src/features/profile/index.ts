@@ -1,4 +1,5 @@
 export { ProfileContainer } from './containers/ProfileContainer';
+export { ReviewContainer } from './containers/ReviewContainer';
 
 export { ProfilePresenter } from './components/ProfilePresenter';
 export { ProfileSidebar } from './components/ProfileSidebar';
@@ -7,6 +8,7 @@ export { PasswordChangeModal } from './components/PasswordChangeModal';
 export { UpdateInfoModal } from './components/UpdateInfoModal';
 export { AddressSection } from './components/AddressSection';
 export { AddressModal } from './components/AddressModal';
+export { ReviewPresenter } from './components/ReviewPresenter';
 
 export { useFormValidation, useProfileValidation, usePasswordValidation } from './hooks/useValidation';
 
@@ -40,6 +42,7 @@ export {
 } from './redux/profileSlice';
 
 export { profileSaga } from './redux/profileSaga';
+export { reviewSaga } from './redux/reviewSaga';
 
 // Export types
 export type {
@@ -53,6 +56,11 @@ export type {
   ChangePasswordFormData,
   ProfileContainerProps,
   ProfilePresenterProps,
+  Review,
+  ReviewFormData,
+  ReviewState,
+  ReviewPresenterProps,
+  ReviewContainerProps,
 } from './types/profile.types';
 
 // Default export

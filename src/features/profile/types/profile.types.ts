@@ -179,3 +179,62 @@ export interface ProfileCallStateProps {
     clearSuccess: () => void;
   }) => React.ReactNode;
 }
+
+// Review Types
+export interface Review {
+  id: string;
+  userId: string;
+  productId: string;
+  productName: string;
+  productImage?: string;
+  productColor?: string;
+  productSize?: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+  isVerified: boolean;
+}
+
+export interface ReviewFormData {
+  rating: number;
+  comment: string;
+}
+
+export interface ReviewState {
+  reviews: Review[];
+  isLoading: boolean;
+  isSubmitting: boolean;
+  error: ApiError | null;
+  submitSuccess: boolean;
+}
+
+export interface ReviewPresenterProps {
+  reviews: Review[];
+  totalReviews: number; // Total number of reviews across all pages
+  isLoading: boolean;
+  isSubmitting: boolean;
+  error: ApiError | null;
+  submitSuccess: boolean;
+  lastActionType: 'edit' | 'delete' | null; // Track last successful action
+  // Pagination props
+  currentPage: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  // Delete confirmation modal
+  confirmDelete: { reviewId: string; productName: string } | null;
+  onPageChange: (page: number) => void;
+  onEditReview: (reviewId: string, data: ReviewFormData) => void;
+  onDeleteReview: (reviewId: string) => void;
+  onConfirmDelete: (reviewId: string) => void;
+  onCancelDelete: () => void;
+  onClearError: () => void;
+}
+
+export interface ReviewContainerProps {
+  onEditSuccess?: () => void;
+  onEditError?: (error: ApiError) => void;
+  onDeleteSuccess?: () => void;
+  onDeleteError?: (error: ApiError) => void;
+}
