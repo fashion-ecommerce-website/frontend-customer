@@ -1,6 +1,10 @@
 export interface FilterProductItem {
   quantity: number;
-  price: number;
+  price: number;          // base price
+  finalPrice?: number;     // after promotion
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   colors: string[];
   productTitle: string;
   productSlug: string;

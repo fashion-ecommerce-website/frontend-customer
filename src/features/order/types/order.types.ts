@@ -45,8 +45,12 @@ export interface OrderDetail {
   colorLabel: string;
   sizeLabel: string;
   quantity: number;
-  unitPrice: number;
+  unitPrice: number;        // base price
+  finalPrice?: number;      // after promotion
   totalPrice: number;
+  percentOff?: number;     // integer percent
+  promotionId?: number;    // nullable
+  promotionName?: string;  // nullable
   imageUrl?: string;
 }
 
