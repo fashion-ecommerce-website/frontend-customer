@@ -109,7 +109,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 Recently Viewed
               </button>
             </li>
-            <li className="m-0 pb-8">
+            <li className="m-0">
               <button 
                 className={`block w-full text-left pt-1.5 text-sm font-semibold transition-all duration-200 border-none cursor-pointer ${
                   activeSection === 'my-reviews' 
@@ -119,6 +119,11 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 onClick={() => handleSectionClick('my-reviews')}
               >
                 My Reviews
+              </button>
+            </li>
+            <li className="m-0 pb-8">
+              <button 
+                className={`block w-full text-left pt-1.5 text-sm font-semibold transition-all duration-200 border-none cursor-pointer ${
                   activeSection === 'my-vouchers' 
                     ? 'text-black bg-white' 
                     : 'text-black hover:text-[rgb(187,146,68)] bg-white'
