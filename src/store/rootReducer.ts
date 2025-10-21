@@ -7,6 +7,7 @@ import { addressReducer } from '../features/profile/redux/addressSlice';
 import { orderReducer } from '../features/order/redux';
 import { cartReducer } from '../features/cart/redux/cartSlice';
 import { wishlistReducer } from '../features/profile/redux/wishlistSlice';
+import { default as reviewReducer } from '../features/profile/redux/reviewSlice';
 
 export const rootReducer = combineReducers({
   login: loginReducer,
@@ -17,6 +18,7 @@ export const rootReducer = combineReducers({
   order: orderReducer,
   cart: cartReducer,
   wishlist: wishlistReducer,
+  review: reviewReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

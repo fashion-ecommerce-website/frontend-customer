@@ -112,6 +112,13 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
             <li className="m-0 pb-8">
               <button 
                 className={`block w-full text-left pt-1.5 text-sm font-semibold transition-all duration-200 border-none cursor-pointer ${
+                  activeSection === 'my-reviews' 
+                    ? 'text-black bg-white' 
+                    : 'text-black hover:text-[rgb(187,146,68)] bg-white'
+                }`}
+                onClick={() => handleSectionClick('my-reviews')}
+              >
+                My Reviews
                   activeSection === 'my-vouchers' 
                     ? 'text-black bg-white' 
                     : 'text-black hover:text-[rgb(187,146,68)] bg-white'

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Order } from '@/features/order/types';
+import { useEnums } from '@/hooks/useEnums';
 
 interface OrderHistoryPresenterProps {
   orders: Order[];
@@ -14,6 +15,7 @@ interface OrderHistoryPresenterProps {
 
 export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ orders, loading, error, onReload, onOpenDetail, onTrack }) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+  const { data: enums } = useEnums();
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
   const formatDate = (iso: string) => new Date(iso).toLocaleString('vi-VN');
 
@@ -92,7 +94,9 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
               >
                 <span className="font-semibold text-black">V{order.id}</span>
                 <span className="whitespace-nowrap">{formatDate(order.createdAt)}</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 ${getPaymentBadgeClass(order.paymentStatus)}`}>{order.paymentStatus}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 ${getPaymentBadgeClass(order.paymentStatus)}`}>
+                  {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
+                </span>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200`}>Shipping: {getShipmentStatus(order)}</span>
               </div>
               <div className="flex items-center gap-4">
