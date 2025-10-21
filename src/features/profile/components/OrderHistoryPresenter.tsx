@@ -10,9 +10,10 @@ interface OrderHistoryPresenterProps {
   error: string | null;
   onReload: () => void;
   onOpenDetail?: (order: Order) => void;
+  onTrack?: (order: Order) => void;
 }
 
-export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ orders, loading, error, onReload, onOpenDetail }) => {
+export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ orders, loading, error, onReload, onOpenDetail, onTrack }) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const { data: enums } = useEnums();
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
@@ -107,6 +108,14 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
                 >
                   Order Details
                 </button>
+              <button
+                type="button"
+                onClick={() => onTrack?.(order)}
+                className="text-sm font-medium text-black hover:opacity-70"
+                title="Track shipment"
+              >
+                Track Order
+              </button>
               </div>
             </div>
 

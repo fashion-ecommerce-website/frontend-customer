@@ -111,13 +111,14 @@ export interface CreateOrderRequest {
 }
 
 // Order summary interface for UI
-export interface OrderSummary {
+export interface OrderSummaryData {
   products: {
     detailId: number;
     productTitle: string;
     price: number;
     quantity: number;
     colorName: string;
+    sizeName: string;
     imageUrls: string[];
   }[];
   shippingAddress: ShippingAddress;

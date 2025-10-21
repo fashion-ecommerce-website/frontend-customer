@@ -9,6 +9,7 @@ export interface ProductItem {
   productTitle: string;
   productSlug: string;
   colorName: string;
+  sizeName: string;
   detailId: number;
   imageUrls: string[];
 }

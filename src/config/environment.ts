@@ -39,7 +39,7 @@ export const API_ENDPOINTS = {
   PRODUCT: {
     LIST: '/products',
     DETAIL: '/products/details/', // GET /products/{id}
-     COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
+    COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
   },
 
   // Cart endpoints
@@ -49,5 +49,24 @@ export const API_ENDPOINTS = {
     UPDATE: '/cart', // PUT /cart/{id}
     REMOVE: '/cart', // DELETE /cart/{id}
     CLEAR: '/cart'
+  }
+};
+
+/**
+ * GHN (Giao Hàng Nhanh) Configuration
+ */
+export const GHN_CONFIG = {
+  API_URL: 'https://dev-online-gateway.ghn.vn/shiip/public-api',
+  TOKEN: process.env.NEXT_PUBLIC_GHN_TOKEN,
+  SHOP_ID: process.env.NEXT_PUBLIC_GHN_SHOP_ID,
+  FROM_DISTRICT_ID: process.env.NEXT_PUBLIC_GHN_FROM_DISTRICT_ID,
+  PRODUCT_TOKEN: process.env.NEXT_PUBLIC_GHN_PRODUCT_TOKEN,
+  // Default package dimensions (in cm and grams)
+  DEFAULT_PACKAGE: {
+    height: 20,
+    length: 30,
+    width: 40,
+    weight: 3000, // 3kg in grams
+    insurance_value: 0
   }
 };

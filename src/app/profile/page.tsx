@@ -12,6 +12,7 @@ export default function ProfilePage() {
     tabParam === 'wishlist' ? 'wishlist'
     : tabParam === 'recently' ? 'recently-viewed'
     : tabParam === 'addresses' ? 'shipping-address'
+    : tabParam === 'vouchers' ? 'my-vouchers'
     : tabParam ? 'account'
     : undefined
   );

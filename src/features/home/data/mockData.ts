@@ -63,7 +63,7 @@ export const mockRankingProducts: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
   },
   {
-    id: '102',
+    id: '19',
     name: 'MLB - Unisex Essential Basic Crew Neck T-Shirt',
     brand: 'MLB',
     price: 1450000,

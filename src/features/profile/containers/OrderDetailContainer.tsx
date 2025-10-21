@@ -2,66 +2,79 @@
 
 import React from 'react';
 import { useParams } from 'next/navigation';
-import { Order, OrderStatus, PaymentMethod, PaymentStatus } from '@/features/order/types';
+import { Order } from '@/features/order/types';
 import OrderDetailPresenter from '@/features/profile/components/OrderDetailPresenter';
+import OrderApi from '@/services/api/orderApi';
+import { productApi } from '@/services/api/productApi';
 
-// Temporary mock fetcher reusing shapes across the app
-const useMockOrder = (id: number): Order | null => {
-  const baseNow = Date.now();
-  const MOCK: Order[] = [
-    {
-      id: 1001,
-      userId: 1,
-      userEmail: 'user@example.com',
-      userUsername: 'user',
-      status: OrderStatus.UNFULFILLED,
-      paymentStatus: PaymentStatus.UNPAID,
-      currency: 'VND',
-      subtotalAmount: 450000,
-      discountAmount: 0,
-      shippingFee: 30000,
-      totalAmount: 480000,
-      note: '',
-      shippingAddress: {
-        id: 1,
-        fullName: 'Nguyen Van A',
-        phone: '0900000000',
-        line: '123 Le Loi',
-        ward: 'Ben Thanh',
-        city: 'Ho Chi Minh',
-        countryCode: 'VN',
-      },
-      createdAt: new Date(baseNow - 1000 * 60 * 60 * 12).toISOString(),
-      updatedAt: new Date(baseNow - 1000 * 60 * 60 * 6).toISOString(),
-      orderDetails: [
-        { id: 1, productDetailId: 101, title: 'Áo thun nam cổ tròn', colorLabel: 'Trắng', sizeLabel: 'L', quantity: 1, unitPrice: 250000, totalPrice: 250000, imageUrl: '/images/products/image1.jpg' },
-        { id: 2, productDetailId: 102, title: 'Quần jean slim fit', colorLabel: 'Xanh', sizeLabel: '32', quantity: 1, unitPrice: 200000, totalPrice: 200000, imageUrl: '/images/products/image1.jpg' },
-      ],
-      payments: [
-        { id: 1, method: PaymentMethod.CASH_ON_DELIVERY, status: PaymentStatus.UNPAID, amount: 480000, provider: null, transactionNo: null, paidAt: null, createdAt: new Date(baseNow - 1000 * 60 * 60 * 12).toISOString() },
-      ],
-      shipments: [
-        { id: 1, trackingNumber: 'GHN-123456', carrier: 'GHN', status: 'CREATED', shippedAt: null, deliveredAt: null, createdAt: new Date(baseNow - 1000 * 60 * 60 * 11).toISOString() },
-      ],
-    },
-  ];
-  return MOCK.find(o => o.id === id) || null;
-};
-
+// Fetch real order detail via API
 export const OrderDetailContainer: React.FC = () => {
   const params = useParams();
   const id = Number(params?.id);
-  const order = useMockOrder(id);
+  const [order, setOrder] = React.useState<Order | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [imagesByDetailId, setImagesByDetailId] = React.useState<Record<number, string>>({});
 
-  if (!order) {
+  React.useEffect(() => {
+    if (!id || Number.isNaN(id)) return;
+    let isMounted = true;
+    setLoading(true);
+    setError(null);
+    OrderApi.getOrderById(id)
+      .then((res) => {
+        if (!isMounted) return;
+        if (res.success && res.data) {
+          setOrder(res.data);
+          const details = res.data.orderDetails || [];
+          if (details.length > 0) {
+            const uniqueDetailIds = Array.from(new Set(details.map(d => d.productDetailId)));
+            Promise.all(uniqueDetailIds.map(detailId => 
+              productApi.getProductById(String(detailId))
+                .then(r => ({ id: detailId, img: r.success ? (r.data?.images?.[0] || '') : '' }))
+                .catch(() => ({ id: detailId, img: '' }))
+            ))
+            .then(results => {
+              if (!isMounted) return;
+              const map: Record<number, string> = {};
+              results.forEach(({ id, img }) => { if (img) map[id] = img; });
+              setImagesByDetailId(map);
+            });
+          }
+        } else {
+          setError(res.message || 'Failed to load order');
+        }
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        setError(e?.message || 'Failed to load order');
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
     return (
       <div className="px-4 py-10">
-        <div className="max-w-4xl mx-auto text-gray-600">Order not found.</div>
+        <div className="max-w-4xl mx-auto text-gray-600">Loading order...</div>
       </div>
     );
   }
 
-  return <OrderDetailPresenter order={order} />;
+  if (error || !order) {
+    return (
+      <div className="px-4 py-10">
+        <div className="max-w-4xl mx-auto text-gray-600">{error || 'Order not found.'}</div>
+      </div>
+    );
+  }
+
+  return <OrderDetailPresenter order={order} imagesByDetailId={imagesByDetailId} />;
 };
 
 export default OrderDetailContainer;

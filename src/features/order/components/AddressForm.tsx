@@ -145,7 +145,7 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
               </div>
             <button
               type="button"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-600 hover:border-blue-800 px-3 py-1 rounded transition-colors cursor-pointer"
+              className="text-sm text-gray-700 font-medium border border-gray-600 hover:border-gray-800 px-3 py-1 rounded transition-colors cursor-pointer"
               onClick={openAddressListModal}
             >
               Select Address

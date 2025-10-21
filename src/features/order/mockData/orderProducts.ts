@@ -10,6 +10,7 @@ export const mockOrderProducts: ProductItem[] = [
     quantity: 1,
     colors: ["Beige", "Navy", "Black", "White"],
     colorName: "Beige",
+    sizeName: "M",
     imageUrls: [
       "https://product.hstatic.net/200000642007/product/50bks_3atsm0134_1_e93f4e72c74b45f180d3463c93c7bc71_6c3289e9674042a589a61a43592da23d_grande.jpg"
     ]
@@ -22,6 +23,7 @@ export const mockOrderProducts: ProductItem[] = [
     quantity: 2,
     colors: ["Navy", "White", "Black"],
     colorName: "Navy",
+    sizeName: "L",
     imageUrls: [
       "https://product.hstatic.net/200000642007/product/50bks_3atsm0134_1_e93f4e72c74b45f180d3463c93c7bc71_6c3289e9674042a589a61a43592da23d_grande.jpg"
     ]
@@ -34,6 +36,7 @@ export const mockOrderProducts: ProductItem[] = [
     quantity: 1,
     colors: ["Black", "Navy", "Gray"],
     colorName: "Black",
+    sizeName: "XL",
     imageUrls: [
       "https://product.hstatic.net/200000642007/product/43nys_3apqv0253_1_cba04481b9c34700969a1daeb5d1ce84_58fa4983f70a4ed78e19d71efac0d7f1_grande.jpg"
     ]
