@@ -13,7 +13,7 @@ export interface CartItem {
   colorName: string;
   sizeName: string;
   price: number;          // base price
-  finalPrice?: number;     // after promotion
+  finalPrice?: number;     // after promotion (optional for backward compatibility)
   percentOff?: number;    // integer percent
   promotionId?: number;   // nullable
   promotionName?: string; // nullable

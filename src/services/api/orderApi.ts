@@ -1,6 +1,6 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
-import { Order, CreateOrderRequest } from '../../features/order/types';
+import { Order, CreateOrderRequest, PaginatedResponse, OrderQueryParams } from '../../features/order/types';
 
 /**
  * Order API service
@@ -21,10 +21,23 @@ export class OrderApi {
   }
 
   /**
-   * Get user's orders
+   * Get user's orders with pagination and filters
    */
-  static async getUserOrders(): Promise<ApiResponse<Order[]>> {
-    return apiClient.get<Order[]>('/orders');
+  static async getUserOrders(params?: OrderQueryParams): Promise<ApiResponse<PaginatedResponse<Order>>> {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.userId) queryParams.append('userId', params.userId.toString());
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.paymentStatus) queryParams.append('paymentStatus', params.paymentStatus);
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.direction) queryParams.append('direction', params.direction);
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString());
+    if (params?.size !== undefined) queryParams.append('size', params.size.toString());
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `/orders?${queryString}` : '/orders';
+    
+    return apiClient.get<PaginatedResponse<Order>>(url);
   }
 
   /**

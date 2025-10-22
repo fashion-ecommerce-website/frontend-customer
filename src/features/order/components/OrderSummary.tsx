@@ -163,13 +163,15 @@ export function OrderSummary({
 			shippingAddressId: addressId!,
 			note: note || '',
 			subtotalAmount: subtotal,
-			discountAmount: voucherDiscount, // Only send voucher discount to backend
+			discountAmount: voucherDiscount, 
 			shippingFee: shippingFee?.fee || 0,
 			totalAmount: total,
 			paymentMethod: selectedPaymentMethod,
+			voucherCode: selectedVoucher?.code, 
 			orderDetails: products.map(product => ({
 				productDetailId: product.detailId,
-				quantity: product.quantity
+				quantity: product.quantity,
+				promotionId: product.promotionId 
 			}))
 		};
 

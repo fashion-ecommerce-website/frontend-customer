@@ -65,7 +65,13 @@ const cartSlice = createSlice({
     addCartItem: (state, action: PayloadAction<CartItem>) => {
       const existingItem = state.items.find(item => item.id === action.payload.id);
       if (existingItem) {
+        // Update all fields including promotion data
         existingItem.quantity = action.payload.quantity;
+        existingItem.price = action.payload.price;
+        existingItem.finalPrice = action.payload.finalPrice;
+        existingItem.percentOff = action.payload.percentOff;
+        existingItem.promotionId = action.payload.promotionId;
+        existingItem.promotionName = action.payload.promotionName;
         existingItem.updatedAt = action.payload.updatedAt;
         // Keep existing selected state
       } else {

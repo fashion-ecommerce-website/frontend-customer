@@ -122,7 +122,8 @@ export function ProductInfo({
         // Additional data for toast
         productImage: product.images[0] || '/images/placeholder.jpg',
         productTitle: product.title,
-        price: product.price
+        price: product.price,
+        finalPrice: product.finalPrice
       });
     } catch (error) {
       // Error handling is done in the hook

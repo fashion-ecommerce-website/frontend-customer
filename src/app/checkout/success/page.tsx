@@ -3,12 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import OrderApi from '@/services/api/orderApi';
-import { PaymentStatus } from '@/features/order/types';
-import { useAppDispatch } from '@/hooks/redux';
 
 export default function CheckoutSuccessPage(): React.ReactElement {
-    const dispatch = useAppDispatch();
     const searchParams = useSearchParams();
     const orderIdParam = searchParams.get('orderId');
     const statusParam = (searchParams.get('status') || 'success').toLowerCase();
@@ -16,28 +12,9 @@ export default function CheckoutSuccessPage(): React.ReactElement {
     const isUnpaid = paymentParam === 'unpaid';
     const isSuccess = statusParam === 'success';
     const orderId = orderIdParam ? parseInt(orderIdParam, 10) : null;
-    const [orders, setOrders] = React.useState<any[] | null>(null);
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
 
-    React.useEffect(() => {
-        let isMounted = true;
-        const finalizeStripePayment = async () => {
-            if (!isSuccess || !orderId || isUnpaid) return; 
-            try {
-                await OrderApi.updateOrder(orderId, {
-                    paymentStatus: 'PAID',
-                    status: 'FULFILLED',
-                });
-            } catch (e) {
-                console.error('Failed to update order to PAID:', e);
-            }
-        };
-        finalizeStripePayment();
-        return () => {
-            isMounted = false;
-        };
-    }, [dispatch, isSuccess, orderId, isUnpaid]);
+    // Backend webhook handles payment processing automatically
+    // No need to update order status from frontend
 
     return (
         <div className="min-h-[80vh] flex items-center justify-center bg-gray-100 py-12 sm:py-16">
