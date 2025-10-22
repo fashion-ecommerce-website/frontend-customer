@@ -7,7 +7,11 @@ export interface WishlistItem {
   productSlug?: string;
   imageUrls: string[];
   colors: string[];
-  price: number;
+  price: number;          // base price
+  finalPrice?: number;     // after promotion
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   quantity?: number;
   detailId: number;
 }
@@ -33,6 +37,10 @@ class WishlistApiService {
       imageUrls: Array.isArray(it.images) ? it.images : [],
       colors: Array.isArray(it.colors) ? it.colors.filter(Boolean) : [],
       price: Number(it.price) || 0,
+      finalPrice: it.finalPrice ? Number(it.finalPrice) : undefined,
+      percentOff: it.percentOff ? Number(it.percentOff) : undefined,
+      promotionId: it.promotionId ? Number(it.promotionId) : undefined,
+      promotionName: it.promotionName || undefined,
       quantity: Number(it.quantity) || undefined,
       detailId: Number(it.detailId),
     }));

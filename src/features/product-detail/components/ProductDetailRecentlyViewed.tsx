@@ -6,11 +6,16 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
+import { ProductQuickViewModal } from '@/features/filter-product/components/ProductQuickViewModal';
 
 interface RecentlyViewedItem {
   detailId: number;
-  price: number;
-  originalPrice?: number; // For discount calculation
+  price: number;          // base price
+  finalPrice?: number;    // after promotion
+  originalPrice?: number; // For discount calculation (legacy)
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   quantity: number;
   colors: string[];
   imageUrls: string[];
@@ -23,6 +28,8 @@ export function ProductDetailRecentlyViewed() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [items, setItems] = useState<RecentlyViewedItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const displayItems = useMemo(() => {
     if (items.length === 0) return []
@@ -66,6 +73,12 @@ export function ProductDetailRecentlyViewed() {
     router.push(`/products/${detailId}`);
   }, [router]);
 
+  const handleAddToCart = useCallback((e: React.MouseEvent, item: RecentlyViewedItem) => {
+    e.stopPropagation(); // Prevent product click
+    setSelectedProductId(item.detailId);
+    setIsModalOpen(true);
+  }, []);
+
   // Format price function
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -82,11 +95,8 @@ export function ProductDetailRecentlyViewed() {
           const response = await recentlyViewedApiService.getRecentlyViewed();
 
           if (response.success && response.data) {
-            const transformedItems = response.data.map(item => ({
-              ...item,
-              originalPrice: Math.round(item.price * 1.3)
-            }));
-            setItems(transformedItems);
+            // Backend now returns promotion fields, no need to calculate originalPrice
+            setItems(response.data);
           } else {
             throw new Error(response.message || 'Error fetching recently viewed');
           }
@@ -193,6 +203,25 @@ export function ProductDetailRecentlyViewed() {
                   >
                     {/* Product Image */}
                     <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+                      {/* Promotion Badge */}
+                      {item.percentOff && (
+                        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold rounded shadow-lg w-10 h-6 flex items-center justify-center">
+                          -{item.percentOff}%
+                        </div>
+                      )}
+                      
+                      {/* Cart Icon */}
+                      <div 
+                        className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/10 rounded-[40px] flex items-center justify-center cursor-pointer hover:bg-black/20 transition-colors"
+                        onClick={(e) => handleAddToCart(e, item)}
+                      >
+                        <img 
+                          src="https://file.hstatic.net/200000642007/file/shopping-cart_3475f727ea204ccfa8fa7c70637d1d06.svg" 
+                          alt="Add to cart"
+                          className="w-6 h-6"
+                        />
+                      </div>
+                      
                       {firstImage ? (
                         <>
                           {/* Base image */}
@@ -220,10 +249,21 @@ export function ProductDetailRecentlyViewed() {
                         {item.productTitle}
                       </h3>
 
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-black">
-                          {formatPrice(item.price)}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        {item.finalPrice && item.finalPrice < item.price ? (
+                          <>
+                            <div className="text-[16px] font-bold text-red-600">
+                              {item.finalPrice.toLocaleString('vi-VN')}₫
+                            </div>
+                            <div className="text-[14px] line-through text-gray-500">
+                              {item.price.toLocaleString('vi-VN')}₫
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-[16px] font-bold text-gray-700">
+                            {item.price.toLocaleString('vi-VN')}₫
+                          </div>
+                        )}
                       </div>
 
                       {/* Available colors */}
@@ -258,6 +298,16 @@ export function ProductDetailRecentlyViewed() {
         </div>
 
       </div>
+
+      {/* Product Quick View Modal */}
+      <ProductQuickViewModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedProductId(null);
+        }}
+        productId={selectedProductId}
+      />
     </div>
   );
 }

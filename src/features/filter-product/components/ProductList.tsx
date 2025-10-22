@@ -88,6 +88,13 @@ export const ProductList: React.FC<ProductListProps> = ({
               >
                 {/* Product Image + Add to Cart Icon */}
                 <div className="relative w-full aspect-square mb-2 sm:mb-3 overflow-hidden rounded-lg bg-gray-100">
+                  {/* Promotion Badge */}
+                  {product.percentOff && (
+                    <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold rounded shadow-lg w-10 h-6 flex items-center justify-center">
+                      -{product.percentOff}%
+                    </div>
+                  )}
+                  
                   {/* Add to Cart Icon */}
                   <button
                     className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10"
@@ -124,10 +131,21 @@ export const ProductList: React.FC<ProductListProps> = ({
                   <h3 className="font-semibold text-black text-sm sm:text-[16px] line-clamp-2 leading-tight">
                     {product.productTitle}
                   </h3>
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs sm:text-sm font-semibold text-black">
-                      {formatPrice(product.price)}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    {product.finalPrice && product.finalPrice < product.price ? (
+                      <>
+                        <div className="text-xs sm:text-sm font-bold text-red-600">
+                          {product.finalPrice.toLocaleString('vi-VN')}₫
+                        </div>
+                        <div className="text-xs line-through text-gray-500">
+                          {product.price.toLocaleString('vi-VN')}₫
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-xs sm:text-sm font-bold text-black">
+                        {product.price.toLocaleString('vi-VN')}₫
+                      </div>
+                    )}
                   </div>
                   {/* Available colors */}
                   <div className="flex items-center gap-1">

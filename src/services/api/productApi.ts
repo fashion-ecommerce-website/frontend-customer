@@ -1,10 +1,14 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
 
-// Product item interface - matches actual API response
+// Product item interface - matches actual API response with promotion
 export interface ProductItem {
   quantity: number;
-  price: number;
+  price: number;          // base price
+  finalPrice: number;     // after promotion
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   colors: string[];
   productTitle: string;
   productSlug: string;
@@ -14,11 +18,15 @@ export interface ProductItem {
   imageUrls: string[];
 }
 
-// Product detail interface - matches the new API response format
+// Product detail interface - matches the new API response format with promotion
 export interface ProductDetail {
   detailId: number;
   title: string;
-  price: number;
+  price: number;          // base price
+  finalPrice: number;     // after promotion
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   activeColor: string;
   activeSize?: string;
   images: string[];

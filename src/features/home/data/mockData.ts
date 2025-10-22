@@ -53,6 +53,10 @@ export const mockRankingProducts: Product[] = [
     name: 'MLB - Unisex Round Neck Short Sleeve Baseball Logo T-Shirt',
     brand: 'MLB',
     price: 1250000,
+    finalPrice: 1000000, // 20% off
+    percentOff: 20,
+    promotionId: 1,
+    promotionName: 'Summer Sale',
     image: 'https://product.hstatic.net/200000642007/product/50whs_3atsb1843_2_d974fe1e8b664a74b17644cacd43fe8d_6d6063e6e409442d88cbc2d5d0886c51_master.jpg',
     images: [
       'https://product.hstatic.net/200000642007/product/50whs_3atsb1843_2_d974fe1e8b664a74b17644cacd43fe8d_6d6063e6e409442d88cbc2d5d0886c51_master.jpg',
@@ -67,6 +71,10 @@ export const mockRankingProducts: Product[] = [
     name: 'MLB - Unisex Essential Basic Crew Neck T-Shirt',
     brand: 'MLB',
     price: 1450000,
+    finalPrice: 1160000, // 20% off
+    percentOff: 20,
+    promotionId: 1,
+    promotionName: 'Summer Sale',
     image: 'https://product.hstatic.net/200000642007/product/07nys_3atsb1843_1_9e4bed9bb86f4f44b9bf6b3dbcf54fda_master.jpg',
     images: [
       'https://product.hstatic.net/200000642007/product/07nys_3atsb1843_1_9e4bed9bb86f4f44b9bf6b3dbcf54fda_master.jpg',
@@ -95,6 +103,10 @@ export const mockRankingProducts: Product[] = [
     name: 'MLB - Unisex Vintage Style Heritage Logo T-Shirt',
     brand: 'MLB',
     price: 1850000,
+    finalPrice: 1480000, // 20% off
+    percentOff: 20,
+    promotionId: 2,
+    promotionName: 'Heritage Collection Sale',
     image: 'https://product.hstatic.net/200000642007/product/50bks_3atse0334_1_7477d62e24054123958d170e1e919931_d7dabff799aa449393fb5d2ef48b05d8_master.jpg',
     images: [
       'https://product.hstatic.net/200000642007/product/50bks_3atse0334_1_7477d62e24054123958d170e1e919931_d7dabff799aa449393fb5d2ef48b05d8_master.jpg',

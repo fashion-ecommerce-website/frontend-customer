@@ -83,9 +83,13 @@ export interface Product {
   id: string;
   name: string;
   brand: string;
-  price: number;
-  originalPrice?: number;
-  discount?: number;
+  price: number;          // base price
+  finalPrice?: number;    // after promotion
+  originalPrice?: number;  // legacy field for backward compatibility
+  discount?: number;       // legacy field for backward compatibility
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   image: string;
   images: string[];
   category: string;

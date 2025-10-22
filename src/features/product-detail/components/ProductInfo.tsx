@@ -144,9 +144,28 @@ export function ProductInfo({
     <div className="space-y-6">
       {/* Price */}
       <div className="space-y-1">
-        <div className="text-3xl font-bold text-black">
-          {formatPrice(product.price)}
+        <div className="flex items-center gap-3">
+          {product.finalPrice && product.finalPrice < product.price ? (
+            <>
+              <div className="text-3xl font-bold text-black">
+                {product.finalPrice.toLocaleString('vi-VN')}₫
+              </div>
+              <div className="text-xl line-through text-gray-500">
+                {product.price.toLocaleString('vi-VN')}₫
+              </div>
+              {product.percentOff && (
+                <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                  -{product.percentOff}%
+                </span>
+              )}
+            </>
+          ) : (
+            <div className="text-3xl font-bold text-black">
+              {product.price.toLocaleString('vi-VN')}₫
+            </div>
+          )}
         </div>
+       
       </div>
 
       {/* Color Selection*/}

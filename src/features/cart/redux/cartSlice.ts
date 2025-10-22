@@ -13,7 +13,11 @@ import {
 const calculateCartSummary = (items: CartItem[]): CartSummary => {
   // Only calculate for selected items
   const selectedItems = items.filter(item => item.selected !== false); // Default to selected if not specified
-  const subtotal = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = selectedItems.reduce((sum, item) => {
+    // Use finalPrice if available (after promotion), otherwise use base price
+    const itemPrice = item.finalPrice || item.price;
+    return sum + (itemPrice * item.quantity);
+  }, 0);
   const itemCount = selectedItems.reduce((count, item) => count + item.quantity, 0);
   
   return {

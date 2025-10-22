@@ -78,9 +78,23 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
           Quantity: {item.quantity}
         </p>
         {/* Price moved here */}
-        <div className="text-[16px] text-black">
-          {formatPrice(item.price)}
+        <div className="flex flex-col">
+          {item.finalPrice && item.finalPrice < item.price ? (
+            <>
+              <div className="text-[14px] line-through text-gray-500">
+                {item.price.toLocaleString('vi-VN')}₫
+              </div>
+              <div className="text-[16px] font-bold text-red-600">
+                {item.finalPrice.toLocaleString('vi-VN')}₫
+              </div>
+            </>
+          ) : (
+            <div className="text-[16px] font-bold text-black">
+              {item.price.toLocaleString('vi-VN')}₫
+            </div>
+          )}
         </div>
+       
       </div>
 
       {/* Action Buttons */}

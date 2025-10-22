@@ -1,7 +1,7 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
 
-// Cart item interface - matches API response
+// Cart item interface - matches API response with promotion
 export interface CartItem {
   id: number;
   productDetailId: number;
@@ -9,7 +9,11 @@ export interface CartItem {
   productSlug: string;
   colorName: string;
   sizeName: string;
-  price: number;
+  price: number;          // base price
+  finalPrice: number;     // after promotion
+  percentOff?: number;    // integer percent
+  promotionId?: number;   // nullable
+  promotionName?: string; // nullable
   quantity: number;
   availableQuantity: number;
   imageUrl: string;
