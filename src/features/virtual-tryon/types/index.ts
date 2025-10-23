@@ -52,6 +52,8 @@ export interface ImageUploadProps {
   onImageUpload: (file: File) => void;
   userImage: string | null;
   disabled?: boolean;
+  onTryOn?: () => void;
+  canTryOn?: boolean;
 }
 
 export interface ProductSelectorProps {
@@ -65,4 +67,6 @@ export interface TryOnResultProps {
   resultImage: string | null;
   isProcessing: boolean;
   onReset: () => void;
+  selectedProduct?: VirtualTryOnProduct | null;
+  userImage?: string | null;
 }

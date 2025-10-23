@@ -106,7 +106,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
               <button
                 onClick={() => !disabled && onProductSelect(product)}
                 disabled={disabled}
-                className={`relative w-full p-4 border-2 rounded-xl transition-all text-left group ${
+                className={`relative w-full p-4 border-2 rounded-xl transition-all text-left group flex flex-col h-full ${
                   selectedProduct?.id === product.id
                     ? 'border-black bg-gradient-to-br from-gray-50 to-white shadow-lg'
                     : 'border-gray-200 hover:border-gray-400 hover:shadow-md'
@@ -127,32 +127,35 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({
                   </div>
                 )}
 
-                {/* Product Image */}
-                <div className="relative mb-3 overflow-hidden rounded-lg bg-gray-100">
+                {/* Product Image - fixed height in rem so layout is stable */}
+                <div className="relative mb-3 overflow-hidden rounded-lg bg-gray-100" style={{ height: '10rem' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={product.imageUrl}
                     alt={product.productTitle}
-                    className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
+                    style={{ height: '10rem' }}
+                    className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
 
-                {/* Product Info */}
-                <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight">
-                    {product.productTitle}
-                  </h4>
-                  
-                  <div className="flex items-center gap-2 text-xs flex-wrap">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-                      {product.colorName}
-                    </span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-                      {product.sizeName}
-                    </span>
+                {/* Product Info - fixed area so long titles/tags won't grow card height */}
+                <div className="space-y-2 flex-1 flex flex-col justify-between" style={{ minHeight: '6.5rem' }}>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 leading-tight" style={{ minHeight: '3rem' }}>
+                      <span className="line-clamp-2">{product.productTitle}</span>
+                    </h4>
+
+                    <div className="flex items-center gap-2 text-xs flex-wrap mt-2">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                        {product.colorName}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                        {product.sizeName}
+                      </span>
+                    </div>
                   </div>
-                  
-                  <p className="text-base font-bold text-gray-900">
+
+                  <p className="text-base font-bold text-gray-900 mt-3">
                     {formatPrice(product.price)}
                   </p>
                 </div>
