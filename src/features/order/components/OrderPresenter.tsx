@@ -22,6 +22,9 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
   const dispatch = useAppDispatch();
   const selectedCartItems = useAppSelector(selectSelectedCartItems);
   
+  // Store original title to restore later
+  const originalTitle = React.useRef<string>('');
+  
   // Convert CartItem[] to ProductItem[]
   const convertCartItemsToProductItems = (cartItems: CartItem[]): ProductItem[] => {
     return cartItems.map(item => ({
@@ -29,6 +32,7 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
       productTitle: item.productTitle,
       productSlug: item.productSlug,
       price: item.price,
+      finalPrice: item.finalPrice ?? item.price,
       quantity: item.quantity,
       colorName: item.colorName,
       sizeName: item.sizeName,
@@ -54,6 +58,19 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
   useEffect(() => {
     loadAddresses();
   }, [loadAddresses]);
+
+  // Change document title when component mounts
+  useEffect(() => {
+    // Store original title
+    originalTitle.current = document.title;
+    // Change title to "Order"
+    document.title = 'Order';
+    
+    // Cleanup function to restore original title
+    return () => {
+      document.title = originalTitle.current;
+    };
+  }, []);
 
   // If there is already a selected address, initialize shipping calculation
   useEffect(() => {

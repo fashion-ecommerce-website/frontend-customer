@@ -216,6 +216,7 @@ export const selectCartSummary = (state: RootState) => state.cart.summary;
 export const selectCartLoading = (state: RootState) => state.cart.loading;
 export const selectCartError = (state: RootState) => state.cart.error;
 export const selectCartItemCount = (state: RootState) => state.cart.summary.itemCount;
+export const selectCartTotalItemCount = (state: RootState) => state.cart.items.reduce((total, item) => total + item.quantity, 0);
 
 // Optimized selectors using createSelector for better performance
 export const selectSelectedCartItems = createSelector(

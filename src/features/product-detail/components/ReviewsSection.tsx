@@ -346,7 +346,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
           )}
           {!loading && filteredReviews.length === 0 && reviews.length > 0 && (
             <div className="py-12 text-gray-500 text-center">
-              <div className="text-lg mb-2">No reviews match your filter</div>
+              <div className="text-lg mb-2">It is empty here!</div>
               <div className="text-sm">Try adjusting your filter criteria</div>
             </div>
           )}
@@ -582,10 +582,26 @@ function AddReviewModal({ productDetailId, editingReview, onClose, onSubmitted }
         onClose();
         onSubmitted();
       } else {
-        showError(res.message || `Failed to ${isEditing ? 'update' : 'submit'} review`);
+        // Check if the error message indicates user has already reviewed
+        const errorMessage = res.message || '';
+        if (errorMessage.toLowerCase().includes('already') || 
+            errorMessage.toLowerCase().includes('duplicate') ||
+            errorMessage.toLowerCase().includes('exists')) {
+          showError('You have already reviewed this product');
+        } else {
+          showError(res.message || `Failed to ${isEditing ? 'update' : 'submit'} review`);
+        }
       }
     } catch (error) {
-      showError(`Failed to ${isEditing ? 'update' : 'submit'} review`);
+      // Check if the error message indicates user has already reviewed
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.toLowerCase().includes('already') || 
+          errorMessage.toLowerCase().includes('duplicate') ||
+          errorMessage.toLowerCase().includes('exists')) {
+        showError('You have already reviewed this product');
+      } else {
+        showError(`Failed to ${isEditing ? 'update' : 'submit'} review`);
+      }
     } finally {
       setBusy(false);
     }
@@ -621,7 +637,7 @@ function AddReviewModal({ productDetailId, editingReview, onClose, onSubmitted }
                   </svg>
                 </button>
               ))}
-              <span className="ml-3 text-lg font-medium text-gray-900">{rating}.0 out of 5</span>
+              <span className="ml-3 text-lg font-medium text-gray-900">{rating}.0/5.0</span>
             </div>
           </div>
           <div>

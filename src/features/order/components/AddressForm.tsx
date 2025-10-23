@@ -163,10 +163,10 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
             </div>
             <button
               type="button"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-600 hover:border-blue-800 px-3 py-1 rounded transition-colors cursor-pointer"
+              className="text-sm text-gray-700 hover:text-black font-medium border border-gray-700 hover:border-black px-3 py-1 rounded transition-colors cursor-pointer"
               onClick={handleAddNew}
             >
-              + Add New
+              Add New
             </button>
           </div>
         )}
