@@ -7,7 +7,11 @@ import { OrderFilters } from '../components/OrderFilters';
 import { useOrders } from '@/hooks/useOrders';
 import { productApi } from '@/services/api/productApi';
 
-export const OrderHistoryContainer: React.FC<{ onOpenDetail?: (order: Order) => void, onTrack?: (order: Order) => void }> = ({ onOpenDetail, onTrack }) => {
+export const OrderHistoryContainer: React.FC<{ 
+  onOpenDetail?: (order: Order) => void, 
+  onTrack?: (order: Order) => void,
+  onPayAgain?: (paymentId: number, orderId: number) => void 
+}> = ({ onOpenDetail, onTrack, onPayAgain }) => {
   const { orders, loading, error, pagination, currentQuery, fetchOrders } = useOrders();
   const [showFilters, setShowFilters] = useState(false);
   const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
@@ -108,6 +112,7 @@ export const OrderHistoryContainer: React.FC<{ onOpenDetail?: (order: Order) => 
         onPageChange={handlePageChange}
         onOpenDetail={onOpenDetail}
         onTrack={onTrack}
+        onPayAgain={onPayAgain}
         imagesByDetailId={imagesByDetailId}
       />
     </div>

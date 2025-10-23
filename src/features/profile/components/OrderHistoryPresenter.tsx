@@ -14,6 +14,7 @@ interface OrderHistoryPresenterProps {
   onPageChange?: (page: number) => void;
   onOpenDetail?: (order: Order) => void;
   onTrack?: (order: Order) => void;
+  onPayAgain?: (paymentId: number, orderId: number) => void;
   imagesByDetailId?: Record<number, string>;
 }
 
@@ -26,6 +27,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
   onPageChange, 
   onOpenDetail, 
   onTrack,
+  onPayAgain,
   imagesByDetailId 
 }) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
@@ -51,6 +53,28 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
     if (!order.shipments || order.shipments.length === 0) return 'PENDING';
     const latest = [...order.shipments].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).at(-1);
     return latest?.status || 'PENDING';
+  };
+
+  const canPayAgain = (order: Order) => {
+    return (order.paymentStatus === 'UNPAID' || order.status === 'CANCELLED') && 
+           order.payments && 
+           order.payments.length > 0 && 
+           order.payments[0].provider === 'STRIPE' &&
+           order.payments[0].id;
+  };
+
+  const getPayAgainButtonClass = (order: Order) => {
+    if (canPayAgain(order)) {
+      return "text-sm font-medium bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer";
+    }
+    return "text-sm font-medium bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 cursor-pointer opacity-60";
+  };
+
+  const getPayAgainButtonTitle = (order: Order) => {
+    if (canPayAgain(order)) {
+      return "Pay again for this order";
+    }
+    return "Payment not available for this order";
   };
 
 
@@ -121,14 +145,23 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                 >
                   Order Details
                 </button>
-              <button
-                type="button"
-                onClick={() => onTrack?.(order)}
-                className="text-sm font-medium text-black hover:opacity-70 cursor-pointer"
-                title="Track shipment"
-              >
-                Track Order
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onTrack?.(order)}
+                  className="text-sm font-medium text-black hover:opacity-70 cursor-pointer"
+                  title="Track shipment"
+                >
+                  Track Order
+                </button>
+                <button
+                  type="button"
+                  onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                  className={getPayAgainButtonClass(order)}
+                  title={getPayAgainButtonTitle(order)}
+                  disabled={!canPayAgain(order)}
+                >
+                  Pay Again
+                </button>
               </div>
             </div>
 
@@ -145,7 +178,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     </div>
                     <div className="flex-1">
                       <div className="text-black font-semibold">{detail.title}</div>
-                      <div className="text-xs text-gray-500">{detail.colorLabel} / {detail.sizeLabel} / {detail.productDetailId}</div>
+                      <div className="text-xs text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</div>
                       <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
                       
                       {/* Price - Simple like product detail */}

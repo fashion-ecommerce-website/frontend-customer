@@ -48,7 +48,7 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
                 </div>
                 <div className="flex-1">
                   <div className="text-black font-semibold">{item.title}</div>
-                  <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel} / {item.productDetailId}</div>
+                  <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel}</div>
                   <div className="text-xs text-gray-600 mt-1">Quantity: {item.quantity}</div>
                   
                   {/* Price - Simple like product detail */}

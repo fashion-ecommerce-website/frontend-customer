@@ -197,7 +197,7 @@ export function OrderSummary({
         // Card/Stripe: create checkout session and redirect
         if (selectedPaymentMethod === PaymentMethod.CREDIT_CARD && latestPayment?.id) {
             const successUrl = `${window.location.origin}/checkout/success?orderId=${order.id}`; 
-            const cancelUrl = `${window.location.origin}/checkout/success?status=cancel&orderId=${order.id}`; // handle cancel on same page
+            const cancelUrl = `${window.location.origin}/checkout/success?status=cancel&orderId=${order.id}&paymentId=${latestPayment.id}`; // handle cancel on same page
 			PaymentApi.createCheckout({ paymentId: latestPayment.id, successUrl, cancelUrl })
 				.then(res => {
 					if (res.success && res.data?.checkoutUrl) {
