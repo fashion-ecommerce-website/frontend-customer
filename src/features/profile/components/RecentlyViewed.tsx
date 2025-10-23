@@ -123,6 +123,13 @@ export const RecentlyViewed: React.FC = () => {
                     </svg>
                   )}
                   <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-lg bg-gray-100">
+                    {/* Promotion Badge */}
+                    {item.percentOff && (
+                      <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold rounded shadow-lg w-10 h-6 flex items-center justify-center">
+                        -{item.percentOff}%
+                      </div>
+                    )}
+                    
                     {firstImage ? (
                       <>
                         <div
@@ -144,10 +151,21 @@ export const RecentlyViewed: React.FC = () => {
                     <h3 className="font-medium text-black text-sm line-clamp-2 group-hover:text-gray-600 transition-colors">
                       {item.productTitle}
                     </h3>
-                    <div className="flex items-center justify-between">
-                      <p className="text-lg font-semibold text-black">
-                        {formatPrice(item.price)}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      {item.finalPrice && item.finalPrice < item.price ? (
+                        <>
+                          <div className="text-lg font-bold text-red-600">
+                            {item.finalPrice.toLocaleString('vi-VN')}₫
+                          </div>
+                          <div className="text-sm line-through text-gray-500">
+                            {item.price.toLocaleString('vi-VN')}₫
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-lg font-bold text-black">
+                          {item.price.toLocaleString('vi-VN')}₫
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       {item.colors.map((color, idx) => (

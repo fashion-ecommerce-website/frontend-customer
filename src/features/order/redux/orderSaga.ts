@@ -1,7 +1,11 @@
-import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const effects = require('redux-saga/effects');
+const { call, put, takeLatest } = effects;
+
 import { PayloadAction } from '@reduxjs/toolkit';
 import { addressApi, Address, CreateAddressRequest, UpdateAddressRequest } from '@/services/api/addressApi';
-import { OrderApi, Order, CreateOrderRequest } from '@/services/api/orderApi';
+import { OrderApi } from '@/services/api/orderApi';
+import { Order, CreateOrderRequest, PaginatedResponse, OrderQueryParams } from '@/features/order/types';
 import { ApiResponse } from '@/types/api.types';
 import {
   // Address actions
@@ -23,6 +27,9 @@ import {
   createOrderRequest,
   createOrderSuccess,
   createOrderFailure,
+  getUserOrdersRequest,
+  getUserOrdersSuccess,
+  getUserOrdersFailure,
 } from './orderSlice';
 
 // Address sagas
@@ -108,6 +115,21 @@ function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<
   }
 }
 
+function* getUserOrdersSaga(action: PayloadAction<OrderQueryParams | undefined>): Generator<any, void, any> {
+  try {
+    const response: ApiResponse<PaginatedResponse<Order>> = yield call(OrderApi.getUserOrders, action.payload);
+    
+    if (response.success && response.data) {
+      yield put(getUserOrdersSuccess(response.data));
+    } else {
+      yield put(getUserOrdersFailure(response.message || 'Failed to load orders'));
+    }
+  } catch (error: any) {
+    console.error('getUserOrdersSaga error:', error);
+    yield put(getUserOrdersFailure(error?.message || 'Failed to load orders'));
+  }
+}
+
 // Root order saga
 export function* orderSaga(): Generator<any, void, any> {
   // Address sagas
@@ -118,6 +140,7 @@ export function* orderSaga(): Generator<any, void, any> {
 
   // Order sagas
   yield takeLatest(createOrderRequest.type, createOrderSaga);
+  yield takeLatest(getUserOrdersRequest.type, getUserOrdersSaga);
 }
 
 export default orderSaga;

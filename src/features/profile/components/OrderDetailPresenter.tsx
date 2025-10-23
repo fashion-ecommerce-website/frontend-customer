@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { Order, PaymentMethod } from '@/features/order/types';
+import { useEnums } from '@/hooks/useEnums';
 
 type OrderDetailPresenterProps = {
   order: Order;
   onBack?: () => void;
-  onTrack?: () => void;
   imagesByDetailId?: Record<number, string>;
 };
 
@@ -21,22 +21,18 @@ const getPaymentMethodLabel = (method?: PaymentMethod) => {
   }
 };
 
-export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack, onTrack, imagesByDetailId }) => {
+export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack, imagesByDetailId }) => {
+  const { data: enums } = useEnums();
   return (
-    <div className="px-4 pb-8 bg-white min-h-screen">
+    <div className="px-4 pb-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl text-black font-bold">Order Product Information</h1>
-          <div className="flex items-center gap-4">
-            {onTrack && (
-              <button type="button" onClick={onTrack} className="text-sm font-medium text-black hover:opacity-70">Track Order</button>
-            )}
-            {onBack ? (
-              <button type="button" onClick={onBack} className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</button>
-            ) : (
-              <Link href="/profile?section=order-info" className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</Link>
-            )}
-          </div>
+          {onBack ? (
+            <button type="button" onClick={onBack} className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</button>
+          ) : (
+            <Link href="/profile?section=order-info" className="text-sm text-gray-800 hover:text-yellow-800">Back to orders history</Link>
+          )}
         </div>
 
         <div className="border-t-3 border-black pt-2">
@@ -44,13 +40,39 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
             {order.orderDetails.map(item => (
               <div key={item.id} className="flex gap-4">
                 <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                  <img src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} alt={item.title} className="w-full h-full object-cover" />
+                  <img 
+                    src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover" 
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="text-black font-semibold">{item.title}</div>
                   <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel}</div>
                   <div className="text-xs text-gray-600 mt-1">Quantity: {item.quantity}</div>
-                  <div className="text-black font-semibold mt-2">{formatPrice(item.unitPrice)}</div>
+                  
+                  {/* Price - Simple like product detail */}
+                  <div className="mt-2">
+                    {item.finalPrice && item.finalPrice !== item.unitPrice ? (
+                      <div className="flex items-center gap-2">
+                        <div className="text-black font-semibold">
+                          {formatPrice(item.finalPrice)}
+                        </div>
+                        <div className="text-sm line-through text-gray-500">
+                          {formatPrice(item.unitPrice)}
+                        </div>
+                        {item.percentOff && (
+                          <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                            -{item.percentOff}%
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-black font-semibold">
+                        {formatPrice(item.unitPrice)}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -68,10 +90,12 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <span className="text-gray-700">Shipping fee</span>
               <span className="text-black font-semibold">{formatPrice(order.shippingFee)}</span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">Discount</span>
-              <span className="text-black font-semibold">{formatPrice(order.discountAmount)}</span>
-            </div>
+            {order.discountAmount > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-700">Promotion Discount</span>
+                <span className="text-red-600 font-semibold">-{formatPrice(order.discountAmount)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between text-base border-t pt-3">
               <span className="text-gray-600 font-bold">Total Amount</span>
               <span className="text-black font-bold">{formatPrice(order.totalAmount)}</span>
@@ -83,8 +107,8 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
           <div>
             <h3 className="text-base text-black font-semibold mb-3 border-b-3 border-black pb-3">Billing Address</h3>
             <div className="text-sm space-y-2">
-              <div className="flex justify-between"><span className="text-gray-600">Payment Status</span><span className="text-black">{order.paymentStatus}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Payment Method</span><span className="text-black">{getPaymentMethodLabel(order.payments?.[0]?.method)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Payment Status</span><span className="text-black">{enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Payment Method</span><span className="text-black">{enums?.paymentMethod?.[order.payments?.[0]?.method || ''] || getPaymentMethodLabel(order.payments?.[0]?.method)}</span></div>
             </div>
           </div>
           <div>
@@ -93,9 +117,9 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <div className="flex justify-between"><span className="text-gray-600">Shipping Status</span><span className="text-black">{order.shipments?.[0]?.status || 'PENDING'}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Name</span><span className="text-black">{order.shippingAddress.fullName}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Phone Number</span><span className="text-black">{order.shippingAddress.phone}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Ward</span><span className="text-black">{order.shippingAddress.line}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">District</span><span className="text-black">{order.shippingAddress.ward}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Address</span><span className="text-black">{order.shippingAddress.line}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Province</span><span className="text-black">{order.shippingAddress.city}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Country</span><span className="text-black">Vietnam</span></div>
             </div>
           </div>
         </div>

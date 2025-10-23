@@ -13,7 +13,11 @@ import {
 const calculateCartSummary = (items: CartItem[]): CartSummary => {
   // Only calculate for selected items
   const selectedItems = items.filter(item => item.selected !== false); // Default to selected if not specified
-  const subtotal = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = selectedItems.reduce((sum, item) => {
+    // Use finalPrice if available (after promotion), otherwise use base price
+    const itemPrice = item.finalPrice || item.price;
+    return sum + (itemPrice * item.quantity);
+  }, 0);
   const itemCount = selectedItems.reduce((count, item) => count + item.quantity, 0);
   
   return {
@@ -61,7 +65,13 @@ const cartSlice = createSlice({
     addCartItem: (state, action: PayloadAction<CartItem>) => {
       const existingItem = state.items.find(item => item.id === action.payload.id);
       if (existingItem) {
+        // Update all fields including promotion data
         existingItem.quantity = action.payload.quantity;
+        existingItem.price = action.payload.price;
+        existingItem.finalPrice = action.payload.finalPrice;
+        existingItem.percentOff = action.payload.percentOff;
+        existingItem.promotionId = action.payload.promotionId;
+        existingItem.promotionName = action.payload.promotionName;
         existingItem.updatedAt = action.payload.updatedAt;
         // Keep existing selected state
       } else {

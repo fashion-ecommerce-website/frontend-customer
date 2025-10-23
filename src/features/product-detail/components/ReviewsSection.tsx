@@ -362,6 +362,12 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                       </svg>
                     ))}
                   </div>
+                  <div className="flex items-center gap-1">
+                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm text-green-600">Verified purchase</span>
+                  </div>
                 </div>
                 {isUserReview(r) && (
                   <div className="flex items-center gap-2">
@@ -396,22 +402,34 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                     size="md" 
                   />
                   <div className="flex-1">
-                    <span className="font-semibold text-gray-900">{r.username}</span>
-                    <div className="text-sm text-gray-500">{new Date(r.createdAt).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })} at {new Date(r.createdAt).toLocaleTimeString('en-US', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}</div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-900">{r.username}</span>
+                      <div className="text-sm text-gray-500">{new Date(r.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })} at {new Date(r.createdAt).toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}</div>
+                      
+                      {/* Product details - Color and Size */}
+                      {(r.productColor || r.productSize) && (
+                        <div className="flex items-center space-x-2">
+                          {r.productColor && (
+                            <span className="text-sm text-gray-600">
+                              Color: <span className="font-medium">{r.productColor}</span>
+                            </span>
+                          )}
+                          {r.productSize && (
+                            <span className="text-sm text-gray-600">
+                              Size: <span className="font-medium">{r.productSize}</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm text-green-600">Verified purchase</span>
                 </div>
               </div>
 

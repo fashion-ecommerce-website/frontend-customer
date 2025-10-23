@@ -6,6 +6,7 @@ import { addressSaga } from '../../features/profile/redux/addressSaga';
 import { orderSaga } from '../../features/order/redux';
 import { cartSaga } from '../../features/cart/redux/cartSaga';
 import { wishlistSaga } from '../../features/profile/redux/wishlistSaga';
+import { reviewSaga } from '../../features/profile/redux/reviewSaga';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const effects = require('redux-saga/effects');
@@ -21,5 +22,6 @@ export function* rootSaga(): Generator<unknown, void, unknown> {
     fork(orderSaga),
     fork(cartSaga),
     fork(wishlistSaga),
+    fork(reviewSaga),
   ]);
 }

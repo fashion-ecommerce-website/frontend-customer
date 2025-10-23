@@ -177,7 +177,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                     key={product.id}
                     product={product}
                     onProductClick={onProductClick}
-                    className="w-full border-3 rounded-lg shadow-lg"
+                    className="w-full lg:pr-[15px] lg:pb-[15px]"
+                    showBadgeOnImage={true} // New Arrivals: badge on image
                   />
                 ))}
               </div>
@@ -237,6 +238,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                           product={product}
                           onProductClick={onProductClick}
                           className="w-full"
+                          showBadgeOnImage={false} // Ranking: badge next to price
                         />
                       </div>
                     ))}
@@ -252,6 +254,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                 key={product.id}
                 product={product}
                 onProductClick={onProductClick}
+                showBadgeOnImage={false} // Default: badge next to price
               />
             ))}
           </div>

@@ -7,6 +7,10 @@ export const mockOrderProducts: ProductItem[] = [
     productTitle: "MLB - Unisex Round Neck Short Sleeve Classic Monogram T-Shirt",
     productSlug: "mlb-unisex-round-neck-short-sleeve-classic-monogram-t-shirt",
     price: 1150000,
+    finalPrice: 1035000, // 10% off
+    percentOff: 10,
+    promotionId: 1,
+    promotionName: "Summer Sale",
     quantity: 1,
     colors: ["Beige", "Navy", "Black", "White"],
     colorName: "Beige",
@@ -20,6 +24,10 @@ export const mockOrderProducts: ProductItem[] = [
     productTitle: "MLB - Unisex Varsity Stripe Overfit Polo Shirt",
     productSlug: "mlb-unisex-varsity-stripe-overfit-polo-shirt",
     price: 2490000,
+    finalPrice: 1992000, // 20% off
+    percentOff: 20,
+    promotionId: 2,
+    promotionName: "Black Friday",
     quantity: 2,
     colors: ["Navy", "White", "Black"],
     colorName: "Navy",
@@ -33,6 +41,7 @@ export const mockOrderProducts: ProductItem[] = [
     productTitle: "MLB - Unisex Classic Logo Hoodie",
     productSlug: "mlb-unisex-classic-logo-hoodie",
     price: 3200000,
+    finalPrice: 3200000, // No promotion
     quantity: 1,
     colors: ["Black", "Navy", "Gray"],
     colorName: "Black",
@@ -65,17 +74,29 @@ export const mockOrderScenarios = {
   }))
 };
 
-// Helper function to calculate order totals
+// Helper function to calculate order totals with promotion support
 export const calculateOrderTotals = (products: ProductItem[]) => {
   const subtotal = products.reduce((total, product) => {
+    // Use finalPrice if available (after promotion), otherwise use original price
+    const effectivePrice = product.finalPrice ?? product.price;
+    return total + (effectivePrice * product.quantity);
+  }, 0);
+  
+  // Calculate total original price (before promotion) for comparison
+  const originalSubtotal = products.reduce((total, product) => {
     return total + (product.price * product.quantity);
   }, 0);
+  
+  // Calculate total discount from promotions
+  const promotionDiscount = originalSubtotal - subtotal;
   
   const shippingFee = 50000; // Fixed shipping fee
   const total = subtotal + shippingFee;
   
   return {
     subtotal,
+    originalSubtotal,
+    promotionDiscount,
     shippingFee,
     total,
     itemCount: products.reduce((count, product) => count + product.quantity, 0)

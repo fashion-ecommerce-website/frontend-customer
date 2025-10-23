@@ -111,7 +111,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
         }) => (
           <>
             {(() => {
-              // Map selected cart items to order products format
+              // Map selected cart items to order products format with promotion data
               const selectedProducts: ProductItem[] = cartItems
                 .filter(item => item.selected !== false)
                 .map(item => ({
@@ -119,6 +119,10 @@ export const CartContainer: React.FC<CartContainerProps> = ({
                   productTitle: item.productTitle,
                   productSlug: item.productSlug,
                   price: item.price,
+                  finalPrice: item.finalPrice ?? item.price, // Use finalPrice if available, otherwise fallback to original price
+                  percentOff: item.percentOff, // Include promotion percentage
+                  promotionId: item.promotionId, // Include promotion ID
+                  promotionName: item.promotionName, // Include promotion name
                   quantity: item.quantity,
                   colors: item.colorName ? [item.colorName] : [],
                   colorName: item.colorName,

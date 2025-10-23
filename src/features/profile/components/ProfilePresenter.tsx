@@ -25,11 +25,14 @@ import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
 import { AddressContainer } from '../containers/AddressContainer';
 import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
+import { ReviewContainer } from '../containers/ReviewContainer';
+import { VoucherContainer } from '../containers/VoucherContainer';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 import OrderApi from '@/services/api/orderApi';
 import { productApi } from '@/services/api/productApi';
 import { OrderTrackingContainer } from '../containers/OrderTrackingContainer';
+import PaymentApi from '@/services/api/paymentApi';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   initialSection = 'account',
@@ -193,6 +196,33 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     // Here you can add logic to show different content based on section
   };
 
+  // Handle pay again functionality
+  const handlePayAgain = async (paymentId: number, orderId?: number) => {
+    if (!paymentId) {
+      console.log('Payment ID is not available for this order');
+      return;
+    }
+    
+    try {
+      const response = await PaymentApi.createCheckout({
+        paymentId,
+        successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}${orderId ? `&orderId=${orderId}` : ''}`,
+        cancelUrl: `${window.location.origin}/profile?section=order-info`
+      });
+      
+      if (response.success && response.data?.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = response.data.checkoutUrl;
+      } else {
+        console.error('Failed to create checkout session:', response.message);
+        alert('Failed to create checkout session. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
   // Breadcrumb items with dynamic section label
   const getSectionLabel = (section: string) => {
     switch (section) {
@@ -210,6 +240,10 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         return 'MY INFO';
       case 'shipping-address':
         return 'ADDRESSES';
+      case 'my-reviews':
+        return 'MY REVIEWS';
+      case 'my-vouchers':
+        return 'VOUCHERS';
       // Add other cases as needed
       default:
         return '';
@@ -291,6 +325,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           )}
           {activeSidebarSection === 'wishlist' && <WishlistContainer />}
           {activeSidebarSection === 'recently-viewed' && <RecentlyViewed />}
+          {activeSidebarSection === 'my-vouchers' && <VoucherContainer />}
           {activeSidebarSection === 'shipping-address' && (
             <AddressContainer />
           )}
@@ -298,6 +333,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
             <OrderHistoryContainer 
               onOpenDetail={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-detail'); }}
               onTrack={(order) => { setSelectedOrder(order); setActiveSidebarSection('order-tracking'); }}
+              onPayAgain={(paymentId: number, orderId: number) => handlePayAgain(paymentId, orderId)}
             />
           )}
           {activeSidebarSection === 'order-detail' && (
@@ -309,15 +345,12 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
                 <OrderDetailPresenter 
                   order={selectedOrder}
                   imagesByDetailId={imagesByDetailId}
-                  onTrack={() => {
-                    setActiveSidebarSection('order-tracking');
+                  onBack={() => {
+                    setActiveSidebarSection('order-info');
+                    // keep selected order or clear depending on UX; clear to avoid stale breadcrumb
+                    setSelectedOrder(null);
                   }}
-                onBack={() => {
-                  setActiveSidebarSection('order-info');
-                  // keep selected order or clear depending on UX; clear to avoid stale breadcrumb
-                  setSelectedOrder(null);
-                }}
-              />
+                />
               )}
             </div>
           )}
@@ -344,6 +377,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
               onShowUpdateInfoModal={handleUpdateInfoModalOpen}
               isChangingPassword={isChangingPassword}
             />
+          )}
+          {activeSidebarSection === 'my-reviews' && (
+            <ReviewContainer />
           )}
           {/* TODO: add other sections (membership-info, order-info, etc) */}
         </main>

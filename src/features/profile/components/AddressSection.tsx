@@ -53,9 +53,10 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
   // Handle loading state
   if (isLoading) {
     return (
-      <div className="w-full">
-        {/* Thick horizontal line */}
-        <div className="w-full h-0.5 bg-black mb-8"></div>
+      <div className="p-6">
+        <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+          <h2 className="text-lg font-semibold text-black">Addresses</h2>
+        </div>
         <div className="flex justify-center items-center py-8">
           <div className="text-gray-600">Loading addresses...</div>
         </div>
@@ -66,9 +67,10 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
   // Handle error state
   if (error) {
     return (
-      <div className="w-full">
-        {/* Thick horizontal line */}
-        <div className="w-full h-0.5 bg-black mb-8"></div>
+      <div className="p-6">
+        <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+          <h2 className="text-lg font-semibold text-black">Addresses</h2>
+        </div>
         <div className="text-center py-8">
           <p className="text-red-600 mb-4">{error.message}</p>
           {onClearError && (
@@ -98,9 +100,12 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
   });
 
   return (
-    <div className="w-full">
-      {/* Thick horizontal line */}
-      <div className="w-full h-0.5 bg-black mb-8"></div>
+    <div className="p-6">
+      <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+        <h2 className="text-lg font-semibold text-black">
+          {addresses.length} Addresses
+        </h2>
+      </div>
       
       {/* Address List */}
       <div className="space-y-6">

@@ -18,6 +18,7 @@ export const useCartActions = (options: UseCartActionsOptions = {}) => {
       productImage: string;
       productTitle: string;
       price: number;
+      finalPrice?: number; // Price after promotion
     }
   ) => {
     try {
@@ -29,6 +30,7 @@ export const useCartActions = (options: UseCartActionsOptions = {}) => {
         productImage: payload.productImage,
         productTitle: payload.productTitle,
         productPrice: payload.price,
+        finalPrice: payload.finalPrice,
         quantity: payload.quantity,
         duration: 4000
       });

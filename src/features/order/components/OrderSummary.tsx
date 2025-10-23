@@ -96,9 +96,11 @@ export function OrderSummary({
 		return response.data;
 	};
 	
-	// Calculate totals from products
+	// Calculate totals from products with promotion support
 	const orderTotals = calculateOrderTotals(products);
 	const subtotal = orderTotals.subtotal;
+	const promotionDiscount = orderTotals.promotionDiscount;
+	
 	const computeVoucherDiscount = (voucher: Voucher | null): number => {
 		if (!voucher) return 0;
 		if (voucher.discountType === 'amount') return Math.min(voucher.value, subtotal);
@@ -108,8 +110,9 @@ export function OrderSummary({
 		}
 		return Math.min(byPercent, subtotal);
 	};
-	const discountAmount = computeVoucherDiscount(selectedVoucher);
-	const total = Math.max(0, subtotal - discountAmount) + (shippingFee?.fee || 0);
+	const voucherDiscount = computeVoucherDiscount(selectedVoucher);
+	const totalDiscount = promotionDiscount + voucherDiscount;
+	const total = Math.max(0, subtotal - voucherDiscount) + (shippingFee?.fee || 0);
 
 	const formatPrice = (price: number) => {
 		return new Intl.NumberFormat('vi-VN', {
@@ -139,10 +142,12 @@ export function OrderSummary({
 		setSubmitError(null);
 
 		// Show confirmation modal
+		const voucherText = voucherDiscount > 0 ? `\nVoucher Discount: ${formatPrice(voucherDiscount)}` : '';
+		
 		setConfirmModal({
 			isOpen: true,
 			title: 'Complete Order',
-			message: `Are you sure you want to complete this order?\n\nSubtotal: ${formatPrice(subtotal)}\nDiscount: ${formatPrice(discountAmount)}\nShipping: ${formatPrice(shippingFee?.fee || 0)}\nTotal Amount: ${formatPrice(total)}\nPayment Method: ${selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY ? 'Cash on Delivery' : 'Credit Card'}\n\nThis action cannot be undone.`,
+			message: `Are you sure you want to complete this order?\n\nSubtotal: ${formatPrice(subtotal)}${voucherText}\nShipping: ${formatPrice(shippingFee?.fee || 0)}\nTotal Amount: ${formatPrice(total)}\nPayment Method: ${selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY ? 'Cash on Delivery' : 'Credit Card'}\n\nThis action cannot be undone.`,
 			type: 'info',
 			onConfirm: () => {
 				setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -158,13 +163,15 @@ export function OrderSummary({
 			shippingAddressId: addressId!,
 			note: note || '',
 			subtotalAmount: subtotal,
-			discountAmount: discountAmount,
+			discountAmount: voucherDiscount, 
 			shippingFee: shippingFee?.fee || 0,
 			totalAmount: total,
 			paymentMethod: selectedPaymentMethod,
+			voucherCode: selectedVoucher?.code, 
 			orderDetails: products.map(product => ({
 				productDetailId: product.detailId,
-				quantity: product.quantity
+				quantity: product.quantity,
+				promotionId: product.promotionId 
 			}))
 		};
 
@@ -190,7 +197,7 @@ export function OrderSummary({
         // Card/Stripe: create checkout session and redirect
         if (selectedPaymentMethod === PaymentMethod.CREDIT_CARD && latestPayment?.id) {
             const successUrl = `${window.location.origin}/checkout/success?orderId=${order.id}`; 
-            const cancelUrl = `${window.location.origin}/checkout/success?status=cancel&orderId=${order.id}`; // handle cancel on same page
+            const cancelUrl = `${window.location.origin}/checkout/success?status=cancel&orderId=${order.id}&paymentId=${latestPayment.id}`; // handle cancel on same page
 			PaymentApi.createCheckout({ paymentId: latestPayment.id, successUrl, cancelUrl })
 				.then(res => {
 					if (res.success && res.data?.checkoutUrl) {
@@ -265,10 +272,23 @@ export function OrderSummary({
 									<div className="mt-1 text-xs text-zinc-800">
 										{product.colorName} / {product.sizeName}
 									</div>
-									<div className="mt-1 flex items-start justify-between">
-										<span className="text-sm font-bold text-neutral-600">
-											{formatPrice(product.price)}
-										</span>
+									<div className="mt-1 flex items-center justify-between">
+										<div className="flex items-center gap-2">
+											{product.finalPrice && product.finalPrice < product.price ? (
+												<>
+													<span className="text-sm font-bold text-neutral-600">
+														{formatPrice(product.finalPrice)}
+													</span>
+													<span className="text-xs line-through text-gray-500">
+														{formatPrice(product.price)}
+													</span>
+												</>
+											) : (
+												<span className="text-sm font-bold text-neutral-600">
+													{formatPrice(product.price)}
+												</span>
+											)}
+										</div>
 										<span className="text-sm font-bold text-neutral-600">Quantity: {product.quantity}</span>
 									</div>
 								</div>
@@ -305,10 +325,13 @@ export function OrderSummary({
 						<span className="text-sm font-bold text-zinc-800">Subtotal</span>
 						<span className="text-sm font-bold text-neutral-600">{formatPrice(subtotal)}</span>
 					</div>
-					<div className="py-1 flex items-start justify-between">
-						<span className="text-sm font-bold text-zinc-800">Discount</span>
-						<span className="text-sm font-bold text-green-700">- {formatPrice(discountAmount)}</span>
-					</div>
+					
+					{voucherDiscount > 0 && (
+						<div className="py-1 flex items-start justify-between">
+							<span className="text-sm font-bold text-zinc-800">Voucher Discount</span>
+							<span className="text-sm font-bold text-green-700">- {formatPrice(voucherDiscount)}</span>
+						</div>
+					)}
 					<div className="flex items-start justify-between py-1">
 						<span className="text-sm text-zinc-800">Shipping fee</span>
 						<span className="text-sm text-neutral-600">

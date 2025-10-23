@@ -81,6 +81,11 @@ function* addToCartSaga(action: PayloadAction<AddToCartPayload>) {
     
     if (response.success && response.data) {
       yield put(addCartItem(response.data));
+      // Fetch cart again to get promotion data
+      const cartResponse: ApiResponse<CartItem[]> = yield call(cartApi.getCartItems);
+      if (cartResponse.success && cartResponse.data) {
+        yield put(setCartItems(cartResponse.data));
+      }
     } else {
       yield put(setError(response.message || 'Failed to add item to cart'));
     }

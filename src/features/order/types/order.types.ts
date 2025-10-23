@@ -45,8 +45,12 @@ export interface OrderDetail {
   colorLabel: string;
   sizeLabel: string;
   quantity: number;
-  unitPrice: number;
+  unitPrice: number;        
+  finalPrice?: number;     
   totalPrice: number;
+  percentOff?: number;     
+  promotionId?: number;   
+  promotionName?: string;  
   imageUrl?: string;
 }
 
@@ -104,9 +108,11 @@ export interface CreateOrderRequest {
   shippingFee: number;
   totalAmount: number;
   paymentMethod: PaymentMethod;
+  voucherCode?: string; 
   orderDetails: {
     productDetailId: number;
     quantity: number;
+    promotionId?: number; 
   }[];
 }
 
@@ -128,4 +134,49 @@ export interface OrderSummaryData {
   shippingFee: number;
   totalAmount: number;
   note: string;
+}
+
+// Pagination interfaces
+export interface Pageable {
+  pageNumber: number;
+  pageSize: number;
+  sort: {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  offset: number;
+  paged: boolean;
+  unpaged: boolean;
+}
+
+export interface Sort {
+  empty: boolean;
+  sorted: boolean;
+  unsorted: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  content: T[];
+  pageable: Pageable;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  size: number;
+  number: number;
+  sort: Sort;
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
+}
+
+// Order query parameters
+export interface OrderQueryParams {
+  userId?: number;
+  status?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+  sortBy?: string;
+  direction?: 'asc' | 'desc';
+  page?: number;
+  size?: number;
 }

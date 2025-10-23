@@ -6,6 +6,7 @@ export interface ProductToastProps {
   productImage: string;
   productTitle: string;
   productPrice: number;
+  finalPrice?: number; // Price after promotion
   quantity?: number;
   duration?: number;
   onClose: () => void;
@@ -15,6 +16,7 @@ export const ProductToast: React.FC<ProductToastProps> = ({
   productImage,
   productTitle,
   productPrice,
+  finalPrice,
   quantity = 1,
   duration = 4000, 
   onClose 
@@ -97,7 +99,7 @@ export const ProductToast: React.FC<ProductToastProps> = ({
             </h4>
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-gray-900">
-                {formatPrice(productPrice)}
+                {formatPrice(finalPrice || productPrice)}
               </p>
               {quantity > 1 && (
                 <span className="text-xs text-gray-500">

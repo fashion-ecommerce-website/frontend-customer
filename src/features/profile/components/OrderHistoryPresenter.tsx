@@ -1,19 +1,37 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Order } from '@/features/order/types';
+import { Order, PaginatedResponse } from '@/features/order/types';
+import { useEnums } from '@/hooks/useEnums';
+import { Pagination } from '@/features/filter-product/components/Pagination';
 
 interface OrderHistoryPresenterProps {
   orders: Order[];
   loading: boolean;
   error: string | null;
+  pagination?: PaginatedResponse<Order> | null;
   onReload: () => void;
+  onPageChange?: (page: number) => void;
   onOpenDetail?: (order: Order) => void;
   onTrack?: (order: Order) => void;
+  onPayAgain?: (paymentId: number, orderId: number) => void;
+  imagesByDetailId?: Record<number, string>;
 }
 
-export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ orders, loading, error, onReload, onOpenDetail, onTrack }) => {
+export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ 
+  orders, 
+  loading, 
+  error, 
+  pagination, 
+  onReload, 
+  onPageChange, 
+  onOpenDetail, 
+  onTrack,
+  onPayAgain,
+  imagesByDetailId 
+}) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+  const { data: enums } = useEnums();
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
   const formatDate = (iso: string) => new Date(iso).toLocaleString('vi-VN');
 
@@ -37,7 +55,28 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
     return latest?.status || 'PENDING';
   };
 
-  // Shipping badge will use a consistent gray style; dynamic colors not needed here
+  const canPayAgain = (order: Order) => {
+    return (order.paymentStatus === 'UNPAID' || order.status === 'CANCELLED') && 
+           order.payments && 
+           order.payments.length > 0 && 
+           order.payments[0].provider === 'STRIPE' &&
+           order.payments[0].id;
+  };
+
+  const getPayAgainButtonClass = (order: Order) => {
+    if (canPayAgain(order)) {
+      return "text-sm font-medium bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer";
+    }
+    return "text-sm font-medium bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 cursor-pointer opacity-60";
+  };
+
+  const getPayAgainButtonTitle = (order: Order) => {
+    if (canPayAgain(order)) {
+      return "Pay again for this order";
+    }
+    return "Payment not available for this order";
+  };
+
 
   const toggleExpand = (orderId: number) => {
     setExpandedIds(prev => {
@@ -92,7 +131,9 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
               >
                 <span className="font-semibold text-black">V{order.id}</span>
                 <span className="whitespace-nowrap">{formatDate(order.createdAt)}</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 ${getPaymentBadgeClass(order.paymentStatus)}`}>{order.paymentStatus}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 ${getPaymentBadgeClass(order.paymentStatus)}`}>
+                  {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
+                </span>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200`}>Shipping: {getShipmentStatus(order)}</span>
               </div>
               <div className="flex items-center gap-4">
@@ -100,18 +141,27 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
                 <button
                   type="button"
                   onClick={() => onOpenDetail?.(order)}
-                  className="text-sm font-medium text-black hover:opacity-70"
+                  className="text-sm font-medium text-black hover:opacity-70 cursor-pointer"
                 >
                   Order Details
                 </button>
-              <button
-                type="button"
-                onClick={() => onTrack?.(order)}
-                className="text-sm font-medium text-black hover:opacity-70"
-                title="Track shipment"
-              >
-                Track Order
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onTrack?.(order)}
+                  className="text-sm font-medium text-black hover:opacity-70 cursor-pointer"
+                  title="Track shipment"
+                >
+                  Track Order
+                </button>
+                <button
+                  type="button"
+                  onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                  className={getPayAgainButtonClass(order)}
+                  title={getPayAgainButtonTitle(order)}
+                  disabled={!canPayAgain(order)}
+                >
+                  Pay Again
+                </button>
               </div>
             </div>
 
@@ -120,13 +170,39 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
                 {order.orderDetails.map(detail => (
                   <div key={detail.id} className="flex gap-4">
                     <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                      <img src={detail.imageUrl || '/images/products/image1.jpg'} alt={detail.title} className="w-full h-full object-cover" />
+                      <img 
+                        src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
+                        alt={detail.title} 
+                        className="w-full h-full object-cover" 
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="text-black font-semibold">{detail.title}</div>
-                      <div className="text-xs text-gray-500">{detail.colorLabel} / {detail.sizeLabel} / {detail.productDetailId}</div>
+                      <div className="text-xs text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</div>
                       <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
-                      <div className="text-black font-semibold mt-2">{formatPrice(detail.unitPrice)}</div>
+                      
+                      {/* Price - Simple like product detail */}
+                      <div className="mt-2">
+                        {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                          <div className="flex items-center gap-2">
+                            <div className="text-black font-semibold">
+                              {formatPrice(detail.finalPrice)}
+                            </div>
+                            <div className="text-sm line-through text-gray-500">
+                              {formatPrice(detail.unitPrice)}
+                            </div>
+                            {detail.percentOff && (
+                              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                -{detail.percentOff}%
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-black font-semibold">
+                            {formatPrice(detail.unitPrice)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -135,6 +211,19 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ or
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {pagination && onPageChange && pagination.totalPages > 1 && (
+        <div className="mt-4 pt-2">
+          <Pagination
+            currentPage={pagination.number + 1} 
+            totalPages={pagination.totalPages}
+            hasNext={!pagination.last}
+            hasPrevious={!pagination.first}
+            onPageChange={(page) => onPageChange(page - 1)} 
+          />
+        </div>
+      )}
     </div>
   );
 };
