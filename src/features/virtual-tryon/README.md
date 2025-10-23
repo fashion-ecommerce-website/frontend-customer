@@ -102,40 +102,37 @@ Shows the virtual try-on result:
 ## API Integration
 
 ### Current Implementation
-The feature currently uses a mock implementation that simulates processing with a 3-second delay.
+✅ **Fully integrated with Fitroom Virtual Try-On API**
 
-### Integration Steps
-To integrate with a real virtual try-on API:
+The feature uses [Fitroom's AI-powered virtual try-on service](https://platform.fitroom.app) with real-time processing.
 
-1. **Create API Service**
-   ```typescript
-   // src/services/api/virtualTryOnApi.ts
-   export class VirtualTryOnApiService {
-     async processVirtualTryOn(params: {
-       userImage: string;
-       productImage: string;
-       productId: number;
-     }): Promise<ApiResponse<{ resultImageUrl: string }>> {
-       // Implement API call
-     }
-   }
-   ```
+### Implementation Details
 
-2. **Update Container Logic**
-   In `VirtualTryOnContainer.tsx`, replace the mock implementation:
-   ```typescript
-   const handleTryOn = async () => {
-     // ... validation code ...
-     
-     const response = await virtualTryOnApi.processImage({
-       userImage,
-       productImage: selectedProduct.imageUrl,
-       productId: selectedProduct.productDetailId
-     });
-     
-     setResultImage(response.data.resultImageUrl);
-   };
-   ```
+1. **API Service** (`src/services/api/virtualTryOnApi.ts`)
+   - `VirtualTryOnApiService` class handles Fitroom API communication
+   - Task-based processing with polling mechanism
+   - Type-safe with comprehensive error handling
+
+2. **Next.js API Routes** (`src/app/api/virtual-tryon/route.ts`)
+   - Server-side endpoints for secure API key management
+   - POST `/api/virtual-tryon` - Creates virtual try-on task
+   - GET `/api/virtual-tryon?taskId=xxx` - Checks task status
+
+3. **Container Logic** (`containers/VirtualTryOnContainer.tsx`)
+   - Converts user and product images to proper format
+   - Creates task via internal API
+   - Polls for completion (2-second intervals, 2-minute timeout)
+   - Displays result or error message
+
+### Configuration
+
+Add to `.env.local`:
+```bash
+FITROOM_API_KEY=your_fitroom_api_key
+FITROOM_STATUS_API_KEY=your_fitroom_status_api_key
+```
+
+See `FITROOM_INTEGRATION.md` in the project root for complete setup instructions.
 
 ## Styling
 The feature uses Tailwind CSS with:
