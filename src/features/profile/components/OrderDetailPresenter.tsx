@@ -6,6 +6,7 @@ import { useEnums } from '@/hooks/useEnums';
 type OrderDetailPresenterProps = {
   order: Order;
   onBack?: () => void;
+  imagesByDetailId?: Record<number, string>;
 };
 
 const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
@@ -20,7 +21,7 @@ const getPaymentMethodLabel = (method?: PaymentMethod) => {
   }
 };
 
-export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack }) => {
+export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack, imagesByDetailId }) => {
   const { data: enums } = useEnums();
   return (
     <div className="px-4 pb-8">
@@ -39,13 +40,39 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
             {order.orderDetails.map(item => (
               <div key={item.id} className="flex gap-4">
                 <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                  <img src={item.imageUrl || '/images/products/image1.jpg'} alt={item.title} className="w-full h-full object-cover" />
+                  <img 
+                    src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover" 
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="text-black font-semibold">{item.title}</div>
-                  <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel} / {item.productDetailId}</div>
+                  <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel}</div>
                   <div className="text-xs text-gray-600 mt-1">Quantity: {item.quantity}</div>
-                  <div className="text-black font-semibold mt-2">{formatPrice(item.unitPrice)}</div>
+                  
+                  {/* Price - Simple like product detail */}
+                  <div className="mt-2">
+                    {item.finalPrice && item.finalPrice !== item.unitPrice ? (
+                      <div className="flex items-center gap-2">
+                        <div className="text-black font-semibold">
+                          {formatPrice(item.finalPrice)}
+                        </div>
+                        <div className="text-sm line-through text-gray-500">
+                          {formatPrice(item.unitPrice)}
+                        </div>
+                        {item.percentOff && (
+                          <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                            -{item.percentOff}%
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-black font-semibold">
+                        {formatPrice(item.unitPrice)}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -63,10 +90,12 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <span className="text-gray-700">Shipping fee</span>
               <span className="text-black font-semibold">{formatPrice(order.shippingFee)}</span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">Discount</span>
-              <span className="text-black font-semibold">{formatPrice(order.discountAmount)}</span>
-            </div>
+            {order.discountAmount > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-700">Promotion Discount</span>
+                <span className="text-red-600 font-semibold">-{formatPrice(order.discountAmount)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between text-base border-t pt-3">
               <span className="text-gray-600 font-bold">Total Amount</span>
               <span className="text-black font-bold">{formatPrice(order.totalAmount)}</span>

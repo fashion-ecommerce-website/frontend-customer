@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Address } from '@/services/api/addressApi';
-import { Order, CreateOrderRequest, PaymentMethod } from '../types';
+import { Order, CreateOrderRequest, PaymentMethod, PaginatedResponse, OrderQueryParams } from '../types';
 import { ProductItem } from '@/services/api/productApi';
 
 // State interface
@@ -13,8 +13,13 @@ export interface OrderState {
 
   // Order management
   order: Order | null;
+  orders: Order[];
+  ordersPagination: PaginatedResponse<Order> | null;
   isOrderLoading: boolean;
+  isOrdersLoading: boolean;
   orderError: string | null;
+  ordersError: string | null;
+  currentQuery: OrderQueryParams | null;
 
   // Cart/Products
   cartProducts: ProductItem[];
@@ -43,8 +48,13 @@ const initialState: OrderState = {
   addressError: null,
 
   order: null,
+  orders: [],
+  ordersPagination: null,
   isOrderLoading: false,
+  isOrdersLoading: false,
   orderError: null,
+  ordersError: null,
+  currentQuery: null,
 
   cartProducts: [],
   isCartLoading: false,
@@ -153,6 +163,23 @@ const orderSlice = createSlice({
       state.orderError = action.payload;
     },
 
+    // Get user orders actions
+    getUserOrdersRequest: (state, action: PayloadAction<OrderQueryParams | undefined>) => {
+      state.isOrdersLoading = true;
+      state.ordersError = null;
+      state.currentQuery = action.payload || null;
+    },
+    getUserOrdersSuccess: (state, action: PayloadAction<PaginatedResponse<Order>>) => {
+      state.isOrdersLoading = false;
+      state.orders = action.payload.content;
+      state.ordersPagination = action.payload;
+      state.ordersError = null;
+    },
+    getUserOrdersFailure: (state, action: PayloadAction<string>) => {
+      state.isOrdersLoading = false;
+      state.ordersError = action.payload;
+    },
+
     // Cart actions
     setCartProducts: (state, action: PayloadAction<ProductItem[]>) => {
       state.cartProducts = action.payload;
@@ -259,6 +286,9 @@ export const {
   createOrderRequest,
   createOrderSuccess,
   createOrderFailure,
+  getUserOrdersRequest,
+  getUserOrdersSuccess,
+  getUserOrdersFailure,
 
   // Cart actions
   setCartProducts,
@@ -295,6 +325,12 @@ export const selectAddressError = (state: { order: OrderState }) => state.order.
 export const selectOrder = (state: { order: OrderState }) => state.order.order;
 export const selectIsOrderLoading = (state: { order: OrderState }) => state.order.isOrderLoading;
 export const selectOrderError = (state: { order: OrderState }) => state.order.orderError;
+
+export const selectOrders = (state: { order: OrderState }) => state.order.orders;
+export const selectIsOrdersLoading = (state: { order: OrderState }) => state.order.isOrdersLoading;
+export const selectOrdersError = (state: { order: OrderState }) => state.order.ordersError;
+export const selectOrdersPagination = (state: { order: OrderState }) => state.order.ordersPagination;
+export const selectCurrentQuery = (state: { order: OrderState }) => state.order.currentQuery;
 
 export const selectCartProducts = (state: { order: OrderState }) => state.order.cartProducts;
 export const selectIsCartLoading = (state: { order: OrderState }) => state.order.isCartLoading;

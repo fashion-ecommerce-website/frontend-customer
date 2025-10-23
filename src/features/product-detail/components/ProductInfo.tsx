@@ -122,7 +122,8 @@ export function ProductInfo({
         // Additional data for toast
         productImage: product.images[0] || '/images/placeholder.jpg',
         productTitle: product.title,
-        price: product.price
+        price: product.price,
+        finalPrice: product.finalPrice
       });
     } catch (error) {
       // Error handling is done in the hook
@@ -185,7 +186,21 @@ export function ProductInfo({
                 >
                   <div
                     className="w-8 h-8 rounded-full"
-                    style={{ backgroundColor: color.toLowerCase() === 'white' ? '#e6e6e6' : color.toLowerCase() }}
+                    style={{ 
+                      backgroundColor: color.toLowerCase() === 'white' ? '#e6e6e6' : 
+                                     color.toLowerCase() === 'mint' ? '#60a1a7' :
+                                     color.toLowerCase() === 'dark blue' ? '#202846' :
+                                     color.toLowerCase() === 'blue' ? '#3b82f6' :
+                                     color.toLowerCase() === 'pink' ? '#ec4899' :
+                                     color.toLowerCase() === 'black' ? '#000000' :
+                                     color.toLowerCase() === 'red' ? '#ef4444' :
+                                     color.toLowerCase() === 'green' ? '#22c55e' :
+                                     color.toLowerCase() === 'yellow' ? '#eab308' :
+                                     color.toLowerCase() === 'purple' ? '#a855f7' :
+                                     color.toLowerCase() === 'orange' ? '#f97316' :
+                                     color.toLowerCase() === 'gray' ? '#6b7280' :
+                                     color.toLowerCase()
+                    }}
                     title={color}
                   />
                 </div>

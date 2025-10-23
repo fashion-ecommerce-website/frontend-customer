@@ -16,6 +16,7 @@ interface ProductToastItem {
   productImage: string;
   productTitle: string;
   productPrice: number;
+  finalPrice?: number; // Price after promotion
   quantity?: number;
   duration?: number;
 }
@@ -77,6 +78,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       productImage: data.productImage,
       productTitle: data.productTitle,
       productPrice: data.productPrice,
+      finalPrice: data.finalPrice,
       quantity: data.quantity,
       duration: data.duration || 4000
     };
@@ -134,6 +136,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
                 productImage={toast.productImage}
                 productTitle={toast.productTitle}
                 productPrice={toast.productPrice}
+                finalPrice={toast.finalPrice}
                 quantity={toast.quantity}
                 duration={toast.duration}
                 onClose={() => removeProductToast(toast.id)}

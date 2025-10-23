@@ -427,6 +427,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         productImage: product.images[0] || "/images/placeholder.jpg",
         productTitle: product.title,
         price: product.price,
+        finalPrice: product.finalPrice,
       })
     } catch (error) {
       console.error("❌ Failed to add to cart:", error)
