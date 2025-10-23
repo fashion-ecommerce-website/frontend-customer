@@ -12,6 +12,24 @@ export interface VirtualTryOnProduct {
   price: number;
 }
 
+/**
+ * Fitroom API Types
+ */
+export type ClothType = 'upper' | 'lower' | 'full';
+
+export type TaskStatus = 'pending' | 'processing' | 'completed' | 'failed';
+
+export interface FitroomTask {
+  taskId: string;
+  status: TaskStatus;
+  message?: string;
+}
+
+export interface FitroomTaskResult extends FitroomTask {
+  resultImageUrl?: string;
+  error?: string;
+}
+
 export interface VirtualTryOnContainerProps {
   products: VirtualTryOnProduct[];
 }
