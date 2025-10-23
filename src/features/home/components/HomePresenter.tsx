@@ -3,16 +3,16 @@
 // Home Presenter Component
 // Presentational component for home page UI
 
-import React, { useState } from 'react';
+import React from 'react';
 import { HomePresenterProps } from '../types/home.types';
 import { Banner } from './Banner';
 import { NewsletterSignup } from './NewsletterSignup';
 import { ProductSection } from './ProductSection';
+import { RankingSection } from './RankingSection';
 
 export const HomePresenter: React.FC<HomePresenterProps> = ({
   banners,
   newArrivals,
-  recommendedProducts,
   productCategories,
   isLoading,
   error,
@@ -68,16 +68,7 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
             />
 
             {/* Ranking Section */}
-            <ProductSection
-              title="RANKING"
-              products={recommendedProducts}
-              onProductClick={onProductClick}
-              onCategoryClick={onCategoryClick}
-              categories={productCategories}
-              showCategories={true}
-              variant="ranking"
-              className="pt-12 sm:pt-16 lg:pt-20"
-            />
+            <RankingSection />
           </div>
 
           {/* Newsletter (no horizontal padding) */}

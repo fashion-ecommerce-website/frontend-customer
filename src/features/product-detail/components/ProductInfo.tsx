@@ -172,6 +172,7 @@ export function ProductInfo({
       {/* Color Selection*/}
       {product.colors && product.colors.length > 0 && (
         <div className="space-y-3 pl-1">
+          <h3 className="text-sm font-medium text-gray-900">Color</h3>
           <div className="swatch-color" data-index="option1">
             <div className="flex items-center space-x-3">
               {product.colors.map((color) => (
@@ -241,12 +242,12 @@ export function ProductInfo({
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">Choose size</h3>
+            <h3 className="text-sm font-medium text-gray-900">Size</h3>
             <button
               onClick={() => setShowSizeGuide(true)}
-              className="text-sm text-gray-800 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
+              className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="9" viewBox="0 0 20 9" fill="none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="8" viewBox="0 0 20 9" fill="none">
                 <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
                 <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
                 <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
@@ -258,13 +259,13 @@ export function ProductInfo({
             </button>
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex space-x-2">
             {Object.entries(product.mapSizeToQuantity).map(([size, quantity]) => (
               <button
                 key={size}
                 onClick={() => onSizeSelect(size)}
                 disabled={quantity === 0}
-                className={`w-14 h-10 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSize === size
+                className={`w-12 h-9 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSize === size
                   ? 'border-black bg-black text-white'
                   : quantity === 0
                     ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-default'
@@ -280,19 +281,19 @@ export function ProductInfo({
 
       {/* Quantity Selector */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-800">Quantity</label>
-        <div className="flex items-center space-x-3">
+        <label className="text-sm font-medium text-gray-900">Quantity</label>
+        <div className="flex items-center space-x-4">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={quantity <= 1}
-            className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-9 h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             −
           </button>
-          <span className="w-12 text-center font-medium text-gray-800">{quantity}</span>
+          <span className="w-10 text-center font-medium text-gray-900">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50"
+            className="w-9 h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
           >
             +
           </button>
@@ -300,12 +301,12 @@ export function ProductInfo({
       </div>
 
       {/* Action Buttons */}
-      <div className="space-y-3">
+      <div className="space-y-3 pt-2">
         {isAllSizesOut ? (
-          <div className="w-full h-14 flex items-center justify-center mt-6">
+          <div className="w-full h-12 flex items-center justify-center">
             <button
               disabled
-              className="w-full h-full text-center uppercase text-base font-normal text-black font-bold bg-gray-100"
+              className="w-full h-full text-center uppercase text-sm font-semibold text-gray-500 bg-gray-100 rounded"
             >
               Out of stock
             </button>
@@ -315,13 +316,13 @@ export function ProductInfo({
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSize}
-              className="bg-black text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-black text-white py-3 px-6 font-semibold text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded"
             >
               {addingToCart ? "ADDING..." : "ADD TO CART"}
             </button>
             <button
               onClick={handleBuyNow}
-              className="bg-red-600 text-white py-4 px-6 font-bold text-sm uppercase tracking-wide hover:bg-red-700 transition-all duration-200 cursor-pointer"
+              className="bg-red-600 text-white py-3 px-6 font-semibold text-xs uppercase tracking-wider hover:bg-red-700 transition-all duration-200 cursor-pointer rounded"
             >
               BUY NOW
             </button>
