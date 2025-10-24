@@ -72,12 +72,46 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   });
   
   const [ghnError, setGhnError] = useState<string | null>(null);
+  
+  // Custom dropdown states
+  const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [isDistrictOpen, setIsDistrictOpen] = useState(false);
+  const [isWardOpen, setIsWardOpen] = useState(false);
+  
+  // Search states
+  const [provinceSearch, setProvinceSearch] = useState('');
+  const [districtSearch, setDistrictSearch] = useState('');
+  const [wardSearch, setWardSearch] = useState('');
 
   // Load provinces on mount
   useEffect(() => {
     if (isOpen) {
       loadProvinces();
     }
+  }, [isOpen]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-container')) {
+        setIsProvinceOpen(false);
+        setIsDistrictOpen(false);
+        setIsWardOpen(false);
+        // Clear search when closing
+        setProvinceSearch('');
+        setDistrictSearch('');
+        setWardSearch('');
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [isOpen]);
 
   // Load districts when province changes
@@ -89,6 +123,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       setSelectedWard(null);
       setDistricts([]);
       setWards([]);
+      // Close other dropdowns but keep province dropdown open if user is still interacting
+      setIsDistrictOpen(false);
+      setIsWardOpen(false);
     }
   }, [selectedProvince]);
 
@@ -99,6 +136,8 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       // Reset ward selection
       setSelectedWard(null);
       setWards([]);
+      // Close ward dropdown but keep district dropdown open if user is still interacting
+      setIsWardOpen(false);
     }
   }, [selectedDistrict]);
 
@@ -221,6 +260,43 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     const value = e.target.value;
     setSelectedWard(value || null);
   };
+
+  // Custom dropdown handlers
+  const handleProvinceSelect = (provinceId: number) => {
+    setSelectedProvince(provinceId);
+    setIsProvinceOpen(false);
+    setProvinceSearch('');
+    // Close other dropdowns
+    setIsDistrictOpen(false);
+    setIsWardOpen(false);
+  };
+
+  const handleDistrictSelect = (districtId: number) => {
+    setSelectedDistrict(districtId);
+    setIsDistrictOpen(false);
+    setDistrictSearch('');
+    // Close other dropdowns
+    setIsWardOpen(false);
+  };
+
+  const handleWardSelect = (wardCode: string) => {
+    setSelectedWard(wardCode);
+    setIsWardOpen(false);
+    setWardSearch('');
+  };
+
+  // Filter functions
+  const filteredProvinces = provinces.filter(province =>
+    province.ProvinceName.toLowerCase().includes(provinceSearch.toLowerCase())
+  );
+
+  const filteredDistricts = districts.filter(district =>
+    district.DistrictName.toLowerCase().includes(districtSearch.toLowerCase())
+  );
+
+  const filteredWards = wards.filter(ward =>
+    ward.WardName.toLowerCase().includes(wardSearch.toLowerCase())
+  );
 
   const validatePhoneNumber = (phone: string, countryCode: string): string | null => {
     // Remove all non-digit characters for validation
@@ -437,50 +513,124 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
           {/* Address Line removed; using Ward as address line for API */}
 
-          {/* Province Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Province/City <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={selectedProvince || ''}
-              onChange={handleProvinceChange}
-              disabled={isLoading || loading.provinces}
-              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
-            >
-              <option value="">Select province/city</option>
-              {provinces.map((province) => (
-                <option key={province.ProvinceID} value={province.ProvinceID}>
-                  {province.ProvinceName}
-                </option>
-              ))}
-            </select>
-            {loading.provinces && (
-              <p className="text-xs text-gray-500 mt-1">Loading...</p>
-            )}
-            {errors.provinceId && (
-              <p className="mt-1 text-sm text-red-600">{errors.provinceId}</p>
-            )}
-          </div>
+           {/* Province Selection */}
+           <div className="relative dropdown-container">
+             <label className="block text-sm font-medium text-gray-700 mb-1">
+               Province/City <span className="text-red-500">*</span>
+             </label>
+             <div className="relative">
+               <div className="relative">
+                 <input
+                   type="text"
+                   value={provinceSearch || (selectedProvince ? provinces.find(p => p.ProvinceID === selectedProvince)?.ProvinceName || '' : '')}
+                   onChange={(e) => {
+                     setProvinceSearch(e.target.value);
+                     if (!isProvinceOpen) {
+                       setIsProvinceOpen(true);
+                       setIsDistrictOpen(false);
+                       setIsWardOpen(false);
+                     }
+                   }}
+                   onFocus={() => {
+                     setIsProvinceOpen(true);
+                     setIsDistrictOpen(false);
+                     setIsWardOpen(false);
+                   }}
+                   placeholder="Search province/city..."
+                   disabled={isLoading || loading.provinces}
+                   className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                 />
+                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                   <svg className={`w-4 h-4 transition-transform ${isProvinceOpen ? 'rotate-180' : ''} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </div>
+               </div>
+               
+               {isProvinceOpen && (
+                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                   {filteredProvinces.length > 0 ? (
+                     filteredProvinces.map((province) => (
+                       <button
+                         key={province.ProvinceID}
+                         type="button"
+                         onClick={() => handleProvinceSelect(province.ProvinceID)}
+                         className="w-full px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none text-black"
+                       >
+                         {province.ProvinceName}
+                       </button>
+                     ))
+                   ) : (
+                     <div className="px-3 py-2 text-gray-500 text-sm">
+                       No province/city found
+                     </div>
+                   )}
+                 </div>
+               )}
+             </div>
+             {loading.provinces && (
+               <p className="text-xs text-gray-500 mt-1">Loading...</p>
+             )}
+             {errors.provinceId && (
+               <p className="mt-1 text-sm text-red-600">{errors.provinceId}</p>
+             )}
+           </div>
 
           {/* District Selection */}
-          <div>
+          <div className="relative dropdown-container">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               District <span className="text-red-500">*</span>
             </label>
-            <select
-              value={selectedDistrict || ''}
-              onChange={handleDistrictChange}
-              disabled={isLoading || loading.districts || !selectedProvince}
-              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
-            >
-              <option value="">Select district</option>
-              {districts.map((district) => (
-                <option key={district.DistrictID} value={district.DistrictID}>
-                  {district.DistrictName}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={districtSearch || (selectedDistrict ? districts.find(d => d.DistrictID === selectedDistrict)?.DistrictName || '' : '')}
+                  onChange={(e) => {
+                    setDistrictSearch(e.target.value);
+                    if (!isDistrictOpen) {
+                      setIsDistrictOpen(true);
+                      setIsProvinceOpen(false);
+                      setIsWardOpen(false);
+                    }
+                  }}
+                  onFocus={() => {
+                    setIsDistrictOpen(true);
+                    setIsProvinceOpen(false);
+                    setIsWardOpen(false);
+                  }}
+                   placeholder="Search district..."
+                  disabled={isLoading || loading.districts || !selectedProvince}
+                  className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className={`w-4 h-4 transition-transform ${isDistrictOpen ? 'rotate-180' : ''} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              
+              {isDistrictOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                  {filteredDistricts.length > 0 ? (
+                    filteredDistricts.map((district) => (
+                      <button
+                        key={district.DistrictID}
+                        type="button"
+                        onClick={() => handleDistrictSelect(district.DistrictID)}
+                        className="w-full px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none text-black"
+                      >
+                        {district.DistrictName}
+                      </button>
+                    ))
+                  ) : (
+                     <div className="px-3 py-2 text-gray-500 text-sm">
+                       No district found
+                     </div>
+                  )}
+                </div>
+              )}
+            </div>
             {loading.districts && (
               <p className="text-xs text-gray-500 mt-1">Loading...</p>
             )}
@@ -490,23 +640,60 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           </div>
 
           {/* Ward Selection */}
-          <div>
+          <div className="relative dropdown-container">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Ward <span className="text-red-500">*</span>
             </label>
-            <select
-              value={selectedWard || ''}
-              onChange={handleWardChange}
-              disabled={isLoading || loading.wards || !selectedDistrict}
-              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
-            >
-              <option value="">Select ward</option>
-              {wards.map((ward) => (
-                <option key={ward.WardCode} value={ward.WardCode}>
-                  {ward.WardName}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={wardSearch || (selectedWard ? wards.find(w => w.WardCode === selectedWard)?.WardName || '' : '')}
+                  onChange={(e) => {
+                    setWardSearch(e.target.value);
+                    if (!isWardOpen) {
+                      setIsWardOpen(true);
+                      setIsProvinceOpen(false);
+                      setIsDistrictOpen(false);
+                    }
+                  }}
+                  onFocus={() => {
+                    setIsWardOpen(true);
+                    setIsProvinceOpen(false);
+                    setIsDistrictOpen(false);
+                  }}
+                   placeholder="Search ward..."
+                  disabled={isLoading || loading.wards || !selectedDistrict}
+                  className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className={`w-4 h-4 transition-transform ${isWardOpen ? 'rotate-180' : ''} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              
+              {isWardOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                  {filteredWards.length > 0 ? (
+                    filteredWards.map((ward) => (
+                      <button
+                        key={ward.WardCode}
+                        type="button"
+                        onClick={() => handleWardSelect(ward.WardCode)}
+                        className="w-full px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none text-black"
+                      >
+                        {ward.WardName}
+                      </button>
+                    ))
+                  ) : (
+                     <div className="px-3 py-2 text-gray-500 text-sm">
+                       No ward found
+                     </div>
+                  )}
+                </div>
+              )}
+            </div>
             {loading.wards && (
               <p className="text-xs text-gray-500 mt-1">Loading...</p>
             )}

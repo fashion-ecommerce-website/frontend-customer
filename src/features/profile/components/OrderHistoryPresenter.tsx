@@ -65,9 +65,9 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
 
   const getPayAgainButtonClass = (order: Order) => {
     if (canPayAgain(order)) {
-      return "text-sm font-medium bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 cursor-pointer";
+      return "text-sm font-medium text-black border border-transparent hover:text-red-600 hover:border-red-300 hover:bg-red-50 px-3 py-1 rounded cursor-pointer transition-colors";
     }
-    return "text-sm font-medium bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 cursor-pointer opacity-60";
+    return "text-sm font-medium text-gray-400 border border-transparent hover:border-gray-300 hover:bg-gray-50 px-3 py-1 rounded cursor-not-allowed transition-colors";
   };
 
   const getPayAgainButtonTitle = (order: Order) => {
@@ -141,14 +141,14 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenDetail?.(order)}
-                  className="text-sm font-medium text-black hover:opacity-70 cursor-pointer"
+                  className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-3 py-1 rounded cursor-pointer transition-colors"
                 >
                   Order Details
                 </button>
                 <button
                   type="button"
                   onClick={() => onTrack?.(order)}
-                  className="text-sm font-medium text-black hover:opacity-70 cursor-pointer"
+                  className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-3 py-1 rounded cursor-pointer transition-colors"
                   title="Track shipment"
                 >
                   Track Order

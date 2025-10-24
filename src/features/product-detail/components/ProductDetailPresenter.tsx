@@ -168,15 +168,15 @@ export function ProductDetailPresenter({
         </div>
       </div>
 
-      
+      {/* Reviews Section */}
+      <ReviewsSection productDetailId={product.detailId} />
       {/* Related Products */}
       <RelatedProducts category="ao-thun" />
 
       {/* Recently Viewed Products */}
       <ProductDetailRecentlyViewed />
 
-      {/* Reviews */}
-      <ReviewsSection productDetailId={product.detailId} />
+      
 
     </div>
   );
