@@ -70,3 +70,20 @@ export const GHN_CONFIG = {
     insurance_value: 0
   }
 };
+
+/**
+ * Fitroom Virtual Try-On Configuration
+ */
+export const FITROOM_CONFIG = {
+  API_BASE_URL: 'https://platform.fitroom.app/api/tryon/v2',
+  API_KEY: process.env.NEXT_PUBLIC_FITROOM_API_KEY || '49a5992a71d84d1ea6deea13ee633d874db21fa98f13682b84ac9b87b135a5c3',
+  STATUS_API_KEY: process.env.NEXT_PUBLIC_FITROOM_STATUS_API_KEY || '38f436e1fb294a5bb62268350044db75f3f14b5003b4c21d434a14fa6b1184ba',
+  // Default cloth type for virtual try-on
+  DEFAULT_CLOTH_TYPE: 'upper' as const,
+  // Polling configuration
+  POLLING: {
+    MAX_ATTEMPTS: 60,        // Maximum number of polling attempts
+    INTERVAL_MS: 2000,       // Interval between polls in milliseconds
+    TIMEOUT_MS: 120000,      // Overall timeout in milliseconds (2 minutes)
+  }
+};

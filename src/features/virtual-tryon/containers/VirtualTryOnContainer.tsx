@@ -59,29 +59,94 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
     setError(null);
 
     try {
-      // TODO: Replace with actual API call to virtual try-on service
-      // For now, simulate processing with a delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Mock result - in production, this would be the API response
-      // For demonstration, we'll just use the user image
-      setResultImage(userImage);
+      // Convert base64 user image to File
+      const userImageFile = await base64ToFile(userImage, 'user-photo.jpg');
       
-      // In a real implementation, you would call something like:
-      // const response = await virtualTryOnApi.processImage({
-      //   userImage,
-      //   productImage: selectedProduct.imageUrl,
-      //   productId: selectedProduct.productDetailId
-      // });
-      // setResultImage(response.data.resultImageUrl);
+      // Fetch product image and convert to File
+      const productImageResponse = await fetch(selectedProduct.imageUrl);
+      const productImageBlob = await productImageResponse.blob();
+      const productImageFile = new File([productImageBlob], 'product.jpg', { type: 'image/jpeg' });
+
+      // Create FormData for API request
+      const formData = new FormData();
+      formData.append('model_image', userImageFile);
+      formData.append('cloth_image', productImageFile);
+      formData.append('cloth_type', 'upper'); // Can be made dynamic based on product category
+
+      // Step 1: Create virtual try-on task
+      const createResponse = await fetch('/api/virtual-tryon', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!createResponse.ok) {
+        throw new Error('Failed to create virtual try-on task');
+      }
+
+      const createData = await createResponse.json();
+      
+      if (!createData.success || !createData.taskId) {
+        throw new Error(createData.error || 'Failed to create task');
+      }
+
+      const taskId = createData.taskId;
+      console.log('✅ Task created:', taskId);
+
+      // Step 2: Poll for task completion
+      const maxAttempts = 60; // 60 attempts * 2 seconds = 2 minutes max
+      const pollInterval = 2000; // 2 seconds
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        // Wait before polling
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+
+        const statusResponse = await fetch(`/api/virtual-tryon?taskId=${taskId}`);
+        
+        if (!statusResponse.ok) {
+          throw new Error('Failed to check task status');
+        }
+
+        const statusData = await statusResponse.json();
+
+        if (!statusData.success) {
+          throw new Error(statusData.error || 'Failed to get status');
+        }
+
+        console.log(`📊 Task status (attempt ${attempt + 1}):`, statusData.status);
+
+        // Check if completed
+        if (statusData.status === 'COMPLETED' && statusData.resultImageUrl) {
+          setResultImage(statusData.resultImageUrl);
+          setIsProcessing(false); // Ensure processing state is updated
+          console.log('✅ Virtual try-on completed!');
+          return;
+        }
+
+        // Check if failed
+        if (statusData.status === 'failed') {
+          throw new Error(statusData.error || 'Virtual try-on processing failed');
+        }
+
+        // Continue polling for 'pending' or 'processing' status
+      }
+
+      // If we reach here, it timed out
+      throw new Error('Virtual try-on timed out. Please try again.');
       
     } catch (err) {
-      setError('Failed to process virtual try-on. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to process virtual try-on. Please try again.');
       console.error('Virtual try-on error:', err);
     } finally {
       setIsProcessing(false);
     }
   }, [selectedProduct, userImage]);
+
+  // Helper: Convert base64 to File
+  const base64ToFile = async (base64: string, filename: string): Promise<File> => {
+    const response = await fetch(base64);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
+  };
 
   // Handle reset
   const handleReset = useCallback(() => {
