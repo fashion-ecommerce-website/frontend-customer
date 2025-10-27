@@ -44,10 +44,10 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
 
   return (
     <div className="">
-      <div className="flex gap-4 items-start">
-        {/* Left: Vertical Thumbnails */}
+      <div className="flex gap-2 md:gap-4 items-start">
+        {/* Left: Vertical Thumbnails - Hidden on mobile */}
         {displayImages.length > 1 && (
-          <div className="w-24 flex-shrink-0">
+          <div className="hidden md:block w-24 flex-shrink-0">
             <div
               className="flex flex-col space-y-2 overflow-y-auto overflow-x-hidden"
               style={{ height: '616px', scrollbarWidth: 'thin' }}
@@ -56,7 +56,7 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
                 <button
                   key={index}
                   onClick={() => scrollTo(index)}
-                  className={`relative w-24 h-24 overflow-hidden border transition-all duration-200 ${selectedImageIndex === index ? 'border-black border-2' : 'border-gray-200 hover:border-gray-400'
+                  className={`relative w-24 aspect[4/5] overflow-hidden border transition-all duration-200 ${selectedImageIndex === index ? 'border-black border-2' : 'border-gray-200 hover:border-gray-400'
                     }`}
                   title={`Thumbnail ${index + 1}`}
                 >

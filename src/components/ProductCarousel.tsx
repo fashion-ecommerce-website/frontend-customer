@@ -149,7 +149,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
                     }
                   >
                     {/* Product Image */}
-                    <div className="relative w-full aspect-square mb-3 sm:mb-4 overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300">
+                    <div className="relative w-full aspect-[4/5] mb-3 sm:mb-4 overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300">
                       {firstImage ? (
                         <>
                           {/* Base image */}
@@ -230,7 +230,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
                             return (
                               <div
                                 key={index}
-                                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full ${colorClass} ring-1 ring-gray-200 transition-transform hover:scale-110`}
+                                className={`w-3 h-3 sm:w-3 sm:h-3 rounded-full ${colorClass} ring-1 ring-gray-200 transition-transform hover:scale-110`}
                                 title={color}
                               />
                             );

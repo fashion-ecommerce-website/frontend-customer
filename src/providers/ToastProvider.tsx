@@ -110,8 +110,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         {toasts.map((toast, index) => (
           <div 
             key={toast.id} 
-            className="absolute right-4"
-            style={{ top: `${16 + index * 80}px` }}
+            className="absolute right-2 sm:right-4"
+            style={{ top: `${12 + index * 70}px` }}
           >
             <Toast
               message={toast.message}
@@ -129,8 +129,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
           return (
             <div 
               key={toast.id} 
-              className="mb-4"
-              style={{ marginTop: `${index * 10}px` }}
+              className="mb-3 sm:mb-4"
+              style={{ marginTop: `${index * 8}px` }}
             >
               <ProductToast
                 productImage={toast.productImage}

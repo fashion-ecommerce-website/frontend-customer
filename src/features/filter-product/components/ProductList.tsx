@@ -87,7 +87,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                 }
               >
                 {/* Product Image + Add to Cart Icon */}
-                <div className="relative w-full aspect-square mb-2 sm:mb-3 overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative w-full aspect-[4/5] mb-2 sm:mb-3 overflow-hidden rounded-lg bg-gray-100">
                   {/* Promotion Badge */}
                   {product.percentOff && (
                     <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold rounded shadow-lg w-10 h-6 flex items-center justify-center">
@@ -128,27 +128,27 @@ export const ProductList: React.FC<ProductListProps> = ({
 
                 {/* Product Info */}
                 <div className="space-y-1.5 sm:space-y-2 px-1">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-black transition-colors">
+                  <h3 className="font-medium text-gray-900 text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-black transition-colors min-h-[44px]">
                     {product.productTitle}
                   </h3>
                   <div className="flex items-center gap-2">
                     {product.finalPrice && product.finalPrice < product.price ? (
                       <>
-                        <div className="text-xs sm:text-sm font-bold text-red-600">
+                        <div className="text-lg sm:text-base font-bold text-red-600">
                           {product.finalPrice.toLocaleString('vi-VN')}₫
                         </div>
-                        <div className="text-xs line-through text-gray-500">
+                        <div className="text-base sm:text-sm line-through text-gray-500">
                           {product.price.toLocaleString('vi-VN')}₫
                         </div>
                       </>
                     ) : (
-                      <div className="text-xs sm:text-sm font-bold text-black">
+                      <div className="text-lg sm:text-base font-bold text-black">
                         {product.price.toLocaleString('vi-VN')}₫
                       </div>
                     )}
                   </div>
                   {/* Available colors */}
-                  <div className="flex items-center gap-1.5 pt-1">
+                  <div className="flex items-center gap-2 pt-1">
                     {product.colors.slice(0, 5).map((color, index) => {
                       let colorClass = "";
                       switch (color) {
@@ -156,34 +156,34 @@ export const ProductList: React.FC<ProductListProps> = ({
                           colorClass = "bg-black";
                           break;
                         case "white":
-                          colorClass = "bg-white border-2 border-gray-300";
+                          colorClass = "bg-[#f1f0eb]";
                           break;
                         case "red":
-                          colorClass = "bg-[#FF0000]";
+                          colorClass = "bg-[#6d2028]";
                           break;
                         case "gray":
-                          colorClass = "bg-[#CCCACA]";
+                          colorClass = "bg-[#a7a9a8]";
                           break;
                         case "blue":
-                          colorClass = "bg-[#5100FF]";
+                          colorClass = "bg-[#acbdcd]";
                           break;
                         case "pink":
-                          colorClass = "bg-[#DB999B]";
+                          colorClass = "bg-[#ddb3bd]";
                           break;
                         case "yellow":
-                          colorClass = "bg-[#FFFF05]";
+                          colorClass = "bg-[#dcbe9a]";
                           break;
                         case "purple":
-                          colorClass = "bg-[#B5129A]";
+                          colorClass = "bg-[#47458e]";
                           break;
                         case "brown":
-                          colorClass = "bg-[#753A3A]";
+                          colorClass = "bg-[#61493f]";
                           break;
                         case "green":
-                          colorClass = "bg-[#3CFA08]";
+                          colorClass = "bg-[#2c5449]";
                           break;
                         case "beige":
-                          colorClass = "bg-[#DCB49E]";
+                          colorClass = "bg-[#ebe7dc]";
                           break;
                         case "orange":
                           colorClass = "bg-[#F5B505]";
@@ -194,7 +194,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                       return (
                         <div
                           key={index}
-                          className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full ${colorClass} ring-1 ring-gray-200 transition-transform hover:scale-110`}
+                          className={`w-3.5 h-3.5 sm:w-3 sm:h-3 rounded-full ${colorClass} ring-1 ring-gray-200 transition-transform hover:scale-110`}
                           title={color}
                         />
                       );
