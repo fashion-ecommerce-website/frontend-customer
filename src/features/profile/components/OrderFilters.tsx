@@ -124,13 +124,13 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   };
 
   return (
-    <div className={`flex items-center gap-4 ${className}`}>
+    <div className={`flex items-center gap-2 sm:gap-4 ${className}`}>
       {/* Filter Dropdown */}
-      <div className="relative">
+      <div className="relative flex-1 sm:flex-none">
         <select
           value={getCurrentFilterValue()}
           onChange={(e) => handleCombinedFilterChange(e.target.value)}
-          className="pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white appearance-none"
+          className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white appearance-none"
         >
           <option value="">All</option>
           <option value="cancelled">Cancelled</option>
@@ -143,16 +143,16 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
           height="16" 
           src="https://img.icons8.com/ios/50/filter.png" 
           alt="filter"
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+          className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 pointer-events-none w-3 h-3 sm:w-4 sm:h-4"
         />
       </div>
 
       {/* Sort Dropdown */}
-      <div className="relative">
+      <div className="relative flex-1 sm:flex-none">
         <select
           value={getCurrentSortValue()}
           onChange={(e) => handleCombinedSortChange(e.target.value)}
-          className="pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white appearance-none"
+          className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white appearance-none"
         >
           <option value="new">Newest</option>
           <option value="old">Oldest</option>
@@ -163,7 +163,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
           height="16" 
           src="https://img.icons8.com/ios-glyphs/30/sorting-arrows.png" 
           alt="sorting-arrows"
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+          className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 pointer-events-none w-3 h-3 sm:w-4 sm:h-4"
         />
       </div>
     </div>

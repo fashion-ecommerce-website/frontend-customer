@@ -65,9 +65,9 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
 
   const getPayAgainButtonClass = (order: Order) => {
     if (canPayAgain(order)) {
-      return "text-sm font-medium text-black border border-transparent hover:text-red-600 hover:border-red-300 hover:bg-red-50 px-3 py-1 rounded cursor-pointer transition-colors";
+      return "text-xs sm:text-sm font-medium text-black border border-transparent hover:text-red-600 hover:border-red-300 hover:bg-red-50 px-2 sm:px-3 py-1 rounded cursor-pointer transition-colors";
     }
-    return "text-sm font-medium text-gray-400 border border-transparent hover:border-gray-300 hover:bg-gray-50 px-3 py-1 rounded cursor-not-allowed transition-colors";
+    return "text-xs sm:text-sm font-medium text-gray-400 border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 sm:px-3 py-1 rounded cursor-not-allowed transition-colors";
   };
 
   const getPayAgainButtonTitle = (order: Order) => {
@@ -119,11 +119,64 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
   }
 
   return (
-    <div className="px-4 border-t-3 border-black">
-      <div className="space-y-6 pt-6">
+    <div className="px-2 sm:px-4 border-t-3 border-black">
+      <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6">
         {orders.map(order => (
-          <div key={order.id} className="border-b border-gray-200 pb-6">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between text-sm text-gray-600 mb-4">
+          <div key={order.id} className="border-b border-gray-200 pb-4 sm:pb-6">
+            {/* Mobile Layout */}
+            <div className="lg:hidden">
+              {/* Compact Header */}
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                    <span className="font-bold text-black text-sm">#{order.id}</span>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${getPaymentBadgeClass(order.paymentStatus)}`}>
+                      {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200">
+                      {getShipmentStatus(order)}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-gray-500">{formatDate(order.createdAt)}</div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-black font-bold text-sm">{formatPrice(order.totalAmount)}</div>
+                </div>
+              </div>
+
+              {/* Actions - Compact buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleExpand(order.id)}
+                  className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors"
+                >
+                  {expandedIds.has(order.id) ? 'Hide Products' : 'Show Products'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpenDetail?.(order)}
+                  className="text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors"
+                >
+                  Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                  disabled={!canPayAgain(order)}
+                  className={`text-xs font-medium px-3 py-1.5 rounded transition-colors ${
+                    canPayAgain(order) 
+                      ? 'text-red-600 border border-red-300 hover:bg-red-50' 
+                      : 'text-gray-400 border border-gray-300 bg-gray-50 cursor-not-allowed'
+                  }`}
+                >
+                  Pay
+                </button>
+              </div>
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden lg:flex flex-col gap-2 md:flex-row md:items-center md:justify-between text-sm text-gray-600 mb-4">
               <div
                 className="grid grid-cols-[64px_200px_auto_160px] justify-items-start items-center gap-y-3 gap-x-2 cursor-pointer select-none"
                 onClick={() => toggleExpand(order.id)}
@@ -166,46 +219,82 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
             </div>
 
             {expandedIds.has(order.id) && (
-              <div className="space-y-6">
-                {order.orderDetails.map(detail => (
-                  <div key={detail.id} className="flex gap-4">
-                    <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                      <img 
-                        src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
-                        alt={detail.title} 
-                        className="w-full h-full object-cover" 
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-black font-semibold">{detail.title}</div>
-                      <div className="text-xs text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</div>
-                      <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
-                      
-                      {/* Price - Simple like product detail */}
-                      <div className="mt-2">
-                        {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
-                          <div className="flex items-center gap-2">
-                            <div className="text-black font-semibold">
-                              {formatPrice(detail.finalPrice)}
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                {/* Mobile: Simple compact list */}
+                <div className="space-y-3 lg:hidden">
+                  {order.orderDetails.map(detail => (
+                    <div key={detail.id} className="flex gap-2">
+                      <div className="w-16 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
+                        <img 
+                          src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
+                          alt={detail.title} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-black font-semibold text-xs line-clamp-2 leading-tight mb-1">{detail.title}</div>
+                        <div className="text-[10px] text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</div>
+                        <div className="flex items-center justify-between mt-1.5">
+                          <span className="text-[10px] text-gray-600">x{detail.quantity}</span>
+                          {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-black font-bold text-xs">{formatPrice(detail.finalPrice)}</span>
+                              {detail.percentOff && (
+                                <span className="bg-red-500 text-white px-1 py-0.5 rounded text-[9px] font-medium">
+                                  -{detail.percentOff}%
+                                </span>
+                              )}
                             </div>
-                            <div className="text-sm line-through text-gray-500">
-                              {formatPrice(detail.unitPrice)}
-                            </div>
-                            {detail.percentOff && (
-                              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                                -{detail.percentOff}%
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="text-black font-semibold">
-                            {formatPrice(detail.unitPrice)}
-                          </div>
-                        )}
+                          ) : (
+                            <span className="text-black font-bold text-xs">{formatPrice(detail.unitPrice)}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                {/* Desktop: Full details */}
+                <div className="hidden lg:block space-y-6">
+                  {order.orderDetails.map(detail => (
+                    <div key={detail.id} className="flex gap-4">
+                      <div className="w-20 xl:w-24 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
+                        <img 
+                          src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
+                          alt={detail.title} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-black font-semibold text-base line-clamp-2">{detail.title}</div>
+                        <div className="text-xs text-gray-500 mt-1">{detail.colorLabel} / {detail.sizeLabel}</div>
+                        <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
+                        
+                        <div className="mt-2">
+                          {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="text-black font-bold text-base">
+                                {formatPrice(detail.finalPrice)}
+                              </div>
+                              <div className="text-sm line-through text-gray-500">
+                                {formatPrice(detail.unitPrice)}
+                              </div>
+                              {detail.percentOff && (
+                                <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                  -{detail.percentOff}%
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-black font-bold text-base">
+                              {formatPrice(detail.unitPrice)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

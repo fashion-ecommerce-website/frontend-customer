@@ -79,17 +79,32 @@ export const OrderHistoryContainer: React.FC<{
   };
 
   return (
-    <div className="px-4">
+    <div className="px-2 sm:px-4">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800">Order History</h2>
-        {/* Filters */}
-        <OrderFilters
-          query={query}
-          onQueryChange={handleQueryChange}
-          onApplyFilters={handleApplyFilters}
-          loading={loading}
-        />
+      <div className="mb-4 sm:mb-6">
+        {/* Title - Full width on mobile */}
+        <h2 className="text-base sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-0 sm:hidden">Order History</h2>
+        
+        {/* Desktop: Side by side */}
+        <div className="hidden sm:flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-800">Order History</h2>
+          <OrderFilters
+            query={query}
+            onQueryChange={handleQueryChange}
+            onApplyFilters={handleApplyFilters}
+            loading={loading}
+          />
+        </div>
+        
+        {/* Mobile: Filters below title */}
+        <div className="sm:hidden">
+          <OrderFilters
+            query={query}
+            onQueryChange={handleQueryChange}
+            onApplyFilters={handleApplyFilters}
+            loading={loading}
+          />
+        </div>
       </div>
 
 
