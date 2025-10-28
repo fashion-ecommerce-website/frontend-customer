@@ -11,6 +11,7 @@ export interface CartPresenterProps {
   cartSummary: CartSummary;
   loading: boolean;
   error: string | null;
+  hasInitiallyLoaded: boolean;
   allItemsSelected: boolean;
   onRemoveItem: (cartItemId: number) => Promise<void>;
   onSelectItem: (cartItemId: number) => void;
@@ -51,6 +52,7 @@ export interface CartCallStateProps {
     cartSummary: CartSummary;
     loading: boolean;
     error: string | null;
+    hasInitiallyLoaded: boolean;
     refreshCart: () => void;
     clearError: () => void;
   }) => React.ReactNode;

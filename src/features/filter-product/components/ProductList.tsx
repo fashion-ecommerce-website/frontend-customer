@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 
-import AddToCartSvg from "../../../components/AddToCartSvg";
 import { FilterProductItem } from "../types";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
+import { ProductCard, ProductCardSkeleton } from "@/components";
+import { Product } from "@/types/product.types";
 
 interface ProductListProps {
   products: FilterProductItem[];
@@ -11,6 +12,23 @@ interface ProductListProps {
   onProductClick: (detailId: number, slug: string) => void;
   gridColumns?: string; // Custom grid columns classes
 }
+
+// Adapter function to convert FilterProductItem to Product
+const convertToProduct = (item: FilterProductItem): Product => ({
+  id: item.detailId.toString(),
+  name: item.productTitle,
+  brand: "", // Not available in FilterProductItem
+  price: item.price,
+  finalPrice: item.finalPrice,
+  percentOff: item.percentOff,
+  promotionId: item.promotionId,
+  promotionName: item.promotionName,
+  image: item.imageUrls[0] || "",
+  images: item.imageUrls,
+  category: "", // Not available in FilterProductItem
+  colors: item.colors,
+  sizes: [], // Not available in FilterProductItem
+});
 
 export const ProductList: React.FC<ProductListProps> = ({
   products,
@@ -22,23 +40,17 @@ export const ProductList: React.FC<ProductListProps> = ({
   const [quickViewProductId, setQuickViewProductId] = useState<number | null>(null);
 
   const handleOpenQuickView = (
-    product: FilterProductItem,
+    product: Product,
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
-    setQuickViewProductId(product.detailId);
+    setQuickViewProductId(parseInt(product.id));
     setQuickViewOpen(true);
   };
 
   const handleCloseQuickView = () => {
     setQuickViewOpen(false);
     setQuickViewProductId(null);
-  };
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
   };
 
   // Số lượng skeleton card muốn hiển thị khi loading
@@ -54,157 +66,19 @@ export const ProductList: React.FC<ProductListProps> = ({
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-      {isLoading
+      {isLoading && products.length === 0
         ? Array.from({ length: skeletonCount }).map((_, idx) => (
-            <div key={idx} className="animate-pulse">
-              {/* Skeleton Image */}
-              <div className="relative w-full aspect-square mb-3 sm:mb-4 overflow-hidden rounded-xl bg-gray-200">
-                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-gray-300 rounded-full" />
-                <div className="absolute inset-0 w-full h-full bg-gray-300" />
-              </div>
-              {/* Skeleton Info */}
-              <div className="space-y-2 sm:space-y-2.5 px-1">
-                <div className="h-5 sm:h-6 bg-gray-300 rounded w-3/4" />
-                <div className="h-4 sm:h-5 bg-gray-300 rounded w-1/2" />
-                <div className="flex items-center gap-1.5 mt-2 sm:mt-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-gray-300" />
-                  ))}
-                </div>
-              </div>
-            </div>
+            <ProductCardSkeleton key={idx} />
           ))
-        : products.map((product) => {
-            const firstImage = product.imageUrls?.[0] ?? "";
-            const secondImage = product.imageUrls?.[1] ?? null;
-
+        : products.map((item) => {
+            const product = convertToProduct(item);
             return (
-              <div
-                key={product.detailId}
-                className="group cursor-pointer transition-all duration-300 ease-out"
-                onClick={() =>
-                  onProductClick(product.detailId, product.productSlug)
-                }
-              >
-                {/* Product Image + Add to Cart Icon */}
-                <div className="relative w-full aspect-[4/5] mb-2 sm:mb-3 overflow-hidden rounded-lg bg-gray-100">
-                  {/* Promotion Badge */}
-                  {product.percentOff && (
-                    <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold rounded shadow-lg w-10 h-6 flex items-center justify-center">
-                      -{product.percentOff}%
-                    </div>
-                  )}
-                  
-                  {/* Add to Cart Icon */}
-                  <button
-                    className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    onClick={(e) => handleOpenQuickView(product, e)}
-                    aria-label="Quick view product"
-                  >
-                    <div className="scale-90 sm:scale-100 drop-shadow-lg">
-                      <AddToCartSvg />
-                    </div>
-                  </button>
-                  {firstImage ? (
-                    <>
-                      {/* base image */}
-                      <div
-                        className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat transform group-hover:scale-105 transition-transform duration-500 ease-out"
-                        style={{ backgroundImage: `url(${firstImage})` }}
-                      />
-
-                      {/* hover: show next image with fade only */}
-                      {secondImage && (
-                        <div
-                          className="absolute inset-0 w-full h-full bg-center bg-cover bg-no-repeat opacity-0 transition-opacity duration-300 ease-linear group-hover:opacity-100"
-                          style={{ backgroundImage: `url(${secondImage})` }}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <div className="w-full h-full bg-gray-200" />
-                  )}
-                </div>
-
-                {/* Product Info */}
-                <div className="space-y-1.5 sm:space-y-2 px-1">
-                  <h3 className="font-medium text-gray-900 text-sm sm:text-base line-clamp-2 leading-snug group-hover:text-black transition-colors min-h-[44px]">
-                    {product.productTitle}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    {product.finalPrice && product.finalPrice < product.price ? (
-                      <>
-                        <div className="text-lg sm:text-base font-bold text-red-600">
-                          {product.finalPrice.toLocaleString('vi-VN')}₫
-                        </div>
-                        <div className="text-base sm:text-sm line-through text-gray-500">
-                          {product.price.toLocaleString('vi-VN')}₫
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-lg sm:text-base font-bold text-black">
-                        {product.price.toLocaleString('vi-VN')}₫
-                      </div>
-                    )}
-                  </div>
-                  {/* Available colors */}
-                  <div className="flex items-center gap-2 pt-1">
-                    {product.colors.slice(0, 5).map((color, index) => {
-                      let colorClass = "";
-                      switch (color) {
-                        case "black":
-                          colorClass = "bg-black";
-                          break;
-                        case "white":
-                          colorClass = "bg-[#f1f0eb]";
-                          break;
-                        case "red":
-                          colorClass = "bg-[#6d2028]";
-                          break;
-                        case "gray":
-                          colorClass = "bg-[#a7a9a8]";
-                          break;
-                        case "blue":
-                          colorClass = "bg-[#acbdcd]";
-                          break;
-                        case "pink":
-                          colorClass = "bg-[#ddb3bd]";
-                          break;
-                        case "yellow":
-                          colorClass = "bg-[#dcbe9a]";
-                          break;
-                        case "purple":
-                          colorClass = "bg-[#47458e]";
-                          break;
-                        case "brown":
-                          colorClass = "bg-[#61493f]";
-                          break;
-                        case "green":
-                          colorClass = "bg-[#2c5449]";
-                          break;
-                        case "beige":
-                          colorClass = "bg-[#ebe7dc]";
-                          break;
-                        case "orange":
-                          colorClass = "bg-[#F5B505]";
-                          break;
-                        default:
-                          colorClass = "bg-gray-400";
-                      }
-                      return (
-                        <div
-                          key={index}
-                          className={`w-3.5 h-3.5 sm:w-3 sm:h-3 rounded-full ${colorClass} ring-1 ring-gray-200 transition-transform hover:scale-110`}
-                          title={color}
-                        />
-                      );
-                    })}
-                    {product.colors.length > 5 && (
-                      <span className="text-xs text-gray-500 ml-1">+{product.colors.length - 5}</span>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                key={item.detailId}
+                product={product}
+                onProductClick={() => onProductClick(item.detailId, item.productSlug)}
+                onQuickView={(product, e) => handleOpenQuickView(product, e)}
+              />
             );
           })}
       

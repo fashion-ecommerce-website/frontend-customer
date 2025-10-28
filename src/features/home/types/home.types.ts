@@ -78,35 +78,10 @@ export interface FooterData {
   };
 }
 
-// Product Types
-export interface Product {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;          // base price
-  finalPrice?: number;    // after promotion
-  originalPrice?: number;  // legacy field for backward compatibility
-  discount?: number;       // legacy field for backward compatibility
-  percentOff?: number;    // integer percent
-  promotionId?: number;   // nullable
-  promotionName?: string; // nullable
-  image: string;
-  images: string[];
-  category: string;
-  colors: string[];
-  sizes: string[];
-  isNew?: boolean;
-  isSale?: boolean;
-  rating?: number;
-  reviewCount?: number;
-}
-
-export interface ProductCategory {
-  id: string;
-  name: string;
-  slug: string;
-  isActive: boolean;
-}
+// Product Types - Re-exported from shared types
+import { Product as SharedProduct, ProductCategory as SharedProductCategory } from '@/types/product.types';
+export type Product = SharedProduct;
+export type ProductCategory = SharedProductCategory;
 
 // Banner Types
 export interface Banner {

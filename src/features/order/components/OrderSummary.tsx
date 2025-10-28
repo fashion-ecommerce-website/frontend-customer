@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ShippingFeeData } from '@/features/order/hooks/useShippingFee';
 import { mockOrderProducts, calculateOrderTotals } from '@/features/order/mockData';
 import { ProductItem } from '@/services/api/productApi';
@@ -27,6 +28,7 @@ export function OrderSummary({
 	onOrderComplete,
 	note,
 }: OrderSummaryProps): React.ReactElement {
+	const router = useRouter();
 	const [isItemsVisible, setIsItemsVisible] = useState(true);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
@@ -188,9 +190,10 @@ export function OrderSummary({
 		})[0] : undefined;
 
         if (selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY) {
-            const successUrl = `${window.location.origin}/checkout/success?status=success&orderId=${order.id}&payment=unpaid`;
+            // Call onOrderComplete BEFORE navigation to clear cart
             if (onOrderComplete) onOrderComplete(order.id);
-            window.location.href = successUrl;
+            // Use Next.js router instead of window.location to avoid full page reload
+            router.push(`/checkout/success?status=success&orderId=${order.id}&payment=unpaid`);
             return;
         }
 
@@ -201,7 +204,9 @@ export function OrderSummary({
 			PaymentApi.createCheckout({ paymentId: latestPayment.id, successUrl, cancelUrl })
 				.then(res => {
 					if (res.success && res.data?.checkoutUrl) {
-                if (onOrderComplete) onOrderComplete(order.id);
+                		// Call onOrderComplete BEFORE navigation to clear cart
+                		if (onOrderComplete) onOrderComplete(order.id);
+						// For Stripe checkout, we must use window.location to go to external URL
 						window.location.href = res.data.checkoutUrl;
 					} else {
 						setSubmitError(res.message || 'Failed to initiate payment');
@@ -211,7 +216,7 @@ export function OrderSummary({
 					setSubmitError(err?.message || 'Failed to initiate payment');
 				});
 		}
-	}, [order, onOrderComplete, selectedPaymentMethod]);
+	}, [order, onOrderComplete, selectedPaymentMethod, router]);
 
 	// Handle order errors
 	React.useEffect(() => {

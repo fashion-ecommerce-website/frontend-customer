@@ -16,6 +16,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
   cartSummary,
   loading,
   error,
+  hasInitiallyLoaded,
   allItemsSelected,
   onRemoveItem,
   onSelectItem,
@@ -53,8 +54,26 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
     }
   };
 
-  // Empty cart state
-  if (cartItems.length === 0 && !loading) {
+  // Empty cart state - improved logic to prevent flash
+  if (cartItems.length === 0) {
+    // Show skeleton during initial load (before first data fetch completes)
+    if (loading || !hasInitiallyLoaded) {
+      // Show skeletons during initial load
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
+            <Breadcrumb items={breadcrumbItems} />
+            <div className="bg-white rounded-lg p-6 mt-6">
+              <CartItemSkeleton />
+              <CartItemSkeleton />
+              <CartItemSkeleton />
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // Show empty state only when not loading
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">

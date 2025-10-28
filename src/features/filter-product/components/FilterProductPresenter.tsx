@@ -43,6 +43,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   const [products, setProducts] = useState<FilterProductItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -88,15 +89,32 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   });
 
   const fetchProducts = async (searchFilters: ProductFilters) => {
-    // Đảm bảo skeleton hiển thị tối thiểu 400ms
+    // Cancel previous request if exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Clear previous timeout
     if (loadingTimeoutRef.current) {
       clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
     }
+    
+    // Create new abort controller for this request
+    abortControllerRef.current = new AbortController();
+    
     setIsLoading(true);
     setError(null);
     const start = Date.now();
+    
     try {
       const response = await productApi.getProducts(searchFilters);
+      
+      // Check if request was aborted
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
+      
       if (response.success && response.data) {
         setProducts(response.data.items);
         setPagination({
@@ -111,15 +129,25 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
         setError(response.message || 'An error occurred while loading products');
         setProducts([]);
       }
-    } catch (err) {
+    } catch (err: any) {
+      // Don't show error if request was aborted
+      if (err.name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
+        return;
+      }
       setError('Unable to connect to server');
       setProducts([]);
     } finally {
+      // Don't update loading state if request was aborted
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
+      
       const elapsed = Date.now() - start;
       const minDelay = 200;
       if (elapsed < minDelay) {
         loadingTimeoutRef.current = setTimeout(() => {
           setIsLoading(false);
+          loadingTimeoutRef.current = null;
         }, minDelay - elapsed);
       } else {
         setIsLoading(false);
@@ -129,6 +157,18 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
 
   useEffect(() => {
     fetchProducts(debouncedFilters);
+    
+    // Cleanup on unmount or when filters change
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+    };
   }, [debouncedFilters]); // Listen to debounced filter changes
 
   // If initialCategory changes (from query param), update filters

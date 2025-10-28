@@ -39,6 +39,7 @@ export interface CartState {
   status: ApiStatus;
   error: string | null;
   loading: boolean;
+  hasInitiallyLoaded: boolean; // Track if cart has been loaded at least once
 }
 
 // Cart actions payload types

@@ -60,13 +60,11 @@ export function RankingSection() {
   if (loading) {
     return (
       <div className="py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto px-4 sm:px-6 lg:px-12 max-w-7xl">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-            RANKING
-          </h2>
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
-          </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
+          RANKING
+        </h2>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
         </div>
       </div>
     );
@@ -78,9 +76,12 @@ export function RankingSection() {
 
   return (
     <div className="py-12 sm:py-16 lg:py-20">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
+        RANKING
+      </h2>
       <ProductCarousel
         products={products}
-        title="RANKING"
+        title=""
         onProductClick={handleProductClick}
       />
     </div>

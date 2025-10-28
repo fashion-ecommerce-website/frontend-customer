@@ -10,6 +10,7 @@ import {
   selectCartSummary, 
   selectCartLoading, 
   selectCartError,
+  selectCartHasInitiallyLoaded,
   clearError 
 } from '../redux/cartSlice';
 import { fetchCart } from '../redux/cartSaga';
@@ -21,6 +22,7 @@ export const CartCallState: React.FC<CartCallStateProps> = ({ children }) => {
   const cartSummary = useAppSelector(selectCartSummary);
   const loading = useAppSelector(selectCartLoading);
   const error = useAppSelector(selectCartError);
+  const hasInitiallyLoaded = useAppSelector(selectCartHasInitiallyLoaded);
 
   // Don't initialize cart data here since CartInitializer already does it
   // This prevents duplicate API calls
@@ -42,6 +44,7 @@ export const CartCallState: React.FC<CartCallStateProps> = ({ children }) => {
         cartSummary,
         loading,
         error,
+        hasInitiallyLoaded,
         refreshCart,
         clearError: handleClearError
       })}
