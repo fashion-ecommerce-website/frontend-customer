@@ -288,8 +288,8 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-white py-8">
-      <div className="max-w-7xl mx-auto px-4 flex gap-8 flex-col lg:flex-row">
+    <div className="min-h-screen bg-white py-4 sm:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex gap-4 sm:gap-6 lg:gap-8 flex-col lg:flex-row">
         {/* Sidebar */}
         <div className="w-full lg:w-64 lg:flex-shrink-0">
           <ProfileSidebar 
@@ -299,15 +299,17 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         </div>
 
         {/* Main Content */}
-        <main className="bg-white overflow-hidden flex-1">
+        <main className="bg-white overflow-hidden flex-1 min-w-0">
           {/* Breadcrumb */}
-          <Breadcrumb items={breadcrumbItems} />
+          <div className="mb-4 sm:mb-6">
+            <Breadcrumb items={breadcrumbItems} />
+          </div>
 
           {/* Global Error */}
           {error && (
             <ErrorMessage 
               message={error.message}
-              className="m-4"
+              className="mb-4"
             />
           )}
 
@@ -315,7 +317,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {updateError && (
             <ErrorMessage 
               message={updateError.message}
-              className="m-4"
+              className="mb-4"
             />
           )}
 

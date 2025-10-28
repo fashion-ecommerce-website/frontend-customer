@@ -34,19 +34,19 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
   return (
     <main className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Account Login Section */}
-      <section className="px-6 py-6 bg-white">
-        <h3 className="text-xl w-full font-semibold pb-2 text-black border-b-2 border-black mb-4">ACCOUNT LOGIN</h3>
+      <section className="px-3 sm:px-4 lg:px-6 py-4 sm:py-5 lg:py-6 bg-white">
+        <h3 className="text-lg sm:text-xl w-full font-semibold pb-2 text-black border-b-2 border-black mb-4">ACCOUNT LOGIN</h3>
         
         {/* Username row */}
-        <div className="flex items-center mb-4">
-          <div className="w-[220px] text-sm font-medium text-black">Username</div>
-          <div className="text-black">{user.email}</div>
+        <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-1 sm:gap-0">
+          <div className="w-full sm:w-[220px] text-xs sm:text-sm font-medium text-gray-700 sm:text-black">Username</div>
+          <div className="text-black text-sm sm:text-base break-all">{user.email}</div>
         </div>
         
         {/* Change password button */}
-        <div>
+        <div className="sm:ml-[220px]">
           <button 
-            className="bg-white text-black border border-gray-300 rounded ml-[220px] px-3 py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-200 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto bg-white text-black border border-gray-300 rounded px-4 sm:px-3 py-2.5 sm:py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-200 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onShowPasswordModal}
             disabled={isChangingPassword}
           >
@@ -56,18 +56,18 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
       </section>
 
       {/* Account Information Section */}
-      <section className="px-6 pb-6 bg-white">
-        <h3 className="text-xl w-full pb-2 font-semibold text-black border-b-2 border-black mb-6">ACCOUNT</h3>
+      <section className="px-3 sm:px-4 lg:px-6 pb-4 sm:pb-5 lg:pb-6 bg-white">
+        <h3 className="text-lg sm:text-xl w-full pb-2 font-semibold text-black border-b-2 border-black mb-4 sm:mb-6">ACCOUNT</h3>
 
-        <div className="space-y-1">
+        <div className="space-y-3 sm:space-y-1">
           {[
-            { label: 'Name', htmlFor: 'username', value: profileFormData.username, className: 'flex-1 py-2 text-black' },
-            { label: 'Birthday', id: 'dob', value: profileFormData.dob, className: 'flex-1 py-2 text-black' },
+            { label: 'Name', htmlFor: 'username', value: profileFormData.username, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
+            { label: 'Birthday', id: 'dob', value: profileFormData.dob, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
             // { label: 'Gender', htmlFor: 'gender', value: profileFormData.gender, className: 'flex-1 py-2 text-black' },
-            { label: 'Phone', htmlFor: 'phone', value: profileFormData.phone, className: 'flex-1 py-2 text-black' },
+            { label: 'Phone', htmlFor: 'phone', value: profileFormData.phone, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
           ].map((field) => (
-            <div key={field.label} className="flex items-center">
-              <div className="w-[220px] text-sm font-medium text-black">{field.label}</div>
+            <div key={field.label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
+              <div className="w-full sm:w-[220px] text-xs sm:text-sm font-medium text-gray-700 sm:text-black">{field.label}</div>
               <label
                 htmlFor={field.htmlFor}
                 id={field.id}
@@ -78,21 +78,23 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
             </div>
           ))}
 
-          <button
-            type="button"
-            onClick={onShowUpdateInfoModal}
-            className="bg-black text-white ml-[220px] border-none rounded px-6 py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-800 focus:outline-none"
-          >
-            Update information
-          </button>
+          <div className="pt-2 sm:pt-0 sm:ml-[220px]">
+            <button
+              type="button"
+              onClick={onShowUpdateInfoModal}
+              className="w-full sm:w-auto bg-black text-white border-none rounded px-6 py-2.5 sm:py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-800 focus:outline-none"
+            >
+              Update information
+            </button>
+          </div>
         </div>
       </section>
 
       {/* Email Section */}
-      <section className="px-6 py-6">
-        <div className="text-sm font-medium text-gray-700 mb-2">Email *</div>
+      <section className="px-3 sm:px-4 lg:px-6 py-4 sm:py-5 lg:py-6">
+        <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Email *</div>
         <label
-          className="w-full max-w-md px-3 py-3 rounded-md text-base bg-gray-50 cursor-not-allowed text-black"
+          className="block w-full max-w-md px-3 py-2.5 sm:py-3 rounded-md text-sm sm:text-base bg-gray-50 cursor-not-allowed text-black break-all"
         >
           {user.email}
         </label>

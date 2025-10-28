@@ -82,25 +82,25 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
 
   // Show register form
   return (
-    <div className="py-8 flex items-center justify-center bg-white">
-      <div className="bg-white w-[430px]">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-black tracking-wider">
+    <div className="py-4 sm:py-6 md:py-8 px-4 sm:px-6 flex items-center justify-center bg-white min-h-[calc(100vh-80px)]">
+      <div className="bg-white w-full max-w-[430px]">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-black tracking-wider">
             REGISTER
           </h2>
-          <p className="text-black text-sm mb-2 text-start">
+          <p className="text-black text-xs sm:text-sm mb-2 text-start">
             Register as a member and receive a 10% discount on your first order
           </p>
-          <p className="text-black text-sm text-start">
+          <p className="text-black text-xs sm:text-sm text-start">
             Enter code: <strong>FITWELCOME</strong>
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-[430px]">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 w-full">
           <div className="flex flex-col">
             <label
               htmlFor="email"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               EMAIL
             </label>
@@ -113,7 +113,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder="Email"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 validationErrors.email ? "border-red-500" : ""
               } ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
@@ -129,7 +129,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           <div className="flex flex-col">
             <label
               htmlFor="phone"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               PHONE NUMBER
             </label>
@@ -142,7 +142,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder="Phone Number"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 validationErrors.phone ? "border-red-500" : ""
               } ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
@@ -158,7 +158,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           <div className="flex flex-col">
             <label
               htmlFor="username"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               USERNAME
             </label>
@@ -171,7 +171,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder="Username"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 validationErrors.username ? "border-red-500" : ""
               } ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
@@ -187,7 +187,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           <div className="flex flex-col">
             <label
               htmlFor="password"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               PASSWORD
             </label>
@@ -200,7 +200,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder="Password"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 validationErrors.password ? "border-red-500" : ""
               } ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
@@ -216,7 +216,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           <div className="flex flex-col">
             <label
               htmlFor="confirmPassword"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               CONFIRM PASSWORD
             </label>
@@ -229,7 +229,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               placeholder="Confirm Password"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 validationErrors.confirmPassword ? "border-red-500" : ""
               } ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
@@ -245,26 +245,26 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className={`bg-black text-white py-4 px-6 h-[48px] w-full font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 tracking-wider text-base rounded ${
+            className={`bg-black text-white py-3 sm:py-4 px-4 sm:px-6 h-[44px] sm:h-[48px] w-full font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 tracking-wider text-sm sm:text-base rounded ${
               isLoading
                 ? "opacity-60 cursor-not-allowed"
                 : "hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
             }`}
           >
             {isLoading && (
-              <div className="w-5 h-5 border-2 border-transparent border-t-current rounded-full animate-spin"></div>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-transparent border-t-current rounded-full animate-spin"></div>
             )}
             {isLoading ? "Creating Account..." : "REGISTER"}
           </button>
 
-          <div className="text-center text-sm">
+          <div className="text-center text-xs sm:text-sm">
             <span className="text-gray-900">Already have an account? </span>
-            <Link href="/auth/login" className="text-gray-900 hover:underline">
+            <Link href="/auth/login" className="text-gray-900 hover:underline font-medium">
               Sign in
             </Link>
           </div>
 
-          <div className="mt-2">
+          <div className="mt-1 sm:mt-2">
             <GoogleAuth
               onSuccess={(user) => {
                 // Remove success message - just log for debugging
@@ -274,10 +274,10 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
             />
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:gap-3">
             <button
               type="button"
-              className="flex items-center justify-center gap-3 py-3 sm:py-4 px-6 bg-[#3B5998] text-white font-semibold cursor-pointer transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 text-sm tracking-wider rounded"
+              className="flex items-center justify-center gap-2 sm:gap-3 py-2.5 sm:py-3 md:py-4 px-4 sm:px-6 bg-[#3B5998] text-white font-semibold cursor-pointer transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 text-xs sm:text-sm tracking-wider rounded"
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
                 <path

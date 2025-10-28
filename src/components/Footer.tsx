@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 // Icon components for social media
@@ -89,6 +89,8 @@ const getPaymentIcon = (method: string, className: string) => {
 };
 
 export const Footer: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>('company');
+
   const footerData = {
     companyInfo: {
       name: 'FIT',
@@ -143,25 +145,29 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="bg-[#3a3839] border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-[#C4C4C4]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        
+        {/* Desktop Grid Layout - 4 columns */}
+        <div className="hidden lg:grid lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">{footerData.companyInfo.name}</h3>
-            <p className="mb-6 text-sm sm:text-base leading-relaxed">
+          <div>
+            <h3 className="text-2xl font-bold text-white mb-4">
+              {footerData.companyInfo.name}
+            </h3>
+            <p className="mb-6 text-sm text-[#C4C4C4] leading-relaxed">
               {footerData.companyInfo.description}
             </p>
             
             {/* Social Links */}
-            <div className="flex space-x-3 sm:space-x-4">
+            <div className="flex space-x-4">
               {footerData.socialLinks.map((social) => (
                 <Link
                   key={social.id}
                   href={social.href}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black transition-all duration-200 hover:scale-110"
+                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100 transition-all duration-200 hover:scale-110"
                   aria-label={social.platform}
                 >
-                  {getSocialIcon(social.platform, "w-4 h-4 sm:w-5 sm:h-5")}
+                  {getSocialIcon(social.platform, "w-5 h-5")}
                 </Link>
               ))}
             </div>
@@ -169,16 +175,16 @@ export const Footer: React.FC = () => {
 
           {/* Footer Sections */}
           {footerData.sections.map((section) => (
-            <div key={section.id} className="sm:col-span-1">
-              <h4 className="text-sm sm:text-base font-semibold text-white uppercase tracking-wider mb-3 sm:mb-4">
+            <div key={section.id}>
+              <h4 className="text-base font-semibold text-white uppercase tracking-wider mb-4">
                 {section.title}
               </h4>
-              <ul className="space-y-2 sm:space-y-3">
+              <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.id}>
                     <Link
                       href={link.href}
-                      className="text-[#C4C4C4] hover:text-white text-sm sm:text-base transition-colors duration-200"
+                      className="text-[#C4C4C4] hover:text-white text-sm transition-colors duration-200 hover:underline decoration-offset-2"
                     >
                       {link.label}
                     </Link>
@@ -189,22 +195,127 @@ export const Footer: React.FC = () => {
           ))}
         </div>
 
+        {/* Mobile Layout with Tabs */}
+        <div className="lg:hidden">
+          {/* Company Info - Always visible on mobile */}
+          <div className="mb-6">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">
+              {footerData.companyInfo.name}
+            </h3>
+            <p className="mb-4 sm:mb-6 text-sm sm:text-base text-[#C4C4C4] leading-relaxed">
+              {footerData.companyInfo.description}
+            </p>
+            
+            {/* Social Links */}
+            <div className="flex space-x-3 sm:space-x-4">
+              {footerData.socialLinks.map((social) => (
+                <Link
+                  key={social.id}
+                  href={social.href}
+                  className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100 transition-all duration-200 hover:scale-110"
+                  aria-label={social.platform}
+                >
+                  {getSocialIcon(social.platform, "w-4 h-4 sm:w-5 sm:h-5")}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Tab Navigation - Horizontal Scroll */}
+          <div className="flex space-x-2 overflow-x-auto pb-3 mb-4 border-b border-gray-600 hide-scrollbar">
+            {footerData.sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveTab(section.id)}
+                className={`
+                  px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200
+                  ${activeTab === section.id 
+                    ? 'bg-white text-[#3a3839] shadow-md' 
+                    : 'bg-gray-700 text-[#C4C4C4] hover:bg-gray-600'
+                  }
+                `}
+              >
+                {section.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content - 2 columns grid */}
+          <div className="min-h-[50px]">
+            {footerData.sections.map((section) => (
+              <div
+                key={section.id}
+                className={`
+                  ${activeTab === section.id ? 'block' : 'hidden'}
+                  animate-fadeIn
+                `}
+              >
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  {section.links.map((link) => (
+                    <li key={link.id}>
+                      <Link
+                        href={link.href}
+                        className="text-[#C4C4C4] hover:text-white text-sm sm:text-base transition-colors duration-200 flex items-center group"
+                      >
+                        <span className="w-1 h-1 bg-[#C4C4C4] rounded-full mr-2 flex-shrink-0 group-hover:bg-white transition-colors"></span>
+                        <span className="line-clamp-1">{link.label}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-600 my-6 lg:my-8"></div>
+
         {/* Bottom Footer */}
-        <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-600 flex flex-col lg:flex-row justify-between items-center gap-4">
-          <p className="text-[#C4C4C4] text-xs sm:text-sm text-center lg:text-left">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+          {/* Copyright Text */}
+          <p className="text-[#C4C4C4] text-xs sm:text-sm text-center sm:text-left order-2 sm:order-1">
             {footerData.companyInfo.copyright}
           </p>
           
           {/* Payment Methods */}
-          <div className="flex flex-wrap gap-2 justify-center lg:justify-end">
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-end order-1 sm:order-2">
             {footerData.paymentMethods.map((payment) => (
-              <div key={payment.id} title={payment.name} className="transition-transform hover:scale-105">
+              <div 
+                key={payment.id} 
+                title={payment.name} 
+                className="transition-transform hover:scale-105 duration-200"
+              >
                 {getPaymentIcon(payment.id, "w-12 h-8 sm:w-14 sm:h-9")}
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Custom CSS for hiding scrollbar and animation */}
+      <style jsx>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in-out;
+        }
+      `}</style>
     </footer>
   );
 };

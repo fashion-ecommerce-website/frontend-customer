@@ -109,7 +109,7 @@ export function ProductInfo({
     }
 
     if (!isAuthenticated) {
-      alert('Please login to add items to cart');
+      router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
       return;
     }
 
@@ -142,26 +142,26 @@ export function ProductInfo({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Price */}
       <div className="space-y-1">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {product.finalPrice && product.finalPrice < product.price ? (
             <>
-              <div className="text-3xl font-bold text-black">
+              <div className="text-2xl md:text-3xl font-bold text-black">
                 {product.finalPrice.toLocaleString('vi-VN')}₫
               </div>
-              <div className="text-xl line-through text-gray-500">
+              <div className="text-lg md:text-xl line-through text-gray-500">
                 {product.price.toLocaleString('vi-VN')}₫
               </div>
               {product.percentOff && (
-                <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-medium">
+                <span className="bg-red-500 text-white px-2 py-1 rounded text-xs md:text-sm font-medium">
                   -{product.percentOff}%
                 </span>
               )}
             </>
           ) : (
-            <div className="text-3xl font-bold text-black">
+            <div className="text-2xl md:text-3xl font-bold text-black">
               {product.price.toLocaleString('vi-VN')}₫
             </div>
           )}
@@ -171,10 +171,10 @@ export function ProductInfo({
 
       {/* Color Selection*/}
       {product.colors && product.colors.length > 0 && (
-        <div className="space-y-3 pl-1">
-          <h3 className="text-sm font-medium text-gray-900">Color</h3>
+        <div className="space-y-2 md:space-y-3 pl-1">
+          <h3 className="text-xs md:text-sm font-medium text-gray-900">Color</h3>
           <div className="swatch-color" data-index="option1">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 md:space-x-3 flex-wrap gap-y-2">
               {product.colors.map((color) => (
                 <div
                   key={color}
@@ -186,20 +186,22 @@ export function ProductInfo({
                   onClick={() => !isColorLoading && onColorSelect(color)}
                 >
                   <div
-                    className="w-8 h-8 rounded-full"
+                    className="w-7 h-7 md:w-8 md:h-8 rounded-full"
                     style={{ 
-                      backgroundColor: color.toLowerCase() === 'white' ? '#e6e6e6' : 
+                      backgroundColor: color.toLowerCase() === 'white' ? '#f1f0eb' : 
                                      color.toLowerCase() === 'mint' ? '#60a1a7' :
                                      color.toLowerCase() === 'dark blue' ? '#202846' :
-                                     color.toLowerCase() === 'blue' ? '#3b82f6' :
-                                     color.toLowerCase() === 'pink' ? '#ec4899' :
+                                     color.toLowerCase() === 'blue' ? '#acbdcd' :
+                                     color.toLowerCase() === 'pink' ? '#ddb3bd' :
                                      color.toLowerCase() === 'black' ? '#000000' :
-                                     color.toLowerCase() === 'red' ? '#ef4444' :
-                                     color.toLowerCase() === 'green' ? '#22c55e' :
-                                     color.toLowerCase() === 'yellow' ? '#eab308' :
-                                     color.toLowerCase() === 'purple' ? '#a855f7' :
+                                     color.toLowerCase() === 'red' ? '#6d2028' :
+                                     color.toLowerCase() === 'green' ? '#2c5449' :
+                                     color.toLowerCase() === 'yellow' ? '#dcbe9a' :
+                                     color.toLowerCase() === 'purple' ? '#47458e' :
                                      color.toLowerCase() === 'orange' ? '#f97316' :
-                                     color.toLowerCase() === 'gray' ? '#6b7280' :
+                                     color.toLowerCase() === 'gray' ? '#a7a9a8' :
+                                     color.toLowerCase() === 'brown' ? '#61493f' :
+                                      color.toLowerCase() === 'beige' ? '#ebe7dc' :
                                      color.toLowerCase()
                     }}
                     title={color}
@@ -213,20 +215,21 @@ export function ProductInfo({
 
       {/* Size Selection */}
       {Object.keys(product.mapSizeToQuantity).length > 0 && (
-        <div className="space-y-3 relative">
+        <div className="space-y-2 md:space-y-3 relative">
           {/* Size Selection Notice - Positioned above "Choose size" label */}
           <div
             className={`absolute z-10 transition-all duration-250 ease-in-out pointer-events-none ${showSizeNotice
-              ? 'opacity-100 visible -top-16 left-0'
-              : 'opacity-0 invisible -top-16 left-0'
+              ? 'opacity-100 visible -top-12 md:-top-16 left-0'
+              : 'opacity-0 invisible -top-12 md:-top-16 left-0'
               }`}
             style={{
               filter: 'drop-shadow(0px 0px 10px rgba(46, 46, 46, 0.4))',
               background: '#2E2E2E',
               color: 'white',
-              padding: '12px 19px',
+              padding: '10px 16px',
               letterSpacing: '1px',
-              borderRadius: '4px'
+              borderRadius: '4px',
+              fontSize: '0.875rem'
             }}
           >
             Please select size
@@ -242,12 +245,12 @@ export function ProductInfo({
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">Size</h3>
+            <h3 className="text-xs md:text-sm font-medium text-gray-900">Size</h3>
             <button
               onClick={() => setShowSizeGuide(true)}
-              className="text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
+              className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="8" viewBox="0 0 20 9" fill="none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
                 <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
                 <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
                 <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
@@ -259,13 +262,13 @@ export function ProductInfo({
             </button>
           </div>
 
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             {Object.entries(product.mapSizeToQuantity).map(([size, quantity]) => (
               <button
                 key={size}
                 onClick={() => onSizeSelect(size)}
                 disabled={quantity === 0}
-                className={`w-12 h-9 text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSize === size
+                className={`w-10 h-8 md:w-12 md:h-9 text-xs md:text-sm font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSize === size
                   ? 'border-black bg-black text-white'
                   : quantity === 0
                     ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-default'
@@ -281,19 +284,19 @@ export function ProductInfo({
 
       {/* Quantity Selector */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-900">Quantity</label>
-        <div className="flex items-center space-x-4">
+        <label className="text-xs md:text-sm font-medium text-gray-900">Quantity</label>
+        <div className="flex items-center space-x-3 md:space-x-4">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={quantity <= 1}
-            className="w-9 h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base"
           >
             −
           </button>
-          <span className="w-10 text-center font-medium text-gray-900">{quantity}</span>
+          <span className="w-8 md:w-10 text-center font-medium text-gray-900 text-sm md:text-base">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="w-9 h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors text-sm md:text-base"
           >
             +
           </button>
@@ -303,26 +306,26 @@ export function ProductInfo({
       {/* Action Buttons */}
       <div className="space-y-3 pt-2">
         {isAllSizesOut ? (
-          <div className="w-full h-12 flex items-center justify-center">
+          <div className="w-full h-11 md:h-12 flex items-center justify-center">
             <button
               disabled
-              className="w-full h-full text-center uppercase text-sm font-semibold text-gray-500 bg-gray-100 rounded"
+              className="w-full h-full text-center uppercase text-xs md:text-sm font-semibold text-gray-500 bg-gray-100 rounded"
             >
               Out of stock
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSize}
-              className="bg-black text-white py-3 px-6 font-semibold text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded"
+              className="bg-black text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded"
             >
               {addingToCart ? "ADDING..." : "ADD TO CART"}
             </button>
             <button
               onClick={handleBuyNow}
-              className="bg-red-600 text-white py-3 px-6 font-semibold text-xs uppercase tracking-wider hover:bg-red-700 transition-all duration-200 cursor-pointer rounded"
+              className="bg-red-600 text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-red-700 transition-all duration-200 cursor-pointer rounded"
             >
               BUY NOW
             </button>
@@ -331,14 +334,14 @@ export function ProductInfo({
       </div>
 
       {/* BLACK TUESDAY REWARDS - Simple Promotion Box */}
-      <div className="w-full px-[10px] py-3 bg-[#fafafa] border border-[#dfdfdf] rounded relative mt-2.5 mb-2.5 inline-flex flex-col justify-start items-start">
-        <div className="self-stretch pl-4 flex flex-col justify-center items-start">
+      <div className="w-full px-2 md:px-[10px] py-2.5 md:py-3 bg-[#fafafa] border border-[#dfdfdf] rounded relative mt-2 md:mt-2.5 mb-2 md:mb-2.5 inline-flex flex-col justify-start items-start">
+        <div className="self-stretch pl-3 md:pl-4 flex flex-col justify-center items-start">
           <div className="self-stretch relative flex flex-col justify-start items-start">
-            <div className="w-3 h-7 left-[-20px] top-0 absolute justify-center text-[#202846] text-sm font-normal font-['Products Sans'] leading-loose">◈</div>
-            <div className="justify-center text-[#202846] text-sm font-bold font-['Products Sans'] leading-loose">BLACK TUESDAY REWARDS</div>
+            <div className="w-3 h-6 md:h-7 left-[-16px] md:left-[-20px] top-0 absolute justify-center text-[#202846] text-xs md:text-sm font-normal font-['Products Sans'] leading-loose">◈</div>
+            <div className="justify-center text-[#202846] text-xs md:text-sm font-bold font-['Products Sans'] leading-loose">BLACK TUESDAY REWARDS</div>
           </div>
 
-          <div className="justify-center text-[#202846] text-sm font-normal font-['Products Sans'] leading-loose">
+          <div className="justify-center text-[#202846] text-[11px] md:text-sm font-normal font-['Products Sans'] leading-relaxed md:leading-loose">
             Earn 10% Loyalty points back on any invoice value every Tuesday<br />
             Valid from: April 1, 2025<br />
             Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)<br />

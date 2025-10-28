@@ -550,7 +550,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         ) : product ? (
           <div className="flex flex-col md:flex-row gap-4 h-full">
             {/* Product Images (hidden on mobile - mobile shows condensed UI) */}
-            <div className="hidden md:flex md:w-1/3 flex-col h-full">
+            <div className="hidden md:flex md:w-2/3 flex-col h-full">
               <div className="flex-1 mb-1 min-h-0 relative">
                 {/* Error fallback only */}
                 {imageError && (
@@ -585,8 +585,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       key={index}
                       onClick={() => handleImageSelect(index)}
                       onMouseEnter={() => preloadImage(image, index)}
-                      className={`flex-shrink-0 w-10 h-10 rounded border overflow-hidden relative transition-all duration-200 ${
-                        selectedImageIndex === index ? "border-black border-2" : "border-gray-200 hover:border-gray-400"
+                      className={`flex-shrink-0 w-8 h-10 rounded-sm border overflow-hidden relative transition-all duration-200 ${
+                        selectedImageIndex === index ? "border-black border-1" : "border-gray-200 hover:border-gray-400"
                       }`}
                     >
                       <img
@@ -617,7 +617,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         <button
                           key={color}
                           onClick={() => handleColorChange(color)}
-                          className={`w-12 h-12 rounded-md border overflow-hidden flex items-center justify-center ${
+                          className={`w-12 h-12 rounded-sm border overflow-hidden flex items-center justify-center ${
                             selectedColor === color ? "ring-2 ring-black" : "border-gray-200"
                           }`}
                           title={color}
@@ -780,7 +780,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           onClick={() => handleColorChange(color)}
                         >
                           <div
-                            className={`w-24 h-24 rounded-xl border-2 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${
+                            className={`w-20 h-24 rounded-[5px] border-1 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${
                               selectedColor === color
                                 ? "border-gray-800"
                                 : "border-gray-200 hover:border-gray-300"

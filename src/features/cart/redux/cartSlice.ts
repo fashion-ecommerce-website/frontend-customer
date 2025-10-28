@@ -37,7 +37,9 @@ const initialState: CartState = {
   },
   status: ApiStatus.SUCCESS,
   error: null,
-  loading: false
+  loading: false,
+  // Track if we've ever loaded cart data to prevent empty state flash
+  hasInitiallyLoaded: false
 };
 
 // Cart slice
@@ -59,6 +61,7 @@ const cartSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.status = ApiStatus.SUCCESS;
+      state.hasInitiallyLoaded = true; // Mark as loaded
     },
 
     // Add item to cart
@@ -143,6 +146,8 @@ const cartSlice = createSlice({
       state.summary = calculateCartSummary([]);
       state.loading = false;
       state.error = null;
+      // Keep hasInitiallyLoaded as true - cart was loaded and is now empty
+      // This prevents showing skeleton when cart is legitimately empty
     },
 
     // Select/unselect cart item
@@ -217,6 +222,7 @@ export const selectCartLoading = (state: RootState) => state.cart.loading;
 export const selectCartError = (state: RootState) => state.cart.error;
 export const selectCartItemCount = (state: RootState) => state.cart.summary.itemCount;
 export const selectCartTotalItemCount = (state: RootState) => state.cart.items.reduce((total, item) => total + item.quantity, 0);
+export const selectCartHasInitiallyLoaded = (state: RootState) => state.cart.hasInitiallyLoaded;
 
 // Optimized selectors using createSelector for better performance
 export const selectSelectedCartItems = createSelector(

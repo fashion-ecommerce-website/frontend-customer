@@ -107,6 +107,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
           cartSummary,
           loading,
           error,
+          hasInitiallyLoaded,
           clearError: clearErrorFromState
         }) => (
           <>
@@ -139,6 +140,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
               cartSummary={cartSummary}
               loading={loading}
               error={error}
+              hasInitiallyLoaded={hasInitiallyLoaded}
               allItemsSelected={allItemsSelected}
               onRemoveItem={handleRemoveItem}
               onSelectItem={handleSelectItem}

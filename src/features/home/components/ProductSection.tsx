@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Product, ProductCategory } from '../types/home.types';
-import { ProductCard } from './ProductCard';
+import { ProductCard } from '@/components';
 import { mockRankingProducts } from '../data/mockData';
 
 interface ProductSectionProps {
@@ -150,8 +150,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
           <div className="self-stretch grid grid-cols-1 lg:grid-cols-[11fr_9fr] gap-4 lg:gap-0 items-stretch">
             {/* Left large image */}
             <div className="w-full min-w-0 order-2 lg:order-1">
-              <div className="w-full relative">
-                <div className="w-full aspect-square lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-lg lg:rounded-none">
+              <div className="w-full h-full relative">
+                <div className="w-full aspect-square lg:h-full lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-lg lg:rounded-none">
                   <img
                     className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-95 group-hover:scale-105"
                     src={leftImageUrl || products[0]?.image}
@@ -170,15 +170,14 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
             </div>
 
             {/* Right grid panel */}
-            <div className="w-full min-w-0 h-full order-1 lg:order-2 sm:p-6 lg:p-8 lg:pr-[17px] bg-white rounded-lg lg:rounded">
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-4">
+            <div className="w-full min-w-0 order-1 lg:order-2 lg:pl-4 lg:pr-0 bg-white rounded-lg lg:rounded">
+              <div className="w-full h-full grid grid-cols-2 auto-rows-fr gap-3 sm:gap-4 lg:gap-4">
                 {products.slice(1, 5).map((product) => (
                   <ProductCard
                     key={product.id}
                     product={product}
                     onProductClick={onProductClick}
-                    className="w-full lg:pr-[15px] lg:pb-[15px]"
-                    showBadgeOnImage={true} // New Arrivals: badge on image
+                    className="w-full"
                   />
                 ))}
               </div>
@@ -238,7 +237,6 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                           product={product}
                           onProductClick={onProductClick}
                           className="w-full"
-                          showBadgeOnImage={false} // Ranking: badge next to price
                         />
                       </div>
                     ))}
@@ -254,7 +252,6 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                 key={product.id}
                 product={product}
                 onProductClick={onProductClick}
-                showBadgeOnImage={false} // Default: badge next to price
               />
             ))}
           </div>
