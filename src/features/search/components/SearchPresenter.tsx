@@ -8,6 +8,7 @@ import { FilterSidebar } from '../../filter-product/components/FilterSidebar';
 import { SearchFilters, SearchResultItem } from '../types';
 import { ProductFilters } from '../../filter-product/types';
 import { productApi } from '../../../services/api/productApi';
+import { addSearchHistory } from '../../../utils/searchHistory';
 
 // Debounce hook for API calls
 const useDebounce = (value: any, delay: number) => {
@@ -68,6 +69,11 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
       setResults([]);
       setHasSearched(false);
       return;
+    }
+
+    // Save search query to history only on first page (avoid saving during pagination)
+    if (searchFilters.title?.trim() && searchFilters.page === 1) {
+      addSearchHistory(searchFilters.title.trim());
     }
 
     // Ensure skeleton shows for minimum 400ms
@@ -170,6 +176,7 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
           
           <SearchInput
             onSearch={handleSearch}
+            onProductClick={onProductClick}
             isLoading={isLoading}
             initialQuery={initialQuery}
           />
