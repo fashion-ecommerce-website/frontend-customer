@@ -11,8 +11,51 @@ import { WishlistInitializer } from "@/components/WishlistInitializer";
 import { ToastProvider } from "@/providers/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "FIT - Fashion E-commerce",
-  description: "Your one-stop shop for the latest fashion trends.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
+  title: {
+    default: 'FIT Fashion - Thời trang chính hãng, Ưu đãi hấp dẫn',
+    template: '%s | FIT Fashion',
+  },
+  description: 'Cửa hàng thời trang trực tuyến hàng đầu Việt Nam. Khám phá bộ sưu tập áo thun, áo sơ mi, quần jean, váy đầm chính hãng. Miễn phí vận chuyển toàn quốc.',
+  keywords: ['thời trang', 'quần áo', 'áo thun', 'áo sơ mi', 'quần jean', 'váy đầm', 'FIT Fashion', 'thời trang Việt Nam'],
+  authors: [{ name: 'FIT Fashion' }],
+  creator: 'FIT Fashion',
+  publisher: 'FIT Fashion',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com',
+    siteName: 'FIT Fashion',
+    title: 'FIT Fashion - Thời trang chính hãng',
+    description: 'Cửa hàng thời trang trực tuyến hàng đầu Việt Nam',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FIT Fashion',
+    description: 'Thời trang chính hãng, Ưu đãi hấp dẫn',
+    creator: '@fitfashion',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add these when you have them
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+  },
 };
 
 export default function RootLayout({
