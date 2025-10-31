@@ -32,9 +32,9 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
 }) => {
 
   return (
-    <main className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className="space-y-6">
       {/* Account Login Section */}
-      <section className="px-3 sm:px-4 lg:px-6 py-4 sm:py-5 lg:py-6 bg-white">
+      <section className="bg-white">
         <h3 className="text-lg sm:text-xl w-full font-semibold pb-2 text-black border-b-2 border-black mb-4">ACCOUNT LOGIN</h3>
         
         {/* Username row */}
@@ -56,7 +56,7 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
       </section>
 
       {/* Account Information Section */}
-      <section className="px-3 sm:px-4 lg:px-6 pb-4 sm:pb-5 lg:pb-6 bg-white">
+      <section className="bg-white pt-6 border-t border-gray-200">
         <h3 className="text-lg sm:text-xl w-full pb-2 font-semibold text-black border-b-2 border-black mb-4 sm:mb-6">ACCOUNT</h3>
 
         <div className="space-y-3 sm:space-y-1">
@@ -91,7 +91,7 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
       </section>
 
       {/* Email Section */}
-      <section className="px-3 sm:px-4 lg:px-6 py-4 sm:py-5 lg:py-6">
+      <section className="bg-white pt-6 border-t border-gray-200">
         <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Email *</div>
         <label
           className="block w-full max-w-md px-3 py-2.5 sm:py-3 rounded-md text-sm sm:text-base bg-gray-50 cursor-not-allowed text-black break-all"
@@ -99,6 +99,6 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
           {user.email}
         </label>
       </section>
-    </main>
+    </div>
   );
 };

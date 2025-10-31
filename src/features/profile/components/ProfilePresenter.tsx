@@ -27,6 +27,7 @@ import { AddressContainer } from '../containers/AddressContainer';
 import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
 import { ReviewContainer } from '../containers/ReviewContainer';
 import { VoucherContainer } from '../containers/VoucherContainer';
+import { RefundContainer } from '../containers/RefundContainer';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 import OrderApi from '@/services/api/orderApi';
@@ -288,22 +289,25 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-white py-4 sm:py-6 lg:py-8">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex gap-4 sm:gap-6 lg:gap-8 flex-col lg:flex-row">
-        {/* Sidebar */}
-        <div className="w-full lg:w-64 lg:flex-shrink-0">
-          <ProfileSidebar 
-            activeSection={activeSidebarSection}
-            onSectionChange={handleSidebarSectionChange}
-          />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-6">
+        {/* Breadcrumb */}
+        <div className="mb-4 sm:mb-6">
+          <Breadcrumb items={breadcrumbItems} />
         </div>
 
-        {/* Main Content */}
-        <main className="bg-white overflow-hidden flex-1 min-w-0">
-          {/* Breadcrumb */}
-          <div className="mb-4 sm:mb-6">
-            <Breadcrumb items={breadcrumbItems} />
+        <div className="flex gap-4 sm:gap-6 lg:gap-6 flex-col lg:flex-row">
+          {/* Sidebar */}
+          <div className="w-full lg:w-72 lg:flex-shrink-0">
+            <ProfileSidebar 
+              user={user}
+              activeSection={activeSidebarSection}
+              onSectionChange={handleSidebarSectionChange}
+            />
           </div>
+
+          {/* Main Content */}
+          <main className="bg-white rounded-xl border border-gray-200 shadow-md overflow-hidden flex-1 min-w-0 p-6 sm:p-8 lg:max-w-none">
 
           {/* Global Error */}
           {error && (
@@ -383,8 +387,12 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           {activeSidebarSection === 'my-reviews' && (
             <ReviewContainer />
           )}
+          {activeSidebarSection === 'my-refund' && (
+            <RefundContainer />
+          )}
           {/* TODO: add other sections (membership-info, order-info, etc) */}
-        </main>
+          </main>
+        </div>
       </div>
 
       {/* Password Change Modal */}

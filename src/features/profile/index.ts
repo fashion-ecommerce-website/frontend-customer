@@ -1,5 +1,6 @@
 export { ProfileContainer } from './containers/ProfileContainer';
 export { ReviewContainer } from './containers/ReviewContainer';
+export { RefundContainer } from './containers/RefundContainer';
 
 export { ProfilePresenter } from './components/ProfilePresenter';
 export { ProfileSidebar } from './components/ProfileSidebar';
@@ -9,6 +10,7 @@ export { UpdateInfoModal } from './components/UpdateInfoModal';
 export { AddressSection } from './components/AddressSection';
 export { AddressModal } from './components/AddressModal';
 export { ReviewPresenter } from './components/ReviewPresenter';
+export { RefundPresenter } from './components/RefundPresenter';
 
 export { useFormValidation, useProfileValidation, usePasswordValidation } from './hooks/useValidation';
 
@@ -44,6 +46,9 @@ export {
 export { profileSaga } from './redux/profileSaga';
 export { reviewSaga } from './redux/reviewSaga';
 
+// Export mock data (same pattern as home feature)
+export { mockRefunds, getPendingRefunds, getApprovedRefunds, getRejectedRefunds, getCompletedRefunds } from './data/mockRefundData';
+
 // Export types
 export type {
   User,
@@ -62,6 +67,13 @@ export type {
   ReviewPresenterProps,
   ReviewContainerProps,
 } from './types/profile.types';
+
+export type {
+  RefundItem,
+  RefundQueryParams,
+  RefundPresenterProps,
+  RefundContainerProps,
+} from './types/refund.types';
 
 // Default export
 export { ProfileContainer as default } from './containers/ProfileContainer';

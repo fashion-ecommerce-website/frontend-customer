@@ -144,68 +144,136 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
   );
 
   const renderReviewCard = (review: any) => (
-    <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-      {/* Product info and action buttons */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <div className="flex items-center space-x-3 mb-2">
-            {review.productImage && (
-              <img
-                src={review.productImage}
-                alt={review.productName}
-                className="w-20 h-20 object-cover rounded-md"
-              />
-            )}
-            <div>
-              <h3 className="text-lg font-semibold text-black">
-                {review.productName}
-              </h3>
-              {/* Product details */}
-              <div className="flex items-center space-x-2 mb-2">
-                {review.productColor && (
-                  <span className="text-sm text-gray-600">
-                    Color: <span className="font-medium">{review.productColor}</span>
-                  </span>
-                )}
-                {review.productSize && (
-                  <span className="text-sm text-gray-600">
-                    Size: <span className="font-medium">{review.productSize}</span>
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="flex">{renderStars(review.rating)}</div>
-                <span className="text-sm text-gray-500">
-                  {new Date(review.createdAt).toLocaleDateString()}
+    <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm">
+      {/* Mobile Layout */}
+      <div className="sm:hidden">
+        {/* Product Image & Name */}
+        <div className="flex items-start gap-3 mb-3">
+          {review.productImage && (
+            <img
+              src={review.productImage}
+              alt={review.productName}
+              className="w-16 h-16 object-cover rounded-md flex-shrink-0"
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-black line-clamp-2 mb-1">
+              {review.productName}
+            </h3>
+            {/* Product details */}
+            <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-gray-600 mb-2">
+              {review.productColor && (
+                <span>
+                  Color: <span className="font-medium">{review.productColor}</span>
                 </span>
-                {review.isVerified && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Verified
-                  </span>
-                )}
-              </div>
+              )}
+              {review.productSize && (
+                <span>
+                  Size: <span className="font-medium">{review.productSize}</span>
+                </span>
+              )}
             </div>
           </div>
         </div>
-        <div className="flex space-x-2 ml-4">
+        
+        {/* Rating & Date */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex">{renderStars(review.rating)}</div>
+            {review.isVerified && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Verified
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-gray-500">
+            {new Date(review.createdAt).toLocaleDateString()}
+          </span>
+        </div>
+        
+        {/* Comment */}
+        <p className="text-sm text-gray-700 leading-relaxed mb-3">{review.comment}</p>
+        
+        {/* Action Buttons */}
+        <div className="flex gap-2 pt-2 border-t border-gray-100">
           <button
             onClick={() => handleEditClick(review)}
-            className="text-gray-500 border-b border-gray-500 hover:text-black hover:border-black text-sm font-medium"
+            className="flex-1 py-2 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded text-sm font-medium transition-colors"
           >
             Edit
           </button>
           <button
             onClick={() => handleDeleteClick(review.id, review.productName)}
-            className="text-gray-500 border-b border-gray-500 hover:text-red-600 hover:border-red-600 text-sm font-medium"
+            className="flex-1 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded text-sm font-medium transition-colors"
           >
             Delete
           </button>
         </div>
       </div>
-      
-      {/* Comment section - aligned with product name */}
-      <div className="ml-24">
-        <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+
+      {/* Desktop Layout */}
+      <div className="hidden sm:block">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <div className="flex items-center space-x-3 mb-2">
+              {review.productImage && (
+                <img
+                  src={review.productImage}
+                  alt={review.productName}
+                  className="w-20 h-20 object-cover rounded-md"
+                />
+              )}
+              <div>
+                <h3 className="text-lg font-semibold text-black">
+                  {review.productName}
+                </h3>
+                {/* Product details */}
+                <div className="flex items-center space-x-2 mb-2">
+                  {review.productColor && (
+                    <span className="text-sm text-gray-600">
+                      Color: <span className="font-medium">{review.productColor}</span>
+                    </span>
+                  )}
+                  {review.productSize && (
+                    <span className="text-sm text-gray-600">
+                      Size: <span className="font-medium">{review.productSize}</span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex">{renderStars(review.rating)}</div>
+                  <span className="text-sm text-gray-500">
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                  {review.isVerified && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Verified
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex space-x-2 ml-4">
+            <button
+              onClick={() => handleEditClick(review)}
+              className="text-gray-500 border-b border-gray-500 hover:text-black hover:border-black text-sm font-medium"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDeleteClick(review.id, review.productName)}
+              className="text-gray-500 border-b border-gray-500 hover:text-red-600 hover:border-red-600 text-sm font-medium"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+        
+        {/* Comment section - aligned with product name */}
+        <div className="ml-24">
+          <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+        </div>
       </div>
     </div>
   );
@@ -216,9 +284,9 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
-        <h2 className="text-lg font-semibold text-black">
+        <h2 className="text-base sm:text-lg font-semibold text-black">
           {totalReviews} Reviews
         </h2>
       </div>
@@ -265,21 +333,21 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
       
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white text-black p-6 rounded-lg max-w-sm w-full">
-            <p className="mb-4 text-center">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white text-black p-4 sm:p-6 rounded-lg max-w-sm w-full mx-4">
+            <p className="mb-4 text-sm sm:text-base text-center">
               Are you sure you want to delete your review for "{confirmDelete.productName}"?
             </p>
-            <div className="flex justify-end space-x-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
               <button
                 onClick={onCancelDelete}
-                className="w-[20vh] px-4 py-2 bg-gray-200 rounded"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => onDeleteReview(confirmDelete.reviewId)}
-                className="w-[20vh] px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                className="w-full sm:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
               >
                 Delete
               </button>

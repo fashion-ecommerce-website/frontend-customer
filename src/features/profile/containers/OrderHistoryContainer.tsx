@@ -63,6 +63,9 @@ export const OrderHistoryContainer: React.FC<{
     const newQuery = { ...query, page };
     setQuery(newQuery);
     fetchOrders(newQuery);
+    
+    // Scroll to top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Note: Page size change removed as the existing Pagination component doesn't support it
