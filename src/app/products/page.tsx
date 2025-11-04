@@ -2,19 +2,19 @@ import { FilterProductContainer } from '@/features/filter-product';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sản phẩm - FIT Fashion | Thời trang nam nữ chính hãng',
-  description: 'Khám phá hàng ngàn sản phẩm thời trang chính hãng tại FIT Fashion. Áo thun, áo sơ mi, quần jean, váy đầm với giá tốt nhất. Miễn phí vận chuyển toàn quốc.',
-  keywords: 'sản phẩm thời trang, quần áo nam, quần áo nữ, áo thun, áo sơ mi, quần jean',
+  title: 'Products - FIT Fashion | Authentic Men & Women Fashion',
+  description: 'Discover thousands of authentic fashion products at FIT Fashion. T-shirts, shirts, jeans, dresses at the best prices. Free nationwide shipping.',
+  keywords: 'fashion products, men clothing, women clothing, t-shirts, shirts, jeans',
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'}/products`,
   },
   openGraph: {
     type: 'website',
-    title: 'Sản phẩm - FIT Fashion',
-    description: 'Khám phá hàng ngàn sản phẩm thời trang chính hãng',
+    title: 'Products - FIT Fashion',
+    description: 'Discover thousands of authentic fashion products',
     url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'}/products`,
     siteName: 'FIT Fashion',
-    locale: 'vi_VN',
+    locale: 'en_US',
   },
 };
 

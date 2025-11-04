@@ -13,11 +13,11 @@ import { ToastProvider } from "@/providers/ToastProvider";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
   title: {
-    default: 'FIT Fashion - Thời trang chính hãng, Ưu đãi hấp dẫn',
+    default: 'FIT Fashion - Authentic Fashion, Attractive Deals',
     template: '%s | FIT Fashion',
   },
-  description: 'Cửa hàng thời trang trực tuyến hàng đầu Việt Nam. Khám phá bộ sưu tập áo thun, áo sơ mi, quần jean, váy đầm chính hãng. Miễn phí vận chuyển toàn quốc.',
-  keywords: ['thời trang', 'quần áo', 'áo thun', 'áo sơ mi', 'quần jean', 'váy đầm', 'FIT Fashion', 'thời trang Việt Nam'],
+  description: 'Leading online fashion store in Vietnam. Discover our collection of authentic t-shirts, shirts, jeans, dresses. Free nationwide shipping.',
+  keywords: ['fashion', 'clothing', 't-shirts', 'shirts', 'jeans', 'dresses', 'FIT Fashion', 'Vietnam fashion'],
   authors: [{ name: 'FIT Fashion' }],
   creator: 'FIT Fashion',
   publisher: 'FIT Fashion',
@@ -28,16 +28,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'vi_VN',
+    locale: 'en_US',
     url: process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com',
     siteName: 'FIT Fashion',
-    title: 'FIT Fashion - Thời trang chính hãng',
-    description: 'Cửa hàng thời trang trực tuyến hàng đầu Việt Nam',
+    title: 'FIT Fashion - Authentic Fashion',
+    description: 'Leading online fashion store in Vietnam',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'FIT Fashion',
-    description: 'Thời trang chính hãng, Ưu đãi hấp dẫn',
+    description: 'Authentic Fashion, Attractive Deals',
     creator: '@fitfashion',
   },
   robots: {

@@ -1,17 +1,4 @@
-/**
- * Product Schema JSON-LD Component
- * 
- * This component generates structured data markup for products following schema.org standards.
- * Benefits:
- * - Rich snippets in Google search results (price, availability, ratings)
- * - Better product visibility in search
- * - Eligibility for Google Shopping
- * - Voice search optimization
- * 
- * @see https://schema.org/Product
- * @see https://developers.google.com/search/docs/appearance/structured-data/product
- */
-
+//Product Schema JSON-LD Component
 interface ProductSchemaProps {
   product: {
     detailId: number;
@@ -38,7 +25,7 @@ export function ProductSchema({ product }: ProductSchemaProps) {
   // Format description
   const description = product.description && Array.isArray(product.description)
     ? product.description.join(' ')
-    : `Mua ${product.title} chính hãng tại FIT Fashion. Miễn phí vận chuyển toàn quốc.`;
+    : `Buy authentic ${product.title} at FIT Fashion. Free nationwide shipping.`;
 
   // Get main image
   const mainImage = product.images?.[0] || `${baseUrl}/images/placeholder-product.jpg`;
