@@ -11,6 +11,7 @@ import {
   ReviewsSection,
 } from '.';
 import { useRouter } from 'next/navigation';
+import { ProductSchema, BreadcrumbSchema } from '@/components/seo';
 
 interface ProductDetailPresenterProps {
   product: ProductDetail;
@@ -101,8 +102,20 @@ export function ProductDetailPresenter({
     setIsInWishlistLocal(!!(typeof isInWishlist === 'boolean' ? isInWishlist : false));
   }, [isInWishlist]);
 
+  // Generate breadcrumb data
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com';
+  const breadcrumbItems = [
+    { name: 'Home', url: baseUrl },
+    { name: 'Products', url: `${baseUrl}/products` },
+    { name: product.title, url: `${baseUrl}/products/${product.detailId}` },
+  ];
+
   return (
     <div className="min-h-screen bg-white">
+      {/* SEO: JSON-LD Structured Data */}
+      <ProductSchema product={product} />
+      <BreadcrumbSchema items={breadcrumbItems} />
+      
       {/* Main Product Section */}
       <div className="mx-auto px-4 md:px-12 max-w-none">
         <div className="grid grid-cols-1 md:grid-cols-[55%_45%] py-4 md:py-6 gap-4 md:gap-0">

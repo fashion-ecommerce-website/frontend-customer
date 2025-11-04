@@ -11,8 +11,51 @@ import { WishlistInitializer } from "@/components/WishlistInitializer";
 import { ToastProvider } from "@/providers/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "FIT - Fashion E-commerce",
-  description: "Your one-stop shop for the latest fashion trends.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
+  title: {
+    default: 'FIT Fashion - Authentic Fashion, Attractive Deals',
+    template: '%s | FIT Fashion',
+  },
+  description: 'Leading online fashion store in Vietnam. Discover our collection of authentic t-shirts, shirts, jeans, dresses. Free nationwide shipping.',
+  keywords: ['fashion', 'clothing', 't-shirts', 'shirts', 'jeans', 'dresses', 'FIT Fashion', 'Vietnam fashion'],
+  authors: [{ name: 'FIT Fashion' }],
+  creator: 'FIT Fashion',
+  publisher: 'FIT Fashion',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com',
+    siteName: 'FIT Fashion',
+    title: 'FIT Fashion - Authentic Fashion',
+    description: 'Leading online fashion store in Vietnam',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FIT Fashion',
+    description: 'Authentic Fashion, Attractive Deals',
+    creator: '@fitfashion',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add these when you have them
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+  },
 };
 
 export default function RootLayout({
