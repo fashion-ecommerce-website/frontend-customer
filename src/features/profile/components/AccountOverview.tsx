@@ -36,8 +36,8 @@ export const AccountOverview: React.FC<AccountOverviewProps> = ({ user }) => {
         {displayName}
       </h2>
       
-      {/* Login Provider */}
-      <p className="text-sm text-gray-500">Google</p>
+      {/* Email */}
+      <p className="text-sm text-gray-500">{user.email}</p>
     </div>
   );
 };

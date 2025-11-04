@@ -2,7 +2,7 @@ import { HomeContainer } from '@/features/home';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'FIT Fashion - Authentic Fashion, Attractive Deals',
+  title: 'FIT - Fashion E-commerce',
   description: 'Discover the latest fashion collection at FIT Fashion. T-shirts, shirts, jeans, dresses and more. Free nationwide shipping. 7-day return policy.',
   keywords: 'fashion, clothing, t-shirts, shirts, jeans, dresses, accessories, shoes',
   alternates: {

@@ -6,6 +6,8 @@ import { OrderHistoryPresenter } from '../components/OrderHistoryPresenter';
 import { OrderFilters } from '../components/OrderFilters';
 import { useOrders } from '@/hooks/useOrders';
 import { productApi } from '@/services/api/productApi';
+import { useAppSelector } from '@/hooks/redux';
+import { selectUser } from '@/features/auth/login/redux/loginSlice';
 
 export const OrderHistoryContainer: React.FC<{
   onOpenDetail?: (order: Order) => void,
@@ -13,8 +15,10 @@ export const OrderHistoryContainer: React.FC<{
   onPayAgain?: (paymentId: number, orderId: number) => void
 }> = ({ onOpenDetail, onTrack, onPayAgain }) => {
   const { orders, loading, error, pagination, currentQuery, fetchOrders } = useOrders();
+  const user = useAppSelector(selectUser);
   const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
   const [query, setQuery] = useState<OrderQueryParams>({
+    userId: user?.id ? Number(user.id) : undefined,
     sortBy: 'createdAt',
     direction: 'desc',
     page: 0,
@@ -22,8 +26,12 @@ export const OrderHistoryContainer: React.FC<{
   });
 
   useEffect(() => {
-    fetchOrders(query);
-  }, [fetchOrders]);
+    if (user?.id) {
+      const queryWithUserId = { ...query, userId: Number(user.id) };
+      setQuery(queryWithUserId);
+      fetchOrders(queryWithUserId);
+    }
+  }, [user?.id]);
 
   // Fetch product images when orders change
   useEffect(() => {
@@ -60,7 +68,7 @@ export const OrderHistoryContainer: React.FC<{
   }, [orders]);
 
   const handlePageChange = (page: number) => {
-    const newQuery = { ...query, page };
+    const newQuery = { ...query, page, userId: user?.id ? Number(user.id) : undefined };
     setQuery(newQuery);
     fetchOrders(newQuery);
     
@@ -71,12 +79,13 @@ export const OrderHistoryContainer: React.FC<{
   // Note: Page size change removed as the existing Pagination component doesn't support it
 
   const handleQueryChange = (newQuery: OrderQueryParams) => {
-    setQuery(newQuery);
-    fetchOrders(newQuery);
+    const updatedQuery = { ...newQuery, userId: user?.id ? Number(user.id) : undefined };
+    setQuery(updatedQuery);
+    fetchOrders(updatedQuery);
   };
 
   const handleApplyFilters = () => {
-    const newQuery = { ...query, page: 0 };
+    const newQuery = { ...query, page: 0, userId: user?.id ? Number(user.id) : undefined };
     setQuery(newQuery);
     fetchOrders(newQuery);
   };
@@ -118,7 +127,7 @@ export const OrderHistoryContainer: React.FC<{
         loading={loading}
         error={error}
         pagination={pagination}
-        onReload={() => fetchOrders(query)}
+        onReload={() => fetchOrders({ ...query, userId: user?.id ? Number(user.id) : undefined })}
         onPageChange={handlePageChange}
         onOpenDetail={onOpenDetail}
         onTrack={onTrack}

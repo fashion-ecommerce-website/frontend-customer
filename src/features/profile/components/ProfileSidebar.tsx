@@ -83,11 +83,6 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg>
       ),
-      'update-phone': (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-        </svg>
-      ),
       'my-refund': (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -102,7 +97,6 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     { section: 'order-info', label: 'Order Information' },
     { section: 'order-tracking', label: 'Order tracking' },
     { section: 'my-refund', label: 'My Refund' },
-    { section: 'update-phone', label: 'Update your phone' },
     { section: 'wishlist', label: 'Wishlist' },
     { section: 'recently-viewed', label: 'Recently Viewed' },
     { section: 'my-reviews', label: 'My Reviews' },
@@ -145,7 +139,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 <button
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all duration-200 border-none cursor-pointer rounded-lg ${
                     activeSection === item.section
-                      ? 'bg-gradient-to-r from-gray-700 to-gray-800 text-white font-semibold shadow-md transform scale-[1.02]'
+                      ? ' bg-gray-700 text-white font-semibold shadow-md transform scale-[1.02]'
                       : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-sm font-medium'
                   }`}
                   onClick={() => handleSectionClick(item.section)}

@@ -538,10 +538,19 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                    }}
                    placeholder="Search province/city..."
                    disabled={isLoading || loading.provinces}
-                   className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                   className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                  />
-                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                   <svg className={`w-4 h-4 transition-transform ${isProvinceOpen ? 'rotate-180' : ''} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <div 
+                   className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                   onClick={() => {
+                     if (!isLoading && !loading.provinces) {
+                       setIsProvinceOpen(!isProvinceOpen);
+                       setIsDistrictOpen(false);
+                       setIsWardOpen(false);
+                     }
+                   }}
+                 >
+                   <svg className={`w-4 h-4 transition-transform ${isProvinceOpen ? 'rotate-180' : ''} text-gray-400 pointer-events-none`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                    </svg>
                  </div>
@@ -601,10 +610,19 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   }}
                    placeholder="Search district..."
                   disabled={isLoading || loading.districts || !selectedProvince}
-                  className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                  className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className={`w-4 h-4 transition-transform ${isDistrictOpen ? 'rotate-180' : ''} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div 
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                  onClick={() => {
+                    if (!isLoading && !loading.districts && selectedProvince) {
+                      setIsDistrictOpen(!isDistrictOpen);
+                      setIsProvinceOpen(false);
+                      setIsWardOpen(false);
+                    }
+                  }}
+                >
+                  <svg className={`w-4 h-4 transition-transform ${isDistrictOpen ? 'rotate-180' : ''} text-gray-400 pointer-events-none`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
@@ -664,10 +682,19 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                   }}
                    placeholder="Search ward..."
                   disabled={isLoading || loading.wards || !selectedDistrict}
-                  className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                  className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className={`w-4 h-4 transition-transform ${isWardOpen ? 'rotate-180' : ''} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div 
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+                  onClick={() => {
+                    if (!isLoading && !loading.wards && selectedDistrict) {
+                      setIsWardOpen(!isWardOpen);
+                      setIsProvinceOpen(false);
+                      setIsDistrictOpen(false);
+                    }
+                  }}
+                >
+                  <svg className={`w-4 h-4 transition-transform ${isWardOpen ? 'rotate-180' : ''} text-gray-400 pointer-events-none`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>

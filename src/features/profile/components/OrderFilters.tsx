@@ -130,7 +130,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
         <select
           value={getCurrentFilterValue()}
           onChange={(e) => handleCombinedFilterChange(e.target.value)}
-          className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white appearance-none"
+          className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none"
         >
           <option value="">All</option>
           <option value="cancelled">Cancelled</option>
@@ -152,7 +152,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
         <select
           value={getCurrentSortValue()}
           onChange={(e) => handleCombinedSortChange(e.target.value)}
-          className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white appearance-none"
+          className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none"
         >
           <option value="new">Newest</option>
           <option value="old">Oldest</option>

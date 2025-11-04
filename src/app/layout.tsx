@@ -13,7 +13,7 @@ import { ToastProvider } from "@/providers/ToastProvider";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
   title: {
-    default: 'FIT Fashion - Authentic Fashion, Attractive Deals',
+    default: 'FIT - Fashion E-commerce',
     template: '%s | FIT Fashion',
   },
   description: 'Leading online fashion store in Vietnam. Discover our collection of authentic t-shirts, shirts, jeans, dresses. Free nationwide shipping.',

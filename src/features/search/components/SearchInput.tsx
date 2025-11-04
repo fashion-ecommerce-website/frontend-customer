@@ -263,8 +263,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           {/* Search button */}
           <button
             type="submit"
-            disabled={isLoading || !query.trim()}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-black text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-800 transition-colors"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-black text-white rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
           >
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

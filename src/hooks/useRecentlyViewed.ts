@@ -10,6 +10,8 @@ export interface RecentlyViewedItem {
   imageUrls: string[];
   colors: string[];
   price: number;
+  finalPrice?: number;
+  percentOff?: number;
   quantity: number;
   detailId: number;
 }
