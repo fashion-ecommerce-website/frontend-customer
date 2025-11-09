@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import { useAppSelector } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
@@ -9,6 +8,9 @@ import { ProductDetail } from '@/services/api/productApi';
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useRouter } from 'next/navigation';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
+import { SizeGuideModal, MeasurementsModal } from '@/components/modals';
+import { Size } from '@/types/size-recommendation.types';
+
 interface ProductInfoProps {
   product: ProductDetail;
   selectedColor: string | null;
@@ -38,6 +40,7 @@ export function ProductInfo({
   });
 
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [showMeasurementsModal, setShowMeasurementsModal] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
   const isAllSizesOut = (() => {
     const quantities = Object.values(product.mapSizeToQuantity || {});
@@ -255,7 +258,7 @@ export function ProductInfo({
             <h3 className="text-xs md:text-sm font-medium text-gray-900">Size</h3>
             <button
               onClick={() => setShowSizeGuide(true)}
-              className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
+              className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer group"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
                 <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
@@ -266,6 +269,9 @@ export function ProductInfo({
                 <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
               </svg>
               <span>Size guide</span>
+              <span className="ml-1 px-1.5 py-0.5 bg-blue-600 text-white text-[8px] md:text-[10px] font-bold rounded group-hover:bg-blue-700 transition-colors">
+                AI
+              </span>
             </button>
           </div>
 
@@ -358,90 +364,28 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Size Guide Modal (portal to body to escape stacking contexts) */}
-      {showSizeGuide && typeof window !== 'undefined' && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center z-[9999]" style={{ backgroundColor: 'rgba(107, 114, 128, 0.4)' }} onClick={() => setShowSizeGuide(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">SIZE GUIDE</h2>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-800">FIT | Áo thun</span>
-                <button
-                  onClick={() => setShowSizeGuide(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+      {/* Size Guide Modal */}
+      <SizeGuideModal 
+        isOpen={showSizeGuide} 
+        onClose={() => setShowSizeGuide(false)}
+        category={product.title}
+        productId={product.detailId}
+        availableSizes={Object.keys(product.mapSizeToQuantity) as Size[]}
+        onSizeSelect={(size) => onSizeSelect(size)}
+        onAddMeasurements={() => {
+          setShowSizeGuide(false);
+          setShowMeasurementsModal(true);
+        }}
+      />
 
-            <div className="space-y-6">
-              {/* Instructions */}
-              <div>
-                <h3 className="font-semibold mb-4 text-gray-900">How to measure:</h3>
-                <p className="text-sm text-gray-800 mb-4">
-                  Please measure accurately around your waist and chest to determine the correct size based on your body measurements.
-                </p>
-              </div>
-
-              {/* Size Chart */}
-              <div>
-                <div className="w-full">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="bg-gray-800 text-white">
-                        <th className="px-4 py-3 text-left border border-gray-700">SIZE</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">XS</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">S</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">M</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">L</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">XL</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">XXL</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-gray-200">
-                        <td className="px-4 py-3 font-medium bg-gray-50 border border-gray-200 text-gray-900">Chest (cm)</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">43 - 45.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">46 - 48.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">49 - 51.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">52 - 54.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">55 - 56.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">57 - 58.5</td>
-                      </tr>
-                      <tr className="border-b border-gray-200">
-                        <td className="px-4 py-3 font-medium bg-gray-50 border border-gray-200 text-gray-900">Waist (cm)</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">95 - 101</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">102 - 108</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">109 - 114</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">115 - 120</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">121 - 127</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">128 - 132</td>
-                      </tr>
-                      <tr className="border-b border-gray-200">
-                        <td className="px-4 py-3 font-medium bg-gray-50 border border-gray-200 text-gray-900">Length (cm)</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">64 - 66</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">67 - 69</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">70 - 72</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">73 - 75</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">76 - 78</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">79 - 81</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <p className="text-xs text-gray-700 mt-4">
-                  *Size chart is for reference only, please refer to actual product measurements and your individual body measurements for accurate sizing.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      <MeasurementsModal
+        isOpen={showMeasurementsModal}
+        onClose={() => setShowMeasurementsModal(false)}
+        onSave={() => {
+          setShowMeasurementsModal(false);
+          setShowSizeGuide(true); // Reopen size guide to show AI recommendations
+        }}
+      />
     </div>
   );
 }
