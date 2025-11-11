@@ -27,3 +27,6 @@ export { ProductCardSkeleton } from './ProductCardSkeleton';
 // Modal Components
 export { OrderModal } from './modals/OrderModal';
 export { ConfirmModal } from './modals/ConfirmModal';
+
+// ChatBot Component
+export { ChatBot } from './ChatBot';

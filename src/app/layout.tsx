@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { AuthInitializer } from "@/components/AuthInitializer";
 import { CartInitializer } from "@/components/CartInitializer";
 import { WishlistInitializer } from "@/components/WishlistInitializer";
+import { ChatBot } from "@/components/ChatBot";
 import { ToastProvider } from "@/providers/ToastProvider";
 
 export const metadata: Metadata = {
@@ -79,6 +80,7 @@ export default function RootLayout({
                       {children}
                     </main>
                     <Footer />
+                    <ChatBot />
                   </div>
                 </ToastProvider>
               </WishlistInitializer>

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { FilterProductItem } from "../types";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
@@ -9,7 +10,7 @@ import { Product } from "@/types/product.types";
 interface ProductListProps {
   products: FilterProductItem[];
   isLoading: boolean;
-  onProductClick: (detailId: number, slug: string) => void;
+  onProductClick?: (detailId: number, slug: string) => void;
   gridColumns?: string; // Custom grid columns classes
 }
 
@@ -28,6 +29,7 @@ const convertToProduct = (item: FilterProductItem): Product => ({
   category: "", // Not available in FilterProductItem
   colors: item.colors,
   sizes: [], // Not available in FilterProductItem
+  originalPrice: Math.round(item.price * 1.3),
 });
 
 export const ProductList: React.FC<ProductListProps> = ({
@@ -35,6 +37,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   isLoading,
   onProductClick,
 }) => {
+  const router = useRouter();
   // State for quick view modal
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quickViewProductId, setQuickViewProductId] = useState<number | null>(null);
@@ -76,7 +79,13 @@ export const ProductList: React.FC<ProductListProps> = ({
               <ProductCard
                 key={item.detailId}
                 product={product}
-                onProductClick={() => onProductClick(item.detailId, item.productSlug)}
+                onProductClick={() => {
+                  if (onProductClick) {
+                    onProductClick(item.detailId, item.productSlug);
+                  } else {
+                    router.push(`/products/${item.detailId}`);
+                  }
+                }}
                 onQuickView={(product, e) => handleOpenQuickView(product, e)}
               />
             );
