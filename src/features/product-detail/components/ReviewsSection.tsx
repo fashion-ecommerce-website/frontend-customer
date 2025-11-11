@@ -240,13 +240,6 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
               <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer">{reviews.length} Reviews</span>
             </div>
           </div>
-          <button 
-            type="button" 
-            onClick={handleOpenModal} 
-            className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition-colors whitespace-nowrap"
-          >
-            Write a review
-          </button>
         </div>
 
         {/* Review Summary */}

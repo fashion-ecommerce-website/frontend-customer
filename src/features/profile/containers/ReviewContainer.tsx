@@ -7,6 +7,7 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useMinimumLoadingTime } from '@/hooks/useMinimumLoadingTime';
 import { ReviewPresenter } from '../components/ReviewPresenter';
 import {
   getReviewsRequest,
@@ -46,6 +47,10 @@ export const ReviewContainer: React.FC<ReviewContainerProps> = ({
   const isSubmitting = useAppSelector(selectIsSubmitting);
   const error = useAppSelector(selectError);
   const submitSuccess = useAppSelector(selectSubmitSuccess);
+  
+  // Use minimum loading time hook to ensure skeleton shows for at least 500ms
+  const displayLoading = useMinimumLoadingTime(isLoading, 500);
+  
   // Pagination state
   const currentPage = useAppSelector(selectCurrentPage);
   const totalPages = useAppSelector(selectTotalPages);
@@ -142,7 +147,7 @@ export const ReviewContainer: React.FC<ReviewContainerProps> = ({
     <ReviewPresenter
       reviews={reviews}
       totalReviews={totalReviews}
-      isLoading={isLoading}
+      isLoading={displayLoading}
       isSubmitting={isSubmitting}
       error={error}
       submitSuccess={submitSuccess}

@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { ReduxProvider } from "@/providers/ReduxProvider";
+import { EnumsProvider } from "@/providers/EnumsProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AuthInitializer } from "@/components/AuthInitializer";
@@ -72,25 +73,27 @@ export default function RootLayout({
         className="antialiased font-sans"
       >
         <ReduxProvider>
-          <AuthInitializer>
-            <CartInitializer>
-              <WishlistInitializer>
-                <ToastProvider>
-                  <VirtualTryOnProvider>
-                    <div className="min-h-screen flex flex-col">
-                      <Header />
-                      <main className="flex-1">
-                        {children}
-                      </main>
-                      <Footer />
-                      <ChatBot />
-                      <TryOnStatusFloater />
-                    </div>
-                  </VirtualTryOnProvider>
-                </ToastProvider>
-              </WishlistInitializer>
-            </CartInitializer>
-          </AuthInitializer>
+            <EnumsProvider>
+              <AuthInitializer>
+                <CartInitializer>
+                  <WishlistInitializer>
+                    <ToastProvider>
+                      <VirtualTryOnProvider>
+                        <div className="min-h-screen flex flex-col">
+                          <Header />
+                          <main className="flex-1">
+                            {children}
+                          </main>
+                          <Footer />
+                          <ChatBot />
+                          <TryOnStatusFloater />
+                        </div>
+                      </VirtualTryOnProvider>
+                    </ToastProvider>
+                  </WishlistInitializer>
+                </CartInitializer>
+              </AuthInitializer>
+            </EnumsProvider>
         </ReduxProvider>
       </body>
     </html>

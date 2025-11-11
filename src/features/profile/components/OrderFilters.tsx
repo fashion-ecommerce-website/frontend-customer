@@ -37,6 +37,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     const status = query.status;
     const paymentStatus = query.paymentStatus;
     
+    if (status === OrderStatus.FULFILLED) return 'fulfilled';
     if (status === OrderStatus.CANCELLED) return 'cancelled';
     if (paymentStatus === PaymentStatus.PAID) return 'paid';
     if (paymentStatus === PaymentStatus.UNPAID) return 'unpaid';
@@ -51,6 +52,9 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     if (value === '') {
       // Clear all filters
       newQuery.status = undefined;
+      newQuery.paymentStatus = undefined;
+    } else if (value === 'fulfilled') {
+      newQuery.status = OrderStatus.FULFILLED;
       newQuery.paymentStatus = undefined;
     } else if (value === 'cancelled') {
       newQuery.status = OrderStatus.CANCELLED;
@@ -76,6 +80,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     if (!status && !paymentStatus) return 'All Orders';
     
     // Map to display labels
+    if (status === OrderStatus.FULFILLED) return 'Fulfilled';
     if (status === OrderStatus.CANCELLED) return 'Cancelled';
     if (paymentStatus === PaymentStatus.PAID) return 'Paid';
     if (paymentStatus === PaymentStatus.UNPAID) return 'Unpaid';
@@ -133,6 +138,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
           className="w-full sm:w-auto pl-8 sm:pl-10 pr-8 sm:pr-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none"
         >
           <option value="">All</option>
+          <option value="fulfilled">Fulfilled</option>
           <option value="cancelled">Cancelled</option>
           <option value="paid">Paid</option>
           <option value="unpaid">Unpaid</option>

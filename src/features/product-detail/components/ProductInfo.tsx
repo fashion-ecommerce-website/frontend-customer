@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAppSelector } from '@/hooks/redux';
+import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { ProductDetail } from '@/services/api/productApi';
@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
 import { SizeGuideModal, MeasurementsModal } from '@/components/modals';
 import { Size } from '@/types/size-recommendation.types';
+import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -29,6 +30,7 @@ export function ProductInfo({
   isColorLoading = false,
 }: ProductInfoProps) {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
@@ -141,14 +143,33 @@ export function ProductInfo({
     }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
       setTimeout(() => setShowSizeNotice(false), 3000); // Hide after 3 seconds
       return;
     }
-    // Buy now logic here
-    console.log('Buy now:', { product: product.detailId, color: selectedColor, size: selectedSize });
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+
+      // Add to cart without toast
+      dispatch(addToCartAsync({
+        productDetailId: product.detailId,
+        quantity: quantity
+      }));
+
+      // Navigate to cart page
+      router.push('/cart');
+    } catch (error) {
+      setAddingToCart(false);
+    }
   };
 
   return (

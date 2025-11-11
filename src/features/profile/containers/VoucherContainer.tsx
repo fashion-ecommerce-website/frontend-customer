@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useMinimumLoadingTime } from '@/hooks/useMinimumLoadingTime';
 import { VoucherPresenter } from '../components/VoucherPresenter';
 import { voucherApi } from '@/services/api/voucherApi';
 import { Voucher } from '@/features/order/components/VoucherModal';
@@ -15,6 +16,9 @@ export const VoucherContainer: React.FC = () => {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Use minimum loading time hook to ensure skeleton shows for at least 500ms
+  const displayLoading = useMinimumLoadingTime(isLoading, 500);
 
   // Load user vouchers
   const loadVouchers = useCallback(async () => {
@@ -49,7 +53,7 @@ export const VoucherContainer: React.FC = () => {
   return (
     <VoucherPresenter
       vouchers={vouchers}
-      isLoading={isLoading}
+      isLoading={displayLoading}
       error={error}
       onRefresh={handleRefresh}
     />
