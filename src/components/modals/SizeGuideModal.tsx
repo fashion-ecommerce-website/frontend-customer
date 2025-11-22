@@ -159,14 +159,27 @@ export function SizeGuideModal({
 
               {/* User Measurements Summary */}
               <div className="bg-white/80 rounded-lg p-4 border border-blue-100">
-                <p className="text-xs text-black flex items-center gap-2">
+                <div className="flex items-start justify-between">
+                  <p className="text-xs text-black flex items-center gap-2">
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   <span className="font-medium">Your Profile:</span>
                   {measurements.gender} • {measurements.height}cm • {measurements.weight}kg • 
                   BMI {measurements.bmi.toFixed(1)} • {measurements.fitPreference.toLowerCase()} fit
-                </p>
+                  </p>
+
+                  <div className="ml-4 flex-shrink-0">
+                    <button
+                      onClick={() => {
+                        if (onAddMeasurements) onAddMeasurements();
+                      }}
+                      className="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 transition-colors"
+                    >
+                      Edit Measurements
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
@@ -257,31 +270,31 @@ export function SizeGuideModal({
                 </thead>
                 <tbody className="bg-white">
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium bg-gray-50 border-r border-gray-200">Chest (cm)</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">80-85</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">86-91</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">92-97</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">98-103</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">104-109</td>
-                    <td className="px-4 py-3 text-center">110-115</td>
+                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Chest (cm)</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">80-85</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">86-91</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">92-97</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">98-103</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">104-109</td>
+                    <td className="px-4 py-3 text-black text-center">110-115</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium bg-gray-50 border-r border-gray-200">Waist (cm)</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">65-70</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">71-76</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">77-82</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">83-88</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">89-94</td>
-                    <td className="px-4 py-3 text-center">95-100</td>
+                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Waist (cm)</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">65-70</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">71-76</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">77-82</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">83-88</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">89-94</td>
+                    <td className="px-4 py-3 text-black text-center">95-100</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium bg-gray-50 border-r border-gray-200">Height (cm)</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">155-160</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">160-165</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">165-170</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">170-175</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">175-180</td>
-                    <td className="px-4 py-3 text-center">180-185</td>
+                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Height (cm)</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">155-160</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">160-165</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">165-170</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">170-175</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">175-180</td>
+                    <td className="px-4 py-3 text-black text-center">180-185</td>
                   </tr>
                 </tbody>
               </table>
@@ -306,31 +319,31 @@ export function SizeGuideModal({
                 </thead>
                 <tbody className="bg-white">
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium bg-gray-50 border-r border-gray-200">Waist (cm)</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">60-65</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">66-71</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">72-77</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">78-83</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">84-89</td>
-                    <td className="px-4 py-3 text-center">90-95</td>
+                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Waist (cm)</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">60-65</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">66-71</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">72-77</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">78-83</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">84-89</td>
+                    <td className="px-4 py-3 text-black text-center">90-95</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium bg-gray-50 border-r border-gray-200">Hips (cm)</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">85-90</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">91-96</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">97-102</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">103-108</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">109-114</td>
-                    <td className="px-4 py-3 text-center">115-120</td>
+                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Hips (cm)</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">85-90</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">91-96</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">97-102</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">103-108</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">109-114</td>
+                    <td className="px-4 py-3 text-black text-center">115-120</td>
                   </tr>
                   <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium bg-gray-50 border-r border-gray-200">Inseam (cm)</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">71-73</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">74-76</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">77-79</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">80-82</td>
-                    <td className="px-4 py-3 text-center border-r border-gray-200">83-85</td>
-                    <td className="px-4 py-3 text-center">86-88</td>
+                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Inseam (cm)</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">71-73</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">74-76</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">77-79</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">80-82</td>
+                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">83-85</td>
+                    <td className="px-4 py-3 text-black text-center">86-88</td>
                   </tr>
                 </tbody>
               </table>
@@ -376,62 +389,162 @@ export function SizeGuideModal({
   );
 }
 
-// Helper functions for size calculation
+
+// Size chart data
+const sizeCharts = {
+  tops: {
+    XS: { chest: [80, 85], waist: [65, 70], height: [155, 160] },
+    S: { chest: [86, 91], waist: [71, 76], height: [160, 165] },
+    M: { chest: [92, 97], waist: [77, 82], height: [165, 170] },
+    L: { chest: [98, 103], waist: [83, 88], height: [170, 175] },
+    XL: { chest: [104, 109], waist: [89, 94], height: [175, 180] },
+    XXL: { chest: [110, 115], waist: [95, 100], height: [180, 185] }
+  },
+  bottoms: {
+    XS: { waist: [60, 65], hips: [85, 90] },
+    S: { waist: [66, 71], hips: [91, 96] },
+    M: { waist: [72, 77], hips: [97, 102] },
+    L: { waist: [78, 83], hips: [103, 108] },
+    XL: { waist: [84, 89], hips: [109, 114] },
+    XXL: { waist: [90, 95], hips: [115, 120] }
+  }
+};
+
 function calculateRecommendedSizes(
-  measurements: UserMeasurements, 
+  measurements: UserMeasurements,
   category: string,
   availableSizes: Size[]
 ): { recommended: Size; alternative: Size | null } {
-  const { bmi, fitPreference, bellyShape, hipShape, hasReturnHistory, gender } = measurements;
-  
-  let baseSize: number;
-  
-  // Base size from BMI (adjusted for Southeast Asian)
-  if (gender === 'FEMALE') {
-    if (bmi < 17.5) baseSize = 0; // XS
-    else if (bmi < 19) baseSize = 1; // S
-    else if (bmi < 22) baseSize = 2; // M
-    else if (bmi < 25) baseSize = 3; // L
-    else if (bmi < 27) baseSize = 4; // XL
-    else baseSize = 5; // XXL
+  const { chest, waist, hips, height, fitPreference, bellyShape, hipShape, hasReturnHistory } = measurements;
+
+  // Determine if it's bottoms or tops
+  const isBottoms = category.toLowerCase().includes('pants') ||
+    category.toLowerCase().includes('shorts') ||
+    category.toLowerCase().includes('skirt') ||
+    category.toLowerCase().includes('jeans') ||
+    category.toLowerCase().includes('leggings');
+
+  // Find best size based on measurements
+  let recommendedSize: Size;
+  if (isBottoms) {
+    recommendedSize = findBestSizeForBottoms(waist, hips, availableSizes);
   } else {
-    if (bmi < 18.5) baseSize = 0; // XS
-    else if (bmi < 20.5) baseSize = 1; // S
-    else if (bmi < 23) baseSize = 2; // M
-    else if (bmi < 25) baseSize = 3; // L
-    else if (bmi < 27) baseSize = 4; // XL
-    else baseSize = 5; // XXL
+    recommendedSize = findBestSizeForTops(chest, waist, height, availableSizes);
   }
-  
-  // Adjust for fit preference
-  if (fitPreference === 'TIGHT') baseSize -= 1;
-  else if (fitPreference === 'LOOSE') baseSize += 1;
-  
-  // Adjust for body shapes
-  if (bellyShape === 'ROUND') baseSize += 1;
-  if (hipShape === 'WIDE' && (category.includes('PANTS') || category.includes('Pants'))) baseSize += 1;
-  
-  // Adjust for return history (more cautious)
-  if (hasReturnHistory) baseSize += 1;
-  
-  // Clamp to valid range
-  baseSize = Math.max(0, Math.min(5, baseSize));
-  
-  const sizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const recommended = sizes[baseSize];
-  
-  // Get alternative size (prefer going up for safety)
+
+  // Fit preference
+  recommendedSize = adjustForFitPreference(recommendedSize, fitPreference, availableSizes);
+
+  // Body shape
+  recommendedSize = adjustForBodyShape(recommendedSize, bellyShape, hipShape, isBottoms, availableSizes);
+
+  // Return history (be more conservative)
+  if (hasReturnHistory) {
+    recommendedSize = getLargerSize(recommendedSize) || recommendedSize;
+  }
+
+  // Ensure recommended size is available
+  if (!availableSizes.includes(recommendedSize)) {
+    recommendedSize = findClosestAvailableSize(recommendedSize, availableSizes);
+  }
+
+  // Alternative size
   let alternativeSize: Size | null = null;
-  const largerSize = getLargerSize(recommended);
-  const smallerSize = getSmallerSize(recommended);
-  
+  const largerSize = getLargerSize(recommendedSize);
+  const smallerSize = getSmallerSize(recommendedSize);
   if (largerSize && availableSizes.includes(largerSize)) {
     alternativeSize = largerSize;
   } else if (smallerSize && availableSizes.includes(smallerSize)) {
     alternativeSize = smallerSize;
   }
-  
-  return { recommended, alternative: alternativeSize };
+
+  return { recommended: recommendedSize, alternative: alternativeSize };
+}
+
+function findBestSizeForTops(chest: number, waist: number, height: number, availableSizes: Size[]): Size {
+  let bestSize: Size = 'M';
+  let maxScore = -1;
+  for (const size of availableSizes) {
+    const ranges = sizeCharts.tops[size];
+    if (!ranges) continue;
+    let score = 0;
+    // Chest is most important
+    if (chest >= ranges.chest[0] && chest <= ranges.chest[1]) score += 3;
+    else if (chest >= ranges.chest[0] - 2 && chest <= ranges.chest[1] + 2) score += 1;
+    // Waist
+    if (waist >= ranges.waist[0] && waist <= ranges.waist[1]) score += 2;
+    else if (waist >= ranges.waist[0] - 2 && waist <= ranges.waist[1] + 2) score += 1;
+    // Height
+    if (height >= ranges.height[0] && height <= ranges.height[1]) score += 1;
+    if (score > maxScore) {
+      maxScore = score;
+      bestSize = size;
+    }
+  }
+  return bestSize;
+}
+
+function findBestSizeForBottoms(waist: number, hips: number, availableSizes: Size[]): Size {
+  let bestSize: Size = 'M';
+  let maxScore = -1;
+  for (const size of availableSizes) {
+    const ranges = sizeCharts.bottoms[size];
+    if (!ranges) continue;
+    let score = 0;
+    // Waist is most important
+    if (waist >= ranges.waist[0] && waist <= ranges.waist[1]) score += 3;
+    else if (waist >= ranges.waist[0] - 2 && waist <= ranges.waist[1] + 2) score += 1;
+    // Hips
+    if (hips >= ranges.hips[0] && hips <= ranges.hips[1]) score += 3;
+    else if (hips >= ranges.hips[0] - 2 && hips <= ranges.hips[1] + 2) score += 1;
+    if (score > maxScore) {
+      maxScore = score;
+      bestSize = size;
+    }
+  }
+  return bestSize;
+}
+
+function adjustForFitPreference(size: Size, fitPreference: string, availableSizes: Size[]): Size {
+  let adjustedSize = size;
+  if (fitPreference === 'TIGHT') {
+    adjustedSize = getSmallerSize(size) || size;
+  } else if (fitPreference === 'LOOSE') {
+    adjustedSize = getLargerSize(size) || size;
+  }
+  if (!availableSizes.includes(adjustedSize)) {
+    adjustedSize = size;
+  }
+  return adjustedSize;
+}
+
+function adjustForBodyShape(size: Size, bellyShape: string, hipShape: string, isBottoms: boolean, availableSizes: Size[]): Size {
+  let adjustedSize = size;
+  if (bellyShape === 'ROUND' && !isBottoms) {
+    adjustedSize = getLargerSize(adjustedSize) || adjustedSize;
+  }
+  if (hipShape === 'WIDE' && isBottoms) {
+    adjustedSize = getLargerSize(adjustedSize) || adjustedSize;
+  }
+  if (!availableSizes.includes(adjustedSize)) {
+    adjustedSize = size;
+  }
+  return adjustedSize;
+}
+
+function findClosestAvailableSize(targetSize: Size, availableSizes: Size[]): Size {
+  const sizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const targetIndex = sizes.indexOf(targetSize);
+  let closestSize = availableSizes[0];
+  let minDistance = Math.abs(sizes.indexOf(closestSize) - targetIndex);
+  for (const size of availableSizes) {
+    const distance = Math.abs(sizes.indexOf(size) - targetIndex);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestSize = size;
+    }
+  }
+  return closestSize;
 }
 
 function getSmallerSize(size: Size): Size | null {

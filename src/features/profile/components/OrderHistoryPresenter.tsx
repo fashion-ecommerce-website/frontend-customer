@@ -88,7 +88,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
     if (isCompleted(order)) {
       return "text-xs sm:text-sm font-medium text-black border border-gray-300 sm:border-transparent hover:bg-gray-50 sm:hover:border-gray-300 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-pointer transition-colors";
     }
-    return "text-xs sm:text-sm font-medium text-gray-400 border border-gray-300 sm:border-transparent bg-gray-50 sm:bg-transparent sm:hover:border-gray-300 sm:hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-not-allowed transition-colors min-h-[60px]";
+    return "text-xs sm:text-sm font-medium text-gray-400 border border-gray-300 sm:border-transparent bg-gray-50 sm:bg-transparent sm:hover:border-gray-300 sm:hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-not-allowed transition-colors";
   };
 
   const getReviewButtonTitle = (order: Order) => {

@@ -3,6 +3,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { MeasurementsForm } from '@/components/size-recommendation';
+import { getMeasurements } from '@/utils/localStorage/measurements';
 
 interface MeasurementsModalProps {
   isOpen: boolean;
@@ -59,6 +60,7 @@ export function MeasurementsModal({ isOpen, onClose, onSave }: MeasurementsModal
           <MeasurementsForm 
             onSave={handleSaveSuccess}
             onCancel={onClose}
+            initialData={getMeasurements()}
           />
         </div>
       </div>

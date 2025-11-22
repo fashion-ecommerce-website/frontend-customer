@@ -290,9 +290,6 @@ export function ProductInfo({
                 <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
               </svg>
               <span>Size guide</span>
-              <span className="ml-1 px-1.5 py-0.5 bg-blue-600 text-white text-[8px] md:text-[10px] font-bold rounded group-hover:bg-blue-700 transition-colors">
-                AI
-              </span>
             </button>
           </div>
 

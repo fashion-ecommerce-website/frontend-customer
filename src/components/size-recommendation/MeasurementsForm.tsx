@@ -106,7 +106,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
             <select
               value={formData.gender}
               onChange={(e) => handleChange('gender', e.target.value as Gender)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             >
               <option value="MALE">Male</option>
               <option value="FEMALE">Female</option>
@@ -122,7 +122,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
               type="number"
               value={formData.age}
               onChange={(e) => handleChange('age', parseInt(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="25"
               min="18"
               max="100"
@@ -145,7 +145,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
               type="number"
               value={formData.height}
               onChange={(e) => handleChange('height', parseFloat(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="168"
               step="0.1"
             />
@@ -160,7 +160,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
               type="number"
               value={formData.weight}
               onChange={(e) => handleChange('weight', parseFloat(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="65"
               step="0.1"
             />
@@ -168,14 +168,14 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
 
           {/* Chest */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-black mb-2">
               Chest (cm) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
               value={formData.chest}
               onChange={(e) => handleChange('chest', parseFloat(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="90"
               step="0.1"
             />
@@ -183,14 +183,14 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
 
           {/* Waist */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-black mb-2">
               Waist (cm) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
               value={formData.waist}
               onChange={(e) => handleChange('waist', parseFloat(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="75"
               step="0.1"
             />
@@ -198,14 +198,14 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
 
           {/* Hips */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-black mb-2">
               Hips (cm) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
               value={formData.hips}
               onChange={(e) => handleChange('hips', parseFloat(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="95"
               step="0.1"
             />
@@ -220,7 +220,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
               type="text"
               value={formData.bmi?.toFixed(1) || '0.0'}
               disabled
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-black"
             />
           </div>
         </div>
@@ -239,7 +239,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
             <select
               value={formData.bellyShape}
               onChange={(e) => handleChange('bellyShape', e.target.value as BellyShape)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             >
               <option value="FLAT">Flat</option>
               <option value="NORMAL">Normal</option>
@@ -255,7 +255,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
             <select
               value={formData.hipShape}
               onChange={(e) => handleChange('hipShape', e.target.value as HipShape)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             >
               <option value="NARROW">Narrow</option>
               <option value="NORMAL">Normal</option>
@@ -278,7 +278,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
             <select
               value={formData.fitPreference}
               onChange={(e) => handleChange('fitPreference', e.target.value as FitPreference)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             >
               <option value="TIGHT">Tight / Fitted</option>
               <option value="COMFORTABLE">Comfortable / Regular</option>
@@ -296,7 +296,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
                 type="text"
                 value={formData.braSize || ''}
                 onChange={(e) => handleChange('braSize', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="e.g., 70B, 75A"
               />
             </div>
