@@ -9,6 +9,7 @@ import { Banner } from './Banner';
 import { NewsletterSignup } from './NewsletterSignup';
 import { ProductSection } from './ProductSection';
 import { RankingSection } from './RankingSection';
+import { RecommendSection } from './RecommendSection';
 
 export const HomePresenter: React.FC<HomePresenterProps> = ({
   banners,
@@ -66,6 +67,9 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
               leftImageUrl="https://cdn.hstatic.net/files/200000642007/file/banner_phu_-_giay_dep_-675_x873_bdb081cf9da74f98a05c919d53ed843d.jpg"
               className="pt-12 sm:pt-16 lg:pt-20"
             />
+
+            {/* Recommend For You Section */}
+            <RecommendSection />
 
             {/* Ranking Section */}
             <RankingSection />

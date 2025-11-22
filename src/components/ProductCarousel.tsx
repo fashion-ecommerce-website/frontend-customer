@@ -80,7 +80,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
   const handleProductClick = (productId: string) => {
     const product = products.find(p => p.detailId.toString() === productId);
     if (!product) return;
-    
+
     if (onProductClick) {
       onProductClick(product.detailId, product.productSlug);
     } else {
@@ -92,83 +92,94 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
     return null;
   }
 
-  return (
-    <div className={`w-full ${title ? 'py-8 sm:py-12' : ''}`}>
-      {title && (
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 px-4 sm:px-6 lg:px-12">
-          {title}
-        </h2>
+  const CarouselContent = (
+    <div className="relative">
+      {/* Navigation Arrows */}
+      {canScrollPrev && (
+        <button
+          type="button"
+          onClick={scrollPrev}
+          className="absolute -left-2 sm:left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200"
+          aria-label="Previous products"
+        >
+          <svg
+            className="w-5 h-5 text-gray-800"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
       )}
 
-      <div className="relative">
-        {/* Navigation Arrows */}
-        {canScrollPrev && (
-          <button
-            type="button"
-            onClick={scrollPrev}
-            className="absolute -left-2 sm:left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200"
-            aria-label="Previous products"
+      {canScrollNext && (
+        <button
+          type="button"
+          onClick={scrollNext}
+          className="absolute -right-2 sm:right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200"
+          aria-label="Next products"
+        >
+          <svg
+            className="w-5 h-5 text-gray-800"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5 text-gray-800"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-        )}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      )}
 
-        {canScrollNext && (
-          <button
-            type="button"
-            onClick={scrollNext}
-            className="absolute -right-2 sm:right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg hover:bg-gray-50 transition-all duration-200 border border-gray-200"
-            aria-label="Next products"
-          >
-            <svg
-              className="w-5 h-5 text-gray-800"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        )}
+      {/* Carousel */}
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex gap-4 sm:gap-5 md:gap-6">
+          {products.map((product) => {
+            const sharedProduct = convertToSharedProduct(product);
 
-        {/* Carousel */}
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-4 sm:gap-5 md:gap-6">
-            {products.map((product) => {
-              const sharedProduct = convertToSharedProduct(product);
-              
-              return (
-                <div
-                  key={product.detailId}
-                  className="flex-[0_0_calc(50%-0.5rem)] sm:flex-[0_0_calc(33.33%-1rem)] md:flex-[0_0_calc(25%-1.125rem)] lg:flex-[0_0_calc(20%-1.2rem)] min-w-0"
-                >
-                  <ProductCard
-                    product={sharedProduct}
-                    onProductClick={handleProductClick}
-                  />
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <div
+                key={product.detailId}
+                className="flex-[0_0_calc(50%-0.5rem)] sm:flex-[0_0_calc(33.33%-1rem)] md:flex-[0_0_calc(25%-1.125rem)] lg:flex-[0_0_calc(20%-1.2rem)] min-w-0"
+              >
+                <ProductCard
+                  product={sharedProduct}
+                  onProductClick={handleProductClick}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
+    </div>
+  );
+
+  if (title) {
+    return (
+      <div className="w-full py-8 sm:py-10 lg:py-12">
+        <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
+            {title}
+          </h2>
+          {CarouselContent}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full">
+      {CarouselContent}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { RootState } from '@/store/rootReducer';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
+import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
 import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '../components';
 import { selectWishlistItems, toggleWishlistRequest } from '@/features/profile/redux/wishlistSlice';
@@ -55,7 +56,7 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
     dispatch(fetchProductRequest(productId));
   }, [productId, dispatch]);
 
-  // Add product to recently viewed when product is loaded successfully
+  // Add product to recently viewed and record VIEW interaction
   useEffect(() => {
     const addToRecentlyViewed = async () => {
       // Only add if user is authenticated and product is loaded
@@ -64,6 +65,15 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
           console.log('🔍 Adding product to recently viewed:', product.detailId);
           await recentlyViewedApiService.addRecentlyViewed(product.detailId);
           console.log('✅ Successfully added to recently viewed');
+
+          // Record VIEW interaction for recommendation system
+          try {
+            await recommendationApi.recordInteraction(product.productId, ActionType.VIEW);
+            console.log('✅ Recorded VIEW interaction for recommendations');
+          } catch (error) {
+            console.error('❌ Failed to record VIEW interaction:', error);
+            // Fail silently
+          }
         } catch (error) {
           console.error('❌ Failed to add to recently viewed:', error);
           // Fail silently - don't show error to user for this background operation
@@ -81,6 +91,36 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
     };
   }, [dispatch]);
 
+  // Handle wishlist toggle with LIKE interaction tracking
+  const handleToggleWishlist = async () => {
+    if (!product) {
+      return; // Guard against null product
+    }
+
+    if (!isAuthenticated) {
+      window.location.href = `/auth/login?returnUrl=/products/${product.detailId}`;
+      return;
+    }
+    const existingSameColor = wishlistItems.find((i) => i.productTitle === product.title && i.colorName === product.activeColor);
+    const isOn = !!existingSameColor;
+
+    // Dispatch toggle for target detail
+    dispatch(toggleWishlistRequest(isOn ? existingSameColor!.detailId : product.detailId));
+    // Immediately refresh via fetch to ensure state sync with server
+    dispatch({ type: 'wishlist/fetchWishlistRequest' });
+    showSuccess(isOn ? 'Removed from wishlist' : 'Added to wishlist');
+
+    // Record LIKE interaction for recommendation system (only when adding to wishlist)
+    if (!isOn) {
+      try {
+        await recommendationApi.recordInteraction(product.productId, ActionType.LIKE);
+        console.log('✅ Recorded LIKE interaction for recommendations');
+      } catch (error) {
+        console.error('❌ Failed to record LIKE interaction:', error);
+        // Fail silently
+      }
+    }
+  };
 
   // Only show error if there's actually an error, not just no product yet
   if (error) {
@@ -112,19 +152,7 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
       isLoading={isColorLoading} // Pass color loading state
       isInWishlist={wishlistItems.some((i) => i.productTitle === product.title && i.colorName === product.activeColor)}
       wishlistBusy={false}
-      onToggleWishlist={() => {
-        if (!isAuthenticated) {
-          window.location.href = `/auth/login?returnUrl=/products/${product.detailId}`;
-          return;
-        }
-        const existingSameColor = wishlistItems.find((i) => i.productTitle === product.title && i.colorName === product.activeColor);
-        const isOn = !!existingSameColor;
-        // Dispatch toggle for target detail
-        dispatch(toggleWishlistRequest(isOn ? existingSameColor!.detailId : product.detailId));
-        // Immediately refresh via fetch to ensure state sync with server
-        dispatch({ type: 'wishlist/fetchWishlistRequest' });
-        showSuccess(isOn ? 'Removed from wishlist' : 'Added to wishlist');
-      }}
+      onToggleWishlist={handleToggleWishlist}
     />
   );
 }

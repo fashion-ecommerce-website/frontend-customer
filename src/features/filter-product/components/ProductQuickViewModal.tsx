@@ -11,6 +11,7 @@ import {
   fetchProductByColorRequest,
   setSelectedSize as setSelectedSizeAction,
 } from "@/features/product-detail/redux/productDetailSlice"
+import { recommendationApi, ActionType } from "@/services/api/recommendationApi"
 
 interface ProductQuickViewModalProps {
   isOpen: boolean
@@ -88,7 +89,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     if (isOpen) {
       // Calculate scrollbar width before hiding it
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-      
+
       document.addEventListener("keydown", handleEscape)
       // Prevent body scroll when modal is open and compensate for scrollbar
       document.body.style.overflow = "hidden"
@@ -434,6 +435,19 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         price: product.price,
         finalPrice: product.finalPrice,
       })
+
+      // Record ADD_TO_CART interaction
+      try {
+        // Note: ProductQuickViewModal uses 'product' which is ProductDetail
+        // We need to ensure we use productId, not detailId
+        if (product.productId) {
+          await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, selectedAmount)
+          console.log("✅ Recorded ADD_TO_CART interaction from QuickView")
+        }
+      } catch (error) {
+        console.error("❌ Failed to record ADD_TO_CART interaction:", error)
+        // Fail silently
+      }
     } catch (error) {
       console.error("❌ Failed to add to cart:", error)
       setAddingToCart(false)
@@ -511,17 +525,15 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 bg-black/75 flex items-end md:items-center justify-center z-50 transition-opacity duration-300 ${
-        isAnimating ? "opacity-100" : "opacity-0"
-      }`}
+      className={`fixed inset-0 bg-black/75 flex items-end md:items-center justify-center z-50 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"
+        }`}
       onClick={onClose} // Click backdrop to close
     >
       <div
-        className={`bg-white rounded-t-2xl md:rounded-lg p-4 w-full max-w-4xl mx-4 relative shadow-2xl border border-gray-200 overflow-hidden h-[70vh] transition-all duration-300 ${
-          isAnimating
-            ? "translate-y-0 md:scale-100 opacity-100"
-            : "translate-y-full md:translate-y-0 md:scale-0 opacity-0"
-        }`}
+        className={`bg-white rounded-t-2xl md:rounded-lg p-4 w-full max-w-4xl mx-4 relative shadow-2xl border border-gray-200 overflow-hidden h-[70vh] transition-all duration-300 ${isAnimating
+          ? "translate-y-0 md:scale-100 opacity-100"
+          : "translate-y-full md:translate-y-0 md:scale-0 opacity-0"
+          }`}
         onClick={(e) => e.stopPropagation()} // Prevent close when clicking modal content
         role="dialog"
         aria-modal="true"
@@ -585,9 +597,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       key={index}
                       onClick={() => handleImageSelect(index)}
                       onMouseEnter={() => preloadImage(image, index)}
-                      className={`flex-shrink-0 w-8 h-10 rounded-sm border overflow-hidden relative transition-all duration-200 ${
-                        selectedImageIndex === index ? "border-black border-1" : "border-gray-200 hover:border-gray-400"
-                      }`}
+                      className={`flex-shrink-0 w-8 h-10 rounded-sm border overflow-hidden relative transition-all duration-200 ${selectedImageIndex === index ? "border-black border-1" : "border-gray-200 hover:border-gray-400"
+                        }`}
                     >
                       <img
                         src={image || "/placeholder.svg"}
@@ -617,9 +628,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         <button
                           key={color}
                           onClick={() => handleColorChange(color)}
-                          className={`w-12 h-12 rounded-sm border overflow-hidden flex items-center justify-center ${
-                            selectedColor === color ? "ring-2 ring-black" : "border-gray-200"
-                          }`}
+                          className={`w-12 h-12 rounded-sm border overflow-hidden flex items-center justify-center ${selectedColor === color ? "ring-2 ring-black" : "border-gray-200"
+                            }`}
                           title={color}
                         >
                           {colorPreviewImages[color] ? (
@@ -646,13 +656,12 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           key={size}
                           onClick={() => handleSizeSelect(size)}
                           disabled={quantity === 0}
-                          className={`px-3 py-2 text-sm font-medium w-12 h-10 rounded-full border transition-all ${
-                            selectedSizeLocal === size
-                              ? "bg-black text-white border-black"
-                              : quantity === 0
-                                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                                : "bg-white text-gray-800 border-gray-300"
-                          }`}
+                          className={`px-3 py-2 text-sm font-medium w-12 h-10 rounded-full border transition-all ${selectedSizeLocal === size
+                            ? "bg-black text-white border-black"
+                            : quantity === 0
+                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                              : "bg-white text-gray-800 border-gray-300"
+                            }`}
                         >
                           {size}
                         </button>
@@ -774,17 +783,15 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       {product.colors.map((color) => (
                         <div
                           key={color}
-                          className={`cursor-pointer transition-all duration-300 ease-out ${
-                            selectedColor === color ? "active" : ""
-                          }`}
+                          className={`cursor-pointer transition-all duration-300 ease-out ${selectedColor === color ? "active" : ""
+                            }`}
                           onClick={() => handleColorChange(color)}
                         >
                           <div
-                            className={`w-20 h-24 rounded-[5px] border-1 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${
-                              selectedColor === color
-                                ? "border-gray-800"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
+                            className={`w-20 h-24 rounded-[5px] border-1 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${selectedColor === color
+                              ? "border-gray-800"
+                              : "border-gray-200 hover:border-gray-300"
+                              }`}
                           >
                             {colorPreviewImages[color] ? (
                               <img
@@ -817,9 +824,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   <div className="relative">
                     {/* Size Selection Notice */}
                     <div
-                      className={`absolute z-10 transition-all duration-250 ease-in-out pointer-events-none ${
-                        showSizeNotice ? "opacity-100 visible -top-12 left-0" : "opacity-0 invisible -top-12 left-0"
-                      }`}
+                      className={`absolute z-10 transition-all duration-250 ease-in-out pointer-events-none ${showSizeNotice ? "opacity-100 visible -top-12 left-0" : "opacity-0 invisible -top-12 left-0"
+                        }`}
                       style={{
                         filter: "drop-shadow(0px 0px 10px rgba(46, 46, 46, 0.4))",
                         background: "#2E2E2E",
@@ -847,13 +853,12 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           key={size}
                           onClick={() => handleSizeSelect(size)}
                           disabled={quantity === 0}
-                          className={`w-12 h-8 text-xs font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${
-                            selectedSizeLocal === size
-                              ? "border-black bg-black text-white"
-                              : quantity === 0
-                                ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100"
-                                : "border-gray-300 text-gray-800 hover:border-gray-400"
-                          }`}
+                          className={`w-12 h-8 text-xs font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSizeLocal === size
+                            ? "border-black bg-black text-white"
+                            : quantity === 0
+                              ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100"
+                              : "border-gray-300 text-gray-800 hover:border-gray-400"
+                            }`}
                         >
                           {size}
                         </button>
