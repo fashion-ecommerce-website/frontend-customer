@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     
     const modelImage = formData.get('model_image') as File;
     const clothImage = formData.get('cloth_image') as File;
+    const lowerClothImage = formData.get('lower_cloth_image') as File | null;
     const clothType = formData.get('cloth_type') as string || 'upper';
 
     // Validate required fields
@@ -53,6 +54,9 @@ export async function POST(request: NextRequest) {
     const fitroomFormData = new FormData();
     fitroomFormData.append('model_image', modelImage);
     fitroomFormData.append('cloth_image', clothImage);
+    if (lowerClothImage) {
+      fitroomFormData.append('lower_cloth_image', lowerClothImage);
+    }
     fitroomFormData.append('cloth_type', clothType);
 
     // Call Fitroom API to create task

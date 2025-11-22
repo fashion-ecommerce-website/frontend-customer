@@ -1,34 +1,27 @@
 /**
  * Recommendation API Types
+ * Updated to match backend DTOs for combined-messages endpoint
  */
 
-export interface RecommendationRequest {
-  userId: string;
+export interface CombinedMessageRecommendationRequest {
   message: string;
-  location?: string;
-  limit?: number;
 }
 
-export interface RecommendationProduct {
-  detailId: number;
-  productTitle: string;
-  productSlug: string;
-  colorName: string;
+export interface ProductRecommendationResponse {
+  objectId: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  color: string;
+  size: string;
   price: number;
   quantity: number;
-  colors: string[];
-  imageUrls: string[];
-  matchScore: number;
-  matchingAttributes: string[];
 }
 
-export interface RecommendationResponse {
-  status: 'SUCCESS' | 'NEEDS_MORE_INFO' | 'ERROR';
-  recommendations: RecommendationProduct[];
+export interface NaturalLanguageRecommendationResponse {
+  type: string;
   message: string;
-  suggestedQuestions: string[];
-  confidenceScore: number;
-  interpretationSummary: string;
+  recommendations: ProductRecommendationResponse[];
 }
 
 export interface ChatMessage {
@@ -36,6 +29,6 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  recommendations?: RecommendationProduct[];
+  recommendations?: ProductRecommendationResponse[];
   suggestedQuestions?: string[];
 }

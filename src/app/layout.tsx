@@ -10,6 +10,8 @@ import { CartInitializer } from "@/components/CartInitializer";
 import { WishlistInitializer } from "@/components/WishlistInitializer";
 import { ChatBot } from "@/components/ChatBot";
 import { ToastProvider } from "@/providers/ToastProvider";
+import { VirtualTryOnProvider } from "@/features/virtual-tryon/context/VirtualTryOnContext";
+import { TryOnStatusFloater } from "@/features/virtual-tryon/components/TryOnStatusFloater";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
@@ -74,14 +76,17 @@ export default function RootLayout({
             <CartInitializer>
               <WishlistInitializer>
                 <ToastProvider>
-                  <div className="min-h-screen flex flex-col">
-                    <Header />
-                    <main className="flex-1">
-                      {children}
-                    </main>
-                    <Footer />
-                    <ChatBot />
-                  </div>
+                  <VirtualTryOnProvider>
+                    <div className="min-h-screen flex flex-col">
+                      <Header />
+                      <main className="flex-1">
+                        {children}
+                      </main>
+                      <Footer />
+                      <ChatBot />
+                      <TryOnStatusFloater />
+                    </div>
+                  </VirtualTryOnProvider>
                 </ToastProvider>
               </WishlistInitializer>
             </CartInitializer>
