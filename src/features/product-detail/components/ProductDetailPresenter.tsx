@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { ProductDetail } from '@/services/api/productApi';
@@ -9,6 +9,7 @@ import {
   RelatedProducts,
   ProductDetailRecentlyViewed,
   ReviewsSection,
+  SimilarProducts,
 } from '.';
 import { useRouter } from 'next/navigation';
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo';
@@ -42,16 +43,16 @@ export function ProductDetailPresenter({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const router = useRouter();
   const [isInWishlistLocal, setIsInWishlistLocal] = useState(false);
-  
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price) + '₫';
   };
 
   const handleImageTransition = (newIndex: number) => {
     if (newIndex === selectedImageIndex || isTransitioning) return;
-    
+
     setIsTransitioning(true);
-    
+
     setTimeout(() => {
       setSelectedImageIndex(newIndex);
       setIsTransitioning(false);
@@ -79,9 +80,9 @@ export function ProductDetailPresenter({
   // Handle color change with API call
   const handleColorChange = async (color: string) => {
     if (isLoading || color === selectedColor) return;
-    
+
     setSelectedImageIndex(0); // Reset to first image
-    
+
     try {
       if (onColorChange) {
         await onColorChange(color);
@@ -115,7 +116,7 @@ export function ProductDetailPresenter({
       {/* SEO: JSON-LD Structured Data */}
       <ProductSchema product={product} />
       <BreadcrumbSchema items={breadcrumbItems} />
-      
+
       {/* Main Product Section */}
       <div className="mx-auto px-4 md:px-12 max-w-none">
         <div className="grid grid-cols-1 md:grid-cols-[55%_45%] py-4 md:py-6 gap-4 md:gap-0">
@@ -125,7 +126,7 @@ export function ProductDetailPresenter({
             <div className="px-0 md:px-[90px]">
               <ProductImageGallery images={product.images} productTitle={product.title} />
             </div>
-            
+
             {/* Product Details Tabs - Hidden on mobile, shown after product info */}
             <div className="hidden md:block">
               <ProductTabs product={product} />
@@ -188,13 +189,16 @@ export function ProductDetailPresenter({
 
       {/* Reviews Section */}
       <ReviewsSection productDetailId={product.detailId} />
-      {/* Related Products */}
-      <RelatedProducts category="ao-thun" />
 
+      {/* Similar Products */}
+      <SimilarProducts category={product.category} currentProductId={product.detailId} currentPrice={product.price} />
+
+      {/* Related Products */}
+      <RelatedProducts productId={product.productId} />
       {/* Recently Viewed Products */}
       <ProductDetailRecentlyViewed />
 
-      
+
 
     </div>
   );

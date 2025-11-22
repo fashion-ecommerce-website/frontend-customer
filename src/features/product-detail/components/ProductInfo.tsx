@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -8,7 +8,7 @@ import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { ProductDetail } from '@/services/api/productApi';
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useRouter } from 'next/navigation';
-
+import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
 interface ProductInfoProps {
   product: ProductDetail;
   selectedColor: string | null;
@@ -125,6 +125,13 @@ export function ProductInfo({
         price: product.price,
         finalPrice: product.finalPrice
       });
+      try {
+        await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, quantity);
+        console.log('Recorded ADD_TO_CART interaction');
+      } catch (error) {
+        console.error('Failed to record ADD_TO_CART interaction:', error);
+        // Fail silently
+      }
     } catch (error) {
       // Error handling is done in the hook
       setAddingToCart(false);
@@ -166,7 +173,7 @@ export function ProductInfo({
             </div>
           )}
         </div>
-       
+
       </div>
 
       {/* Color Selection*/}
@@ -187,22 +194,22 @@ export function ProductInfo({
                 >
                   <div
                     className="w-7 h-7 md:w-8 md:h-8 rounded-full"
-                    style={{ 
-                      backgroundColor: color.toLowerCase() === 'white' ? '#f1f0eb' : 
-                                     color.toLowerCase() === 'mint' ? '#60a1a7' :
-                                     color.toLowerCase() === 'dark blue' ? '#202846' :
-                                     color.toLowerCase() === 'blue' ? '#acbdcd' :
-                                     color.toLowerCase() === 'pink' ? '#ddb3bd' :
-                                     color.toLowerCase() === 'black' ? '#000000' :
-                                     color.toLowerCase() === 'red' ? '#6d2028' :
-                                     color.toLowerCase() === 'green' ? '#2c5449' :
-                                     color.toLowerCase() === 'yellow' ? '#dcbe9a' :
-                                     color.toLowerCase() === 'purple' ? '#47458e' :
-                                     color.toLowerCase() === 'orange' ? '#f97316' :
-                                     color.toLowerCase() === 'gray' ? '#a7a9a8' :
-                                     color.toLowerCase() === 'brown' ? '#61493f' :
-                                      color.toLowerCase() === 'beige' ? '#ebe7dc' :
-                                     color.toLowerCase()
+                    style={{
+                      backgroundColor: color.toLowerCase() === 'white' ? '#f1f0eb' :
+                        color.toLowerCase() === 'mint' ? '#60a1a7' :
+                          color.toLowerCase() === 'dark blue' ? '#202846' :
+                            color.toLowerCase() === 'blue' ? '#acbdcd' :
+                              color.toLowerCase() === 'pink' ? '#ddb3bd' :
+                                color.toLowerCase() === 'black' ? '#000000' :
+                                  color.toLowerCase() === 'red' ? '#6d2028' :
+                                    color.toLowerCase() === 'green' ? '#2c5449' :
+                                      color.toLowerCase() === 'yellow' ? '#dcbe9a' :
+                                        color.toLowerCase() === 'purple' ? '#47458e' :
+                                          color.toLowerCase() === 'orange' ? '#f97316' :
+                                            color.toLowerCase() === 'gray' ? '#a7a9a8' :
+                                              color.toLowerCase() === 'brown' ? '#61493f' :
+                                                color.toLowerCase() === 'beige' ? '#ebe7dc' :
+                                                  color.toLowerCase()
                     }}
                     title={color}
                   />

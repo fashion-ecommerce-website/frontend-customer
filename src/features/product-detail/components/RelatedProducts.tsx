@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCarousel } from '@/components/ProductCarousel';
-import { productApi } from '@/services/api/productApi';
+import { recommendationApi } from '@/services/api/recommendationApi';
 
 interface RelatedProductsProps {
-  category: string;
+  productId: number;
 }
 
 interface Product {
@@ -14,35 +14,35 @@ interface Product {
   productSlug: string;
   productTitle: string;
   price: number;
+  finalPrice: number;
+  percentOff: number;
   imageUrls: string[];
   colors: string[];
   quantity: number;
 }
 
-export function RelatedProducts({ category }: RelatedProductsProps) {
+export function RelatedProducts({ productId }: RelatedProductsProps) {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchRelatedProducts = async () => {
-      if (!category) return;
-      
+    const fetchSimilarProducts = async () => {
+      if (!productId) return;
+
       try {
         setLoading(true);
-        const response = await productApi.getProducts({
-          category: category,
-          page: 1,
-          pageSize: 10,
-        });
+        const response = await recommendationApi.getSimilarItems(productId, 10);
 
-        if (response.success && response.data?.items) {
+        if (response.success && response.data) {
           // Transform to match ProductCarousel expected format
-          const transformedProducts = response.data.items.map((item) => ({
+          const transformedProducts = response.data.map((item) => ({
             detailId: item.detailId,
             productSlug: item.productSlug,
             productTitle: item.productTitle,
             price: item.price,
+            finalPrice: item.finalPrice,
+            percentOff: item.percentOff,
             imageUrls: item.imageUrls,
             colors: item.colors,
             quantity: item.quantity,
@@ -50,15 +50,15 @@ export function RelatedProducts({ category }: RelatedProductsProps) {
           setProducts(transformedProducts);
         }
       } catch (error) {
-        console.error(' Failed to fetch related products:', error);
+        console.error('❌ Failed to fetch similar products:', error);
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRelatedProducts();
-  }, [category]);
+    fetchSimilarProducts();
+  }, [productId]);
 
   const handleProductClick = (detailId: number) => {
     router.push(`/products/${detailId}`);

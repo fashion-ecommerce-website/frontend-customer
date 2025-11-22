@@ -7,6 +7,8 @@ import { addressApi, Address, CreateAddressRequest, UpdateAddressRequest } from 
 import { OrderApi } from '@/services/api/orderApi';
 import { Order, CreateOrderRequest, PaginatedResponse, OrderQueryParams } from '@/features/order/types';
 import { ApiResponse } from '@/types/api.types';
+import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
+import { productApi } from '@/services/api/productApi';
 import {
   // Address actions
   getAddressesRequest,
@@ -36,10 +38,10 @@ import {
 function* getAddressesSaga(): Generator<any, void, any> {
   try {
     const response: ApiResponse<Address[]> = yield call(addressApi.getAddresses);
-    
+
     if (response.success && response.data) {
       yield put(getAddressesSuccess(response.data));
-      
+
       // Auto-select default address if available
       const defaultAddress = response.data.find(addr => addr.isDefault || addr.default);
       if (defaultAddress) {
@@ -57,7 +59,7 @@ function* getAddressesSaga(): Generator<any, void, any> {
 function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Generator<any, void, any> {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.createAddress, action.payload);
-    
+
     if (response.success && response.data) {
       yield put(createAddressSuccess(response.data));
     } else {
@@ -72,7 +74,7 @@ function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Genera
 function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Generator<any, void, any> {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.updateAddress, action.payload);
-    
+
     if (response.success && response.data) {
       yield put(updateAddressSuccess(response.data));
     } else {
@@ -87,7 +89,7 @@ function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Genera
 function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
   try {
     const response: ApiResponse<void> = yield call(addressApi.deleteAddress, action.payload);
-    
+
     if (response.success) {
       yield put(deleteAddressSuccess(action.payload));
     } else {
@@ -103,9 +105,48 @@ function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void,
 function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<any, void, any> {
   try {
     const response: ApiResponse<Order> = yield call(OrderApi.createOrder, action.payload);
-    
+
     if (response.success && response.data) {
       yield put(createOrderSuccess(response.data));
+
+      // Record PURCHASE interactions for all order items
+      try {
+        const order = response.data;
+        console.log('📦 Recording PURCHASE interactions for order:', order.id);
+
+        // Fetch productId for each order item and record interactions sequentially
+        for (const item of order.orderDetails) {
+          try {
+            // Fetch product detail to get productId
+            const productResponse: ApiResponse<any> = yield call(
+              productApi.getProductById,
+              item.productDetailId.toString()
+            );
+
+            if (productResponse.success && productResponse.data) {
+              const productId = productResponse.data.productId;
+
+              // Record PURCHASE interaction with productId
+              yield call(
+                recommendationApi.recordInteraction,
+                productId,
+                ActionType.PURCHASE,
+                item.quantity
+              );
+
+              console.log(`✅ Recorded PURCHASE for product ${productId}, quantity ${item.quantity}`);
+            }
+          } catch (error) {
+            console.error(`❌ Failed to record PURCHASE for detailId ${item.productDetailId}:`, error);
+            // Continue with other items even if one fails
+          }
+        }
+
+        console.log('✅ Completed recording PURCHASE interactions for all items');
+      } catch (error) {
+        console.error('❌ Failed to record PURCHASE interactions:', error);
+        // Fail silently - don't break order flow
+      }
     } else {
       yield put(createOrderFailure(response.message || 'Failed to create order'));
     }
@@ -118,7 +159,7 @@ function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<
 function* getUserOrdersSaga(action: PayloadAction<OrderQueryParams | undefined>): Generator<any, void, any> {
   try {
     const response: ApiResponse<PaginatedResponse<Order>> = yield call(OrderApi.getUserOrders, action.payload);
-    
+
     if (response.success && response.data) {
       yield put(getUserOrdersSuccess(response.data));
     } else {

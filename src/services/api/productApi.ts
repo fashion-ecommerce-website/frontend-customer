@@ -21,6 +21,7 @@ export interface ProductItem {
 // Product detail interface - matches the new API response format with promotion
 export interface ProductDetail {
   detailId: number;
+  productId: number;      // Product ID (not detail ID)
   title: string;
   price: number;          // base price
   finalPrice: number;     // after promotion
@@ -33,6 +34,7 @@ export interface ProductDetail {
   colors: string[];
   mapSizeToQuantity: { [size: string]: number };
   description: string[];
+  category?: string;
 }
 
 // Legacy interface for backward compatibility (deprecated)
@@ -114,17 +116,17 @@ export class ProductApiService {
    */
   async getProducts(params?: ProductsRequest): Promise<ApiResponse<PaginatedProductsResponse>> {
     const searchParams = new URLSearchParams();
-    
+
     // Category filter - Required parameter, use default if not provided
     const category = params?.category || 'ao-thun'; // Default category
     searchParams.append('category', category);
-    
+
     // Pagination - Convert from UI (1-based) to Server (0-based)
     if (params?.page) {
       const serverPage = params.page - 1; // Convert: UI page 1 → Server page 0
       searchParams.append('page', serverPage.toString());
     }
-    
+
     // Page size
     if (params?.pageSize) {
       searchParams.append('pageSize', params.pageSize.toString());
@@ -159,7 +161,7 @@ export class ProductApiService {
       searchParams.append('title', params.title);
     }
 
-    const url = searchParams.toString() 
+    const url = searchParams.toString()
       ? `${PRODUCT_ENDPOINTS.GET_PRODUCTS}?${searchParams.toString()}`
       : PRODUCT_ENDPOINTS.GET_PRODUCTS;
 
