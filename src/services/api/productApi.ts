@@ -70,7 +70,7 @@ export interface PaginatedProductsResponse {
 // Product search/filter request interface
 // Note: page is 1-based in UI, will be converted to 0-based for server
 export interface ProductsRequest {
-  category: string;  // Required - API yêu cầu bắt buộc
+  category: string;  // Required for /products endpoint
   page?: number;     // 1-based page number (UI), converted to 0-based for server
   pageSize?: number;
   colors?: string[]; // Nhiều màu thì: ?colors=Red&colors=Blue
@@ -83,6 +83,7 @@ export interface ProductsRequest {
 // Product API endpoints
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
+  GET_DISCOUNTED_PRODUCTS: '/products/discounted',
   GET_PRODUCT_BY_ID: '/products',
   GET_PRODUCT_BY_COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
 } as const;
@@ -110,6 +111,61 @@ export class ProductApiService {
   }
 
   /**
+   * Get discounted products (sale products) with filters
+   * URL example: /products/discounted?page=0&pageSize=12&sort=price_asc
+   * Note: UI sends page=1, converted to page=0 for server
+   */
+  async getDiscountedProducts(params?: Omit<ProductsRequest, 'category'>): Promise<ApiResponse<PaginatedProductsResponse>> {
+    const searchParams = new URLSearchParams();
+
+    // Pagination - Convert from UI (1-based) to Server (0-based)
+    if (params?.page) {
+      const serverPage = params.page - 1;
+      searchParams.append('page', serverPage.toString());
+    }
+
+    // Page size
+    if (params?.pageSize) {
+      searchParams.append('pageSize', params.pageSize.toString());
+    }
+
+    // Colors filter
+    if (params?.colors && params.colors.length > 0) {
+      params.colors.forEach(color => {
+        searchParams.append('colors', color);
+      });
+    }
+
+    // Sizes filter
+    if (params?.sizes && params.sizes.length > 0) {
+      params.sizes.forEach(size => {
+        searchParams.append('sizes', size);
+      });
+    }
+
+    // Sort
+    if (params?.sort) {
+      searchParams.append('sort', params.sort);
+    }
+
+    // Price range
+    if (params?.price) {
+      searchParams.append('price', params.price);
+    }
+
+    // Title search
+    if (params?.title) {
+      searchParams.append('title', params.title);
+    }
+
+    const url = searchParams.toString()
+      ? `${PRODUCT_ENDPOINTS.GET_DISCOUNTED_PRODUCTS}?${searchParams.toString()}`
+      : PRODUCT_ENDPOINTS.GET_DISCOUNTED_PRODUCTS;
+
+    return apiClient.get<PaginatedProductsResponse>(url);
+  }
+
+  /**
    * Get paginated products with filters
    * URL example: /products?category=ao-thun&page=0&pageSize=12&sort=productTitle_asc
    * Note: UI sends page=1, converted to page=0 for server
@@ -117,7 +173,7 @@ export class ProductApiService {
   async getProducts(params?: ProductsRequest): Promise<ApiResponse<PaginatedProductsResponse>> {
     const searchParams = new URLSearchParams();
 
-    // Category filter - Required parameter, use default if not provided
+    // Category filter - Required parameter
     const category = params?.category || 'ao-thun'; // Default category
     searchParams.append('category', category);
 
@@ -175,6 +231,7 @@ export const productApiService = new ProductApiService();
 // Export API functions for saga factories
 export const productApi = {
   getProducts: (params?: ProductsRequest) => productApiService.getProducts(params),
+  getDiscountedProducts: (params?: Omit<ProductsRequest, 'category'>) => productApiService.getDiscountedProducts(params),
   getProductById: (id: string) => productApiService.getProductById(id),
   getProductByColor: (id: string, activeColor: string, activeSize?: string) => productApiService.getProductByColor(id, activeColor, activeSize),
 };

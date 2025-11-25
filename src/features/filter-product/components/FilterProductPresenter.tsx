@@ -210,7 +210,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   };
 
   return (
-    <div className="w-full bg-white px-3 sm:px-6 md:px-8 lg:px-16 py-6 sm:py-8 md:py-10">
+    <div className="w-full bg-white px-3 sm:px-6 md:px-8 lg:px-16 py-6 sm:py-8 md:py-10 min-h-[calc(100vh-200px)]">
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-black px-4 py-3 relative mb-6 rounded-lg">

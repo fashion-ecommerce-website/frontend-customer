@@ -58,7 +58,7 @@ export const ProductList: React.FC<ProductListProps> = ({
 
   if (!isLoading && products.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12 min-h-[400px] flex items-center justify-center">
         <p className="text-black text-lg">No products found</p>
       </div>
     );
