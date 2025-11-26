@@ -31,6 +31,7 @@ const RECOMMENDATION_ENDPOINTS = {
     GET_FOR_YOU: '/recommendations/for-you',
     GET_SIMILAR: '/recommendations/similar',
     RECORD_INTERACTION: '/recommendations/interactions',
+    CHAT: '/chatbot/chat',
 } as const;
 
 // Recommendation API service
@@ -69,6 +70,14 @@ export class RecommendationApiService {
             count,
         });
     }
+
+    /**
+     * Get recommendations based on natural language chat message
+     * URL: /api/chatbot/chat
+     */
+    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<any>> {
+        return apiClient.post<any>(RECOMMENDATION_ENDPOINTS.CHAT, data);
+    }
 }
 
 // Export singleton instance
@@ -80,4 +89,5 @@ export const recommendationApi = {
     getSimilarItems: (itemId: number, limit?: number) => recommendationApiService.getSimilarItems(itemId, limit),
     recordInteraction: (productId: number, actionType: ActionType, count?: number) =>
         recommendationApiService.recordInteraction(productId, actionType, count),
+    getCombinedMessageRecommendations: (data: { message: string }) => recommendationApiService.getCombinedMessageRecommendations(data),
 };

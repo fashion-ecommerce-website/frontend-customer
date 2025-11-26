@@ -205,16 +205,20 @@ export const ChatBot: React.FC = () => {
           message: textToSend,
         });
 
-      // Add assistant response
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response.message,
-        timestamp: new Date(),
-        recommendations: response.recommendations,
-      };
+      if (response.success && response.data) {
+        // Add assistant response
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: response.data.message || response.message || "Here are some recommendations for you.",
+          timestamp: new Date(),
+          recommendations: response.data.recommendations,
+        };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+        setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        throw new Error(response.message || "Failed to get recommendations");
+      }
     } catch {
       // Add error message
       const errorMessage: ChatMessage = {
