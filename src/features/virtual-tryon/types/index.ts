@@ -34,18 +34,35 @@ export interface VirtualTryOnContainerProps {
   products: VirtualTryOnProduct[];
 }
 
+export interface HistoryItem {
+  id: string;
+  timestamp: number;
+  product: VirtualTryOnProduct;
+  userImage: string;
+  resultImage: string;
+}
+
+export type TryOnCategory = 'upper' | 'lower' | 'full' | 'combo';
+
 export interface VirtualTryOnPresenterProps {
   products: VirtualTryOnProduct[];
   selectedProduct: VirtualTryOnProduct | null;
+  selectedLowerProduct: VirtualTryOnProduct | null;
   userImage: string | null;
   resultImage: string | null;
   isProcessing: boolean;
   error: string | null;
+  history: HistoryItem[];
+  category: TryOnCategory;
+  activeSlot: 'upper' | 'lower';
   onProductSelect: (product: VirtualTryOnProduct) => void;
   onImageUpload: (file: File) => void;
   onTryOn: () => void;
   onReset: () => void;
   onBack: () => void;
+  onHistorySelect: (item: HistoryItem) => void;
+  onCategoryChange: (category: TryOnCategory) => void;
+  onActiveSlotChange: (slot: 'upper' | 'lower') => void;
 }
 
 export interface ImageUploadProps {
@@ -68,5 +85,7 @@ export interface TryOnResultProps {
   isProcessing: boolean;
   onReset: () => void;
   selectedProduct?: VirtualTryOnProduct | null;
+  selectedLowerProduct?: VirtualTryOnProduct | null;
   userImage?: string | null;
 }
+

@@ -34,6 +34,8 @@ export interface CartItemComponentProps {
   onUnselect: (cartItemId: number) => void;
   onEdit?: (item: CartItem) => void;
   loading?: boolean;
+  // Optional handler when user clicks the product (e.g. navigate to product detail)
+  onProductClick?: (detailId: number) => void;
 }
 
 // Cart Summary Component Props

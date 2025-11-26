@@ -1,18 +1,10 @@
-/**
- * Virtual Try-On API Service
- * Handles communication with Fitroom Virtual Try-On API
- */
-
 import { ApiResponse } from '../../types/api.types';
 
 // Fitroom API Configuration
 const FITROOM_API_BASE = 'https://platform.fitroom.app/api/tryon/v2';
-const FITROOM_API_KEY = process.env.NEXT_PUBLIC_FITROOM_API_KEY || '49a5992a71d84d1ea6deea13ee633d874db21fa98f13682b84ac9b87b135a5c3';
-const FITROOM_STATUS_API_KEY = process.env.NEXT_PUBLIC_FITROOM_STATUS_API_KEY || '38f436e1fb294a5bb62268350044db75f3f14b5003b4c21d434a14fa6b1184ba';
+const FITROOM_API_KEY = process.env.NEXT_PUBLIC_FITROOM_API_KEY || '';
+const FITROOM_STATUS_API_KEY = process.env.NEXT_PUBLIC_FITROOM_STATUS_API_KEY || '';
 
-/**
- * Types
- */
 export interface FitroomTaskResponse {
   task_id: string;
   status: string;
@@ -29,8 +21,9 @@ export interface FitroomStatusResponse {
 
 export interface CreateTryOnTaskParams {
   modelImage: File | Blob;
-  clothImage: string; // URL or base64
-  clothType?: 'upper' | 'lower' | 'full';
+  clothImage: string; 
+  lowerClothImage?: string; 
+  clothType?: 'upper' | 'lower' | 'full_set' | 'combo';
 }
 
 export interface TryOnTaskResult {
@@ -56,7 +49,7 @@ export class VirtualTryOnApiService {
    */
   async createTryOnTask(params: CreateTryOnTaskParams): Promise<ApiResponse<TryOnTaskResult>> {
     try {
-      const { modelImage, clothImage, clothType = 'upper' } = params;
+      const { modelImage, clothImage, lowerClothImage, clothType = 'upper' } = params;
 
       // Create FormData for multipart/form-data request
       const formData = new FormData();
@@ -73,6 +66,18 @@ export class VirtualTryOnApiService {
         formData.append('cloth_image', blob);
       } else {
         throw new Error('Invalid cloth image format');
+      }
+
+      // Handle lower cloth image for combo
+      if (clothType === 'combo' && lowerClothImage) {
+        if (lowerClothImage.startsWith('http://') || lowerClothImage.startsWith('https://')) {
+          const lowerClothResponse = await fetch(lowerClothImage);
+          const lowerClothBlob = await lowerClothResponse.blob();
+          formData.append('lower_cloth_image', lowerClothBlob);
+        } else if (lowerClothImage.startsWith('data:')) {
+          const blob = await this.base64ToBlob(lowerClothImage);
+          formData.append('lower_cloth_image', blob);
+        }
       }
       
       formData.append('cloth_type', clothType);

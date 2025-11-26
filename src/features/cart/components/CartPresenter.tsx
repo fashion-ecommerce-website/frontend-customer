@@ -31,6 +31,9 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
   onNoteChange,
 }) => {
   const router = useRouter();
+  const handleProductClick = (detailId: number) => {
+    router.push(`/products/${detailId}`);
+  };
   
   const breadcrumbItems = [
     {
@@ -171,6 +174,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
                     onUnselect={onUnselectItem}
                     onEdit={onEditItem}
                     loading={loading}
+                    onProductClick={handleProductClick}
                   />
                 ))
               )}
