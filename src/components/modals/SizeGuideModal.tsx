@@ -27,6 +27,8 @@ export function SizeGuideModal({
   const [measurements, setMeasurements] = useState<UserMeasurements | null>(null);
   const [recommendedSize, setRecommendedSize] = useState<Size | null>(null);
   const [alternativeSize, setAlternativeSize] = useState<Size | null>(null);
+  const [sizeFitStats, setSizeFitStats] = useState<any>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   // Load measurements and calculate recommendation when modal opens
   useEffect(() => {
@@ -43,8 +45,26 @@ export function SizeGuideModal({
         setRecommendedSize(recommended);
         setAlternativeSize(alternative);
       }
+
+      // Load size fit statistics
+      loadSizeFitStatistics();
     }
-  }, [isOpen, category, availableSizes]);
+  }, [isOpen, category, availableSizes, productId]);
+
+  const loadSizeFitStatistics = async () => {
+    setLoadingStats(true);
+    try {
+      const { recommendationApi } = await import('@/services/api/recommendationApi');
+      const response = await recommendationApi.getSizeFitStatistics(productId);
+      if (response.success && response.data) {
+        setSizeFitStats(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load size fit statistics:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const handleSizeClick = (size: Size) => {
     if (onSizeSelect) {
@@ -92,6 +112,81 @@ export function SizeGuideModal({
         {/* Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6 md:p-8 space-y-8">
           
+          {/* Size Fit Finder Section - Based on purchase data */}
+          {sizeFitStats && sizeFitStats.recommendedSize && (
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 space-y-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black">Your best fit</h3>
+                  <p className="text-sm text-black">Based on similar shoppers</p>
+                </div>
+              </div>
+
+              {/* Size options with percentages */}
+              <div className="space-y-3">
+                {sizeFitStats.sizeFitData.map((sizeData: any) => (
+                  <div key={sizeData.size} className="bg-white rounded-lg p-4 border-2 border-gray-200 hover:border-green-500 transition-all cursor-pointer"
+                       onClick={() => handleSizeClick(sizeData.size as Size)}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-bold text-black">{sizeData.size}</span>
+                        {sizeData.isRecommended && (
+                          <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className="text-lg font-semibold text-black">{sizeData.percentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all ${sizeData.isRecommended ? 'bg-green-600' : 'bg-gray-400'}`}
+                        style={{ width: `${sizeData.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Explanation */}
+              <div className="bg-white/80 rounded-lg p-4 border border-green-100">
+                <p className="text-sm text-black">
+                  {sizeFitStats.explanation}
+                </p>
+              </div>
+
+              {/* Add to cart button */}
+              {sizeFitStats.recommendedSize && (
+                <button
+                  onClick={() => handleSizeClick(sizeFitStats.recommendedSize as Size)}
+                  className="w-full px-6 py-4 bg-red-600 text-white font-bold text-base rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  Add size {sizeFitStats.recommendedSize} to cart
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Divider */}
+          {sizeFitStats && sizeFitStats.recommendedSize && (
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500 font-medium">Or use AI Size Recommendation</span>
+              </div>
+            </div>
+          )}
+
           {/* AI Size Recommendation Section - Only show if measurements exist */}
           {measurements && recommendedSize ? (
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 space-y-4">

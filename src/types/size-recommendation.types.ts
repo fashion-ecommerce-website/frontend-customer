@@ -6,6 +6,7 @@ export type Gender = 'MALE' | 'FEMALE';
 export type Size = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
 export type BellyShape = 'FLAT' | 'NORMAL' | 'ROUND';
 export type HipShape = 'NARROW' | 'NORMAL' | 'WIDE';
+export type ChestShape = 'SLIM' | 'NORMAL' | 'BROAD';
 export type FitPreference = 'TIGHT' | 'COMFORTABLE' | 'LOOSE';
 
 /**
@@ -36,6 +37,9 @@ export interface UserMeasurements {
   
   // Female-specific (optional)
   braSize?: string;
+  
+  // Male-specific (optional)
+  chestShape?: ChestShape;
   
   // Metadata
   lastUpdated: string;

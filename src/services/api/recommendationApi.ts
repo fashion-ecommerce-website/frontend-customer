@@ -27,12 +27,30 @@ export interface RecommendationProduct {
     categorySlug: string;
 }
 
+// Size fit statistics interface
+export interface SizeFitData {
+    size: string;
+    percentage: number;
+    isRecommended: boolean;
+}
+
+export interface SizeFitStatistics {
+    recommendedSize: string | null;
+    confidence: number;
+    sizeFitData: SizeFitData[];
+    explanation: string;
+}
+
 // Recommendation API endpoints
 const RECOMMENDATION_ENDPOINTS = {
     GET_FOR_YOU: '/recommendations/for-you',
     GET_SIMILAR: '/recommendations/similar',
     RECORD_INTERACTION: '/recommendations/interactions',
+<<<<<<< HEAD
     CHAT: '/chatbot/chat',
+=======
+    GET_SIZE_FIT: '/recommendations/size-fit',
+>>>>>>> 5e5fc88 (update UI for add profile)
 } as const;
 
 // Recommendation API service
@@ -73,11 +91,20 @@ export class RecommendationApiService {
     }
 
     /**
+<<<<<<< HEAD
      * Get recommendations based on natural language chat message
      * URL: /api/chatbot/chat
      */
     async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<any>> {
         return apiClient.post<any>(RECOMMENDATION_ENDPOINTS.CHAT, data);
+=======
+     * Get size fit statistics for a product
+     * URL: /api/recommendations/size-fit/{productId}
+     */
+    async getSizeFitStatistics(productId: number): Promise<ApiResponse<SizeFitStatistics>> {
+        const url = `${RECOMMENDATION_ENDPOINTS.GET_SIZE_FIT}/${productId}`;
+        return apiClient.get<SizeFitStatistics>(url);
+>>>>>>> 5e5fc88 (update UI for add profile)
     }
 }
 
@@ -90,5 +117,9 @@ export const recommendationApi = {
     getSimilarItems: (itemId: number, limit?: number) => recommendationApiService.getSimilarItems(itemId, limit),
     recordInteraction: (productId: number, actionType: ActionType, count?: number) =>
         recommendationApiService.recordInteraction(productId, actionType, count),
+<<<<<<< HEAD
     getCombinedMessageRecommendations: (data: { message: string }) => recommendationApiService.getCombinedMessageRecommendations(data),
+=======
+    getSizeFitStatistics: (productId: number) => recommendationApiService.getSizeFitStatistics(productId),
+>>>>>>> 5e5fc88 (update UI for add profile)
 };

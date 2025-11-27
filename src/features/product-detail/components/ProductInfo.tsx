@@ -165,6 +165,15 @@ export function ProductInfo({
         quantity: quantity
       }));
 
+      // Record interaction for recommendation system
+      try {
+        await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, quantity);
+        console.log('Recorded ADD_TO_CART interaction for Buy Now');
+      } catch (error) {
+        console.error('Failed to record ADD_TO_CART interaction:', error);
+        // Fail silently
+      }
+
       // Navigate to cart page
       router.push('/cart');
     } catch (error) {
@@ -403,6 +412,7 @@ export function ProductInfo({
           setShowMeasurementsModal(false);
           setShowSizeGuide(true); // Reopen size guide to show AI recommendations
         }}
+        productImage={product.images[0] || '/images/placeholder.jpg'}
       />
     </div>
   );
