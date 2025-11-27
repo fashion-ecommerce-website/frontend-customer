@@ -6,7 +6,7 @@ import { ProductCarousel } from '@/components/ProductCarousel';
 import { productApi } from '@/services/api/productApi';
 
 interface SimilarProductsProps {
-    category?: string;
+    categorySlug?: string;
     currentProductId: number;
     currentPrice: number;
 }
@@ -23,15 +23,15 @@ interface Product {
     quantity: number;
 }
 
-export function SimilarProducts({ category, currentProductId, currentPrice }: SimilarProductsProps) {
+export function SimilarProducts({ categorySlug, currentProductId, currentPrice }: SimilarProductsProps) {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchSimilarProducts = async () => {
-            // If no category is provided, we can't filter by category.
-            const searchCategory = category || 'ao-thun';
+            // If no categorySlug is provided, we can't filter by category.
+            const searchCategory = categorySlug || 'ao-thun';
 
             // Determine price range filter
             let priceFilter = '';
@@ -85,7 +85,7 @@ export function SimilarProducts({ category, currentProductId, currentPrice }: Si
         };
 
         fetchSimilarProducts();
-    }, [category, currentProductId]);
+    }, [categorySlug, currentProductId, currentPrice]);
 
     const handleProductClick = (detailId: number) => {
         router.push(`/products/${detailId}`);
