@@ -191,7 +191,7 @@ export function ProductDetailPresenter({
       <ReviewsSection productDetailId={product.detailId} />
 
       {/* Similar Products */}
-      <SimilarProducts category={product.category} currentProductId={product.detailId} currentPrice={product.price} />
+      <SimilarProducts categorySlug={product.categorySlug} currentProductId={product.detailId} currentPrice={product.price} />
 
       {/* Related Products */}
       <RelatedProducts productId={product.productId} />

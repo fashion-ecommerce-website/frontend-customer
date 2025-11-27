@@ -21,13 +21,13 @@ export interface ProductItem {
 // Product detail interface - matches the new API response format with promotion
 export interface ProductDetail {
   detailId: number;
-  productId: number;      // Product ID (not detail ID)
+  productId: number; 
   title: string;
   price: number;          // base price
   finalPrice: number;     // after promotion
-  percentOff?: number;    // integer percent
-  promotionId?: number;   // nullable
-  promotionName?: string; // nullable
+  percentOff?: number;    
+  promotionId?: number;   
+  promotionName?: string; 
   activeColor: string;
   activeSize?: string;
   images: string[];
@@ -35,6 +35,7 @@ export interface ProductDetail {
   mapSizeToQuantity: { [size: string]: number };
   description: string[];
   category?: string;
+  categorySlug: string; 
 }
 
 // Legacy interface for backward compatibility (deprecated)

@@ -24,6 +24,7 @@ export interface RecommendationProduct {
     quantity: number;
     colors: string[];
     imageUrls: string[];
+    categorySlug: string;
 }
 
 // Recommendation API endpoints
