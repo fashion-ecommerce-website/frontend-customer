@@ -203,7 +203,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load provinces');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load provinces');
     } finally {
       setLoading(prev => ({ ...prev, provinces: false }));
@@ -221,7 +221,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load districts');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load districts');
     } finally {
       setLoading(prev => ({ ...prev, districts: false }));
@@ -239,26 +239,11 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load wards');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load wards');
     } finally {
       setLoading(prev => ({ ...prev, wards: false }));
     }
-  };
-
-  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedProvince(value ? parseInt(value) : null);
-  };
-
-  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedDistrict(value ? parseInt(value) : null);
-  };
-
-  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedWard(value || null);
   };
 
   // Custom dropdown handlers

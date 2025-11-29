@@ -94,7 +94,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
           },
         });
       }
-    } catch (error) {
+    } catch {
       setConfirmModal({
         isOpen: true,
         title: 'Error',

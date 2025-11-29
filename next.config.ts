@@ -17,11 +17,23 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'file.hstatic.net',
+      },
+      {
+        protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.svgrepo.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.vectorlogo.zone',
       },
     ],
     dangerouslyAllowSVG: true,

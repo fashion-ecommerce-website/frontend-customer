@@ -8,10 +8,7 @@ import {
   NavigationItem,
   FooterData,
   ApiError,
-  SearchRequest,
-  Banner,
-  Product,
-  ProductCategory
+  SearchRequest
 } from '../types/home.types';
 import {
   mockBanners,

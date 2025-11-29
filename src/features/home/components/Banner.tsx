@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Banner as BannerType } from '../types/home.types';
 import useEmblaCarousel from 'embla-carousel-react';
 
@@ -36,11 +37,14 @@ export const Banner: React.FC<BannerProps> = ({ banners, onBannerClick }) => {
           <div className="flex h-full">
             {banners.map((banner) => (
               <div key={banner.id} className="flex-[0_0_100%] h-full relative">
-                <img
+                <Image
                   className="w-full h-full object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
                   src={banner.image}
                   alt={banner.title}
                   onClick={() => onBannerClick(banner.id)}
+                  fill
+                  sizes="100vw"
+                  priority
                 />
                 {/* Optional overlay for better text readability */}
                 <div className="absolute inset-0 bg-black/10"></div>
