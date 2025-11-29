@@ -7,6 +7,7 @@ import { OrderSummary } from '@/features/order/components/OrderSummary';
 import { useOrder } from '@/features/order/hooks/useOrder';
 import { ProductItem } from '@/services/api/productApi';
 import { useShippingFee, AddressData } from '@/features/order/hooks/useShippingFee';
+import { Address } from '@/services/api/addressApi';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectSelectedCartItems } from '@/features/cart/redux/cartSlice';
 import { removeMultipleCartItemsAsync } from '@/features/cart/redux/cartSaga';
@@ -95,7 +96,7 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
     });
   };
 
-  const handleAddressSelect = (address: any) => {
+  const handleAddressSelect = (address: Address) => {
     selectAddress(address);
     // Also update address data for shipping calculation
     handleAddressChange({

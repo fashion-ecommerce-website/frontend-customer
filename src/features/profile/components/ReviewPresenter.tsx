@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ReviewPresenterProps } from '../types/profile.types';
+import { ReviewPresenterProps, ReviewFormData, Review } from '../types/profile.types';
 import { 
   PageLoadingSpinner, 
   ErrorMessage, 
@@ -50,7 +50,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     }
   }, [submitSuccess, lastActionType, showSuccess]);
 
-  const handleEditClick = (review: any) => {
+  const handleEditClick = (review: Review) => {
     setEditingReview(review.id);
     setEditData({ rating: review.rating, comment: review.comment });
   };
@@ -89,7 +89,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     ));
   };
 
-  const renderEditForm = (review: any) => (
+  const renderEditForm = (review: Review) => (
     <div className="bg-gray-50 p-4 rounded-lg border">
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -143,7 +143,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     </div>
   );
 
-  const renderReviewCard = (review: any) => (
+  const renderReviewCard = (review: Review) => (
     <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm">
       {/* Mobile Layout */}
       <div className="sm:hidden">
@@ -336,7 +336,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white text-black p-4 sm:p-6 rounded-lg max-w-sm w-full mx-4">
             <p className="mb-4 text-sm sm:text-base text-center">
-              Are you sure you want to delete your review for "{confirmDelete.productName}"?
+              Are you sure you want to delete your review for &quot;{confirmDelete.productName}&quot;?
             </p>
             <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
               <button

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCarousel } from '@/components/ProductCarousel';
 import { productApi } from '@/services/api/productApi';
@@ -85,7 +85,7 @@ export function SimilarProducts({ category, currentProductId, currentPrice }: Si
         };
 
         fetchSimilarProducts();
-    }, [category, currentProductId]);
+    }, [category, currentProductId, currentPrice]);
 
     const handleProductClick = (detailId: number) => {
         router.push(`/products/${detailId}`);

@@ -25,11 +25,13 @@ const WISHLIST_ENDPOINTS = {
 class WishlistApiService {
   /** Fetch wishlist items */
   async getWishlist(): Promise<ApiResponse<WishlistItem[]>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res = await apiClient.get<any[]>(WISHLIST_ENDPOINTS.GET_ALL);
     if (!res.success || !Array.isArray(res.data)) {
       return { success: false, data: null, message: res.message } as ApiResponse<WishlistItem[]>;
     }
     // Map backend shape -> frontend WishlistItem
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mapped: WishlistItem[] = res.data.map((it: any) => ({
       productTitle: it.title ?? it.productTitle ?? '',
       colorName: it.activeColor ?? it.colorName ?? null,

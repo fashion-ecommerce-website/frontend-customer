@@ -150,7 +150,7 @@ export interface ProfilePresenterProps {
   // Handlers
   onProfileFormDataChange: (data: Partial<ProfileFormData>) => void;
   onPasswordFormDataChange: (data: Partial<ChangePasswordFormData>) => void;
-  onUpdateProfile: (formData: ProfileFormData | any) => void;
+  onUpdateProfile: (formData: ProfileFormData) => void;
   onChangePassword: (formData: ChangePasswordFormData) => void;
   onClearError: () => void;
   onClearUpdateError: () => void;

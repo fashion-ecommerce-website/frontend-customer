@@ -40,7 +40,7 @@ export const OrderTrackingContainer: React.FC<OrderTrackingContainerProps> = ({ 
           setError(null);
         }
       })
-      .catch((e: any) => {
+      .catch((e) => {
         if (cancelled) return;
         const now = new Date();
         const mock: GHNTrackingEvent[] = [

@@ -273,10 +273,13 @@ export const ghnApi = {
         return res;
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const normalizeEvents = (data: any): GHNTrackingEvent[] => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const logs: any[] = Array.isArray(data?.data)
           ? data.data
           : (Array.isArray(data?.data?.logs) ? data.data.logs : (Array.isArray(data?.data?.log) ? data.data.log : []));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const events: GHNTrackingEvent[] = logs.map((e: any) => ({
           time: e.time || e.created_at || e.createdAt || e.updated_date || '',
           status: e.status || e.current_status || e.action || e.reason_code || 'UNKNOWN',
@@ -297,6 +300,7 @@ export const ghnApi = {
       };
 
       let response = await tryTrack();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let data = null as any;
       if (response.ok) {
         data = await response.json();
@@ -345,7 +349,7 @@ export const ghnApi = {
         content: payload.content || 'Order',
         required_note: payload.required_note || 'KHONGCHOXEMHANG',
         from_district_id: GHN_FROM_DISTRICT_ID ? Number(GHN_FROM_DISTRICT_ID) : undefined,
-      } as any;
+      } as unknown as Record<string, unknown>;
 
       const response = await fetch(`${GHN_API_URL}/v2/shipping-order/create`, {
         method: 'POST',
@@ -378,6 +382,7 @@ export const ghnApi = {
   },
 
   // Get available services for a route
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getAvailableServices: async (fromDistrictId: number, toDistrictId: number): Promise<ApiResponse<any[]>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/shipping-order/available-services`, {
@@ -416,6 +421,7 @@ export const ghnApi = {
 
   // Product-related endpoints using product token
   // Get product categories
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProductCategories: async (): Promise<ApiResponse<any[]>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/product/categories`, {
@@ -449,6 +455,7 @@ export const ghnApi = {
   },
 
   // Get product list
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProducts: async (page: number = 1, limit: number = 20): Promise<ApiResponse<any[]>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/product/list?page=${page}&limit=${limit}`, {
@@ -482,6 +489,7 @@ export const ghnApi = {
   },
 
   // Create product
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createProduct: async (productData: any): Promise<ApiResponse<any>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/product/create`, {

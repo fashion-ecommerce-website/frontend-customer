@@ -17,7 +17,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   className = ''
 }) => {
 
-  const handleFilterChange = (key: keyof OrderQueryParams, value: any) => {
+  const handleFilterChange = (key: keyof OrderQueryParams, value: OrderQueryParams[keyof OrderQueryParams]) => {
     onQueryChange({
       ...query,
       [key]: value
@@ -46,7 +46,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   };
 
   const handleCombinedFilterChange = (value: string) => {
-    let newQuery = { ...query };
+    const newQuery = { ...query };
     
     if (value === '') {
       // Clear all filters
@@ -96,7 +96,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   };
 
   const handleCombinedSortChange = (value: string) => {
-    let newQuery = { ...query };
+    const newQuery = { ...query };
     
     if (value === 'totalAmount') {
       newQuery.sortBy = 'totalAmount';

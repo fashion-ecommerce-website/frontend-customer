@@ -31,7 +31,8 @@ export const useRecentlyViewed = () => {
         } else {
           throw new Error(response.message || 'Error fetching recently viewed');
         }
-      } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
@@ -49,6 +50,7 @@ export const useRecentlyViewed = () => {
       } else {
         throw new Error(res.message || 'Error clearing items');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -65,6 +67,7 @@ export const useRecentlyViewed = () => {
       } else {
         throw new Error(res.message || 'Error removing items');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {

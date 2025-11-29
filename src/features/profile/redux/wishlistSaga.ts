@@ -1,4 +1,6 @@
 import { call, put } from 'redux-saga/effects';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { takeLatest } = require('redux-saga/effects');
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import {
   fetchWishlistRequest,
@@ -11,7 +13,8 @@ import {
   clearWishlistFailure,
 } from './wishlistSlice';
 
-function* handleFetchWishlist(): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* handleFetchWishlist(): Generator<any, void, any> {
   try {
     const res = yield call(() => wishlistApiService.getWishlist());
     if (res.success) {
@@ -19,12 +22,13 @@ function* handleFetchWishlist(): any {
     } else {
       yield put(fetchWishlistFailure(res.message || 'Failed to load wishlist'));
     }
-  } catch (e: any) {
-    yield put(fetchWishlistFailure(e.message || 'Failed to load wishlist'));
+  } catch (e) {
+    yield put(fetchWishlistFailure((e as Error).message || 'Failed to load wishlist'));
   }
 }
 
-function* handleToggleWishlist(action: ReturnType<typeof toggleWishlistRequest>): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* handleToggleWishlist(action: ReturnType<typeof toggleWishlistRequest>): Generator<any, void, any> {
   const detailId = action.payload;
   try {
     const res = yield call(() => wishlistApiService.toggle(detailId));
@@ -38,20 +42,19 @@ function* handleToggleWishlist(action: ReturnType<typeof toggleWishlistRequest>)
     } else {
       yield put(toggleWishlistFailure(current.message || 'Failed to refresh wishlist'));
     }
-  } catch (e: any) {
-    yield put(toggleWishlistFailure(e.message || 'Failed to toggle wishlist'));
+  } catch (e) {
+    yield put(toggleWishlistFailure((e as Error).message || 'Failed to toggle wishlist'));
   }
 }
 
 export function* wishlistSaga() {
-  const effects = require('redux-saga/effects');
-  const takeLatest = effects.takeLatest;
   yield takeLatest(fetchWishlistRequest.type, handleFetchWishlist);
   yield takeLatest(toggleWishlistRequest.type, handleToggleWishlist);
   yield takeLatest(clearWishlistRequest.type, handleClearWishlist);
 }
 
-function* handleClearWishlist(): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* handleClearWishlist(): Generator<any, void, any> {
   try {
     const res = yield call(() => wishlistApiService.clearAll());
     if (!res.success) {
@@ -60,8 +63,8 @@ function* handleClearWishlist(): any {
     }
     // After successful clear, set items to []
     yield put(clearWishlistSuccess());
-  } catch (e: any) {
-    yield put(clearWishlistFailure(e.message || 'Failed to clear wishlist'));
+  } catch (e) {
+    yield put(clearWishlistFailure((e as Error).message || 'Failed to clear wishlist'));
   }
 }
 

@@ -9,6 +9,7 @@ const VOUCHER_ENDPOINTS = {
 export class VoucherApiService {
   async getVouchersByUser(): Promise<ApiResponse<Voucher[]>> {
     // Map server fields to UI Voucher type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res = await apiClient.get<any[]>(VOUCHER_ENDPOINTS.GET_BY_USER);
     if (!res.success || !Array.isArray(res.data)) return res as unknown as ApiResponse<Voucher[]>;
     const mapped: Voucher[] = res.data.map((v) => ({

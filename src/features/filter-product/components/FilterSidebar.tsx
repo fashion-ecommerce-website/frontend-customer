@@ -78,7 +78,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
     { value: "ao-hoodie", label: "Hoodie" },
   ]
 
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const handleFilterChange = (key: keyof ProductFilters, value: ProductFilters[keyof ProductFilters]) => {
     onFiltersChange({
       ...filters,
       [key]: value,

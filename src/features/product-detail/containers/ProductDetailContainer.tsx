@@ -25,7 +25,7 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const { product, isLoading, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
     (state) => state.productDetail
   );
-  const wishlistItems = useAppSelector((state) => selectWishlistItems(state as any));
+  const wishlistItems = useAppSelector((state) => selectWishlistItems(state as RootState));
   const { showSuccess, showError } = useToast();
 
   // Handle color change with Redux action

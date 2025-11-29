@@ -25,6 +25,7 @@ const effects = require('redux-saga/effects');
 const { call, put, takeLatest } = effects;
 
 // Worker saga: Get addresses
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* getAddressesSaga(): Generator<any, void, any> {
   try {
     console.log('AddressSaga: Starting getAddresses request...');
@@ -42,17 +43,20 @@ function* getAddressesSaga(): Generator<any, void, any> {
       };
       yield put(getAddressesFailure(error));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('AddressSaga: Exception caught:', error);
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Network error occurred',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status || 500,
     };
     yield put(getAddressesFailure(apiError));
   }
 }
 
 // Worker saga: Create address
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Generator<any, void, any> {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.createAddress, action.payload);
@@ -68,16 +72,19 @@ function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Genera
       };
       yield put(createAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Network error occurred',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status || 500,
     };
     yield put(createAddressFailure(apiError));
   }
 }
 
 // Worker saga: Update address
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Generator<any, void, any> {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.updateAddress, action.payload);
@@ -93,16 +100,19 @@ function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Genera
       };
       yield put(updateAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Network error occurred',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status || 500,
     };
     yield put(updateAddressFailure(apiError));
   }
 }
 
 // Worker saga: Delete address
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
   try {
     const response: ApiResponse<void> = yield call(addressApi.deleteAddress, action.payload);
@@ -116,16 +126,19 @@ function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void,
       };
       yield put(deleteAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Network error occurred',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status || 500,
     };
     yield put(deleteAddressFailure(apiError));
   }
 }
 
 // Worker saga: Set default address
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* setDefaultAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.setDefaultAddress, action.payload);
@@ -141,16 +154,19 @@ function* setDefaultAddressSaga(action: PayloadAction<number>): Generator<any, v
       };
       yield put(setDefaultAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Network error occurred',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status || 500,
     };
     yield put(setDefaultAddressFailure(apiError));
   }
 }
 
 // Watcher saga
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* addressSaga(): Generator<any, void, any> {
   yield takeLatest(getAddressesRequest.type, getAddressesSaga);
   yield takeLatest(createAddressRequest.type, createAddressSaga);

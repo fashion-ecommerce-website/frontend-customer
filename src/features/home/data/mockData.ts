@@ -39,10 +39,34 @@ export const mockBanners: Banner[] = [
 
 // Mock Product Categories
 export const mockProductCategories: ProductCategory[] = [
-  { id: 'clothes', name: 'CLOTHES', slug: 'clothes', isActive: true },
-  { id: 'hat', name: 'HAT', slug: 'hat', isActive: false },
-  { id: 'shoes', name: 'SHOES', slug: 'shoes', isActive: false },
-  { id: 'bag', name: 'BAG', slug: 'bag', isActive: false },
+  { 
+    id: 'upper-body', 
+    name: 'UPPER BODY', 
+    slug: 'upper-body', 
+    isActive: true,
+    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&q=80&w=800'
+  },
+  { 
+    id: 'lower-body', 
+    name: 'LOWER BODY', 
+    slug: 'lower-body', 
+    isActive: false,
+    image: 'https://images.unsplash.com/photo-1542272617-08f086302542?auto=format&fit=crop&q=80&w=800'
+  },
+  { 
+    id: 'hat', 
+    name: 'HAT', 
+    slug: 'hat', 
+    isActive: false,
+    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&q=80&w=800'
+  },
+  { 
+    id: 'bag', 
+    name: 'BAG', 
+    slug: 'bag', 
+    isActive: false,
+    image: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800'
+  },
 ];
 
 

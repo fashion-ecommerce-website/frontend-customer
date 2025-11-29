@@ -53,7 +53,7 @@ export class OrderApi {
     totalAmount: number;
     note?: string;
   }>): Promise<ApiResponse<Order>> {
-    return apiClient.put<Order>(`/orders/${orderId}`, payload as any);
+    return apiClient.put<Order>(`/orders/${orderId}`, payload as unknown as Record<string, unknown>);
   }
 
   /**

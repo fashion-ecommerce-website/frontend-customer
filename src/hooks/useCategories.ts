@@ -21,6 +21,7 @@ export function useCategories() {
         } else {
           setCategories((res.data || []).filter((c) => c.isActive));
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         if (!mounted) return;
         setError(err.message || 'Failed to load categories');

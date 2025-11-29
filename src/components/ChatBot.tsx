@@ -144,6 +144,7 @@ export const ChatBot: React.FC = () => {
       try {
         const parsed = JSON.parse(saved);
         // Convert string dates back to Date objects
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const rehydrated = parsed.map((msg: any) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),

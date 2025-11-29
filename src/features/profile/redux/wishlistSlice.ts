@@ -65,9 +65,11 @@ export const {
 
 export const wishlistReducer = wishlistSlice.reducer;
 
-export const selectWishlistState = (state: any) => state.wishlist as WishlistState;
-export const selectWishlistItems = (state: any) => (state.wishlist as WishlistState).items;
-export const selectWishlistLoading = (state: any) => (state.wishlist as WishlistState).loading;
-export const selectWishlistError = (state: any) => (state.wishlist as WishlistState).error;
+import { RootState } from '@/store/rootReducer';
+
+export const selectWishlistState = (state: RootState) => state.wishlist;
+export const selectWishlistItems = (state: RootState) => state.wishlist.items;
+export const selectWishlistLoading = (state: RootState) => state.wishlist.loading;
+export const selectWishlistError = (state: RootState) => state.wishlist.error;
 
 

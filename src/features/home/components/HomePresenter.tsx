@@ -10,6 +10,7 @@ import { NewsletterSignup } from './NewsletterSignup';
 import { ProductSection } from './ProductSection';
 import { RankingSection } from './RankingSection';
 import { RecommendSection } from './RecommendSection';
+import { CategorySection } from './CategorySection';
 
 export const HomePresenter: React.FC<HomePresenterProps> = ({
   banners,
@@ -24,7 +25,7 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
 }) => {
 
   return (
-    <div className="bg-white overflow-x-hidden">
+    <div className="bg-white overflow-x-hidden font-sans">
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 relative mx-4 sm:mx-6 lg:mx-8 mt-4 rounded-lg">
@@ -42,8 +43,8 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
 
       {/* Main Content */}
       {isLoading ? (
-        <div className="flex items-center justify-center h-64 px-4">
-          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-black"></div>
+        <div className="flex items-center justify-center h-screen px-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
         </div>
       ) : (
         <div className="w-full">
@@ -53,10 +54,16 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
             onBannerClick={onBannerClick}
           />
 
+          {/* Category Section */}
+          <CategorySection 
+            categories={productCategories}
+            onCategoryClick={onCategoryClick}
+          />
+
           {/* Main sections with responsive padding */}
-          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 pb-20">
             {/* New Arrivals Section */}
-            <ProductSection
+            {/* <ProductSection
               title="New arrival"
               products={newArrivals}
               categories={productCategories}
@@ -65,14 +72,14 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
               showCategories={true}
               variant="newArrivals"
               leftImageUrl="https://cdn.hstatic.net/files/200000642007/file/banner_phu_-_giay_dep_-675_x873_bdb081cf9da74f98a05c919d53ed843d.jpg"
-              className="pt-12 sm:pt-16 lg:pt-20"
-            />
-
-            {/* Recommend For You Section */}
-            <RecommendSection />
+              className="pt-0"
+            /> */}
 
             {/* Ranking Section */}
             <RankingSection />
+
+            {/* Recommend For You Section */}
+            <RecommendSection />
           </div>
 
           {/* Newsletter (no horizontal padding) */}

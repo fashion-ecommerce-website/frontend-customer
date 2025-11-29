@@ -5,7 +5,7 @@ import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { AddToCartPayload } from '@/types/cart.types';
 
 interface UseCartActionsOptions {
-  onSuccess?: (item: any) => void;
+  onSuccess?: (item: unknown) => void;
   onError?: (error: string) => void;
 }
 

@@ -183,7 +183,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
   };
 
   // Handle profile update - unified handler for both old and new format
-  const handleUpdateProfile = useCallback((formData: ProfileFormData | any) => {
+  const handleUpdateProfile = useCallback((formData: ProfileFormData) => {
     // Check if it's UpdateProfileApiPayload format
     if (formData.dob !== undefined || formData.username !== undefined) {
       // New API format - use directly

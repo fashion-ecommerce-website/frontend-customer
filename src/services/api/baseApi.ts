@@ -205,7 +205,7 @@ class BaseApi {
       }
 
       // Check if response has content before parsing JSON
-      let data: any = null;
+      let data: unknown = null;
       const contentType = response.headers.get('content-type');
       const contentLength = response.headers.get('content-length');
       
@@ -226,14 +226,16 @@ class BaseApi {
         return {
           success: false,
           data: null,
-          message: data?.message || `HTTP Error: ${response.status}`,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          message: (data as any)?.message || `HTTP Error: ${response.status}`,
         };
       }
 
       return {
         success: true,
-        data: data,
-        message: data?.message,
+        data: data as T,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        message: (data as any)?.message,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Network error occurred';

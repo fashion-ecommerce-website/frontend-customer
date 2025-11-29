@@ -59,6 +59,7 @@ export const validateAddressForOrder = (address: Address | null): OrderValidatio
  */
 export const validateOrderData = (orderData: {
   shippingAddressId?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   products: any[];
   subtotalAmount: number;
   totalAmount: number;

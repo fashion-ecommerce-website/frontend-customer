@@ -54,8 +54,9 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
     !resultImage
   );
 
-  const handleHistoryItemSelect = (item: any) => {
-    onHistorySelect(item);
+  const handleHistoryItemSelect = (item: unknown) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onHistorySelect(item as any);
     setActiveTab('try-on');
   };
 

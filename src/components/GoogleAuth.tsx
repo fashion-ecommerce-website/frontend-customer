@@ -3,9 +3,10 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { googleLoginRequest, selectIsAuthenticated, selectUser, selectIsLoading, selectIsGoogleLoading } from '../features/auth/login/redux/loginSlice';
+import { User } from '../features/auth/login/types/login.types';
 
 interface GoogleAuthProps {
-  onSuccess?: (user: any) => void;
+  onSuccess?: (user: User) => void;
   onError?: (error: string) => void;
 }
 

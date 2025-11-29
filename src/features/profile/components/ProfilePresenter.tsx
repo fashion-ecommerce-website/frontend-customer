@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ProfilePresenterProps } from '../types/profile.types';
+import { ProfilePresenterProps, ProfileFormData } from '../types/profile.types';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useFormValidation } from '../hooks/useValidation';
@@ -144,8 +144,14 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
 
   // Handle modal form submission with API format
   const handleModalSubmit = (data: UpdateProfileApiPayload) => {
-    // Pass the API payload directly to the unified update function
-    onUpdateProfile(data);
+    // Merge with existing profileFormData to ensure all required fields are present
+    const fullData: ProfileFormData = {
+      ...profileFormData,
+      ...data,
+      // Ensure email is present (it should be in profileFormData)
+      email: profileFormData.email || '',
+    };
+    onUpdateProfile(fullData);
     setShowUpdateInfoModal(false);
   };
 

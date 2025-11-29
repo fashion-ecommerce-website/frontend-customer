@@ -56,35 +56,37 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
       } ${className}`}
     >
       {/* Section Header */}
-      <div className={`${(variant === 'newArrivals' || variant === 'ranking') ? 'self-stretch flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0' : 'flex items-center justify-between mb-6'}`}>
+      <div className={`${(variant === 'newArrivals' || variant === 'ranking') ? 'self-stretch flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0' : 'flex items-center justify-between mb-8'}`}>
         <div className="flex flex-col justify-start items-start">
           <h2
             className={
               variant === 'newArrivals'
-                ? "text-black text-xl sm:text-2xl lg:text-3xl font-normal uppercase leading-tight sm:leading-10 font-['SVN-Product_Sans']"
+                ? "text-black text-3xl sm:text-4xl lg:text-5xl font-serif font-bold uppercase leading-tight tracking-wide"
                 : variant === 'ranking'
-                ? "text-black text-xl sm:text-2xl lg:text-3xl font-normal uppercase leading-tight sm:leading-10 font-['SVN-Product_Sans']"
-                : "text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900"
+                ? "text-black text-3xl sm:text-4xl lg:text-5xl font-serif font-bold uppercase leading-tight tracking-wide"
+                : "text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-gray-900 tracking-wide"
             }
           >
-            {variant === 'newArrivals' ? 'NEW ARRIVALS' : variant === 'ranking' ? 'RANKING' : title}
+            {variant === 'newArrivals' ? 'New Arrivals' : variant === 'ranking' ? 'Ranking' : title}
           </h2>
         </div>
 
         {variant === 'newArrivals' && showCategories && categories && categories.length > 0 && (
           <div className="w-full sm:w-auto overflow-x-auto">
-            <div className="flex justify-start items-start gap-2 sm:gap-2.5 min-w-max">
+            <div className="flex justify-start items-start gap-3 min-w-max">
               {(() => { const hasAnyExplicitActive = categories.some((c) => c.isActive === true); return categories.map((category, index) => {
                 const isActive = hasAnyExplicitActive ? !!category.isActive : index === 0;
                 return (
                   <button
                     key={category.id}
                     onClick={() => onCategoryClick?.(category.id)}
-                    className={`flex-shrink-0 px-3 sm:px-5 py-1 sm:py-px rounded-[34px] border border-black cursor-pointer transition-colors ${
-                      isActive ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'
+                    className={`flex-shrink-0 px-4 py-2 rounded-full border transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-black hover:text-black'
                     }`}
                   >
-                    <span className="text-center text-sm sm:text-lg font-normal leading-loose font-['SVN-Product_Sans']">{category.name}</span>
+                    <span className="text-sm font-sans font-medium uppercase tracking-wider">{category.name}</span>
                   </button>
                 );
               }); })()}
@@ -100,13 +102,13 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                 return (
                   <div
                     key={category.id}
-                    className={index === 0 ? 'flex flex-col justify-start items-start' : 'pl-3 sm:pl-5 flex flex-col justify-center items-start'}
+                    className={index === 0 ? 'flex flex-col justify-start items-start' : 'pl-6 flex flex-col justify-center items-start'}
                   >
                     <button
                       onClick={() => onCategoryClick?.(category.id)}
-                      className="flex justify-start items-start cursor-pointer transition-colors"
+                      className="flex justify-start items-start cursor-pointer transition-colors group"
                     >
-                      <span className={`${isActive ? 'text-orange-400' : 'text-black hover:text-orange-300'} text-sm sm:text-lg font-normal leading-loose font-['SVN-Product_Sans']`}>
+                      <span className={`${isActive ? 'text-black border-b-2 border-black' : 'text-gray-500 hover:text-black'} text-lg font-sans font-medium uppercase tracking-wider pb-1 transition-all`}>
                         {category.name}
                       </span>
                     </button>
@@ -118,8 +120,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
         )}
 
         {variant === 'default' && (
-          <button className="text-orange-600 hover:text-orange-700 font-medium text-sm lg:text-base transition-colors">
-            Xem tất cả →
+          <button className="text-black hover:text-gray-600 font-sans font-medium text-sm lg:text-base uppercase tracking-widest border-b border-black hover:border-gray-600 transition-all">
+            View All
           </button>
         )}
       </div>

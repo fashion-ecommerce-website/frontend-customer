@@ -8,7 +8,7 @@ import { OrderApi } from '@/services/api/orderApi';
 import { Order, CreateOrderRequest, PaginatedResponse, OrderQueryParams } from '@/features/order/types';
 import { ApiResponse } from '@/types/api.types';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
-import { productApi } from '@/services/api/productApi';
+import { productApi, ProductDetail } from '@/services/api/productApi';
 import {
   // Address actions
   getAddressesRequest,
@@ -35,7 +35,7 @@ import {
 } from './orderSlice';
 
 // Address sagas
-function* getAddressesSaga(): Generator<any, void, any> {
+function* getAddressesSaga() {
   try {
     const response: ApiResponse<Address[]> = yield call(addressApi.getAddresses);
 
@@ -50,13 +50,13 @@ function* getAddressesSaga(): Generator<any, void, any> {
     } else {
       yield put(getAddressesFailure(response.message || 'Failed to load addresses'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('getAddressesSaga error:', error);
-    yield put(getAddressesFailure(error?.message || 'Failed to load addresses'));
+    yield put(getAddressesFailure((error as Error)?.message || 'Failed to load addresses'));
   }
 }
 
-function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Generator<any, void, any> {
+function* createAddressSaga(action: PayloadAction<CreateAddressRequest>) {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.createAddress, action.payload);
 
@@ -65,13 +65,13 @@ function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Genera
     } else {
       yield put(createAddressFailure(response.message || 'Failed to create address'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('createAddressSaga error:', error);
-    yield put(createAddressFailure(error?.message || 'Failed to create address'));
+    yield put(createAddressFailure((error as Error)?.message || 'Failed to create address'));
   }
 }
 
-function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Generator<any, void, any> {
+function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>) {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.updateAddress, action.payload);
 
@@ -80,13 +80,13 @@ function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Genera
     } else {
       yield put(updateAddressFailure(response.message || 'Failed to update address'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('updateAddressSaga error:', error);
-    yield put(updateAddressFailure(error?.message || 'Failed to update address'));
+    yield put(updateAddressFailure((error as Error)?.message || 'Failed to update address'));
   }
 }
 
-function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
+function* deleteAddressSaga(action: PayloadAction<number>) {
   try {
     const response: ApiResponse<void> = yield call(addressApi.deleteAddress, action.payload);
 
@@ -95,14 +95,14 @@ function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void,
     } else {
       yield put(deleteAddressFailure(response.message || 'Failed to delete address'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('deleteAddressSaga error:', error);
-    yield put(deleteAddressFailure(error?.message || 'Failed to delete address'));
+    yield put(deleteAddressFailure((error as Error)?.message || 'Failed to delete address'));
   }
 }
 
 // Order sagas
-function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<any, void, any> {
+function* createOrderSaga(action: PayloadAction<CreateOrderRequest>) {
   try {
     const response: ApiResponse<Order> = yield call(OrderApi.createOrder, action.payload);
 
@@ -118,7 +118,8 @@ function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<
         for (const item of order.orderDetails) {
           try {
             // Fetch product detail to get productId
-            const productResponse: ApiResponse<any> = yield call(
+            // Fetch product detail to get productId
+            const productResponse: ApiResponse<ProductDetail> = yield call(
               productApi.getProductById,
               item.productDetailId.toString()
             );
@@ -150,13 +151,13 @@ function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator<
     } else {
       yield put(createOrderFailure(response.message || 'Failed to create order'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('createOrderSaga error:', error);
-    yield put(createOrderFailure(error?.message || 'Failed to create order'));
+    yield put(createOrderFailure((error as Error)?.message || 'Failed to create order'));
   }
 }
 
-function* getUserOrdersSaga(action: PayloadAction<OrderQueryParams | undefined>): Generator<any, void, any> {
+function* getUserOrdersSaga(action: PayloadAction<OrderQueryParams | undefined>) {
   try {
     const response: ApiResponse<PaginatedResponse<Order>> = yield call(OrderApi.getUserOrders, action.payload);
 
@@ -165,14 +166,14 @@ function* getUserOrdersSaga(action: PayloadAction<OrderQueryParams | undefined>)
     } else {
       yield put(getUserOrdersFailure(response.message || 'Failed to load orders'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('getUserOrdersSaga error:', error);
-    yield put(getUserOrdersFailure(error?.message || 'Failed to load orders'));
+    yield put(getUserOrdersFailure((error as Error)?.message || 'Failed to load orders'));
   }
 }
 
 // Root order saga
-export function* orderSaga(): Generator<any, void, any> {
+export function* orderSaga() {
   // Address sagas
   yield takeLatest(getAddressesRequest.type, getAddressesSaga);
   yield takeLatest(createAddressRequest.type, createAddressSaga);

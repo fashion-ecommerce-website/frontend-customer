@@ -38,7 +38,7 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
     { value: "price_desc", label: "Price: High to Low" },
   ];
 
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const handleFilterChange = (key: keyof ProductFilters, value: unknown) => {
     onFiltersChange({
       ...filters,
       [key]: value,

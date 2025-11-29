@@ -226,6 +226,7 @@ export class AuthApiService {
       console.log('✅ Backend authentication successful:', backendResponse);
 
       // Step 3: Handle token-only login response 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((backendResponse as any)?.accessToken) {
         const tokenResp = backendResponse as unknown as {
           accessToken: string;

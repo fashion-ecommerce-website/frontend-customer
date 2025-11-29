@@ -131,7 +131,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
                   imageUrls: item.imageUrl ? [item.imageUrl] : [],
                 }));
               // Expose via a scoped variable for JSX below
-              // @ts-ignore - used in JSX
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (globalThis as any).__selectedProducts = selectedProducts;
               return null;
             })()}
@@ -198,6 +198,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
             <OrderModal 
               isOpen={isOrderModalOpen} 
               onClose={handleCloseOrderModal}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               products={(globalThis as any).__selectedProducts}
               note={note}
             />

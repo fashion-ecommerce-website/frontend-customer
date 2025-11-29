@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { ProductList } from "@/features/filter-product/components";
 
 export interface WishlistPresenterProps {
   items: Array<{
@@ -42,10 +43,6 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
   onCancelConfirm,
   onProductClick,
 }) => {
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
   const normalizedProducts = useMemo(() => {
     return items.map((item) => ({
       detailId: item.detailId,
@@ -64,12 +61,19 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
       })(),
       quantity: typeof item.quantity === 'number' ? item.quantity : 1,
       colorName: item.colorName || '',
+      // Ensure all required properties for ProductList are present
+      id: item.detailId,
+      name: item.productTitle || '',
+      slug: item.productSlug || '',
+      images: Array.isArray(item.imageUrls) ? item.imageUrls : [],
     }));
   }, [items]);
 
-  // Dynamic import to avoid circular dependency warnings
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { ProductList } = require("@/features/filter-product/components");
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>;
+  }
+
+
 
   return (
     <>

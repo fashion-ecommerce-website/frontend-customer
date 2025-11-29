@@ -30,45 +30,59 @@ export const Banner: React.FC<BannerProps> = ({ banners, onBannerClick }) => {
   const handleNext = () => emblaApi?.scrollNext();
 
   return (
-    <div className="w-full relative overflow-hidden bg-gray-100">
+    <div className="w-full relative overflow-hidden bg-gray-100 group">
       <div className="relative">
-        <div className="aspect-[16/9] sm:aspect-[2/1] lg:aspect-[3/1] max-h-[400px] sm:max-h-[500px] lg:max-h-[635px]" ref={emblaRef}>
+        <div className="aspect-[16/9] sm:aspect-[2/1] lg:aspect-[21/9] max-h-[85vh]" ref={emblaRef}>
           <div className="flex h-full">
             {banners.map((banner) => (
               <div key={banner.id} className="flex-[0_0_100%] h-full relative">
                 <img
-                  className="w-full h-full object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
+                  className="w-full h-full object-cover"
                   src={banner.image}
                   alt={banner.title}
-                  onClick={() => onBannerClick(banner.id)}
                 />
-                {/* Optional overlay for better text readability */}
-                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="absolute inset-0 bg-black/20"></div>
+                
+                {/* Text Overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                  <h2 className="text-4xl sm:text-5xl lg:text-7xl font-serif font-bold mb-4 tracking-wide opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                    {banner.title}
+                  </h2>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-light mb-8 max-w-2xl opacity-0 animate-fade-in-up" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                    Discover the latest trends in luxury fashion.
+                  </p>
+                  <button
+                    onClick={() => onBannerClick(banner.id)}
+                    className="px-8 py-3 bg-white text-black font-semibold text-lg uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 opacity-0 animate-fade-in-up"
+                    style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}
+                  >
+                    Shop Now
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Left control */}
+      {/* Navigation Controls */}
       <button
         aria-label="Previous slide"
         onClick={handlePrev}
-        className="absolute left-2 sm:left-4 lg:left-10 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center z-10 transition-all duration-200 hover:scale-110"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 border border-white/30 text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
       >
-        <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="white" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
         </svg>
       </button>
 
-      {/* Right control */}
       <button
         aria-label="Next slide"
         onClick={handleNext}
-        className="absolute right-2 sm:right-4 lg:right-10 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center z-10 transition-all duration-200 hover:scale-110"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 border border-white/30 text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
       >
-        <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" fill="none" stroke="white" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
         </svg>
       </button>
     </div>

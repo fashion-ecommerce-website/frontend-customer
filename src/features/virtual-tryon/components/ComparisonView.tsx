@@ -28,12 +28,12 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove as any);
+      window.addEventListener('mousemove', handleMouseMove as unknown as EventListener);
       window.addEventListener('mouseup', handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove as any);
+      window.removeEventListener('mousemove', handleMouseMove as unknown as EventListener);
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);

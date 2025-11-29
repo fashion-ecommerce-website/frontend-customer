@@ -3,8 +3,10 @@ import { ProductDetail } from '@/services/api/productApi';
 // Mock product data for testing - matches new API response format
 export const mockProductData: ProductDetail = {
   detailId: 1,
+  productId: 1,
   title: "MLB - Unisex round neck short sleeve t-shirt with logo",
   price: 2290000,
+  finalPrice: 2290000,
   activeColor: "Beige",
   images: [
     "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
@@ -38,6 +40,8 @@ export const mockProductVariants: Record<string, ProductDetail> = {
   "Beige": {
     ...mockProductData,
     detailId: 1050170869, // Unique product ID like MLB
+    productId: 1,
+    finalPrice: 2290000,
     activeColor: "Beige",
     images: [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
@@ -53,6 +57,8 @@ export const mockProductVariants: Record<string, ProductDetail> = {
   "Navy": {
     ...mockProductData,
     detailId: 1050170919, // Unique product ID like MLB
+    productId: 1,
+    finalPrice: 2290000,
     activeColor: "Navy",
     mapSizeToQuantity: {
       "XS": 0,  // Out of stock
@@ -75,6 +81,8 @@ export const mockProductVariants: Record<string, ProductDetail> = {
   "Black": {
     ...mockProductData,
     detailId: 1050170920, // Unique product ID like MLB
+    productId: 1,
+    finalPrice: 2290000,
     activeColor: "Black",
     mapSizeToQuantity: {
       "XS": 3,
@@ -97,6 +105,8 @@ export const mockProductVariants: Record<string, ProductDetail> = {
   "White": {
     ...mockProductData,
     detailId: 1050170921, // Unique product ID like MLB
+    productId: 1,
+    finalPrice: 2290000,
     activeColor: "White",
     mapSizeToQuantity: {
       "XS": 12,

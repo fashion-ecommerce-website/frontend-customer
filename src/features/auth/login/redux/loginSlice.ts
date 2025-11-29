@@ -84,6 +84,7 @@ const loginSlice = createSlice({
       state.error = null;
     },
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     googleLoginSuccess: (state, action: PayloadAction<{user: any; jwtToken: string}>) => {
       state.isGoogleLoading = false;
       

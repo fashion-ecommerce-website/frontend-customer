@@ -11,7 +11,7 @@ import { productApi } from '../../../services/api/productApi';
 import { addSearchHistory } from '../../../utils/searchHistory';
 
 // Debounce hook for API calls
-const useDebounce = (value: any, delay: number) => {
+const useDebounce = <T,>(value: T, delay: number): T => {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {

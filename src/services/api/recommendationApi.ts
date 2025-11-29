@@ -1,5 +1,6 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
+import { NaturalLanguageRecommendationResponse } from '../../types/recommendation.types';
 
 // Action Type Enum - matches backend enum
 export enum ActionType {
@@ -75,8 +76,8 @@ export class RecommendationApiService {
      * Get recommendations based on natural language chat message
      * URL: /api/chatbot/chat
      */
-    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<any>> {
-        return apiClient.post<any>(RECOMMENDATION_ENDPOINTS.CHAT, data);
+    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<NaturalLanguageRecommendationResponse>> {
+        return apiClient.post<NaturalLanguageRecommendationResponse>(RECOMMENDATION_ENDPOINTS.CHAT, data);
     }
 }
 

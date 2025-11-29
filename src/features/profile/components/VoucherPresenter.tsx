@@ -155,7 +155,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No vouchers available</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            You don't have any vouchers yet. Check back later for new promotions and special offers!
+            You don&apos;t have any vouchers yet. Check back later for new promotions and special offers!
           </p>
           <button
             onClick={onRefresh}
@@ -206,7 +206,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
               <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'expired' | 'unavailable')}
                 className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               >
                 <option value="all">All</option>

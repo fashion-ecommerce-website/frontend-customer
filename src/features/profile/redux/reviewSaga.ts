@@ -22,9 +22,11 @@ import {
 } from './reviewSlice';
 
 // Get user's reviews
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* getReviewsSaga(action: PayloadAction<{ page?: number }>): Generator<any, void, any> {
   try {
     const page = action.payload?.page || 1;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = yield call(() => reviewApiService.getMyProfileReviews(page));
     if (response.success) {
       yield put(getReviewsSuccess({
@@ -40,18 +42,22 @@ function* getReviewsSaga(action: PayloadAction<{ page?: number }>): Generator<an
         status: response.status,
       }));
     }
-  } catch (error: any) {
+  } catch (error) {
     yield put(getReviewsFailure({
-      message: error.message || 'Failed to fetch reviews',
-      status: error.status,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Network error occurred',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status || 500,
     }));
   }
 }
 
 // Update review
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* updateReviewSaga(action: PayloadAction<{ reviewId: string; data: ReviewFormData }>): Generator<any, void, any> {
   try {
     const { reviewId, data } = action.payload;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = yield call(() => reviewApiService.updateProfileReview(reviewId, data));
     if (response.success) {
       yield put(updateReviewSuccess(response.data));
@@ -61,18 +67,22 @@ function* updateReviewSaga(action: PayloadAction<{ reviewId: string; data: Revie
         status: response.status,
       }));
     }
-  } catch (error: any) {
+  } catch (error) {
     yield put(updateReviewFailure({
-      message: error.message || 'Failed to update review',
-      status: error.status,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Failed to update review',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status,
     }));
   }
 }
 
 // Delete review
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* deleteReviewSaga(action: PayloadAction<string>): Generator<any, void, any> {
   try {
     const reviewId = action.payload;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = yield call(() => reviewApiService.deleteProfileReview(reviewId));
     if (response.success) {
       yield put(deleteReviewSuccess(reviewId));
@@ -82,10 +92,12 @@ function* deleteReviewSaga(action: PayloadAction<string>): Generator<any, void, 
         status: response.status,
       }));
     }
-  } catch (error: any) {
+  } catch (error) {
     yield put(deleteReviewFailure({
-      message: error.message || 'Failed to delete review',
-      status: error.status,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      message: (error as any).message || 'Failed to delete review',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status: (error as any).status,
     }));
   }
 }

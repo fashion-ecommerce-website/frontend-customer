@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Playfair_Display, Outfit } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import { Header } from "@/components/Header";
@@ -12,6 +11,18 @@ import { ChatBot } from "@/components/ChatBot";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { VirtualTryOnProvider } from "@/features/virtual-tryon/context/VirtualTryOnContext";
 import { TryOnStatusFloater } from "@/features/virtual-tryon/components/TryOnStatusFloater";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
@@ -67,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
       <body
         className="antialiased font-sans"
       >

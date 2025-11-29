@@ -28,4 +28,5 @@ export interface ProductCategory {
   name: string;
   slug: string;
   isActive: boolean;
+  image?: string;
 }

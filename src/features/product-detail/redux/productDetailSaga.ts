@@ -26,9 +26,9 @@ function* fetchProductSaga(action: PayloadAction<string>) {
     } else {
       yield put(fetchProductFailure(response.message || 'Failed to fetch product'));
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('fetchProductSaga error:', error);
-    const errorMessage = error?.message || 'An error occurred while fetching product';
+    const errorMessage = (error as Error)?.message || 'An error occurred while fetching product';
     yield put(fetchProductFailure(errorMessage));
   }
 }
@@ -45,8 +45,8 @@ function* fetchProductByColorSaga(action: PayloadAction<{ id: string; color: str
     } else {
       yield put(fetchProductByColorFailure(response.message || 'Failed to fetch product color variant'));
     }
-  } catch (error: any) {
-    const errorMessage = error?.message || 'An error occurred while fetching product color variant';
+  } catch (error) {
+    const errorMessage = (error as Error)?.message || 'An error occurred while fetching product color variant';
     yield put(fetchProductByColorFailure(errorMessage));
   }
 }

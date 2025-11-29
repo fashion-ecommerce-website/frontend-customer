@@ -52,7 +52,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setFilterStatus(value);
-    onFilterChange(value === 'all' ? undefined : value as any);
+    onFilterChange(value === 'all' ? undefined : value as "pending" | "approved" | "rejected" | "completed");
   };
 
   if (loading) {
@@ -117,7 +117,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
           </svg>
           <p className="text-sm text-gray-400">No refund requests found</p>
-          <p className="mt-1 text-xs sm:text-sm text-gray-400">You haven't made any refund requests yet</p>
+          <p className="mt-1 text-xs sm:text-sm text-gray-400">You haven&apos;t made any refund requests yet</p>
           <button
             onClick={onReload}
             className="mt-4 px-4 py-2 text-sm font-medium bg-black text-white rounded hover:bg-gray-800 transition-colors"
