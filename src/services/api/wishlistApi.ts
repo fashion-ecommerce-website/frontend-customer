@@ -16,6 +16,23 @@ export interface WishlistItem {
   detailId: number;
 }
 
+interface BackendWishlistItem {
+  title?: string;
+  productTitle?: string;
+  activeColor?: string;
+  colorName?: string;
+  productSlug?: string;
+  images?: string[];
+  colors?: string[];
+  price: number;
+  finalPrice?: number;
+  percentOff?: number;
+  promotionId?: number;
+  promotionName?: string;
+  quantity?: number;
+  detailId: number;
+}
+
 const WISHLIST_ENDPOINTS = {
   GET_ALL: '/wishlists',
   TOGGLE: '/wishlists/toggle', // POST /wishlists/toggle/{id}
@@ -25,12 +42,12 @@ const WISHLIST_ENDPOINTS = {
 class WishlistApiService {
   /** Fetch wishlist items */
   async getWishlist(): Promise<ApiResponse<WishlistItem[]>> {
-    const res = await apiClient.get<any[]>(WISHLIST_ENDPOINTS.GET_ALL);
+    const res = await apiClient.get<BackendWishlistItem[]>(WISHLIST_ENDPOINTS.GET_ALL);
     if (!res.success || !Array.isArray(res.data)) {
       return { success: false, data: null, message: res.message } as ApiResponse<WishlistItem[]>;
     }
     // Map backend shape -> frontend WishlistItem
-    const mapped: WishlistItem[] = res.data.map((it: any) => ({
+    const mapped: WishlistItem[] = res.data.map((it) => ({
       productTitle: it.title ?? it.productTitle ?? '',
       colorName: it.activeColor ?? it.colorName ?? null,
       productSlug: it.productSlug ?? '',

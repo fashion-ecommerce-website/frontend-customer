@@ -35,6 +35,18 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.vectorlogo.zone',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.vecteezy.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

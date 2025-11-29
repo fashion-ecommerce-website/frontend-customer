@@ -1,21 +1,7 @@
 'use client';
 
 import React from 'react';
-
-interface Address {
-  id?: number;
-  userId?: number;
-  fullName: string;
-  phone: string;
-  line: string;
-  ward: string;
-  city: string;
-  countryCode: string;
-  isDefault?: boolean;
-  default?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Address } from '@/services/api/addressApi';
 
 interface AddressSectionProps {
   addresses?: Address[];

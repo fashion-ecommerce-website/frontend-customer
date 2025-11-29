@@ -18,7 +18,7 @@ const productDetailSlice = createSlice({
   initialState,
   reducers: {
     // Fetch product by ID actions
-    fetchProductRequest: (state, action: PayloadAction<string>) => {
+    fetchProductRequest: (state, _action: PayloadAction<string>) => {
       state.isLoading = true;
       state.error = null;
     },
@@ -41,7 +41,7 @@ const productDetailSlice = createSlice({
     },
 
     // Fetch product by color actions
-    fetchProductByColorRequest: (state, action: PayloadAction<{ id: string; color: string; size?: string }>) => {
+    fetchProductByColorRequest: (state, _action: PayloadAction<{ id: string; color: string; size?: string }>) => {
       state.isColorLoading = true; // Use separate loading state
       state.error = null;
     },

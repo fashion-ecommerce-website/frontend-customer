@@ -22,10 +22,10 @@ import {
 } from './reviewSlice';
 
 // Get user's reviews
-function* getReviewsSaga(action: PayloadAction<{ page?: number }>): Generator<any, void, any> {
+function* getReviewsSaga(action: PayloadAction<{ page?: number }>): Generator {
   try {
     const page = action.payload?.page || 1;
-    const response: any = yield call(() => reviewApiService.getMyProfileReviews(page));
+    const response = yield call(() => reviewApiService.getMyProfileReviews(page));
     if (response.success) {
       yield put(getReviewsSuccess({
         reviews: response.data.reviews,
@@ -40,19 +40,19 @@ function* getReviewsSaga(action: PayloadAction<{ page?: number }>): Generator<an
         status: response.status,
       }));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     yield put(getReviewsFailure({
-      message: error.message || 'Failed to fetch reviews',
-      status: error.status,
+      message: error instanceof Error ? error.message : 'Failed to fetch reviews',
+      status: (error as { status?: number }).status,
     }));
   }
 }
 
 // Update review
-function* updateReviewSaga(action: PayloadAction<{ reviewId: string; data: ReviewFormData }>): Generator<any, void, any> {
+function* updateReviewSaga(action: PayloadAction<{ reviewId: string; data: ReviewFormData }>): Generator {
   try {
     const { reviewId, data } = action.payload;
-    const response: any = yield call(() => reviewApiService.updateProfileReview(reviewId, data));
+    const response = yield call(() => reviewApiService.updateProfileReview(reviewId, data));
     if (response.success) {
       yield put(updateReviewSuccess(response.data));
     } else {
@@ -61,19 +61,19 @@ function* updateReviewSaga(action: PayloadAction<{ reviewId: string; data: Revie
         status: response.status,
       }));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     yield put(updateReviewFailure({
-      message: error.message || 'Failed to update review',
-      status: error.status,
+      message: error instanceof Error ? error.message : 'Failed to update review',
+      status: (error as { status?: number }).status,
     }));
   }
 }
 
 // Delete review
-function* deleteReviewSaga(action: PayloadAction<string>): Generator<any, void, any> {
+function* deleteReviewSaga(action: PayloadAction<string>): Generator {
   try {
     const reviewId = action.payload;
-    const response: any = yield call(() => reviewApiService.deleteProfileReview(reviewId));
+    const response = yield call(() => reviewApiService.deleteProfileReview(reviewId));
     if (response.success) {
       yield put(deleteReviewSuccess(reviewId));
     } else {
@@ -82,10 +82,10 @@ function* deleteReviewSaga(action: PayloadAction<string>): Generator<any, void, 
         status: response.status,
       }));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     yield put(deleteReviewFailure({
-      message: error.message || 'Failed to delete review',
-      status: error.status,
+      message: error instanceof Error ? error.message : 'Failed to delete review',
+      status: (error as { status?: number }).status,
     }));
   }
 }

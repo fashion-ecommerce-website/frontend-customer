@@ -45,13 +45,12 @@ interface VoucherModalProps {
 }
 
 export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, subtotal, onClose, onSelect, onApplyCode, onSearchVoucher }) => {
-  if (!isOpen) return null;
-
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
   const [code, setCode] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<Voucher[]>([]);
-  const [isSearching, setIsSearching] = React.useState(false);
   const [showSearchResults, setShowSearchResults] = React.useState(false);
+
+  if (!isOpen) return null;
 
   // Convert backend response to frontend Voucher type
   const convertBackendToFrontend = (backendVoucher: VoucherByUserResponse): Voucher => {

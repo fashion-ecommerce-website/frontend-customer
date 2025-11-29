@@ -32,6 +32,7 @@ const wishlistSlice = createSlice({
     toggleWishlistRequest(state, _action: PayloadAction<number>) {
       state.loading = true;
       state.error = null;
+      // _action is intentionally unused but required for Redux Toolkit action creator
     },
     toggleWishlistFailure(state, action: PayloadAction<string>) {
       state.loading = false;
@@ -65,9 +66,9 @@ export const {
 
 export const wishlistReducer = wishlistSlice.reducer;
 
-export const selectWishlistState = (state: any) => state.wishlist as WishlistState;
-export const selectWishlistItems = (state: any) => (state.wishlist as WishlistState).items;
-export const selectWishlistLoading = (state: any) => (state.wishlist as WishlistState).loading;
-export const selectWishlistError = (state: any) => (state.wishlist as WishlistState).error;
+export const selectWishlistState = (state: { wishlist: WishlistState }) => state.wishlist;
+export const selectWishlistItems = (state: { wishlist: WishlistState }) => state.wishlist.items;
+export const selectWishlistLoading = (state: { wishlist: WishlistState }) => state.wishlist.loading;
+export const selectWishlistError = (state: { wishlist: WishlistState }) => state.wishlist.error;
 
 

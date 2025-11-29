@@ -63,7 +63,7 @@ const reviewSlice = createSlice({
     },
 
     // Update review
-    updateReviewRequest: (state, action: PayloadAction<{ reviewId: string; data: ReviewFormData }>) => {
+    updateReviewRequest: (state, _action: PayloadAction<{ reviewId: string; data: ReviewFormData }>) => {
       state.isSubmitting = true;
       state.error = null;
     },
@@ -82,7 +82,7 @@ const reviewSlice = createSlice({
     },
 
     // Delete review
-    deleteReviewRequest: (state, action: PayloadAction<string>) => {
+    deleteReviewRequest: (state, _action: PayloadAction<string>) => {
       state.isSubmitting = true;
       state.error = null;
     },

@@ -1,26 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Address } from '@/services/api/addressApi';
 import { ghnApi, GHNProvince, GHNDistrict, GHNWard } from '@/services/api/ghnApi';
-
-interface Address {
-  id?: number;
-  userId?: number;
-  fullName: string;
-  phone: string;
-  line: string;
-  ward: string;
-  city: string;
-  countryCode: string;
-  isDefault?: boolean;
-  default?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  // GHN Integration fields
-  provinceId?: number;
-  districtId?: number;
-  wardCode?: string;
-}
 
 interface AddressModalProps {
   isOpen: boolean;

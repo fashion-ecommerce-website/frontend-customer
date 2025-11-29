@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/rootReducer';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
@@ -22,11 +20,11 @@ import {
 export function ProductDetailContainer({ productId }: ProductDetailProps) {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const { product, isLoading, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
+  const { product, error, selectedColor, selectedSize, isColorLoading } = useAppSelector(
     (state) => state.productDetail
   );
-  const wishlistItems = useAppSelector((state) => selectWishlistItems(state as any));
-  const { showSuccess, showError } = useToast();
+  const wishlistItems = useAppSelector((state) => selectWishlistItems(state));
+  const { showSuccess } = useToast();
 
   // Handle color change with Redux action
   const handleColorChange = async (color: string) => {
