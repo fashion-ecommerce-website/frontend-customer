@@ -94,7 +94,6 @@ export function OrderSummary({
 	// Calculate totals from products with promotion support
 	const orderTotals = calculateOrderTotals(products);
 	const subtotal = orderTotals.subtotal;
-	const promotionDiscount = orderTotals.promotionDiscount;
 	
 	const computeVoucherDiscount = (voucher: Voucher | null): number => {
 		if (!voucher) return 0;

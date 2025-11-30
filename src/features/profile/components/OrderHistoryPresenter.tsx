@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Order, PaginatedResponse } from '@/features/order/types';
 import { useEnums } from '@/hooks/useEnums';
 import { Pagination } from '@/features/filter-product/components/Pagination';
@@ -225,9 +226,11 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   {order.orderDetails.map(detail => (
                     <div key={detail.id} className="flex gap-2">
                       <div className="w-16 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
-                        <img 
+                        <Image 
                           src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
                           alt={detail.title} 
+                          width={64}
+                          height={80}
                           className="w-full h-full object-cover" 
                         />
                       </div>
@@ -259,9 +262,11 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   {order.orderDetails.map(detail => (
                     <div key={detail.id} className="flex gap-4">
                       <div className="w-20 xl:w-24 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
-                        <img 
+                        <Image 
                           src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
                           alt={detail.title} 
+                          width={96}
+                          height={120}
                           className="w-full h-full object-cover" 
                         />
                       </div>

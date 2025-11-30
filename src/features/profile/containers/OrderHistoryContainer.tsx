@@ -14,7 +14,7 @@ export const OrderHistoryContainer: React.FC<{
   onTrack?: (order: Order) => void,
   onPayAgain?: (paymentId: number, orderId: number) => void
 }> = ({ onOpenDetail, onTrack, onPayAgain }) => {
-  const { orders, loading, error, pagination, currentQuery, fetchOrders } = useOrders();
+  const { orders, loading, error, pagination, fetchOrders } = useOrders();
   const user = useAppSelector(selectUser);
   const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
   const [query, setQuery] = useState<OrderQueryParams>({
@@ -24,14 +24,22 @@ export const OrderHistoryContainer: React.FC<{
     page: 0,
     size: 10
   });
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
-      const queryWithUserId = { ...query, userId: Number(user.id) };
+    if (user?.id && !initialized) {
+      const queryWithUserId = {
+        userId: Number(user.id),
+        sortBy: 'createdAt' as const,
+        direction: 'desc' as const,
+        page: 0,
+        size: 10
+      };
       setQuery(queryWithUserId);
       fetchOrders(queryWithUserId);
+      setInitialized(true);
     }
-  }, [user?.id]);
+  }, [user?.id, initialized, fetchOrders]);
 
   // Fetch product images when orders change
   useEffect(() => {
@@ -84,12 +92,6 @@ export const OrderHistoryContainer: React.FC<{
     fetchOrders(updatedQuery);
   };
 
-  const handleApplyFilters = () => {
-    const newQuery = { ...query, page: 0, userId: user?.id ? Number(user.id) : undefined };
-    setQuery(newQuery);
-    fetchOrders(newQuery);
-  };
-
   return (
     <div className="px-2 sm:px-4">
       {/* Header */}
@@ -103,8 +105,6 @@ export const OrderHistoryContainer: React.FC<{
           <OrderFilters
             query={query}
             onQueryChange={handleQueryChange}
-            onApplyFilters={handleApplyFilters}
-            loading={loading}
           />
         </div>
         
@@ -113,8 +113,6 @@ export const OrderHistoryContainer: React.FC<{
           <OrderFilters
             query={query}
             onQueryChange={handleQueryChange}
-            onApplyFilters={handleApplyFilters}
-            loading={loading}
           />
         </div>
       </div>

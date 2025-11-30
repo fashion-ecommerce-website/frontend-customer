@@ -5,47 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.hstatic.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'product.hstatic.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'file.hstatic.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.svgrepo.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.vectorlogo.zone',
-      },
-      {
-        protocol: 'https',
-        hostname: 'api.dicebear.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'static.vecteezy.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'example.com',
+        hostname: '**', // Allow all HTTPS domains (for development)
       },
     ],
     dangerouslyAllowSVG: true,

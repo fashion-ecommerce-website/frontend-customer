@@ -12,7 +12,6 @@ import {
   createAddressRequest,
   updateAddressRequest,
   deleteAddressRequest,
-  setDefaultAddressRequest,
   setCurrentAddress,
   clearError,
   clearCreateError,
@@ -159,13 +158,6 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
     setAddressToDelete(addressId);
     setShowDeleteConfirm(true);
   }, []);
-
-  // Handle set default address
-  const handleSetDefaultAddress = useCallback((addressId: number) => {
-    if (addressId) {
-      dispatch(setDefaultAddressRequest(addressId));
-    }
-  }, [dispatch]);
 
   // Handle modal close
   const handleModalClose = useCallback(() => {

@@ -55,17 +55,17 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
   };
 
   // Check if voucher is expired
-  const isExpired = (expiresAt: string) => {
+  const isExpired = React.useCallback((expiresAt: string) => {
     if (!expiresAt) return false;
     return new Date(expiresAt) < new Date();
-  };
+  }, []);
 
   // Check if voucher is available
-  const isAvailable = (voucher: Voucher) => {
+  const isAvailable = React.useCallback((voucher: Voucher) => {
     if (voucher.available === false) return false;
     if (isExpired(voucher.expiresAt || '')) return false;
     return true;
-  };
+  }, [isExpired]);
 
   // Get discount display text
   const getDiscountText = (voucher: Voucher) => {
@@ -108,7 +108,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
     }
 
     return filtered;
-  }, [vouchers, searchTerm, filterStatus, isAvailable]);
+  }, [vouchers, searchTerm, filterStatus, isAvailable, isExpired]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredVouchers.length / itemsPerPage);
@@ -148,7 +148,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No vouchers available</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            You don't have any vouchers yet. Check back later for new promotions and special offers!
+            You don&apos;t have any vouchers yet. Check back later for new promotions and special offers!
           </p>
           <button
             onClick={onRefresh}

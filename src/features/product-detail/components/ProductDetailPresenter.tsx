@@ -39,27 +39,14 @@ export function ProductDetailPresenter({
   wishlistBusy,
   onToggleWishlist,
 }: ProductDetailPresenterProps) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   useRouter();
   const [isInWishlistLocal, setIsInWishlistLocal] = useState(false);
 
-  const handleImageTransition = (newIndex: number) => {
-    if (newIndex === selectedImageIndex || isTransitioning) return;
 
-    setIsTransitioning(true);
-
-    setTimeout(() => {
-      setSelectedImageIndex(newIndex);
-      setIsTransitioning(false);
-    }, 250);
-  };
 
   // Handle color change with API call
   const handleColorChange = async (color: string) => {
     if (isLoading || color === selectedColor) return;
-
-    setSelectedImageIndex(0); // Reset to first image
 
     try {
       if (onColorChange) {
@@ -70,11 +57,6 @@ export function ProductDetailPresenter({
       console.error('Error loading color variant:', error);
     }
   };
-
-  // Reset image index when product changes
-  useEffect(() => {
-    setSelectedImageIndex(0);
-  }, [product.detailId, selectedColor]);
 
   // Mirror isInWishlist prop to local state for immediate UI response
   useEffect(() => {

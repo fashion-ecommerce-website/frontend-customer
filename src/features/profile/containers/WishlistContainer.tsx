@@ -80,7 +80,7 @@ export const WishlistContainer: React.FC = () => {
 
   const handleCancelConfirm = () => setConfirmConfig(null);
 
-  const handleProductClick = (detailId: number, _slug?: string) => {
+  const handleProductClick = (detailId: number) => {
     router.push(`/products/${detailId}`);
   };
 

@@ -29,10 +29,11 @@ const wishlistSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    toggleWishlistRequest(state, _action: PayloadAction<number>) {
+    toggleWishlistRequest(state, action: PayloadAction<number>) {
       state.loading = true;
       state.error = null;
-      // _action is intentionally unused but required for Redux Toolkit action creator
+      // action.payload is used by saga, not in reducer
+      void action;
     },
     toggleWishlistFailure(state, action: PayloadAction<string>) {
       state.loading = false;

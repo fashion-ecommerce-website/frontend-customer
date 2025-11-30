@@ -119,7 +119,7 @@ export const useShippingFee = (address: AddressData) => {
     };
 
     calculateFee();
-  }, [addressKey]);
+  }, [addressKey, address]);
 
   return shippingFee;
 };

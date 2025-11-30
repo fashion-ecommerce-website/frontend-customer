@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -40,7 +41,7 @@ export const OrderTrackingContainer: React.FC<OrderTrackingContainerProps> = ({ 
           setError(null);
         }
       })
-      .catch((e: any) => {
+      .catch(() => {
         if (cancelled) return;
         const now = new Date();
         const mock: GHNTrackingEvent[] = [

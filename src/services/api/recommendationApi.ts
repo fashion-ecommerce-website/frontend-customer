@@ -27,6 +27,13 @@ export interface RecommendationProduct {
     categorySlug: string;
 }
 
+// Chatbot response interface
+export interface ChatbotResponse {
+    message?: string;
+    recommendations?: RecommendationProduct[];
+    [key: string]: unknown;
+}
+
 // Recommendation API endpoints
 const RECOMMENDATION_ENDPOINTS = {
     GET_FOR_YOU: '/recommendations/for-you',
@@ -76,8 +83,8 @@ export class RecommendationApiService {
      * Get recommendations based on natural language chat message
      * URL: /api/chatbot/chat
      */
-    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<any>> {
-        return apiClient.post<any>(RECOMMENDATION_ENDPOINTS.CHAT, data);
+    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<ChatbotResponse>> {
+        return apiClient.post<ChatbotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, data);
     }
 }
 

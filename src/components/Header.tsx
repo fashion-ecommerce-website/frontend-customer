@@ -10,7 +10,6 @@ import { PromotionalBanner } from "./PromotionalBanner";
 import { useCategories } from '@/hooks/useCategories';
 
 export const Header: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
