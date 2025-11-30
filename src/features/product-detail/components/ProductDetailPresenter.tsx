@@ -6,11 +6,11 @@ import {
   ProductImageGallery,
   ProductInfo,
   ProductTabs,
-  RelatedProducts,
   ProductDetailRecentlyViewed,
-  ReviewsSection,
   SimilarProducts,
 } from '.';
+import { YouMayAlsoLikeContainer } from '../containers/YouMayAlsoLikeContainer';
+import { ReviewsContainer } from '../containers/ReviewsContainer';
 import { useRouter } from 'next/navigation';
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo';
 
@@ -148,13 +148,14 @@ export function ProductDetailPresenter({
       </div>
 
       {/* Reviews Section */}
-      <ReviewsSection productDetailId={product.detailId} />
+      <ReviewsContainer productDetailId={product.detailId} />
 
       {/* Similar Products */}
       <SimilarProducts categorySlug={product.categorySlug} currentProductId={product.detailId} currentPrice={product.price} />
 
-      {/* Related Products */}
-      <RelatedProducts productId={product.productId} />
+      {/* You May Also Like (ML-based recommendations) */}
+      <YouMayAlsoLikeContainer productId={product.productId} />
+      
       {/* Recently Viewed Products */}
       <ProductDetailRecentlyViewed />
 

@@ -4,7 +4,7 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Review, ReviewFormData, ApiError } from '../types/profile.types';
+import { Review, ApiError } from '../types/profile.types';
 
 export interface ReviewState {
   reviews: Review[];
