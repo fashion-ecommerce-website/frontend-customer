@@ -10,14 +10,13 @@ import { PromotionalBanner } from "./PromotionalBanner";
 import { useCategories } from '@/hooks/useCategories';
 
 export const Header: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
   const router = useRouter();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
 
   // Get authentication state from custom hook
   const { isAuthenticated, user, logout } = useAuth();
@@ -87,18 +86,6 @@ export const Header: React.FC = () => {
   }, [isMenuOpen]);
 
   // categories are loaded by useCategories hook
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Navigate to search results page
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
-  const handleSearchClear = () => {
-    setSearchQuery("");
-  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

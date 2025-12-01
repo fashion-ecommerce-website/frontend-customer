@@ -1,26 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Address } from '@/services/api/addressApi';
 import { ghnApi, GHNProvince, GHNDistrict, GHNWard } from '@/services/api/ghnApi';
-
-interface Address {
-  id?: number;
-  userId?: number;
-  fullName: string;
-  phone: string;
-  line: string;
-  ward: string;
-  city: string;
-  countryCode: string;
-  isDefault?: boolean;
-  default?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  // GHN Integration fields
-  provinceId?: number;
-  districtId?: number;
-  wardCode?: string;
-}
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -203,7 +185,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load provinces');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load provinces');
     } finally {
       setLoading(prev => ({ ...prev, provinces: false }));
@@ -221,7 +203,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load districts');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load districts');
     } finally {
       setLoading(prev => ({ ...prev, districts: false }));
@@ -239,26 +221,11 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load wards');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load wards');
     } finally {
       setLoading(prev => ({ ...prev, wards: false }));
     }
-  };
-
-  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedProvince(value ? parseInt(value) : null);
-  };
-
-  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedDistrict(value ? parseInt(value) : null);
-  };
-
-  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedWard(value || null);
   };
 
   // Custom dropdown handlers

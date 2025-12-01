@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppSelector } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { ProductDetail } from '@/services/api/productApi';
-import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useRouter } from 'next/navigation';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
 interface ProductInfoProps {
@@ -45,61 +44,8 @@ export function ProductInfo({
   })();
   const [addingToCart, setAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [isInWishlist, setIsInWishlist] = useState(false);
-  const [wishlistBusy, setWishlistBusy] = useState(false);
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + '₫';
-  };
 
-  // Initialize wishlist state for this product
-  useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      try {
-        const res = await wishlistApiService.getWishlist();
-        if (mounted && res.success && res.data) {
-          // Debug: log current wishlist ids
-          // console.debug('Wishlist get success', res.data.map(i => i.detailId));
-          setIsInWishlist(res.data.some(item => item.detailId === product.detailId));
-        }
-      } catch {
-        // ignore initial load errors for wishlist state
-      }
-    };
-    if (isAuthenticated) init(); else setIsInWishlist(false);
-    return () => { mounted = false; };
-  }, [isAuthenticated, product.detailId]);
 
-  const handleToggleWishlist = useCallback(async () => {
-    if (!isAuthenticated) {
-      router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
-      return;
-    }
-    if (wishlistBusy) return;
-    setWishlistBusy(true);
-    try {
-      // Optimistic update
-      setIsInWishlist(prev => !prev);
-      const res = await wishlistApiService.toggle(product.detailId);
-      if (!res.success) {
-        // revert if failed
-        setIsInWishlist(prev => !prev);
-      } else {
-        // confirm by refetching current wishlist state
-        const current = await wishlistApiService.getWishlist();
-        if (current.success && current.data) {
-          const exists = current.data.some(item => item.detailId === product.detailId);
-          setIsInWishlist(exists);
-        }
-      }
-    } catch (e) {
-      // revert on error
-      setIsInWishlist(prev => !prev);
-      // console.error('Toggle wishlist failed', e);
-    } finally {
-      setWishlistBusy(false);
-    }
-  }, [isAuthenticated, product.detailId, isInWishlist, wishlistBusy, router]);
 
   const handleAddToCart = async () => {
     if (!selectedSize) {
@@ -132,7 +78,7 @@ export function ProductInfo({
         console.error('Failed to record ADD_TO_CART interaction:', error);
         // Fail silently
       }
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
       setAddingToCart(false);
     }

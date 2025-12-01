@@ -79,7 +79,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 <p className="text-xs md:text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">Notes:</strong></p>
                 <ul className="list-disc pl-6 md:pl-8 py-2 md:py-2.5 space-y-2 md:space-y-3 text-xs md:text-sm leading-5 text-[#202846]">
                   <li>
-                    <p className="text-[#202846]">Not applicable to products discounted by 30% or more or products purchased directly at Maison's retail stores.</p>
+                    <p className="text-[#202846]">Not applicable to products discounted by 30% or more or products purchased directly at Maison&apos;s retail stores.</p>
                   </li>
                   <li>
                     <p className="text-[#202846]">For orders using promotional programs, only product exchanges and coupon refunds are allowed — no cash refunds.</p>

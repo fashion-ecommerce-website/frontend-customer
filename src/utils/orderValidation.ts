@@ -59,7 +59,7 @@ export const validateAddressForOrder = (address: Address | null): OrderValidatio
  */
 export const validateOrderData = (orderData: {
   shippingAddressId?: number;
-  products: any[];
+  products: unknown[];
   subtotalAmount: number;
   totalAmount: number;
 }): OrderValidationResult => {

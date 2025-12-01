@@ -4,7 +4,7 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Review, ReviewFormData, ApiError } from '../types/profile.types';
+import { Review, ApiError } from '../types/profile.types';
 
 export interface ReviewState {
   reviews: Review[];
@@ -63,7 +63,7 @@ const reviewSlice = createSlice({
     },
 
     // Update review
-    updateReviewRequest: (state, action: PayloadAction<{ reviewId: string; data: ReviewFormData }>) => {
+    updateReviewRequest: (state) => {
       state.isSubmitting = true;
       state.error = null;
     },
@@ -82,7 +82,7 @@ const reviewSlice = createSlice({
     },
 
     // Delete review
-    deleteReviewRequest: (state, action: PayloadAction<string>) => {
+    deleteReviewRequest: (state) => {
       state.isSubmitting = true;
       state.error = null;
     },

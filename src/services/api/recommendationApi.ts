@@ -28,6 +28,13 @@ export interface RecommendationProduct {
     categorySlug: string;
 }
 
+// Chatbot response interface
+export interface ChatbotResponse {
+    message?: string;
+    recommendations?: RecommendationProduct[];
+    [key: string]: unknown;
+}
+
 // Recommendation API endpoints
 const RECOMMENDATION_ENDPOINTS = {
     GET_FOR_YOU: '/recommendations/for-you',

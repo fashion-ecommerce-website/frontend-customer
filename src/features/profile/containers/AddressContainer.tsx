@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
-import { AddressSection } from '../components/AddressSection';
+import { AddressPresenter } from '../components/AddressPresenter';
 import { AddressModal } from '../components/AddressModal';
 import { ConfirmModal } from '../../../components/modals/ConfirmModal';
 import { useToast } from '../../../providers/ToastProvider';
@@ -12,12 +12,10 @@ import {
   createAddressRequest,
   updateAddressRequest,
   deleteAddressRequest,
-  setDefaultAddressRequest,
   setCurrentAddress,
   clearError,
   clearCreateError,
   clearUpdateError,
-  clearDeleteError,
   clearSuccess,
   selectAddresses,
   selectCurrentAddress,
@@ -161,13 +159,6 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
     setShowDeleteConfirm(true);
   }, []);
 
-  // Handle set default address
-  const handleSetDefaultAddress = useCallback((addressId: number) => {
-    if (addressId) {
-      dispatch(setDefaultAddressRequest(addressId));
-    }
-  }, [dispatch]);
-
   // Handle modal close
   const handleModalClose = useCallback(() => {
     setShowModal(false);
@@ -224,14 +215,13 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
 
   return (
     <>
-      <AddressSection
+      <AddressPresenter
         addresses={addresses}
         isLoading={isLoading}
         error={error}
         onAddAddress={handleAddAddress}
         onUpdateAddress={handleUpdateAddress}
         onDeleteAddress={handleDeleteAddress}
-        onSetDefaultAddress={handleSetDefaultAddress}
         onClearError={handleClearError}
       />
       

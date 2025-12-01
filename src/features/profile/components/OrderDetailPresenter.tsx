@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Order, PaymentMethod } from '@/features/order/types';
 import { useEnums } from '@/hooks/useEnums';
@@ -39,11 +40,13 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
           <div className="space-y-6">
             {order.orderDetails.map(item => (
               <div key={item.id} className="flex gap-4">
-                <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                  <img 
+                <div className="relative w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
+                  <Image 
                     src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} 
                     alt={item.title} 
-                    className="w-full h-full object-cover" 
+                    fill
+                    sizes="96px"
+                    className="object-cover" 
                   />
                 </div>
                 <div className="flex-1">

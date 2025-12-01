@@ -1,6 +1,6 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
-import { Review, ReviewFormData } from '../../features/profile/types/profile.types';
+import { ReviewFormData } from '../../features/profile/types/profile.types';
 import { productApiService } from './productApi';
 
 export interface ReviewItem {

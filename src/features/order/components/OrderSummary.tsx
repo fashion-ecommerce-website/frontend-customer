@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ShippingFeeData } from '@/features/order/hooks/useShippingFee';
 import { mockOrderProducts, calculateOrderTotals } from '@/features/order/mockData';
@@ -55,30 +56,22 @@ export function OrderSummary({
 		orderError,
 		order,
 	} = useOrder();
-	const dispatch = useAppDispatch();
+	useAppDispatch();
 
 	const [vouchers, setVouchers] = React.useState<Voucher[]>([]);
-	const [isLoadingVouchers, setIsLoadingVouchers] = React.useState(false);
-	const [voucherError, setVoucherError] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
 		let cancelled = false;
-		setIsLoadingVouchers(true);
-		setVoucherError(null);
 		voucherApi.getVouchersByUser()
 			.then(res => {
 				if (cancelled) return;
 				if (res.success && Array.isArray(res.data)) {
 					setVouchers(res.data as Voucher[]);
-				} else {
-					setVoucherError(res.message || 'Failed to load vouchers');
 				}
 			})
-			.catch(err => {
-				if (cancelled) return;
-				setVoucherError(err?.message || 'Failed to load vouchers');
-			})
-			.finally(() => { if (!cancelled) setIsLoadingVouchers(false); });
+			.catch(() => {
+				// Error handling can be added here if needed
+			});
 		return () => { cancelled = true; };
 	}, []);
 
@@ -101,7 +94,6 @@ export function OrderSummary({
 	// Calculate totals from products with promotion support
 	const orderTotals = calculateOrderTotals(products);
 	const subtotal = orderTotals.subtotal;
-	const promotionDiscount = orderTotals.promotionDiscount;
 	
 	const computeVoucherDiscount = (voucher: Voucher | null): number => {
 		if (!voucher) return 0;
@@ -113,7 +105,6 @@ export function OrderSummary({
 		return Math.min(byPercent, subtotal);
 	};
 	const voucherDiscount = computeVoucherDiscount(selectedVoucher);
-	const totalDiscount = promotionDiscount + voucherDiscount;
 	const total = Math.max(0, subtotal - voucherDiscount) + (shippingFee?.fee || 0);
 
 	const formatPrice = (price: number) => {
@@ -262,11 +253,13 @@ export function OrderSummary({
 					<div className="flex flex-col gap-4">
 						{products.map((product) => (
 							<div key={product.detailId} className="flex gap-3">
-								<div className="h-24 w-24 shrink-0 rounded-lg bg-white overflow-hidden">
-									<img
+								<div className="h-24 w-24 shrink-0 rounded-lg bg-white overflow-hidden relative">
+									<Image
 										alt={product.productTitle}
 										src={product.imageUrls[0] || "https://placehold.co/100x100"}
 										className="h-full w-full object-cover"
+										fill
+										sizes="96px"
 									/>
 								</div>
 								<div className="flex-1">

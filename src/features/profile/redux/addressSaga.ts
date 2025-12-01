@@ -25,7 +25,7 @@ const effects = require('redux-saga/effects');
 const { call, put, takeLatest } = effects;
 
 // Worker saga: Get addresses
-function* getAddressesSaga(): Generator<any, void, any> {
+function* getAddressesSaga(): Generator {
   try {
     console.log('AddressSaga: Starting getAddresses request...');
     const response: ApiResponse<Address[]> = yield call(addressApi.getAddresses);
@@ -42,18 +42,18 @@ function* getAddressesSaga(): Generator<any, void, any> {
       };
       yield put(getAddressesFailure(error));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AddressSaga: Exception caught:', error);
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      message: error instanceof Error ? error.message : 'Network error occurred',
+      status: (error as { status?: number }).status || 500,
     };
     yield put(getAddressesFailure(apiError));
   }
 }
 
 // Worker saga: Create address
-function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Generator<any, void, any> {
+function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Generator {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.createAddress, action.payload);
     
@@ -68,17 +68,17 @@ function* createAddressSaga(action: PayloadAction<CreateAddressRequest>): Genera
       };
       yield put(createAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      message: error instanceof Error ? error.message : 'Network error occurred',
+      status: (error as { status?: number }).status || 500,
     };
     yield put(createAddressFailure(apiError));
   }
 }
 
 // Worker saga: Update address
-function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Generator<any, void, any> {
+function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Generator {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.updateAddress, action.payload);
     
@@ -93,17 +93,17 @@ function* updateAddressSaga(action: PayloadAction<UpdateAddressRequest>): Genera
       };
       yield put(updateAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      message: error instanceof Error ? error.message : 'Network error occurred',
+      status: (error as { status?: number }).status || 500,
     };
     yield put(updateAddressFailure(apiError));
   }
 }
 
 // Worker saga: Delete address
-function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
+function* deleteAddressSaga(action: PayloadAction<number>): Generator {
   try {
     const response: ApiResponse<void> = yield call(addressApi.deleteAddress, action.payload);
     
@@ -116,17 +116,17 @@ function* deleteAddressSaga(action: PayloadAction<number>): Generator<any, void,
       };
       yield put(deleteAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      message: error instanceof Error ? error.message : 'Network error occurred',
+      status: (error as { status?: number }).status || 500,
     };
     yield put(deleteAddressFailure(apiError));
   }
 }
 
 // Worker saga: Set default address
-function* setDefaultAddressSaga(action: PayloadAction<number>): Generator<any, void, any> {
+function* setDefaultAddressSaga(action: PayloadAction<number>): Generator {
   try {
     const response: ApiResponse<Address> = yield call(addressApi.setDefaultAddress, action.payload);
     
@@ -141,17 +141,17 @@ function* setDefaultAddressSaga(action: PayloadAction<number>): Generator<any, v
       };
       yield put(setDefaultAddressFailure(error));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const apiError: ApiError = {
-      message: error.message || 'Network error occurred',
-      status: error.status || 500,
+      message: error instanceof Error ? error.message : 'Network error occurred',
+      status: (error as { status?: number }).status || 500,
     };
     yield put(setDefaultAddressFailure(apiError));
   }
 }
 
 // Watcher saga
-export function* addressSaga(): Generator<any, void, any> {
+export function* addressSaga(): Generator {
   yield takeLatest(getAddressesRequest.type, getAddressesSaga);
   yield takeLatest(createAddressRequest.type, createAddressSaga);
   yield takeLatest(updateAddressRequest.type, updateAddressSaga);

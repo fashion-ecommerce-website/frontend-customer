@@ -1,21 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-
-interface Address {
-  id?: number;
-  userId?: number;
-  fullName: string;
-  phone: string;
-  line: string;
-  ward: string;
-  city: string;
-  countryCode: string;
-  isDefault?: boolean;
-  default?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import React from 'react';
+import { Address } from '@/services/api/addressApi';
 
 interface AddressSectionProps {
   addresses?: Address[];
@@ -24,18 +10,16 @@ interface AddressSectionProps {
   onAddAddress?: () => void;
   onUpdateAddress?: (address: Address) => void;
   onDeleteAddress?: (addressId: number) => void;
-  onSetDefaultAddress?: (addressId: number) => void;
   onClearError?: () => void;
 }
 
-export const AddressSection: React.FC<AddressSectionProps> = ({
+export const AddressPresenter: React.FC<AddressSectionProps> = ({
   addresses = [],
   isLoading = false,
   error = null,
   onAddAddress,
   onUpdateAddress,
   onDeleteAddress,
-  onSetDefaultAddress,
   onClearError,
 }) => {
   const handleUpdateClick = (address: Address) => {

@@ -5,23 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.hstatic.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'product.hstatic.net',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        hostname: '**', // Allow all HTTPS domains (for development)
       },
     ],
     dangerouslyAllowSVG: true,

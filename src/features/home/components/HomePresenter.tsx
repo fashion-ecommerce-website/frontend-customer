@@ -9,7 +9,7 @@ import { Banner } from './Banner';
 import { NewsletterSignup } from './NewsletterSignup';
 import { ProductSection } from './ProductSection';
 import { RankingSection } from './RankingSection';
-import { RecommendSection } from './RecommendSection';
+import { RecommendContainer } from '../containers/RecommendContainer';
 
 export const HomePresenter: React.FC<HomePresenterProps> = ({
   banners,
@@ -69,7 +69,7 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
             />
 
             {/* Recommend For You Section */}
-            <RecommendSection />
+            <RecommendContainer />
 
             {/* Ranking Section */}
             <RankingSection />

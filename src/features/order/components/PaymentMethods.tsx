@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { PaymentMethod } from '../types';
 import { useOrder } from '../hooks/useOrder';
 
@@ -23,11 +24,13 @@ export function PaymentMethods(): React.ReactElement {
             className="h-4 w-4" 
           />
           <div className="flex-1 flex items-center gap-3">
-            <div className="h-10 w-10 flex items-center justify-center">
-              <img
+            <div className="h-10 w-10 flex items-center justify-center relative">
+              <Image
                 src="https://www.vectorlogo.zone/logos/stripe/stripe-ar21.svg"
                 alt="Stripe"
                 className="h-6 object-contain"
+                width={40}
+                height={24}
               />
             </div>
             <div className="flex-1">

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Icon components for social media
 const getSocialIcon = (platform: string, className: string) => {
@@ -20,7 +21,7 @@ const getSocialIcon = (platform: string, className: string) => {
       );
     case 'instagram':
       return (
-        <img src="https://www.svgrepo.com/show/506668/instagram.svg" alt="Instagram" className={className} />
+        <Image src="https://www.svgrepo.com/show/506668/instagram.svg" alt="Instagram" className={className} width={20} height={20} />
       );
     default:
       return null;
@@ -52,7 +53,7 @@ const getPaymentIcon = (method: string, className: string) => {
     case 'paypal':
       return (
         <div className={`${className} bg-white border border-gray-300 rounded flex items-center justify-center`}>
-          <img src="https://www.vectorlogo.zone/logos/stripe/stripe-ar21~bgwhite.svg" alt="Stripe" className="w-full h-full object-contain" />
+          <Image src="https://www.vectorlogo.zone/logos/stripe/stripe-ar21~bgwhite.svg" alt="Stripe" className="w-full h-full object-contain" width={56} height={36} />
         </div>
       );
     case 'apple-pay':

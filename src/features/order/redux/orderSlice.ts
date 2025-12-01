@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Address } from '@/services/api/addressApi';
-import { Order, CreateOrderRequest, PaymentMethod, PaginatedResponse, OrderQueryParams } from '../types';
+import { Order, PaymentMethod, PaginatedResponse, OrderQueryParams } from '../types';
 import { ProductItem } from '@/services/api/productApi';
 
 // State interface
@@ -96,7 +96,7 @@ const orderSlice = createSlice({
       state.selectedAddress = action.payload;
     },
 
-    createAddressRequest: (state, action: PayloadAction<Address>) => {
+    createAddressRequest: (state) => {
       state.isAddressLoading = true;
       state.addressError = null;
     },
@@ -111,7 +111,7 @@ const orderSlice = createSlice({
       state.addressError = action.payload;
     },
 
-    updateAddressRequest: (state, action: PayloadAction<Address>) => {
+    updateAddressRequest: (state) => {
       state.isAddressLoading = true;
       state.addressError = null;
     },
@@ -131,7 +131,7 @@ const orderSlice = createSlice({
       state.addressError = action.payload;
     },
 
-    deleteAddressRequest: (state, action: PayloadAction<number>) => {
+    deleteAddressRequest: (state) => {
       state.isAddressLoading = true;
       state.addressError = null;
     },
@@ -149,7 +149,7 @@ const orderSlice = createSlice({
     },
 
     // Order actions
-    createOrderRequest: (state, action: PayloadAction<CreateOrderRequest>) => {
+    createOrderRequest: (state) => {
       state.isOrderLoading = true;
       state.orderError = null;
     },

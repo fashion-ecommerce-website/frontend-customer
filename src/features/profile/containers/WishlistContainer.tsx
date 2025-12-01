@@ -20,7 +20,7 @@ export const WishlistContainer: React.FC = () => {
   const items = useAppSelector(selectWishlistItems);
   const loading = useAppSelector(selectWishlistLoading);
   const error = useAppSelector(selectWishlistError);
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     dispatch(fetchWishlistRequest());
@@ -47,6 +47,12 @@ export const WishlistContainer: React.FC = () => {
   };
 
   const handleClearClick = () => {
+    // Check if there are any items to remove
+    if (items.length === 0) {
+      showError("Don't have any item to remove.");
+      return;
+    }
+
     const hasSelection = editMode && selected.length > 0;
     const count = hasSelection ? selected.length : items.length;
     const message = hasSelection
@@ -74,7 +80,7 @@ export const WishlistContainer: React.FC = () => {
 
   const handleCancelConfirm = () => setConfirmConfig(null);
 
-  const handleProductClick = (detailId: number, slug?: string) => {
+  const handleProductClick = (detailId: number) => {
     router.push(`/products/${detailId}`);
   };
 
