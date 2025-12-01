@@ -199,11 +199,8 @@ export const ChatBot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Call recommendation API
-      const response =
-        await recommendationApiService.getCombinedMessageRecommendations({
-          message: textToSend,
-        });
+      // Call chatbot API
+      const response = await recommendationApiService.chat(textToSend);
 
       if (response.success && response.data) {
         // Add assistant response

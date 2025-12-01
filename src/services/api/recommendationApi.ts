@@ -1,5 +1,6 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
+import { ChatBotResponse } from '../../types/recommendation.types';
 
 // Action Type Enum - matches backend enum
 export enum ActionType {
@@ -78,13 +79,13 @@ export class RecommendationApiService {
             count,
         });
     }
-
     /**
-     * Get recommendations based on natural language chat message
-     * URL: /api/chatbot/chat
+     * Send message to chatbot
+     * URL: POST /api/chatbot/chat
+     * Payload: { message: string }
      */
-    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<ChatbotResponse>> {
-        return apiClient.post<ChatbotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, data);
+    async chat(message: string): Promise<ApiResponse<ChatBotResponse>> {
+        return apiClient.post<ChatBotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, { message });
     }
 }
 
@@ -97,5 +98,5 @@ export const recommendationApi = {
     getSimilarItems: (itemId: number, limit?: number) => recommendationApiService.getSimilarItems(itemId, limit),
     recordInteraction: (productId: number, actionType: ActionType, count?: number) =>
         recommendationApiService.recordInteraction(productId, actionType, count),
-    getCombinedMessageRecommendations: (data: { message: string }) => recommendationApiService.getCombinedMessageRecommendations(data),
+    chat: (message: string) => recommendationApiService.chat(message),
 };

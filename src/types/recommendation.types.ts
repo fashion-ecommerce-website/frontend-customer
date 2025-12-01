@@ -1,12 +1,3 @@
-/**
- * Recommendation API Types
- * Updated to match backend DTOs for combined-messages endpoint
- */
-
-export interface CombinedMessageRecommendationRequest {
-  message: string;
-}
-
 export interface ProductRecommendationResponse {
   objectId: number;
   title: string;
@@ -18,8 +9,14 @@ export interface ProductRecommendationResponse {
   quantity: number;
 }
 
-export interface NaturalLanguageRecommendationResponse {
-  type: string;
+export enum RecommendationType {
+  PRODUCT = 'PRODUCT',
+  GENERAL = 'GENERAL',
+  ERROR = 'ERROR'
+}
+
+export interface ChatBotResponse {
+  type: RecommendationType;
   message: string;
   recommendations: ProductRecommendationResponse[];
 }
