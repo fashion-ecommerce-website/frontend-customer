@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Address } from '@/services/api/addressApi';
-import { Order, PaymentMethod, PaginatedResponse, OrderQueryParams } from '../types';
+import { Address, CreateAddressRequest, UpdateAddressRequest } from '@/services/api/addressApi';
+import { Order, PaymentMethod, PaginatedResponse, OrderQueryParams, CreateOrderRequest } from '../types';
 import { ProductItem } from '@/services/api/productApi';
 
 // State interface
@@ -96,7 +96,8 @@ const orderSlice = createSlice({
       state.selectedAddress = action.payload;
     },
 
-    createAddressRequest: (state) => {
+    createAddressRequest: (state, _: PayloadAction<CreateAddressRequest>) => {
+      void _;
       state.isAddressLoading = true;
       state.addressError = null;
     },
@@ -111,7 +112,8 @@ const orderSlice = createSlice({
       state.addressError = action.payload;
     },
 
-    updateAddressRequest: (state) => {
+    updateAddressRequest: (state, _: PayloadAction<UpdateAddressRequest>) => {
+      void _;
       state.isAddressLoading = true;
       state.addressError = null;
     },
@@ -131,7 +133,8 @@ const orderSlice = createSlice({
       state.addressError = action.payload;
     },
 
-    deleteAddressRequest: (state) => {
+    deleteAddressRequest: (state, _: PayloadAction<number>) => {
+      void _;
       state.isAddressLoading = true;
       state.addressError = null;
     },
@@ -149,7 +152,8 @@ const orderSlice = createSlice({
     },
 
     // Order actions
-    createOrderRequest: (state) => {
+    createOrderRequest: (state, _: PayloadAction<CreateOrderRequest>) => {
+      void _;
       state.isOrderLoading = true;
       state.orderError = null;
     },
