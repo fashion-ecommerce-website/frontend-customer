@@ -1,9 +1,3 @@
-/**
- * Profile feature types
- * All types related to profile functionality
- */
-
-// Base types
 export interface User {
   id: string; // Changed from number to string to match LoginUser
   email: string;
@@ -61,10 +55,6 @@ export interface UpdateProfileRequest {
   username?: string;
   dob?: string; // Date of birth in DD/MM/YYYY format (e.g., "12/10/2003")
   phone?: string;
-  // Legacy fields for backward compatibility
-  firstName?: string;
-  lastName?: string;
-  gender?: 'male' | 'female' | 'other';
 }
 
 export interface ChangePasswordRequest {
@@ -150,7 +140,7 @@ export interface ProfilePresenterProps {
   // Handlers
   onProfileFormDataChange: (data: Partial<ProfileFormData>) => void;
   onPasswordFormDataChange: (data: Partial<ChangePasswordFormData>) => void;
-  onUpdateProfile: (formData: ProfileFormData | any) => void;
+  onUpdateProfile: (formData: UpdateProfileRequest) => void;
   onChangePassword: (formData: ChangePasswordFormData) => void;
   onClearError: () => void;
   onClearUpdateError: () => void;

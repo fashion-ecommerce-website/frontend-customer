@@ -93,6 +93,8 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 
   useEffect(() => {
     if (isAuthenticated === false && !isLoading) {
+      // Store error message in sessionStorage before redirect
+      sessionStorage.setItem('authError', "You don't have permission to access this page.");
       router.push(redirectTo);
     }
   }, [isAuthenticated, isLoading, router, redirectTo]);
