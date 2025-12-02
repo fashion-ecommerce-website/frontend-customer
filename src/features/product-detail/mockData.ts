@@ -3,9 +3,12 @@ import { ProductDetail } from '@/services/api/productApi';
 // Mock product data for testing - matches new API response format
 export const mockProductData: ProductDetail = {
   detailId: 1,
+  productId: 1,
   title: "MLB - Unisex round neck short sleeve t-shirt with logo",
   price: 2290000,
+  finalPrice: 2290000,
   activeColor: "Beige",
+  categorySlug: "t-shirts",
   images: [
     "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
     "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500",

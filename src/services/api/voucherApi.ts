@@ -22,7 +22,7 @@ export class VoucherApiService {
       expiresAt: v.endAt,
       userUsage: v.usageLimitPerUser ? { used: 0, limit: v.usageLimitPerUser } : undefined,
       globalUsagePercent: v.usageLimitTotal ? 0 : undefined,
-      available: typeof v.available === 'boolean' ? v.available : undefined,
+      available: typeof v.isAvailable === 'boolean' ? v.isAvailable : undefined,
       message: v.message,
     }));
     return { success: true, data: mapped, message: res.message };
