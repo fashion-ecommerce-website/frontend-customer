@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { VirtualTryOnPresenterProps } from "../types";
+import { VirtualTryOnPresenterProps, HistoryItem } from "../types";
 import { ImageUpload } from "./ImageUpload";
 import { ProductSelector } from "./ProductSelector";
 import { TryOnResult } from "./TryOnResult";
@@ -54,7 +54,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
     !resultImage
   );
 
-  const handleHistoryItemSelect = (item: any) => {
+  const handleHistoryItemSelect = (item: HistoryItem) => {
     onHistorySelect(item);
     setActiveTab('try-on');
   };

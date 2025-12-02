@@ -4,6 +4,8 @@ import type React from "react"
 import { useState } from "react"
 import type { ProductFilters, FilterDropdownOption } from "../types"
 
+type FilterValue = ProductFilters[keyof ProductFilters];
+
 interface FilterSidebarProps {
   isOpen: boolean
   onClose: () => void
@@ -78,7 +80,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
     { value: "ao-hoodie", label: "Hoodie" },
   ]
 
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const handleFilterChange = (key: keyof ProductFilters, value: FilterValue) => {
     onFiltersChange({
       ...filters,
       [key]: value,

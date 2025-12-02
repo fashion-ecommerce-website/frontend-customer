@@ -40,6 +40,16 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
+// Google User Response
+export interface GoogleUser {
+  id: string;
+  name?: string;
+  email: string;
+  picture?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Login Request/Response
 
 export interface LoginRequest {

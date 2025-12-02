@@ -226,7 +226,7 @@ export class AuthApiService {
       console.log('✅ Backend authentication successful:', backendResponse);
 
       // Step 3: Handle token-only login response 
-      if ((backendResponse as any)?.accessToken) {
+      if ((backendResponse as { accessToken?: string })?.accessToken) {
         const tokenResp = backendResponse as unknown as {
           accessToken: string;
           refreshToken?: string;

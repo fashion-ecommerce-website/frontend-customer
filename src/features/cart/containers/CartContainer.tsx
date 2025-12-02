@@ -1,65 +1,81 @@
-'use client';
-
-// Cart Container Component
-// Business logic container for cart page
-
-import React, { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { CartItem } from '@/types/cart.types';
-import { removeCartItemAsync, updateCartItemAsync } from '../redux/cartSaga';
-import { 
-  clearError, 
-  selectCartItem, 
-  unselectCartItem, 
-  selectAllCartItems, 
+"use client";
+import React, { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { CartItem } from "@/types/cart.types";
+import { removeCartItemAsync, updateCartItemAsync } from "../redux/cartSaga";
+import {
+  selectCartItem,
+  unselectCartItem,
+  selectAllCartItems,
   unselectAllCartItems,
-  selectAllItemsSelected 
-} from '../redux/cartSlice';
-import { CartPresenter } from '../components/CartPresenter';
-import { CartCallState } from '../states/CartCallState';
-import { CartContainerProps } from '../types';
-import { ProductQuickViewModal } from '@/features/filter-product/components/ProductQuickViewModal';
-import { OrderModal } from '@/components/modals/OrderModal';
-import { ProductItem } from '@/services/api/productApi';
+  selectAllItemsSelected,
+} from "../redux/cartSlice";
+import { CartPresenter } from "../components/CartPresenter";
+import { CartCallState } from "../states/CartCallState";
+import { CartContainerProps } from "../types";
+import { ProductItem } from "@/services/api/productApi";
+import ProductQuickViewModal from "@/features/filter-product/components/ProductQuickViewModal";
+import { OrderModal } from "@/components";
+
+type ExtendedGlobal = typeof globalThis & {
+  __selectedProducts?: ProductItem[];
+};
 
 export const CartContainer: React.FC<CartContainerProps> = ({
-  className = ''
+  className = "",
 }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const allItemsSelected = useAppSelector(selectAllItemsSelected);
-  
+
   // Quick view modal state
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  const [selectedProductDetailId, setSelectedProductDetailId] = useState<number | null>(null);
-  const [selectedItemSize, setSelectedItemSize] = useState<string | undefined>(undefined);
-  const [selectedCartItemId, setSelectedCartItemId] = useState<number | null>(null);
-  const [selectedItemQuantity, setSelectedItemQuantity] = useState<number | undefined>(undefined);
+  const [selectedProductDetailId, setSelectedProductDetailId] = useState<
+    number | null
+  >(null);
+  const [selectedItemSize, setSelectedItemSize] = useState<string | undefined>(
+    undefined
+  );
+  const [selectedCartItemId, setSelectedCartItemId] = useState<number | null>(
+    null
+  );
+  const [selectedItemQuantity, setSelectedItemQuantity] = useState<
+    number | undefined
+  >(undefined);
 
   // Order modal state
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   // Note state
-  const [note, setNote] = useState<string>('');
+  const [note, setNote] = useState<string>("");
 
   // Handle item removal
-  const handleRemoveItem = useCallback(async (cartItemId: number) => {
-    return new Promise<void>((resolve) => {
-      dispatch(removeCartItemAsync(cartItemId));
-      // In a real app, you might want to wait for the action to complete
-      // For now, we'll resolve immediately
-      resolve();
-    });
-  }, [dispatch]);
+  const handleRemoveItem = useCallback(
+    async (cartItemId: number) => {
+      return new Promise<void>((resolve) => {
+        dispatch(removeCartItemAsync(cartItemId));
+        // In a real app, you might want to wait for the action to complete
+        // For now, we'll resolve immediately
+        resolve();
+      });
+    },
+    [dispatch]
+  );
 
   // Handle item selection
-  const handleSelectItem = useCallback((cartItemId: number) => {
-    dispatch(selectCartItem(cartItemId));
-  }, [dispatch]);
+  const handleSelectItem = useCallback(
+    (cartItemId: number) => {
+      dispatch(selectCartItem(cartItemId));
+    },
+    [dispatch]
+  );
 
-  const handleUnselectItem = useCallback((cartItemId: number) => {
-    dispatch(unselectCartItem(cartItemId));
-  }, [dispatch]);
+  const handleUnselectItem = useCallback(
+    (cartItemId: number) => {
+      dispatch(unselectCartItem(cartItemId));
+    },
+    [dispatch]
+  );
 
   // Handle select all
   const handleSelectAll = useCallback(() => {
@@ -82,13 +98,8 @@ export const CartContainer: React.FC<CartContainerProps> = ({
 
   // Handle continue shopping
   const handleContinueShopping = useCallback(() => {
-    router.push('/products');
+    router.push("/products");
   }, [router]);
-
-  // Handle clear error
-  const handleClearError = useCallback(() => {
-    dispatch(clearError());
-  }, [dispatch]);
 
   // Handle edit item - open quick view modal
   const handleEditItem = useCallback((item: CartItem) => {
@@ -108,14 +119,14 @@ export const CartContainer: React.FC<CartContainerProps> = ({
           loading,
           error,
           hasInitiallyLoaded,
-          clearError: clearErrorFromState
+          clearError: clearErrorFromState,
         }) => (
           <>
             {(() => {
               // Map selected cart items to order products format with promotion data
               const selectedProducts: ProductItem[] = cartItems
-                .filter(item => item.selected !== false)
-                .map(item => ({
+                .filter((item) => item.selected !== false)
+                .map((item) => ({
                   detailId: item.productDetailId,
                   productTitle: item.productTitle,
                   productSlug: item.productSlug,
@@ -130,9 +141,8 @@ export const CartContainer: React.FC<CartContainerProps> = ({
                   sizeName: item.sizeName,
                   imageUrls: item.imageUrl ? [item.imageUrl] : [],
                 }));
-              // Expose via a scoped variable for JSX below
-              // @ts-ignore - used in JSX
-              (globalThis as any).__selectedProducts = selectedProducts;
+              (globalThis as ExtendedGlobal).__selectedProducts =
+                selectedProducts;
               return null;
             })()}
             <CartPresenter
@@ -154,7 +164,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
               note={note}
               onNoteChange={setNote}
             />
-            
+
             {/* Quick View Modal */}
             <ProductQuickViewModal
               isOpen={isQuickViewOpen}
@@ -170,18 +180,23 @@ export const CartContainer: React.FC<CartContainerProps> = ({
               isEditMode={true}
               cartItemId={selectedCartItemId ?? undefined}
               currentQuantity={selectedItemQuantity}
-              onConfirmEdit={({ cartItemId, productDetailId, sizeName, quantity }) => {
+              onConfirmEdit={({
+                cartItemId,
+                productDetailId,
+                quantity,
+              }) => {
                 // Prefer to use cartItemId if provided; otherwise we don't have an id to update
                 const idToUse = cartItemId ?? selectedCartItemId;
                 if (!idToUse) {
-                  console.warn('No cartItemId provided to confirm edit');
+                  console.warn("No cartItemId provided to confirm edit");
                   return;
                 }
 
                 // Build payload according to new API contract
                 const payload = {
                   cartDetailId: idToUse,
-                  newProductDetailId: productDetailId ?? selectedProductDetailId ?? undefined,
+                  newProductDetailId:
+                    productDetailId ?? selectedProductDetailId ?? undefined,
                   quantity: quantity ?? 1,
                 };
 
@@ -195,10 +210,10 @@ export const CartContainer: React.FC<CartContainerProps> = ({
             />
 
             {/* Order Modal */}
-            <OrderModal 
-              isOpen={isOrderModalOpen} 
+            <OrderModal
+              isOpen={isOrderModalOpen}
               onClose={handleCloseOrderModal}
-              products={(globalThis as any).__selectedProducts}
+              products={(globalThis as ExtendedGlobal).__selectedProducts}
               note={note}
             />
           </>
