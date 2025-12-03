@@ -53,8 +53,6 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     { value: "productTitle_desc", label: "Name: Z-A" },
     { value: "price_asc", label: "Price: Low to High" },
     { value: "price_desc", label: "Price: High to Low" },
-    { value: "newest", label: "Oldest" },
-    { value: "popular", label: "Newest" },
   ];
 
   const handleFilterChange = (key: keyof ProductFilters, value: string | string[] | number | undefined) => {

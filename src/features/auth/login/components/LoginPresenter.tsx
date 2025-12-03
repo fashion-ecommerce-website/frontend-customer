@@ -18,7 +18,15 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
   // Show toast on error prop change and clear error state
   useEffect(() => {
     if (error) {
-      showError(error.message);
+      // Don't show error for user cancellation cases
+      const isCancelledByUser = error.message.includes('đóng cửa sổ') || 
+                               error.message.includes('bị hủy') || 
+                               error.message.includes('cancelled') ||
+                               error.message.includes('popup-closed-by-user');
+      
+      if (!isCancelledByUser) {
+        showError(error.message);
+      }
       onClearError();
     }
   }, [error, showError, onClearError]);
@@ -146,7 +154,15 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
                 // Don't show any toast message to avoid the green "logout" text
               }}
               onError={(error) => {
-                showError(error);
+                // Don't show error for user cancellation cases
+                const isCancelledByUser = error.includes('đóng cửa sổ') || 
+                                         error.includes('bị hủy') || 
+                                         error.includes('cancelled') ||
+                                         error.includes('popup-closed-by-user');
+                
+                if (!isCancelledByUser) {
+                  showError(error);
+                }
               }}
             />
           </div>

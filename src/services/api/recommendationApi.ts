@@ -83,9 +83,10 @@ export class RecommendationApiService {
      * Send message to chatbot
      * URL: POST /api/chatbot/chat
      * Payload: { message: string }
+     * Note: This endpoint does not require authentication
      */
     async chat(message: string): Promise<ApiResponse<ChatBotResponse>> {
-        return apiClient.post<ChatBotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, { message });
+        return apiClient.post<ChatBotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, { message }, undefined, true);
     }
 }
 
