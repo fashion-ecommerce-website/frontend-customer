@@ -38,7 +38,7 @@ export const VerifyOtpContainer: React.FC<VerifyOtpContainerProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [email, otpCode, redirectTo, router]);
+  }, [email, otpCode, redirectTo, router, showError]);
 
   const handleChange = (value: string) => {
     setOtpCode(value);

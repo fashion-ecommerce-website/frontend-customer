@@ -158,7 +158,8 @@ class BaseApi {
       // Chỉ kiểm tra token với các endpoint thực sự cần đăng nhập
       // Không kiểm tra với GET /products hoặc các API public
       const isGetProducts = options.method === 'GET' && endpoint.startsWith('/products');
-      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts;
+      const isChatbot = endpoint.includes('/chatbot/');
+      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts && !isChatbot;
       if (shouldCheckAuth) {
         const tokenValid = await this.ensureValidToken();
         if (!tokenValid) {
@@ -171,7 +172,8 @@ class BaseApi {
       }
 
       const url = `${this.baseUrl}${endpoint}`;
-      const authHeaders = this.getAuthHeaders();
+      // Only add auth headers if not skipping auth
+      const authHeaders = options.skipAuth ? {} : this.getAuthHeaders();
       const headers = {
         'Content-Type': 'application/json',
         ...authHeaders,

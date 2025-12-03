@@ -120,8 +120,12 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <div className="flex justify-between"><span className="text-gray-600">Shipping Status</span><span className="text-black">{order.shipments?.[0]?.status || 'PENDING'}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Name</span><span className="text-black">{order.shippingAddress.fullName}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Phone Number</span><span className="text-black">{order.shippingAddress.phone}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Address</span><span className="text-black">{order.shippingAddress.line}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Province</span><span className="text-black">{order.shippingAddress.city}</span></div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Address</span>
+                <span className="text-black text-right">
+                  {[order.shippingAddress.line, order.shippingAddress.ward, order.shippingAddress.districtName, order.shippingAddress.city].filter(Boolean).join(', ')}
+                </span>
+              </div>
               <div className="flex justify-between"><span className="text-gray-600">Country</span><span className="text-black">Vietnam</span></div>
             </div>
           </div>

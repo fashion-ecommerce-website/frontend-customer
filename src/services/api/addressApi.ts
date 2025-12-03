@@ -18,6 +18,7 @@ export interface Address {
   // GHN Integration fields
   provinceId?: number;      // GHN Province ID
   districtId?: number;       // GHN District ID
+  districtName?: string;     // GHN District Name
   wardCode?: string;         // GHN Ward Code
 }
 
@@ -33,6 +34,7 @@ export interface CreateAddressRequest {
   // GHN Integration fields
   provinceId?: number;
   districtId?: number;
+  districtName?: string;
   wardCode?: string;
 }
 

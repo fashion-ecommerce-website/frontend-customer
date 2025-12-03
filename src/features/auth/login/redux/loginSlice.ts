@@ -30,7 +30,8 @@ const loginSlice = createSlice({
   initialState,
   reducers: {
     // Login Actions
-    loginRequest: (state, action: PayloadAction<LoginRequest>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    loginRequest: (state, _action: PayloadAction<LoginRequest>) => {
       state.isLoading = true;
       state.error = null;
     },

@@ -19,7 +19,6 @@ import { updateUserProfile, setUser } from '../../auth/login/redux/loginSlice';
 import {
   UpdateProfileRequest,
   ChangePasswordRequest,
-  User,
   ApiError,
 } from '../types/profile.types';
 

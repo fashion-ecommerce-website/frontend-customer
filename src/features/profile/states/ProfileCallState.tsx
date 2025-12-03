@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import {
   getProfileRequest,

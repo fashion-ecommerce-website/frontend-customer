@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 export interface ProductToastProps {
   productImage: string;
@@ -84,11 +85,12 @@ export const ProductToast: React.FC<ProductToastProps> = ({
       <div className="p-3">
         <div className="flex items-center gap-3">
           {/* Product Image */}
-          <div className="flex-shrink-0">
-            <img
+          <div className="relative flex-shrink-0 w-16 h-20">
+            <Image
               src={productImage}
               alt={productTitle}
-              className="w-16 h-20 object-cover rounded-lg border border-gray-200"
+              fill
+              className="object-cover rounded-lg border border-gray-200"
             />
           </div>
 

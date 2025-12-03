@@ -8,7 +8,6 @@ export interface AccountOverviewProps {
 
 export const AccountOverview: React.FC<AccountOverviewProps> = ({ user }) => {
   const displayName = user.username;
-  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <div className="flex flex-col items-center py-8 px-4 bg-white border-b border-gray-200">

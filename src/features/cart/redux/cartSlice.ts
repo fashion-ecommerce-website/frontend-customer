@@ -4,9 +4,7 @@ import { ApiStatus } from '@/types/api.types';
 import { 
   CartItem, 
   CartState, 
-  CartSummary, 
-  UpdateCartItemPayload,
-  AddToCartPayload 
+  CartSummary 
 } from '@/types/cart.types';
 
 // Calculate cart summary

@@ -3,7 +3,7 @@
 // Cart Call State Component
 // Manages cart state and provides data to children
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { 
   selectCartItems, 

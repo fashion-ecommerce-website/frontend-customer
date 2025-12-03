@@ -69,6 +69,10 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
           city: address.city,
           countryCode: address.countryCode,
           isDefault: address.isDefault,
+          provinceId: address.provinceId,
+          districtId: address.districtId,
+          districtName: address.districtName,
+          wardCode: address.wardCode,
         };
         const response = await addressApi.updateAddress(updateData);
         if (response.success && response.data) {
@@ -84,6 +88,10 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
           city: address.city,
           countryCode: address.countryCode,
           isDefault: address.isDefault,
+          provinceId: address.provinceId,
+          districtId: address.districtId,
+          districtName: address.districtName,
+          wardCode: address.wardCode,
         };
         const response = await addressApi.createAddress(createData);
         if (response.success && response.data) {
@@ -153,7 +161,7 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
             </div>
             <p className="text-sm text-gray-600">{selectedAddress.phone}</p>
             <p className="text-sm text-gray-700">
-              {selectedAddress.line}, {selectedAddress.ward}, {selectedAddress.city}
+              {[selectedAddress.line, selectedAddress.ward, selectedAddress.districtName, selectedAddress.city].filter(Boolean).join(', ')}
             </p>
           </div>
         ) : (
