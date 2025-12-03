@@ -134,7 +134,7 @@ class BaseApi {
       // Consider token expired if it expires within next 30 seconds
       const isExpired = exp - now < 30;
       return isExpired;
-    } catch (error) {
+    } catch {
       return true;
     }
   }
@@ -205,7 +205,7 @@ class BaseApi {
       }
 
       // Check if response has content before parsing JSON
-      let data: any = null;
+      let data: Record<string, unknown> | null = null;
       const contentType = response.headers.get('content-type');
       const contentLength = response.headers.get('content-length');
       
@@ -216,7 +216,7 @@ class BaseApi {
           if (text.trim()) {
             data = JSON.parse(text);
           }
-        } catch (parseError) {
+        } catch {
           // If JSON parsing fails, it's not a JSON response
           data = null;
         }
@@ -226,14 +226,14 @@ class BaseApi {
         return {
           success: false,
           data: null,
-          message: data?.message || `HTTP Error: ${response.status}`,
+          message: (data as { message?: string })?.message || `HTTP Error: ${response.status}`,
         };
       }
 
       return {
         success: true,
-        data: data,
-        message: data?.message,
+        data: data as T,
+        message: (data as { message?: string })?.message,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Network error occurred';

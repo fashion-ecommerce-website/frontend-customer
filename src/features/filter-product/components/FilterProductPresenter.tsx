@@ -129,9 +129,9 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
         setError(response.message || 'An error occurred while loading products');
         setProducts([]);
       }
-    } catch (err: any) {
+    } catch (err) {
       // Don't show error if request was aborted
-      if (err.name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
+      if ((err as Error).name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
         return;
       }
       setError('Unable to connect to server');

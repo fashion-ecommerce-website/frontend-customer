@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { FilterProductPresenter } from '../components/FilterProductPresenter';
 import { useSearchParams } from 'next/navigation';
@@ -9,9 +9,7 @@ interface FilterProductContainerProps {
   className?: string;
 }
 
-export const FilterProductContainer: React.FC<FilterProductContainerProps> = ({
-  className = ''
-}) => {
+function FilterProductContent({ className = '' }: FilterProductContainerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialCategory = searchParams?.get('category') || undefined;
@@ -26,11 +24,19 @@ export const FilterProductContainer: React.FC<FilterProductContainerProps> = ({
 
   return (
     <div className={className}>
-  <FilterProductPresenter
-    onProductClick={handleProductClick}
-    initialCategory={initialCategory}
-    title={initialTitle}
-  />
+      <FilterProductPresenter
+        onProductClick={handleProductClick}
+        initialCategory={initialCategory}
+        title={initialTitle}
+      />
     </div>
+  );
+}
+
+export const FilterProductContainer: React.FC<FilterProductContainerProps> = (props) => {
+  return (
+    <Suspense fallback={<div>Loading products...</div>}>
+      <FilterProductContent {...props} />
+    </Suspense>
   );
 };

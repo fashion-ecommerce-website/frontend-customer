@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { PaymentApi } from '@/services/api/paymentApi';
 
-export default function CheckoutSuccessPage(): React.ReactElement {
+function CheckoutSuccessContent(): React.ReactElement {
     const searchParams = useSearchParams();
     const orderIdParam = searchParams.get('orderId');
     const paymentIdParam = searchParams.get('paymentId');
@@ -141,6 +141,14 @@ export default function CheckoutSuccessPage(): React.ReactElement {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CheckoutSuccessPage(): React.ReactElement {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CheckoutSuccessContent />
+        </Suspense>
     );
 }
 

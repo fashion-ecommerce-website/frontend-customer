@@ -144,7 +144,7 @@ export const ChatBot: React.FC = () => {
       try {
         const parsed = JSON.parse(saved);
         // Convert string dates back to Date objects
-        const rehydrated = parsed.map((msg: any) => ({
+        const rehydrated = parsed.map((msg: Omit<ChatMessage, 'timestamp'> & { timestamp: string }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         }));

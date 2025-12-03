@@ -4,8 +4,15 @@ import { useToast } from '@/components';
 import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { AddToCartPayload } from '@/types/cart.types';
 
+type AddToCartSuccessItem = AddToCartPayload & {
+  productImage: string;
+  productTitle: string;
+  price: number;
+  finalPrice?: number;
+};
+
 interface UseCartActionsOptions {
-  onSuccess?: (item: any) => void;
+  onSuccess?: (item: AddToCartSuccessItem) => void;
   onError?: (error: string) => void;
 }
 

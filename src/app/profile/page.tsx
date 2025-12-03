@@ -1,11 +1,12 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import { ProfileContainer } from '@/features/profile';
 import { useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/components';
 import { useToast } from '@/providers/ToastProvider';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { showSuccess, showError } = useToast();
   const params = useSearchParams();
   const sectionParam = params.get('section');
@@ -36,5 +37,13 @@ export default function ProfilePage() {
         }}
       />
     </AuthGuard>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div>Loading profile...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

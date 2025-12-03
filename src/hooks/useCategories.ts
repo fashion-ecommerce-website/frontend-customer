@@ -21,9 +21,9 @@ export function useCategories() {
         } else {
           setCategories((res.data || []).filter((c) => c.isActive));
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return;
-        setError(err.message || 'Failed to load categories');
+        setError(err instanceof Error ? err.message : 'Failed to load categories');
       } finally {
         if (mounted) setLoading(false);
       }
