@@ -60,7 +60,7 @@ export const authUtils = {
       const exp = payload.exp;
       const now = Math.floor(Date.now() / 1000);
       return exp < now;
-    } catch (error) {
+    } catch {
       return true;
     }
   }

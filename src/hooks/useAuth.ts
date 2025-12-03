@@ -14,50 +14,50 @@ export const useAuth = () => {
   const user = useAppSelector(selectUser);
   const accessToken = useAppSelector(selectAccessToken);
 
-  // Helper function to convert date from YYYY-MM-DD to DD/MM/YYYY
-  const convertDateFromApi = (dateString: string): string => {
-    if (!dateString) return '';
-    
-    // If already in DD/MM/YYYY format, return as is
-    if (dateString.includes('/')) return dateString;
-    
-    // Convert from YYYY-MM-DD to DD/MM/YYYY
-    const parts = dateString.split('-');
-    if (parts.length === 3) {
-      const [year, month, day] = parts;
-      return `${day}/${month}/${year}`;
-    }
-    
-    return dateString;
-  };
-
-  // Helper function to convert ApiUserResponse to User
-  const convertApiUserToUser = (apiUser: ApiUserResponse) => {
-    return {
-      id: apiUser.id.toString(),
-      email: apiUser.email,
-      username: apiUser.username,
-      firstName: '', // API doesn't have firstName/lastName, will be empty
-      lastName: '',
-      phone: apiUser.phone,
-      avatar: apiUser.avatarUrl || undefined,
-      dob: convertDateFromApi(apiUser.dob), // Convert YYYY-MM-DD to DD/MM/YYYY
-      role: 'USER' as const,
-      enabled: apiUser.active,
-      createdAt: apiUser.createdAt,
-      updatedAt: apiUser.updatedAt,
-      avatarUrl: apiUser.avatarUrl,
-      reason: apiUser.reason,
-      lastLoginAt: apiUser.lastLoginAt,
-      emailVerified: apiUser.emailVerified,
-      phoneVerified: apiUser.phoneVerified,
-      roles: apiUser.roles,
-      active: apiUser.active,
-    };
-  };
-
   // Initialize auth state from localStorage on app start
   useEffect(() => {
+    // Helper function to convert date from YYYY-MM-DD to DD/MM/YYYY
+    const convertDateFromApi = (dateString: string): string => {
+      if (!dateString) return '';
+      
+      // If already in DD/MM/YYYY format, return as is
+      if (dateString.includes('/')) return dateString;
+      
+      // Convert from YYYY-MM-DD to DD/MM/YYYY
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+        return `${day}/${month}/${year}`;
+      }
+      
+      return dateString;
+    };
+
+    // Helper function to convert ApiUserResponse to User
+    const convertApiUserToUser = (apiUser: ApiUserResponse) => {
+      return {
+        id: apiUser.id.toString(),
+        email: apiUser.email,
+        username: apiUser.username,
+        firstName: '', // API doesn't have firstName/lastName, will be empty
+        lastName: '',
+        phone: apiUser.phone,
+        avatar: apiUser.avatarUrl || undefined,
+        dob: convertDateFromApi(apiUser.dob), // Convert YYYY-MM-DD to DD/MM/YYYY
+        role: 'USER' as const,
+        enabled: apiUser.active,
+        createdAt: apiUser.createdAt,
+        updatedAt: apiUser.updatedAt,
+        avatarUrl: apiUser.avatarUrl,
+        reason: apiUser.reason,
+        lastLoginAt: apiUser.lastLoginAt,
+        emailVerified: apiUser.emailVerified,
+        phoneVerified: apiUser.phoneVerified,
+        roles: apiUser.roles,
+        active: apiUser.active,
+      };
+    };
+
     const initializeAuth = async () => {
       try {
         const storedToken = localStorage.getItem('accessToken');

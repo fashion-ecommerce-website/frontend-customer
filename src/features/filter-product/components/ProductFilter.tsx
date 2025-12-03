@@ -43,12 +43,6 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     router.push('/');
   };
 
-  const handleCategoryClick = () => {
-    // Navigate to product listing filtered by category
-    const category = filters.category || '';
-    router.push(`/products?category=${encodeURIComponent(category)}`);
-  };
-
   const handleTitleClick = () => {
     // Navigate to product listing with category and name/title param
     const category = filters.category || '';

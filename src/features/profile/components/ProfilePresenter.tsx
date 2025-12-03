@@ -14,7 +14,7 @@ import {
 import { ProfileSidebar } from './ProfileSidebar';
 import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
-import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
+import { UpdateInfoModal } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
 import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
@@ -67,6 +67,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     if (!initialSection && !activeSidebarSection) {
       setActiveSidebarSection('account');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSection]);
   const router = useRouter();
   const { logout } = useAuth();

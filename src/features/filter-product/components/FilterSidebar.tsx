@@ -15,7 +15,6 @@ interface FilterSidebarProps {
 }
 
 export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, filters, onFiltersChange, productCount }) => {
-  const [searchTitle, setSearchTitle] = useState(filters.title || "")
   const [expandedSections, setExpandedSections] = useState({
     colors: false,
     category: false,
@@ -74,12 +73,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
     { value: ">4m", label: "Over 4 million VND" },
   ]
 
-  const categoryOptions: FilterDropdownOption[] = [
-    { value: "ao-thun", label: "T-shirt" },
-    { value: "ao-polo", label: "Polo shirt" },
-    { value: "ao-hoodie", label: "Hoodie" },
-  ]
-
   const handleFilterChange = (key: keyof ProductFilters, value: FilterValue) => {
     onFiltersChange({
       ...filters,
@@ -103,13 +96,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
     }))
   }
 
-  const handleSearchSubmit = () => {
-    handleFilterChange("title", searchTitle || undefined)
-    // Auto-search will be triggered by filter change
-  }
-
   const clearFilters = () => {
-    setSearchTitle("")
     onFiltersChange({
       category: "ao-thun",
       page: 1,
@@ -384,7 +371,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({ isOpen, onClose, f
                 {filters.title && (
                   <button
                     onClick={() => {
-                      setSearchTitle("")
                       handleFilterChange("title", undefined)
                     }}
                     className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"

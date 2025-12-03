@@ -21,7 +21,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
       showError(error.message);
       onClearError();
     }
-  }, [error]);
+  }, [error, showError, onClearError]);
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

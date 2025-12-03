@@ -58,6 +58,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
       showSuccess('Password changed successfully.');
       handleClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passwordChangeSuccess, showSuccess]);
   
   // Handle password input changes

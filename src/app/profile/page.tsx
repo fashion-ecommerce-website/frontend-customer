@@ -23,7 +23,7 @@ function ProfileContent() {
     <AuthGuard>
       <ProfileContainer
         initialSection={initialSection}
-        onUpdateSuccess={(user) => {
+        onUpdateSuccess={() => {
           showSuccess('Profile updated successfully');
         }}
         onUpdateError={(error) => {

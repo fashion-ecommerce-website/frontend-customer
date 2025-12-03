@@ -46,7 +46,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
             setIsLoading(false);
             return;
           }
-        } catch (error) {
+        } catch {
           // Error decoding token, continue to refresh
         }
       }
@@ -72,7 +72,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
             localStorage.removeItem('refreshToken');
             setIsAuthenticated(false);
           }
-        } catch (error) {
+        } catch {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
           setIsAuthenticated(false);
@@ -80,7 +80,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
       } else {
         setIsAuthenticated(false);
       }
-    } catch (error) {
+    } catch {
       setIsAuthenticated(false);
     } finally {
       setIsLoading(false);

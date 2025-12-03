@@ -63,7 +63,7 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
       const parts = decoded.replace(/_/g, '-').split('-').filter(Boolean);
       const title = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
       return title.toUpperCase();
-    } catch (e) {
+    } catch {
       return slug.toUpperCase();
     }
   };
@@ -187,11 +187,6 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
     setFilters(updatedFilters);
     // Auto-fetch will be triggered by useEffect with debounce
   }, []);
-
-  const handleSearch = () => {
-    // Manual search - just trigger fetch with current filters
-    fetchProducts(filters);
-  };
 
   const handlePageChange = useCallback((page: number) => {
     const updatedFilters = {

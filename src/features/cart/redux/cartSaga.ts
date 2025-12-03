@@ -66,7 +66,7 @@ function* fetchCartSaga() {
     } else {
       yield put(setError(response.message || 'Failed to fetch cart items'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while fetching cart'));
   } finally {
     yield put(setLoading(false));
@@ -89,7 +89,7 @@ function* addToCartSaga(action: PayloadAction<AddToCartPayload>) {
     } else {
       yield put(setError(response.message || 'Failed to add item to cart'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while adding to cart'));
   } finally {
     yield put(setLoading(false));
@@ -117,7 +117,7 @@ function* updateCartItemSaga(action: PayloadAction<UpdateCartItemPayload>) {
     } else {
       yield put(setError(response.message || 'Failed to update cart item'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while updating cart item'));
   } finally {
     yield put(setLoading(false));
@@ -138,7 +138,7 @@ function* removeCartItemSaga(action: PayloadAction<number>) {
     } else {
       yield put(setError(response.message || 'Failed to remove cart item'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while removing cart item'));
   } finally {
     yield put(setLoading(false));
@@ -155,7 +155,7 @@ function* removeMultipleCartItemsSaga(action: PayloadAction<number[]>) {
     } else {
       yield put(setError(response.message || 'Failed to remove selected cart items'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while removing selected cart items'));
   } finally {
     yield put(setLoading(false));
@@ -172,7 +172,7 @@ function* clearCartSaga() {
     } else {
       yield put(setError(response.message || 'Failed to clear cart'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while clearing cart'));
   } finally {
     yield put(setLoading(false));

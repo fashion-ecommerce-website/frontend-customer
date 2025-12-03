@@ -5,7 +5,7 @@ import { SearchInput } from './SearchInput';
 import { SearchResults } from './SearchResults';
 import { SearchProductFilter } from './SearchProductFilter';
 import { FilterSidebar } from '../../filter-product/components/FilterSidebar';
-import { SearchFilters, SearchResultItem } from '../types';
+import { SearchResultItem } from '../types';
 import { ProductFilters } from '../../filter-product/types';
 import { productApi } from '../../../services/api/productApi';
 import { addSearchHistory } from '../../../utils/searchHistory';

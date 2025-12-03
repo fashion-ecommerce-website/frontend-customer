@@ -29,9 +29,6 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
   filters,
   onFiltersChange,
   onOpenSidebar,
-  searchQuery,
-  resultsCount = 0,
-  isLoading = false,
 }) => {
   const sortOptions: FilterDropdownOption[] = [
     { value: "productTitle_asc", label: "Name: A-Z" },
