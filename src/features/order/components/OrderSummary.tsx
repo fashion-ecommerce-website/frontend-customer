@@ -14,6 +14,7 @@ import { VoucherModal, Voucher, VoucherByUserResponse } from './VoucherModal';
 import { voucherApi } from '@/services/api/voucherApi';
 import { apiClient } from '@/services/api/baseApi';
 
+
 interface OrderSummaryProps {
 	onClose?: () => void;
 	shippingFee?: ShippingFeeData;
@@ -336,7 +337,9 @@ export function OrderSummary({
 							{shippingFee?.isCalculating ? (
 								<span className="text-blue-600">Calculating...</span>
 							) : shippingFee?.error ? (
-								<span className="text-red-600">Error</span>
+								<span className="text-amber-600" title={shippingFee.error}>
+									+ {formatPrice(shippingFee?.fee || 0)} (est.)
+								</span>
 							) : selectedAddress ? (
 								`+ ${formatPrice(shippingFee?.fee || 0)}`
 							) : (

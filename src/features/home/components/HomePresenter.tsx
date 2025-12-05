@@ -7,24 +7,21 @@ import React from 'react';
 import { HomePresenterProps } from '../types/home.types';
 import { Banner } from './Banner';
 import { NewsletterSignup } from './NewsletterSignup';
-import { ProductSection } from './ProductSection';
 import { RankingSection } from './RankingSection';
 import { RecommendContainer } from '../containers/RecommendContainer';
+import { NewArrivalsContainer } from '../containers/NewArrivalsContainer';
+import { AnimatedSection } from '@/components/AnimatedSection';
 
 export const HomePresenter: React.FC<HomePresenterProps> = ({
   banners,
-  newArrivals,
-  productCategories,
   isLoading,
   error,
   onClearError,
-  onProductClick,
-  onCategoryClick,
   onBannerClick,
 }) => {
 
   return (
-    <div className="bg-white overflow-x-hidden">
+    <div className="bg-white">
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 relative mx-4 sm:mx-6 lg:mx-8 mt-4 rounded-lg">
@@ -56,27 +53,25 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
           {/* Main sections with responsive padding */}
           <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
             {/* New Arrivals Section */}
-            <ProductSection
-              title="New arrival"
-              products={newArrivals}
-              categories={productCategories}
-              onProductClick={onProductClick}
-              onCategoryClick={onCategoryClick}
-              showCategories={true}
-              variant="newArrivals"
-              leftImageUrl="https://cdn.hstatic.net/files/200000642007/file/banner_phu_-_giay_dep_-675_x873_bdb081cf9da74f98a05c919d53ed843d.jpg"
-              className="pt-12 sm:pt-16 lg:pt-20"
-            />
+            <AnimatedSection animation="fade-up" duration={0.9} delay={100}>
+              <NewArrivalsContainer />
+            </AnimatedSection>
 
             {/* Recommend For You Section */}
-            <RecommendContainer />
+            <AnimatedSection animation="fade-up" duration={0.9} delay={150}>
+              <RecommendContainer />
+            </AnimatedSection>
 
             {/* Ranking Section */}
-            <RankingSection />
+            <AnimatedSection animation="fade-up" duration={0.9} delay={150}>
+              <RankingSection />
+            </AnimatedSection>
           </div>
 
-          {/* Newsletter (no horizontal padding) */}
-          <NewsletterSignup onSubmit={(email) => console.log('subscribe', email)} />
+          {/* Newsletter */}
+          <AnimatedSection animation="fade-up" duration={0.9} delay={150}>
+            <NewsletterSignup onSubmit={(email) => console.log('subscribe', email)} />
+          </AnimatedSection>
         </div>
       )}
     </div>

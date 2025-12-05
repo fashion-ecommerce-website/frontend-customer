@@ -45,29 +45,52 @@ export interface GHNWard {
   Status: number;
 }
 
+export interface GHNShippingFeeItem {
+  name: string;
+  quantity: number;
+  height?: number;
+  weight?: number;
+  length?: number;
+  width?: number;
+}
+
 export interface GHNShippingFeeRequest {
-  from_district_id: number;
-  to_district_id: number;
-  to_ward_code: string;
-  height: number;
-  length: number;
-  weight: number;
-  width: number;
-  insurance_value?: number;
-  service_type_id?: number;
+  from_district_id?: number;        // District ID pick up parcels (optional if using shopId)
+  from_ward_code?: string;          // Ward code pick up parcels (optional if using shopId)
+  to_district_id: number;           // District ID drop off parcels (required)
+  to_ward_code: string;             // Ward Code drop off parcels (required)
+  service_id?: number;              // Service ID from API SERVICE
+  service_type_id?: number;         // Default: 2 (E-Commerce Delivery)
+  height?: number;                  // Height (cm)
+  length?: number;                  // Length (cm)
+  weight?: number;                  // Weight (gram)
+  width?: number;                   // Width (cm)
+  insurance_value?: number;         // Parcel value for compensation (max 5,000,000)
+  cod_value?: number;               // Amount cash to collect (max 5,000,000)
+  cod_failed_amount?: number;       // Value of collect money when delivery fail
+  coupon?: string | null;           // Coupon Code for discount
+  items?: GHNShippingFeeItem[];     // List of items in the parcel
+}
+
+export interface GHNShippingFeeData {
+  total: number;                    // Total service fee
+  service_fee: number;              // Service fee
+  insurance_fee: number;            // Insurance fee
+  pick_station_fee: number;         // Pickup fee at Station
+  coupon_value: number;             // Coupon discount value
+  r2s_fee: number;                  // Fee of delivery parcel again
+  document_return: number;          // Fee of document return
+  double_check: number;             // Fee of check together
+  cod_fee: number;                  // Fee of collection COD
+  pick_remote_areas_fee: number;    // Fee of pick remote areas
+  deliver_remote_areas_fee: number; // Fee of delivery remote areas
+  cod_failed_fee: number;           // Fee of collection money when delivery fail
 }
 
 export interface GHNShippingFeeResponse {
   code: number;
   message: string;
-  data: {
-    total: number;
-    service_fee: number;
-    insurance_fee: number;
-    pick_station_fee: number;
-    coupon_value: number;
-    r2s_fee: number;
-  };
+  data: GHNShippingFeeData;
 }
 
 // Tracking types
@@ -216,7 +239,41 @@ export const ghnApi = {
   },
 
   // Calculate shipping fee
-  calculateShippingFee: async (request: GHNShippingFeeRequest): Promise<ApiResponse<number>> => {
+  calculateShippingFee: async (request: GHNShippingFeeRequest): Promise<ApiResponse<GHNShippingFeeData>> => {
+    try {
+      const response = await fetch(`${GHN_API_URL}/v2/shipping-order/fee`, {
+        method: 'POST',
+        headers: getGHNHeaders(),
+        body: JSON.stringify(request)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data: GHNShippingFeeResponse = await response.json();
+      
+      if (data.code !== 200) {
+        throw new Error(data.message || 'Failed to calculate shipping fee');
+      }
+      
+      return {
+        success: true,
+        data: data.data,
+        message: 'Shipping fee calculated successfully'
+      };
+    } catch (error) {
+      
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Failed to calculate shipping fee'
+      };
+    }
+  },
+
+  // Calculate shipping fee (returns only total - for backward compatibility)
+  calculateShippingFeeTotal: async (request: GHNShippingFeeRequest): Promise<ApiResponse<number>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/shipping-order/fee`, {
         method: 'POST',

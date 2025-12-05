@@ -82,16 +82,6 @@ function CheckoutSuccessContent(): React.ReactElement {
                             </p>
                         </div>
 
-                        {/* Order ID Display */}
-                        {isSuccess && orderId && (
-                            <div className="bg-gray-50 rounded-lg p-4 mb-6 border">
-                                <div className="text-center">
-                                    <p className="text-sm text-gray-500 mb-1">Order Number</p>
-                                    <p className="text-xl font-bold text-gray-900 font-mono">#{orderId}</p>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Action Buttons */}
                         <div className="flex flex-col sm:flex-row gap-3">
                             {isSuccess ? (
@@ -102,7 +92,7 @@ function CheckoutSuccessContent(): React.ReactElement {
                                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    {orderId ? `View Order #${orderId}` : 'View Your Orders'}
+                                    View Order
                                 </Link>
                             ) : (
                                 paymentId && (
@@ -130,7 +120,7 @@ function CheckoutSuccessContent(): React.ReactElement {
                         </div>
 
                         {/* Additional Info */}
-                        {isSuccess && (
+                        {isSuccess && !isUnpaid && (
                             <div className="mt-6 text-center">
                                 <p className="text-sm text-gray-500">
                                     You will receive an email confirmation shortly

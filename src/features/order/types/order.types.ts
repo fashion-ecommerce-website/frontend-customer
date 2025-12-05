@@ -74,7 +74,7 @@ export interface Payment {
 // Shipment interface
 export interface Shipment {
   id: number;
-  trackingNumber: string;
+  trackingNo: string;  // Backend returns trackingNo
   carrier: string;
   status: string;
   shippedAt: string | null;

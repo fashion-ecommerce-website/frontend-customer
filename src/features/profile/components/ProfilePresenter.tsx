@@ -49,6 +49,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   onChangePassword,
   onClearError,
   onClearPasswordError,
+  onClearSuccess,
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
@@ -160,6 +161,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const handlePasswordModalClose = () => {
     setShowPasswordModal(false);
     onClearPasswordError();
+    onClearSuccess(); // Clear passwordChangeSuccess to prevent toast loop
     clearAllErrors();
     // Reset password form fields
     onPasswordFormDataChange({

@@ -10,6 +10,7 @@ interface AddressModalProps {
   onClose: () => void;
   onSave: (address: Address) => void;
   isLoading?: boolean;
+  isFirstAddress?: boolean;
 }
 
 export const AddressModal: React.FC<AddressModalProps> = ({
@@ -18,6 +19,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   onClose,
   onSave,
   isLoading = false,
+  isFirstAddress = false,
 }) => {
   // Error map for form fields
   type AddressField = keyof Address;
@@ -158,6 +160,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   // Reset form when modal opens/closes or address changes
   React.useEffect(() => {
     if (isOpen) {
+      // If this is the first address, automatically set as default
+      const shouldBeDefault = isFirstAddress || address?.isDefault || address?.default || false;
+      
       setFormData({
         fullName: address?.fullName || '',
         phone: address?.phone || '',
@@ -165,7 +170,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         ward: address?.ward || '',
         city: address?.city || '',
         countryCode: address?.countryCode || 'VN',
-        isDefault: address?.isDefault || address?.default || false,
+        isDefault: shouldBeDefault,
         provinceId: address?.provinceId,
         districtId: address?.districtId,
         districtName: address?.districtName,
@@ -188,7 +193,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       setDistrictSearch('');
       setWardSearch('');
     }
-  }, [isOpen, address]);
+  }, [isOpen, address, isFirstAddress]);
 
   const loadProvinces = async () => {
     setLoading(prev => ({ ...prev, provinces: true }));
@@ -329,10 +334,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     }
 
 
-    // Address line is now optional
-    // if (!formData.line.trim()) {
-    //   newErrors.line = 'Address line is required';
-    // }
+    if (!formData.line.trim()) {
+      newErrors.line = 'Address line is required';
+    }
 
     if (!formData.ward.trim()) {
       newErrors.ward = 'Ward is required';
@@ -504,7 +508,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Address Line Field */}
           <div>
             <label htmlFor="line" className="block text-sm font-medium text-gray-700 mb-1">
-              Address Line
+              Address Line <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -514,7 +518,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
                 errors.line ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="House number, street name... (optional)"
+              placeholder="House number, street name..."
               disabled={isLoading}
             />
             {errors.line && (
@@ -753,7 +757,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               checked={formData.isDefault}
               onChange={(e) => handleInputChange('isDefault', e.target.checked)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              disabled={isLoading}
+              disabled={isLoading || isFirstAddress}
             />
             <label htmlFor="isDefault" className="ml-2 text-sm text-black">
               Set as default address.
