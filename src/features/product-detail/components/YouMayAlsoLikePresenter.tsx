@@ -52,12 +52,12 @@ export function YouMayAlsoLikePresenter({
   }
 
   return (
-    <div className="mx-[3%]">
+    <section className="bg-white">
       <ProductCarousel
         products={products}
         title="You may also like"
         onProductClick={onProductClick}
       />
-    </div>
+    </section>
   );
 }

@@ -49,7 +49,21 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
   } = useOrder();
 
   const [addressData, setAddressData] = React.useState<AddressData>({});
-  const shippingFee = useShippingFee(addressData);
+  
+  // Calculate total item count for shipping weight calculation
+  // Backend uses 200g per item, so we need to pass itemCount
+  const orderProducts = React.useMemo(() => {
+    return products || convertCartItemsToProductItems(selectedCartItems);
+  }, [products, selectedCartItems]);
+  
+  const totalItemCount = React.useMemo(() => {
+    return orderProducts.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  }, [orderProducts]);
+  
+  // Memoize shipping options to prevent infinite loops
+  const shippingOptions = React.useMemo(() => ({ itemCount: totalItemCount }), [totalItemCount]);
+  
+  const shippingFee = useShippingFee(addressData, shippingOptions);
 
   // Load addresses on mount
   useEffect(() => {
@@ -150,7 +164,7 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
             <OrderSummary 
               onClose={onClose} 
               shippingFee={shippingFee}
-              products={products || convertCartItemsToProductItems(selectedCartItems)}
+              products={orderProducts}
               note={note}
               onOrderComplete={handleOrderComplete}
             />

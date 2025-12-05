@@ -146,7 +146,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
               </div>
 
               {/* Actions - Compact buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => toggleExpand(order.id)}
@@ -160,6 +160,13 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   className="text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors"
                 >
                   Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTrack?.(order)}
+                  className="text-xs font-medium text-blue-600 border border-blue-300 hover:bg-blue-50 px-3 py-1.5 rounded transition-colors"
+                >
+                  Track
                 </button>
                 <button
                   type="button"

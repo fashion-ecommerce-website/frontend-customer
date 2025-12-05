@@ -62,9 +62,9 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
           <h2
             className={
               variant === 'newArrivals'
-                ? "text-black text-xl sm:text-2xl lg:text-3xl font-normal uppercase leading-tight sm:leading-10 font-['SVN-Product_Sans']"
+                ? "text-2xl sm:text-3xl font-bold text-gray-900"
                 : variant === 'ranking'
-                ? "text-black text-xl sm:text-2xl lg:text-3xl font-normal uppercase leading-tight sm:leading-10 font-['SVN-Product_Sans']"
+                ? "text-2xl sm:text-3xl font-bold text-gray-900"
                 : "text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900"
             }
           >

@@ -50,16 +50,17 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
       }
       onClearPasswordError();
     }
-  }, [passwordError, showError, onClearPasswordError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passwordError]);
   
   // Show success via toast when password changed
   useEffect(() => {
     if (passwordChangeSuccess) {
       showSuccess('Password changed successfully.');
-      handleClose();
+      onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [passwordChangeSuccess, showSuccess]);
+  }, [passwordChangeSuccess]);
   
   // Handle password input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

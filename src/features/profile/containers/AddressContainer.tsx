@@ -270,6 +270,7 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
         onClose={handleModalClose}
         onSave={handleAddressSave}
         isLoading={isCreating || isUpdating}
+        isFirstAddress={addresses.length === 0 && !currentAddress}
       />
       
       <ConfirmModal

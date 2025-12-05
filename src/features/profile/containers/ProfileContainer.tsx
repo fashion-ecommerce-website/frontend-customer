@@ -15,6 +15,7 @@ import {
   clearError,
   clearUpdateError,
   clearPasswordError,
+  clearSuccess,
   selectIsLoading,
   selectIsUpdating,
   selectIsChangingPassword,
@@ -223,6 +224,10 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
     dispatch(clearPasswordError());
   }, [dispatch]);
 
+  const handleClearSuccess = useCallback(() => {
+    dispatch(clearSuccess());
+  }, [dispatch]);
+
   return (
     <ProfilePresenter
       initialSection={initialSection}
@@ -244,7 +249,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
       onClearError={handleClearError}
       onClearUpdateError={handleClearUpdateError}
       onClearPasswordError={handleClearPasswordError}
-      onClearSuccess={() => {}} // Empty function as it's not needed anymore
+      onClearSuccess={handleClearSuccess}
     />
   );
 };

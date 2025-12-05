@@ -323,7 +323,7 @@ export const Header: React.FC = () => {
               {/* Search Bar */}
               <button
                 onClick={() => router.push("/search")}
-                className="text-black hover:text-gray-600 transition-colors"
+                className="text-black hover:text-gray-600 transition-colors cursor-pointer"
                 aria-label="Search"
               >
                 <svg
@@ -393,7 +393,7 @@ export const Header: React.FC = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={handleProfileClick}
-                  className="text-black flex items-center space-x-1 hover:text-gray-600 transition-colors"
+                  className="text-black flex items-center space-x-1 hover:text-gray-600 transition-colors cursor-pointer"
                   title={
                     isAuthenticated
                       ? `Profile (${user?.username || "User"})`

@@ -7,8 +7,6 @@ import { addressApi, Address, CreateAddressRequest, UpdateAddressRequest } from 
 import { OrderApi } from '@/services/api/orderApi';
 import { Order, CreateOrderRequest, PaginatedResponse, OrderQueryParams } from '@/features/order/types';
 import { ApiResponse } from '@/types/api.types';
-import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
-import { productApi } from '@/services/api/productApi';
 import {
   // Address actions
   getAddressesRequest,
@@ -108,45 +106,8 @@ function* createOrderSaga(action: PayloadAction<CreateOrderRequest>): Generator 
 
     if (response.success && response.data) {
       yield put(createOrderSuccess(response.data));
-
-      // Record PURCHASE interactions for all order items
-      try {
-        const order = response.data;
-        console.log('📦 Recording PURCHASE interactions for order:', order.id);
-
-        // Fetch productId for each order item and record interactions sequentially
-        for (const item of order.orderDetails) {
-          try {
-            // Fetch product detail to get productId
-            const productResponse = yield call(
-              productApi.getProductById,
-              item.productDetailId.toString()
-            );
-
-            if (productResponse.success && productResponse.data) {
-              const productId = productResponse.data.productId;
-
-              // Record PURCHASE interaction with productId
-              yield call(
-                recommendationApi.recordInteraction,
-                productId,
-                ActionType.PURCHASE,
-                item.quantity
-              );
-
-              console.log(`✅ Recorded PURCHASE for product ${productId}, quantity ${item.quantity}`);
-            }
-          } catch (error) {
-            console.error(`❌ Failed to record PURCHASE for detailId ${item.productDetailId}:`, error);
-            // Continue with other items even if one fails
-          }
-        }
-
-        console.log('✅ Completed recording PURCHASE interactions for all items');
-      } catch (error) {
-        console.error('❌ Failed to record PURCHASE interactions:', error);
-        // Fail silently - don't break order flow
-      }
+      // Note: PURCHASE intent is now tracked when user clicks checkout button in cart
+      // No need to track again here to avoid duplicate tracking
     } else {
       yield put(createOrderFailure(response.message || 'Failed to create order'));
     }

@@ -17,6 +17,8 @@ import { CartContainerProps } from "../types";
 import { ProductItem } from "@/services/api/productApi";
 import ProductQuickViewModal from "@/features/filter-product/components/ProductQuickViewModal";
 import { OrderModal } from "@/components";
+import { recommendationApi, ActionType } from "@/services/api/recommendationApi";
+import { productApi } from "@/services/api/productApi";
 
 type ExtendedGlobal = typeof globalThis & {
   __selectedProducts?: ProductItem[];
@@ -86,8 +88,47 @@ export const CartContainer: React.FC<CartContainerProps> = ({
     dispatch(unselectAllCartItems());
   }, [dispatch]);
 
-  // Handle checkout - open order modal
-  const handleCheckout = useCallback(() => {
+  // Handle checkout - track PURCHASE intent and open order modal
+  const handleCheckout = useCallback(async () => {
+    // Track PURCHASE intent for selected items when user clicks checkout
+    try {
+      const selectedItems = (globalThis as ExtendedGlobal).__selectedProducts || [];
+      
+      if (selectedItems.length > 0) {
+        console.log('📦 Recording PURCHASE intent for checkout:', selectedItems.length, 'items');
+        
+        // Record PURCHASE interaction for each selected item
+        for (const item of selectedItems) {
+          try {
+            // Fetch productId from detailId
+            const productResponse = await productApi.getProductById(item.detailId.toString());
+            
+            if (productResponse.success && productResponse.data) {
+              const productId = productResponse.data.productId;
+              
+              // Record PURCHASE intent
+              await recommendationApi.recordInteraction(
+                productId,
+                ActionType.PURCHASE,
+                item.quantity
+              );
+              
+              console.log(`✅ Recorded PURCHASE intent for product ${productId}, quantity ${item.quantity}`);
+            }
+          } catch (error) {
+            console.error(`❌ Failed to record PURCHASE intent for detailId ${item.detailId}:`, error);
+            // Continue with other items even if one fails
+          }
+        }
+        
+        console.log('✅ Completed recording PURCHASE intent for all selected items');
+      }
+    } catch (error) {
+      console.error('❌ Failed to record PURCHASE intent:', error);
+      // Don't block checkout flow if tracking fails
+    }
+    
+    // Open order modal
     setIsOrderModalOpen(true);
   }, []);
 
