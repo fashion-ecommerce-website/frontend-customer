@@ -113,7 +113,20 @@ function* updateCartItemSaga(action: PayloadAction<UpdateCartItemPayload>) {
     );
     
     if (response.success && response.data) {
+      // Update local state first for immediate feedback
       yield put(updateCartItem({ cartItemId: cartDetailId, updatedItem: response.data }));
+      
+      // Silently fetch cart in background to get promotion data without showing loading
+      // This provides better UX - user sees immediate update, then promotion applies
+      try {
+        const cartResponse: ApiResponse<CartItem[]> = yield call(cartApi.getCartItems);
+        if (cartResponse.success && cartResponse.data) {
+          yield put(setCartItems(cartResponse.data));
+        }
+      } catch {
+        // Silently fail - user already has updated cart, just missing promotion
+        console.warn('Failed to fetch promotion data after cart update');
+      }
     } else {
       yield put(setError(response.message || 'Failed to update cart item'));
     }
