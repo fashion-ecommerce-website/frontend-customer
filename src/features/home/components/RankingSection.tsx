@@ -10,6 +10,8 @@ interface RankingProduct {
   productSlug: string;
   productTitle: string;
   price: number;
+  finalPrice?: number;
+  percentOff?: number;
   imageUrls: string[];
   colors: string[];
   quantity: number;
@@ -36,6 +38,8 @@ export function RankingSection() {
             productSlug: item.productSlug,
             productTitle: item.productTitle,
             price: item.price,
+            finalPrice: item.finalPrice,
+            percentOff: item.percentOff,
             imageUrls: item.imageUrls,
             colors: item.colors,
             quantity: item.quantity,

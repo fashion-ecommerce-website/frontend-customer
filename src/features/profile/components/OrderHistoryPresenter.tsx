@@ -246,14 +246,12 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                         <div className="text-[10px] text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</div>
                         <div className="flex items-center justify-between mt-1.5">
                           <span className="text-[10px] text-gray-600">x{detail.quantity}</span>
-                          {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                          {detail.promotionId && detail.percentOff != null && detail.percentOff > 0 ? (
                             <div className="flex items-center gap-1">
-                              <span className="text-black font-bold text-xs">{formatPrice(detail.finalPrice)}</span>
-                              {detail.percentOff && (
-                                <span className="bg-red-500 text-white px-1 py-0.5 rounded text-[9px] font-medium">
-                                  -{detail.percentOff}%
-                                </span>
-                              )}
+                              <span className="text-black font-bold text-xs">{formatPrice(detail.unitPrice * (1 - detail.percentOff / 100))}</span>
+                              <span className="bg-red-500 text-white px-1 py-0.5 rounded text-[9px] font-medium">
+                                -{detail.percentOff}%
+                              </span>
                             </div>
                           ) : (
                             <span className="text-black font-bold text-xs">{formatPrice(detail.unitPrice)}</span>
@@ -283,19 +281,17 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                         <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
                         
                         <div className="mt-2">
-                          {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                          {detail.promotionId && detail.percentOff != null && detail.percentOff > 0 ? (
                             <div className="flex items-center gap-2 flex-wrap">
                               <div className="text-black font-bold text-base">
-                                {formatPrice(detail.finalPrice)}
+                                {formatPrice(detail.unitPrice * (1 - detail.percentOff / 100))}
                               </div>
                               <div className="text-sm line-through text-gray-500">
                                 {formatPrice(detail.unitPrice)}
                               </div>
-                              {detail.percentOff && (
-                                <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                                  -{detail.percentOff}%
-                                </span>
-                              )}
+                              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                -{detail.percentOff}%
+                              </span>
                             </div>
                           ) : (
                             <div className="text-black font-bold text-base">
