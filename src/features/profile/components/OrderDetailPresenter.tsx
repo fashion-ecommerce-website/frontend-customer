@@ -54,21 +54,19 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
                   <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel}</div>
                   <div className="text-xs text-gray-600 mt-1">Quantity: {item.quantity}</div>
                   
-                  {/* Price - Simple like product detail */}
+                  {/* Price - Show unit price with promotion discount */}
                   <div className="mt-2">
-                    {item.finalPrice && item.finalPrice !== item.unitPrice ? (
+                    {item.promotionId && item.percentOff != null && item.percentOff > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="text-black font-semibold">
-                          {formatPrice(item.finalPrice)}
+                          {formatPrice(item.unitPrice * (1 - item.percentOff / 100))}
                         </div>
                         <div className="text-sm line-through text-gray-500">
                           {formatPrice(item.unitPrice)}
                         </div>
-                        {item.percentOff && (
-                          <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                            -{item.percentOff}%
-                          </span>
-                        )}
+                        <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                          -{item.percentOff}%
+                        </span>
                       </div>
                     ) : (
                       <div className="text-black font-semibold">
