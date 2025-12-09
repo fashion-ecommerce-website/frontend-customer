@@ -44,34 +44,20 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
         </div>
       ) : (
         <div className="w-full">
-          {/* Banner Section */}
           <Banner
             banners={banners}
             onBannerClick={onBannerClick}
           />
 
-          {/* Main sections with responsive padding */}
           <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-            {/* New Arrivals Section */}
-            <AnimatedSection animation="fade-up" duration={0.9} delay={100}>
-              <NewArrivalsContainer />
-            </AnimatedSection>
+            <NewArrivalsContainer />
 
-            {/* Recommend For You Section */}
-            <AnimatedSection animation="fade-up" duration={0.9} delay={150}>
-              <RecommendContainer />
-            </AnimatedSection>
+            <RecommendContainer />
 
-            {/* Ranking Section */}
-            <AnimatedSection animation="fade-up" duration={0.9} delay={150}>
-              <RankingSection />
-            </AnimatedSection>
+            <RankingSection />
           </div>
 
-          {/* Newsletter */}
-          <AnimatedSection animation="fade-up" duration={0.9} delay={150}>
-            <NewsletterSignup onSubmit={(email) => console.log('subscribe', email)} />
-          </AnimatedSection>
+          <NewsletterSignup onSubmit={(email) => console.log('subscribe', email)} />
         </div>
       )}
     </div>

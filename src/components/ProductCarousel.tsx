@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { useRouter } from "next/navigation";
 import { ProductCard } from "./ProductCard";
 import { Product as SharedProduct } from "@/types/product.types";
+import { AnimatedSection } from "./AnimatedSection";
 
 interface Product {
   detailId: number;
@@ -144,7 +145,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
       {/* Carousel */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-4 sm:gap-5 md:gap-6">
-          {products.map((product) => {
+          {products.map((product, index) => {
             const sharedProduct = convertToSharedProduct(product);
 
             return (
@@ -152,10 +153,12 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
                 key={product.detailId}
                 className="flex-[0_0_calc(50%-0.5rem)] sm:flex-[0_0_calc(33.33%-1rem)] md:flex-[0_0_calc(25%-1.125rem)] lg:flex-[0_0_calc(20%-1.2rem)] min-w-0"
               >
-                <ProductCard
-                  product={sharedProduct}
-                  onProductClick={handleProductClick}
-                />
+                <AnimatedSection animation="fade-up" duration={0.6} delay={100 + index * 50}>
+                  <ProductCard
+                    product={sharedProduct}
+                    onProductClick={handleProductClick}
+                  />
+                </AnimatedSection>
               </div>
             );
           })}

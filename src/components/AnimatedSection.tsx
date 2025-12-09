@@ -169,7 +169,7 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
       whileInView="visible"
       viewport={{ 
         once: true, 
-        amount: 0.1,
+        amount: 0.2,
         margin: "0px 0px -50px 0px" 
       }}
       variants={variants}
