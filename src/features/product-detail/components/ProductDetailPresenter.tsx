@@ -41,12 +41,8 @@ export function ProductDetailPresenter({
 }: ProductDetailPresenterProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const router = useRouter();
+  useRouter();
   const [isInWishlistLocal, setIsInWishlistLocal] = useState(false);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + '₫';
-  };
 
   const handleImageTransition = (newIndex: number) => {
     if (newIndex === selectedImageIndex || isTransitioning) return;
@@ -57,24 +53,6 @@ export function ProductDetailPresenter({
       setSelectedImageIndex(newIndex);
       setIsTransitioning(false);
     }, 250);
-  };
-
-  const handlePreviousImage = () => {
-    const newIndex = selectedImageIndex === 0 ? product.images.length - 1 : selectedImageIndex - 1;
-    handleImageTransition(newIndex);
-  };
-
-  const handleNextImage = () => {
-    const newIndex = selectedImageIndex === product.images.length - 1 ? 0 : selectedImageIndex + 1;
-    handleImageTransition(newIndex);
-  };
-
-  const handleThumbnailClick = (index: number) => {
-    handleImageTransition(index);
-  };
-
-  const handleDotClick = (index: number) => {
-    handleImageTransition(index);
   };
 
   // Handle color change with API call

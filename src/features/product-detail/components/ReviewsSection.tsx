@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { reviewApiService, ReviewItem, UpdateReviewRequest } from '@/services/api/reviewApi';
+import Image from 'next/image';
+import { reviewApiService, ReviewItem } from '@/services/api/reviewApi';
 import { useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated, selectUser } from '@/features/auth/login/redux/loginSlice';
 import { useToast } from '@/providers/ToastProvider';
@@ -43,11 +44,13 @@ function UserAvatar({ username, avatar, size = 'md' }: { username: string; avata
 
   if (avatar) {
     return (
-      <div className="relative">
-        <img
+      <div className={`relative ${sizeClasses[size]}`}>
+        <Image
           src={avatar}
           alt={`${username}'s avatar`}
-          className={`${sizeClasses[size]} rounded-full object-cover border-2 border-gray-200`}
+          className="rounded-full object-cover border-2 border-gray-200"
+          fill
+          sizes="48px"
           onError={(e) => {
             // Fallback to initials if image fails to load
             const target = e.target as HTMLImageElement;
@@ -195,7 +198,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
       } else {
         showError(res.message || 'Failed to delete review');
       }
-    } catch (error) {
+    } catch {
       showError('Failed to delete review');
     } finally {
       setShowDeleteModal(false);

@@ -84,7 +84,7 @@ export function ProductInfo({
     return () => { mounted = false; };
   }, [isAuthenticated, product.detailId]);
 
-  const handleToggleWishlist = useCallback(async () => {
+  useCallback(async () => {
     if (!isAuthenticated) {
       router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
       return;
@@ -106,14 +106,14 @@ export function ProductInfo({
           setIsInWishlist(exists);
         }
       }
-    } catch (e) {
+    } catch {
       // revert on error
       setIsInWishlist(prev => !prev);
-      // console.error('Toggle wishlist failed', e);
+      // console.error('Toggle wishlist failed');
     } finally {
       setWishlistBusy(false);
     }
-  }, [isAuthenticated, product.detailId, isInWishlist, wishlistBusy, router]);
+  }, [isAuthenticated, product.detailId, wishlistBusy, router]);
 
   const handleAddToCart = async () => {
     if (!selectedSize) {
@@ -146,7 +146,7 @@ export function ProductInfo({
         console.error('Failed to record ADD_TO_CART interaction:', error);
         // Fail silently
       }
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
       setAddingToCart(false);
     }
