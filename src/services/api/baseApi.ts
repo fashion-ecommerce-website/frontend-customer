@@ -134,7 +134,7 @@ class BaseApi {
       // Consider token expired if it expires within next 30 seconds
       const isExpired = exp - now < 30;
       return isExpired;
-    } catch (error) {
+    } catch {
       return true;
     }
   }
@@ -158,7 +158,8 @@ class BaseApi {
       // Chỉ kiểm tra token với các endpoint thực sự cần đăng nhập
       // Không kiểm tra với GET /products hoặc các API public
       const isGetProducts = options.method === 'GET' && endpoint.startsWith('/products');
-      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts;
+      const isChatbot = endpoint.includes('/chatbot/');
+      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts && !isChatbot;
       if (shouldCheckAuth) {
         const tokenValid = await this.ensureValidToken();
         if (!tokenValid) {
@@ -171,7 +172,8 @@ class BaseApi {
       }
 
       const url = `${this.baseUrl}${endpoint}`;
-      const authHeaders = this.getAuthHeaders();
+      // Only add auth headers if not skipping auth
+      const authHeaders = options.skipAuth ? {} : this.getAuthHeaders();
       const headers = {
         'Content-Type': 'application/json',
         ...authHeaders,
@@ -205,7 +207,7 @@ class BaseApi {
       }
 
       // Check if response has content before parsing JSON
-      let data: any = null;
+      let data: Record<string, unknown> | null = null;
       const contentType = response.headers.get('content-type');
       const contentLength = response.headers.get('content-length');
       
@@ -216,7 +218,7 @@ class BaseApi {
           if (text.trim()) {
             data = JSON.parse(text);
           }
-        } catch (parseError) {
+        } catch {
           // If JSON parsing fails, it's not a JSON response
           data = null;
         }
@@ -226,14 +228,14 @@ class BaseApi {
         return {
           success: false,
           data: null,
-          message: data?.message || `HTTP Error: ${response.status}`,
+          message: (data as { message?: string })?.message || `HTTP Error: ${response.status}`,
         };
       }
 
       return {
         success: true,
-        data: data,
-        message: data?.message,
+        data: data as T,
+        message: (data as { message?: string })?.message,
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Network error occurred';

@@ -10,14 +10,13 @@ import { PromotionalBanner } from "./PromotionalBanner";
 import { useCategories } from '@/hooks/useCategories';
 
 export const Header: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
   const router = useRouter();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { categories, loading: categoriesLoading } = useCategories();
 
   // Get authentication state from custom hook
   const { isAuthenticated, user, logout } = useAuth();
@@ -87,18 +86,6 @@ export const Header: React.FC = () => {
   }, [isMenuOpen]);
 
   // categories are loaded by useCategories hook
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Navigate to search results page
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
-  const handleSearchClear = () => {
-    setSearchQuery("");
-  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -336,7 +323,7 @@ export const Header: React.FC = () => {
               {/* Search Bar */}
               <button
                 onClick={() => router.push("/search")}
-                className="text-black hover:text-gray-600 transition-colors"
+                className="text-black hover:text-gray-600 transition-colors cursor-pointer"
                 aria-label="Search"
               >
                 <svg
@@ -406,7 +393,7 @@ export const Header: React.FC = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={handleProfileClick}
-                  className="text-black flex items-center space-x-1 hover:text-gray-600 transition-colors"
+                  className="text-black flex items-center space-x-1 hover:text-gray-600 transition-colors cursor-pointer"
                   title={
                     isAuthenticated
                       ? `Profile (${user?.username || "User"})`

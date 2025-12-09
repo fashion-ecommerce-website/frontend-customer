@@ -6,7 +6,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/store';
 import { 
-  User, 
   ApiError, 
   ProfileState, 
   UpdateProfileRequest,
@@ -50,7 +49,8 @@ const profileSlice = createSlice({
     },
 
     // Update Profile Actions - removed user handling
-    updateProfileRequest: (state, _action: PayloadAction<UpdateProfileRequest>) => {
+    updateProfileRequest: (state, _: PayloadAction<UpdateProfileRequest>) => {
+      void _;
       state.isUpdating = true;
       state.updateError = null;
       state.updateSuccess = false;
@@ -67,7 +67,8 @@ const profileSlice = createSlice({
     },
 
     // Change Password Actions
-    changePasswordRequest: (state, _action: PayloadAction<ChangePasswordRequest>) => {
+    changePasswordRequest: (state, _: PayloadAction<ChangePasswordRequest>) => {
+      void _;
       state.isChangingPassword = true;
       state.passwordError = null;
       state.passwordChangeSuccess = false;
@@ -100,7 +101,7 @@ const profileSlice = createSlice({
       state.updateSuccess = false;
       state.passwordChangeSuccess = false;
     },
-    clearState: (_state) => {
+    clearState: () => {
       return initialState;
     },
   },

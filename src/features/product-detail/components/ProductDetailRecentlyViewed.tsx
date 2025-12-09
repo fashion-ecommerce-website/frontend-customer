@@ -79,12 +79,12 @@ export function ProductDetailRecentlyViewed() {
   }
 
   return (
-    <div className="bg-white">
+    <section className="bg-white">
       <ProductCarousel
         products={items}
         title="Recently Viewed"
         onProductClick={handleProductClick}
       />
-    </div>
+    </section>
   );
 }

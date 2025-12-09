@@ -54,6 +54,7 @@ export const API_ENDPOINTS = {
 
 /**
  * GHN (Giao Hàng Nhanh) Configuration
+ * NOTE: These values should match Backend GHNCarrierService defaults
  */
 export const GHN_CONFIG = {
   API_URL: 'https://dev-online-gateway.ghn.vn/shiip/public-api',
@@ -62,13 +63,16 @@ export const GHN_CONFIG = {
   FROM_DISTRICT_ID: process.env.NEXT_PUBLIC_GHN_FROM_DISTRICT_ID,
   PRODUCT_TOKEN: process.env.NEXT_PUBLIC_GHN_PRODUCT_TOKEN,
   // Default package dimensions (in cm and grams)
+  // Must match Backend GHNCarrierService defaults for consistent pricing
   DEFAULT_PACKAGE: {
-    height: 20,
-    length: 30,
-    width: 40,
-    weight: 3000, // 3kg in grams
+    height: 10,      // cm - matches Backend default
+    length: 10,      // cm - matches Backend default
+    width: 10,       // cm - matches Backend default
+    weight: 200,     // grams - Backend uses 200g per item
     insurance_value: 0
-  }
+  },
+  // Weight per item in grams (Backend uses 200g per item)
+  WEIGHT_PER_ITEM: 200,
 };
 
 /**

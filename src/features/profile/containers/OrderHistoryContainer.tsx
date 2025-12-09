@@ -10,6 +10,7 @@ import { productApi } from '@/services/api/productApi';
 import { useAppSelector } from '@/hooks/redux';
 import { selectUser } from '@/features/auth/login/redux/loginSlice';
 import { ReviewModal } from '@/components/modals/ReviewModal';
+import { reviewApiService } from '@/services/api/reviewApi';
 
 export const OrderHistoryContainer: React.FC<{
   onOpenDetail?: (order: Order) => void,
@@ -32,14 +33,22 @@ export const OrderHistoryContainer: React.FC<{
     page: 0,
     size: 10
   });
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
-      const queryWithUserId = { ...query, userId: Number(user.id) };
+    if (user?.id && !initialized) {
+      const queryWithUserId = {
+        userId: Number(user.id),
+        sortBy: 'createdAt' as const,
+        direction: 'desc' as const,
+        page: 0,
+        size: 10
+      };
       setQuery(queryWithUserId);
       fetchOrders(queryWithUserId);
+      setInitialized(true);
     }
-  }, [user?.id]);
+  }, [user?.id, initialized, fetchOrders]);
 
   // Fetch product images when orders change
   useEffect(() => {
@@ -103,7 +112,6 @@ export const OrderHistoryContainer: React.FC<{
     setIsReviewModalOpen(true);
   };
 
-  const { reviewApiService } = require('@/services/api/reviewApi');
   const handleReviewSubmit = async (_orderId: number, reviews: { productDetailId: number; rating: number; comment: string }[]) => {
     // Gửi từng review tới API, chỉ truyền productDetailId, rating, comment
     for (const review of reviews) {
@@ -131,8 +139,8 @@ export const OrderHistoryContainer: React.FC<{
           <OrderFilters
             query={query}
             onQueryChange={handleQueryChange}
-            onApplyFilters={handleApplyFilters}
-            loading={displayLoading}
+            // onApplyFilters={handleApplyFilters}
+            // loading={displayLoading}
           />
         </div>
         
@@ -141,8 +149,8 @@ export const OrderHistoryContainer: React.FC<{
           <OrderFilters
             query={query}
             onQueryChange={handleQueryChange}
-            onApplyFilters={handleApplyFilters}
-            loading={displayLoading}
+            // onApplyFilters={handleApplyFilters}
+            // loading={displayLoading}
           />
         </div>
       </div>

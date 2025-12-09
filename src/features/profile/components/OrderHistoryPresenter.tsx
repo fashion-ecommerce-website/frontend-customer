@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Order, OrderStatus, PaginatedResponse } from '@/features/order/types';
+import Image from 'next/image';
 import { useEnums } from '@/hooks/useEnums';
 import { Pagination } from '@/features/filter-product/components/Pagination';
 
@@ -212,7 +213,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
               </div>
 
               {/* Actions - Compact buttons */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => toggleExpand(order.id)}
@@ -226,6 +227,13 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   className="text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
                 >
                   Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTrack?.(order)}
+                  className="text-xs font-medium text-blue-600 border border-blue-300 hover:bg-blue-50 px-3 py-1.5 rounded transition-colors"
+                >
+                  Track
                 </button>
                 <button
                   type="button"
@@ -310,9 +318,11 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   {order.orderDetails.map(detail => (
                     <div key={detail.id} className="flex gap-2">
                       <div className="w-16 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
-                        <img 
+                        <Image 
                           src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
                           alt={detail.title} 
+                          width={64}
+                          height={80}
                           className="w-full h-full object-cover" 
                         />
                       </div>
@@ -321,14 +331,12 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                         <div className="text-[10px] text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</div>
                         <div className="flex items-center justify-between mt-1.5">
                           <span className="text-[10px] text-gray-600">x{detail.quantity}</span>
-                          {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                          {detail.promotionId && detail.percentOff != null && detail.percentOff > 0 ? (
                             <div className="flex items-center gap-1">
-                              <span className="text-black font-bold text-xs">{formatPrice(detail.finalPrice)}</span>
-                              {detail.percentOff && (
-                                <span className="bg-red-500 text-white px-1 py-0.5 rounded text-[9px] font-medium">
-                                  -{detail.percentOff}%
-                                </span>
-                              )}
+                              <span className="text-black font-bold text-xs">{formatPrice(detail.unitPrice * (1 - detail.percentOff / 100))}</span>
+                              <span className="bg-red-500 text-white px-1 py-0.5 rounded text-[9px] font-medium">
+                                -{detail.percentOff}%
+                              </span>
                             </div>
                           ) : (
                             <span className="text-black font-bold text-xs">{formatPrice(detail.unitPrice)}</span>
@@ -344,9 +352,11 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   {order.orderDetails.map(detail => (
                     <div key={detail.id} className="flex gap-4">
                       <div className="w-20 xl:w-24 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
-                        <img 
+                        <Image 
                           src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
                           alt={detail.title} 
+                          width={96}
+                          height={120}
                           className="w-full h-full object-cover" 
                         />
                       </div>
@@ -356,19 +366,17 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                         <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
                         
                         <div className="mt-2">
-                          {detail.finalPrice && detail.finalPrice !== detail.unitPrice ? (
+                          {detail.promotionId && detail.percentOff != null && detail.percentOff > 0 ? (
                             <div className="flex items-center gap-2 flex-wrap">
                               <div className="text-black font-bold text-base">
-                                {formatPrice(detail.finalPrice)}
+                                {formatPrice(detail.unitPrice * (1 - detail.percentOff / 100))}
                               </div>
                               <div className="text-sm line-through text-gray-500">
                                 {formatPrice(detail.unitPrice)}
                               </div>
-                              {detail.percentOff && (
-                                <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                                  -{detail.percentOff}%
-                                </span>
-                              )}
+                              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                -{detail.percentOff}%
+                              </span>
                             </div>
                           ) : (
                             <div className="text-black font-bold text-base">

@@ -5,14 +5,14 @@ import { SearchInput } from './SearchInput';
 import { SearchResults } from './SearchResults';
 import { SearchProductFilter } from './SearchProductFilter';
 import { FilterSidebar } from '../../filter-product/components/FilterSidebar';
-import { SearchFilters, SearchResultItem } from '../types';
+import { SearchResultItem } from '../types';
 import { ProductFilters } from '../../filter-product/types';
 import { productApi } from '../../../services/api/productApi';
 import { addSearchHistory } from '../../../utils/searchHistory';
 
 // Debounce hook for API calls
-const useDebounce = (value: any, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+const useDebounce = (value: ProductFilters, delay: number): ProductFilters => {
+  const [debouncedValue, setDebouncedValue] = useState<ProductFilters>(value);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -53,15 +53,6 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
 
   // Debounce filters to avoid too many API calls
   const debouncedFilters = useDebounce(filters, 300);
-  
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 12,
-    totalItems: 0,
-    totalPages: 1,
-    hasNext: false,
-    hasPrevious: false
-  });
 
   const searchProducts = async (searchFilters: ProductFilters) => {
     // Only search if there's a query or specific filters
@@ -102,19 +93,11 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
       
       if (response.success && response.data) {
         setResults(response.data.items);
-        setPagination({
-          page: response.data.page + 1, // Convert: Server page 0 → UI page 1
-          pageSize: response.data.pageSize,
-          totalItems: response.data.totalItems,
-          totalPages: response.data.totalPages,
-          hasNext: response.data.hasNext,
-          hasPrevious: response.data.hasPrevious
-        });
       } else {
         setError(response.message || 'An error occurred while searching for products');
         setResults([]);
       }
-    } catch (err) {
+    } catch {
       setError('Unable to connect to server');
       setResults([]);
     } finally {
@@ -137,7 +120,7 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
     }
   }, [debouncedFilters]);
 
-  const handleSearch = useCallback((searchQuery: string, searchFilters?: SearchFilters) => {
+  const handleSearch = useCallback((searchQuery: string) => {
     const newQuery = searchQuery.trim();
     setQuery(newQuery);
     

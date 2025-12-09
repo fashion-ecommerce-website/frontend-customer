@@ -35,6 +35,11 @@ export interface ShippingAddress {
   ward: string;
   city: string;
   countryCode: string;
+  // GHN Integration fields
+  provinceId?: number;
+  districtId?: number;
+  districtName?: string;
+  wardCode?: string;
 }
 
 // Order detail interface
@@ -69,7 +74,7 @@ export interface Payment {
 // Shipment interface
 export interface Shipment {
   id: number;
-  trackingNumber: string;
+  trackingNo: string;  // Backend returns trackingNo
   carrier: string;
   status: string;
   shippedAt: string | null;

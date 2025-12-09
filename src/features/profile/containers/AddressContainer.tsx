@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
-import { AddressSection } from '../components/AddressSection';
+import { AddressPresenter } from '../components/AddressPresenter';
 import { AddressModal } from '../components/AddressModal';
 import { ConfirmModal } from '../../../components/modals/ConfirmModal';
 import { useToast } from '../../../providers/ToastProvider';
@@ -12,7 +12,6 @@ import {
   createAddressRequest,
   updateAddressRequest,
   deleteAddressRequest,
-  setDefaultAddressRequest,
   setCurrentAddress,
   clearError,
   clearCreateError,
@@ -130,18 +129,46 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
     }
   }, [deleteSuccess, dispatch, showSuccess]);
 
+  // Helper function to get user-friendly error message
+  const getFriendlyErrorMessage = (errorMessage: string, action: 'create' | 'update' | 'delete'): string => {
+    // Check for foreign key constraint error (address is being used in orders)
+    if (errorMessage.includes('foreign key constraint') || 
+        errorMessage.includes('still referenced from table') ||
+        errorMessage.includes('violates foreign key')) {
+      return 'This address is currently being used in existing orders and cannot be deleted.';
+    }
+    
+    // Default messages
+    switch (action) {
+      case 'create':
+        return 'Failed to create address. Please try again.';
+      case 'update':
+        return 'Failed to update address. Please try again.';
+      case 'delete':
+        return 'Failed to delete address. Please try again.';
+      default:
+        return 'An error occurred. Please try again.';
+    }
+  };
+
   // Handle errors with toast
   useEffect(() => {
     if (createError) {
-      showError(`Failed to create address: ${createError.message}`);
+      showError(getFriendlyErrorMessage(createError.message, 'create'));
+      dispatch(clearCreateError());
     }
     if (updateError) {
-      showError(`Failed to update address: ${updateError.message}`);
+      showError(getFriendlyErrorMessage(updateError.message, 'update'));
+      dispatch(clearUpdateError());
     }
     if (deleteError) {
-      showError(`Failed to delete address: ${deleteError.message}`);
+      showError(getFriendlyErrorMessage(deleteError.message, 'delete'));
+      // Close the confirm modal when delete fails
+      setShowDeleteConfirm(false);
+      setAddressToDelete(null);
+      dispatch(clearDeleteError());
     }
-  }, [createError, updateError, deleteError, showError]);
+  }, [createError, updateError, deleteError, showError, dispatch]);
 
   // Handle add address
   const handleAddAddress = useCallback(() => {
@@ -161,13 +188,6 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
     setShowDeleteConfirm(true);
   }, []);
 
-  // Handle set default address
-  const handleSetDefaultAddress = useCallback((addressId: number) => {
-    if (addressId) {
-      dispatch(setDefaultAddressRequest(addressId));
-    }
-  }, [dispatch]);
-
   // Handle modal close
   const handleModalClose = useCallback(() => {
     setShowModal(false);
@@ -184,22 +204,32 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
         id: currentAddress.id,
         fullName: addressData.fullName,
         phone: addressData.phone,
-        line: addressData.line,
+        line: addressData.line || '',
         ward: addressData.ward,
         city: addressData.city,
         countryCode: addressData.countryCode,
         isDefault: addressData.isDefault,
+        // GHN Integration fields
+        provinceId: addressData.provinceId,
+        districtId: addressData.districtId,
+        districtName: addressData.districtName,
+        wardCode: addressData.wardCode,
       }));
     } else {
       // Create new address
       dispatch(createAddressRequest({
         fullName: addressData.fullName,
         phone: addressData.phone,
-        line: addressData.line,
+        line: addressData.line || '',
         ward: addressData.ward,
         city: addressData.city,
         countryCode: addressData.countryCode,
         isDefault: addressData.isDefault,
+        // GHN Integration fields
+        provinceId: addressData.provinceId,
+        districtId: addressData.districtId,
+        districtName: addressData.districtName,
+        wardCode: addressData.wardCode,
       }));
     }
   }, [currentAddress, dispatch]);
@@ -224,14 +254,13 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
 
   return (
     <>
-      <AddressSection
+      <AddressPresenter
         addresses={addresses}
         isLoading={isLoading}
         error={error}
         onAddAddress={handleAddAddress}
         onUpdateAddress={handleUpdateAddress}
         onDeleteAddress={handleDeleteAddress}
-        onSetDefaultAddress={handleSetDefaultAddress}
         onClearError={handleClearError}
       />
       
@@ -241,6 +270,7 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
         onClose={handleModalClose}
         onSave={handleAddressSave}
         isLoading={isCreating || isUpdating}
+        isFirstAddress={addresses.length === 0 && !currentAddress}
       />
       
       <ConfirmModal

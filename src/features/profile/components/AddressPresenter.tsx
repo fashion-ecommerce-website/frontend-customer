@@ -1,21 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-
-interface Address {
-  id?: number;
-  userId?: number;
-  fullName: string;
-  phone: string;
-  line: string;
-  ward: string;
-  city: string;
-  countryCode: string;
-  isDefault?: boolean;
-  default?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import React from 'react';
+import { Address } from '@/services/api/addressApi';
 
 interface AddressSectionProps {
   addresses?: Address[];
@@ -24,18 +10,16 @@ interface AddressSectionProps {
   onAddAddress?: () => void;
   onUpdateAddress?: (address: Address) => void;
   onDeleteAddress?: (addressId: number) => void;
-  onSetDefaultAddress?: (addressId: number) => void;
   onClearError?: () => void;
 }
 
-export const AddressSection: React.FC<AddressSectionProps> = ({
+export const AddressPresenter: React.FC<AddressSectionProps> = ({
   addresses = [],
   isLoading = false,
   error = null,
   onAddAddress,
   onUpdateAddress,
   onDeleteAddress,
-  onSetDefaultAddress,
   onClearError,
 }) => {
   const handleUpdateClick = (address: Address) => {
@@ -76,7 +60,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
           {onClearError && (
             <button
               onClick={onClearError}
-              className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
               Try Again
             </button>
@@ -134,7 +118,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                   </div>
                   <div className="space-y-1 text-xs sm:text-sm text-gray-900">
                     <div className="break-words">
-                      <span className="font-semibold">Address:</span> {address.line}, {address.ward}, {address.city}
+                      <span className="font-semibold">Address:</span> {[address.line, address.ward, address.districtName, address.city].filter(Boolean).join(', ')}
                     </div>
                     <div>
                       <span className="font-semibold">Phone:</span> {address.phone || 'Not provided'}
@@ -144,14 +128,14 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                 <div className="flex flex-row sm:flex-col gap-2 self-start">
                   <button
                     onClick={() => handleUpdateClick(address)}
-                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200"
+                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 cursor-pointer"
                   >
                     Update
                   </button>
                   {address.id && !(address.isDefault || address.default) && (
                     <button
                       onClick={() => onDeleteAddress && onDeleteAddress(address.id!)}
-                      className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:border-red-400 transition-colors duration-200"
+                      className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:border-red-400 transition-colors duration-200 cursor-pointer"
                     >
                       Delete
                     </button>
@@ -167,7 +151,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
       <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200 flex justify-center">
         <button
           onClick={handleAddClick}
-          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>Add shipping address</span>
         </button>

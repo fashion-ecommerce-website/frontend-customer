@@ -1,4 +1,3 @@
-import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
 
 // GHN Configuration
@@ -46,29 +45,52 @@ export interface GHNWard {
   Status: number;
 }
 
+export interface GHNShippingFeeItem {
+  name: string;
+  quantity: number;
+  height?: number;
+  weight?: number;
+  length?: number;
+  width?: number;
+}
+
 export interface GHNShippingFeeRequest {
-  from_district_id: number;
-  to_district_id: number;
-  to_ward_code: string;
-  height: number;
-  length: number;
-  weight: number;
-  width: number;
-  insurance_value?: number;
-  service_type_id?: number;
+  from_district_id?: number;        // District ID pick up parcels (optional if using shopId)
+  from_ward_code?: string;          // Ward code pick up parcels (optional if using shopId)
+  to_district_id: number;           // District ID drop off parcels (required)
+  to_ward_code: string;             // Ward Code drop off parcels (required)
+  service_id?: number;              // Service ID from API SERVICE
+  service_type_id?: number;         // Default: 2 (E-Commerce Delivery)
+  height?: number;                  // Height (cm)
+  length?: number;                  // Length (cm)
+  weight?: number;                  // Weight (gram)
+  width?: number;                   // Width (cm)
+  insurance_value?: number;         // Parcel value for compensation (max 5,000,000)
+  cod_value?: number;               // Amount cash to collect (max 5,000,000)
+  cod_failed_amount?: number;       // Value of collect money when delivery fail
+  coupon?: string | null;           // Coupon Code for discount
+  items?: GHNShippingFeeItem[];     // List of items in the parcel
+}
+
+export interface GHNShippingFeeData {
+  total: number;                    // Total service fee
+  service_fee: number;              // Service fee
+  insurance_fee: number;            // Insurance fee
+  pick_station_fee: number;         // Pickup fee at Station
+  coupon_value: number;             // Coupon discount value
+  r2s_fee: number;                  // Fee of delivery parcel again
+  document_return: number;          // Fee of document return
+  double_check: number;             // Fee of check together
+  cod_fee: number;                  // Fee of collection COD
+  pick_remote_areas_fee: number;    // Fee of pick remote areas
+  deliver_remote_areas_fee: number; // Fee of delivery remote areas
+  cod_failed_fee: number;           // Fee of collection money when delivery fail
 }
 
 export interface GHNShippingFeeResponse {
   code: number;
   message: string;
-  data: {
-    total: number;
-    service_fee: number;
-    insurance_fee: number;
-    pick_station_fee: number;
-    coupon_value: number;
-    r2s_fee: number;
-  };
+  data: GHNShippingFeeData;
 }
 
 // Tracking types
@@ -217,7 +239,41 @@ export const ghnApi = {
   },
 
   // Calculate shipping fee
-  calculateShippingFee: async (request: GHNShippingFeeRequest): Promise<ApiResponse<number>> => {
+  calculateShippingFee: async (request: GHNShippingFeeRequest): Promise<ApiResponse<GHNShippingFeeData>> => {
+    try {
+      const response = await fetch(`${GHN_API_URL}/v2/shipping-order/fee`, {
+        method: 'POST',
+        headers: getGHNHeaders(),
+        body: JSON.stringify(request)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data: GHNShippingFeeResponse = await response.json();
+      
+      if (data.code !== 200) {
+        throw new Error(data.message || 'Failed to calculate shipping fee');
+      }
+      
+      return {
+        success: true,
+        data: data.data,
+        message: 'Shipping fee calculated successfully'
+      };
+    } catch (error) {
+      
+      return {
+        success: false,
+        data: null,
+        message: error instanceof Error ? error.message : 'Failed to calculate shipping fee'
+      };
+    }
+  },
+
+  // Calculate shipping fee (returns only total - for backward compatibility)
+  calculateShippingFeeTotal: async (request: GHNShippingFeeRequest): Promise<ApiResponse<number>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/shipping-order/fee`, {
         method: 'POST',
@@ -273,19 +329,23 @@ export const ghnApi = {
         return res;
       };
 
-      const normalizeEvents = (data: any): GHNTrackingEvent[] => {
-        const logs: any[] = Array.isArray(data?.data)
-          ? data.data
-          : (Array.isArray(data?.data?.logs) ? data.data.logs : (Array.isArray(data?.data?.log) ? data.data.log : []));
-        const events: GHNTrackingEvent[] = logs.map((e: any) => ({
-          time: e.time || e.created_at || e.createdAt || e.updated_date || '',
-          status: e.status || e.current_status || e.action || e.reason_code || 'UNKNOWN',
-          reason: e.reason || e.note || e.description || null,
-          location: e.location || e.hub || e.current_region || null,
-        }));
+      const normalizeEvents = (data: { data?: unknown; code?: number }): GHNTrackingEvent[] => {
+        const dataObj = data?.data as { logs?: unknown[]; log?: unknown[] } | unknown[] | undefined;
+        const logs: unknown[] = Array.isArray(dataObj)
+          ? dataObj
+          : (Array.isArray((dataObj as { logs?: unknown[] })?.logs) ? (dataObj as { logs: unknown[] }).logs : (Array.isArray((dataObj as { log?: unknown[] })?.log) ? (dataObj as { log: unknown[] }).log : []));
+        const events: GHNTrackingEvent[] = logs.map((e: unknown) => {
+          const event = e as { time?: string; created_at?: string; createdAt?: string; updated_date?: string; status?: string; current_status?: string; action?: string; reason_code?: string; reason?: string; note?: string; description?: string; location?: string; hub?: string; current_region?: string };
+          return {
+            time: event.time || event.created_at || event.createdAt || event.updated_date || '',
+            status: event.status || event.current_status || event.action || event.reason_code || 'UNKNOWN',
+            reason: event.reason || event.note || event.description || null,
+            location: event.location || event.hub || event.current_region || null,
+          };
+        });
         if (events.length === 0 && data?.data) {
           // Synthesize an initial event from detail payload when logs are not available yet
-          const d = data.data;
+          const d = data.data as { updated_date?: string; created_date?: string; status?: string; content?: string; note?: string; current_warehouse_id?: number };
           events.push({
             time: d.updated_date || d.created_date || new Date().toISOString(),
             status: d.status || 'CREATED',
@@ -297,9 +357,9 @@ export const ghnApi = {
       };
 
       let response = await tryTrack();
-      let data = null as any;
+      let data: { code?: number; message?: string; data?: unknown } | null = null;
       if (response.ok) {
-        data = await response.json();
+        data = await response.json() as { code?: number; message?: string; data?: unknown };
         if (data?.code === 200) {
           return { success: true, data: normalizeEvents(data), message: 'Tracking events fetched successfully' };
         }
@@ -345,7 +405,7 @@ export const ghnApi = {
         content: payload.content || 'Order',
         required_note: payload.required_note || 'KHONGCHOXEMHANG',
         from_district_id: GHN_FROM_DISTRICT_ID ? Number(GHN_FROM_DISTRICT_ID) : undefined,
-      } as any;
+      };
 
       const response = await fetch(`${GHN_API_URL}/v2/shipping-order/create`, {
         method: 'POST',
@@ -378,7 +438,7 @@ export const ghnApi = {
   },
 
   // Get available services for a route
-  getAvailableServices: async (fromDistrictId: number, toDistrictId: number): Promise<ApiResponse<any[]>> => {
+  getAvailableServices: async (fromDistrictId: number, toDistrictId: number): Promise<ApiResponse<unknown[]>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/shipping-order/available-services`, {
         method: 'POST',
@@ -416,7 +476,7 @@ export const ghnApi = {
 
   // Product-related endpoints using product token
   // Get product categories
-  getProductCategories: async (): Promise<ApiResponse<any[]>> => {
+  getProductCategories: async (): Promise<ApiResponse<unknown[]>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/product/categories`, {
         method: 'GET',
@@ -449,7 +509,7 @@ export const ghnApi = {
   },
 
   // Get product list
-  getProducts: async (page: number = 1, limit: number = 20): Promise<ApiResponse<any[]>> => {
+  getProducts: async (page: number = 1, limit: number = 20): Promise<ApiResponse<unknown[]>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/product/list?page=${page}&limit=${limit}`, {
         method: 'GET',
@@ -482,7 +542,7 @@ export const ghnApi = {
   },
 
   // Create product
-  createProduct: async (productData: any): Promise<ApiResponse<any>> => {
+  createProduct: async (productData: Record<string, unknown>): Promise<ApiResponse<unknown>> => {
     try {
       const response = await fetch(`${GHN_API_URL}/v2/product/create`, {
         method: 'POST',

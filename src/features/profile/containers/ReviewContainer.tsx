@@ -133,11 +133,6 @@ export const ReviewContainer: React.FC<ReviewContainerProps> = ({
     dispatch(clearError());
   }, [dispatch]);
 
-  // Handle clear success
-  const handleClearSuccess = useCallback(() => {
-    dispatch(clearSuccess());
-  }, [dispatch]);
-
   // Handle page change
   const handlePageChange = useCallback((page: number) => {
     dispatch(getReviewsRequest({ page }));

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Order, PaymentMethod } from '@/features/order/types';
 import { useEnums } from '@/hooks/useEnums';
@@ -39,11 +40,13 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
           <div className="space-y-6">
             {order.orderDetails.map(item => (
               <div key={item.id} className="flex gap-4">
-                <div className="w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-                  <img 
+                <div className="relative w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
+                  <Image 
                     src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} 
                     alt={item.title} 
-                    className="w-full h-full object-cover" 
+                    fill
+                    sizes="96px"
+                    className="object-cover" 
                   />
                 </div>
                 <div className="flex-1">
@@ -51,21 +54,19 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
                   <div className="text-xs text-gray-500">{item.colorLabel} / {item.sizeLabel}</div>
                   <div className="text-xs text-gray-600 mt-1">Quantity: {item.quantity}</div>
                   
-                  {/* Price - Simple like product detail */}
+                  {/* Price - Show unit price with promotion discount */}
                   <div className="mt-2">
-                    {item.finalPrice && item.finalPrice !== item.unitPrice ? (
+                    {item.promotionId && item.percentOff != null && item.percentOff > 0 ? (
                       <div className="flex items-center gap-2">
                         <div className="text-black font-semibold">
-                          {formatPrice(item.finalPrice)}
+                          {formatPrice(item.unitPrice * (1 - item.percentOff / 100))}
                         </div>
                         <div className="text-sm line-through text-gray-500">
                           {formatPrice(item.unitPrice)}
                         </div>
-                        {item.percentOff && (
-                          <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                            -{item.percentOff}%
-                          </span>
-                        )}
+                        <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                          -{item.percentOff}%
+                        </span>
                       </div>
                     ) : (
                       <div className="text-black font-semibold">
@@ -117,8 +118,12 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <div className="flex justify-between"><span className="text-gray-600">Shipping Status</span><span className="text-black">{order.shipments?.[0]?.status || 'PENDING'}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Name</span><span className="text-black">{order.shippingAddress.fullName}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Phone Number</span><span className="text-black">{order.shippingAddress.phone}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Address</span><span className="text-black">{order.shippingAddress.line}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Province</span><span className="text-black">{order.shippingAddress.city}</span></div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Address</span>
+                <span className="text-black text-right">
+                  {[order.shippingAddress.line, order.shippingAddress.ward, order.shippingAddress.districtName, order.shippingAddress.city].filter(Boolean).join(', ')}
+                </span>
+              </div>
               <div className="flex justify-between"><span className="text-gray-600">Country</span><span className="text-black">Vietnam</span></div>
             </div>
           </div>

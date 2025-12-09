@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback } from 'react';
+import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Product, ProductCategory } from '../types/home.types';
 import { ProductCard } from '@/components';
@@ -61,9 +62,9 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
           <h2
             className={
               variant === 'newArrivals'
-                ? "text-black text-xl sm:text-2xl lg:text-3xl font-normal uppercase leading-tight sm:leading-10 font-['SVN-Product_Sans']"
+                ? "text-2xl sm:text-3xl font-bold text-gray-900"
                 : variant === 'ranking'
-                ? "text-black text-xl sm:text-2xl lg:text-3xl font-normal uppercase leading-tight sm:leading-10 font-['SVN-Product_Sans']"
+                ? "text-2xl sm:text-3xl font-bold text-gray-900"
                 : "text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900"
             }
           >
@@ -151,11 +152,13 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
             {/* Left large image */}
             <div className="w-full min-w-0 order-2 lg:order-1">
               <div className="w-full h-full relative">
-                <div className="w-full aspect-square lg:h-full lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-lg lg:rounded-none">
-                  <img
+                <div className="w-full aspect-square lg:h-full lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-lg lg:rounded-none relative">
+                  <Image
                     className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-95 group-hover:scale-105"
                     src={leftImageUrl || products[0]?.image}
                     alt={products[0]?.name || 'New arrivals'}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 55vw"
                   />
                   <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute inset-0 bg-black/50"></div>
@@ -228,7 +231,9 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                     {(products && products.length > 0 ? products : mockRankingProducts).map((product, idx) => (
                       <div key={product.id} className="relative flex-[0_0_calc(50%-0.25rem)] sm:flex-[0_0_calc(33.33%-0.5rem)] md:flex-[0_0_calc(25%-0.75rem)] lg:flex-[0_0_calc(20%-0.7rem)] min-w-0">
                         <div className="absolute left-0 top-0 z-10 select-none">
-                          <img src="https://file.hstatic.net/200000642007/file/bg_rank_c21e90ddb3c74242970a777d424a1ae5.png" alt="rank badge" className="w-6 h-8 sm:w-8 sm:h-10" />
+                          <div className="relative w-6 h-8 sm:w-8 sm:h-10">
+                            <Image src="https://file.hstatic.net/200000642007/file/bg_rank_c21e90ddb3c74242970a777d424a1ae5.png" alt="rank badge" fill sizes="32px" />
+                          </div>
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-white text-sm sm:text-[18px] font-semibold leading-none">{idx + 1}</span>
                           </div>

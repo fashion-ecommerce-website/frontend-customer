@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { ProductList } from "@/features/filter-product/components";
 
 export interface WishlistPresenterProps {
   items: Array<{
@@ -42,10 +43,6 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
   onCancelConfirm,
   onProductClick,
 }) => {
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
   const normalizedProducts = useMemo(() => {
     return items.map((item) => ({
       detailId: item.detailId,
@@ -67,9 +64,9 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
     }));
   }, [items]);
 
-  // Dynamic import to avoid circular dependency warnings
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { ProductList } = require("@/features/filter-product/components");
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>;
+  }
 
   return (
     <>
@@ -117,11 +114,6 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
             {items.map((item) => {
               const firstImage = item.imageUrls?.[0] ?? "";
               const secondImage = item.imageUrls?.[1] ?? null;
-              const formatPrice = (price: number) =>
-                new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(price);
               return (
                 <div
                   key={item.detailId}

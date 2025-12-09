@@ -1,10 +1,5 @@
-/**
- * Login Redux Slice
- * Self-contained Redux logic for login feature
- */
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LoginState, LoginRequest, LoginResponse, ApiError, User } from '../types/login.types';
+import { LoginState, LoginRequest, LoginResponse, ApiError, User, GoogleUser } from '../types/login.types';
 import { RootState } from '../../../../store/rootReducer';
 
 // Initial state
@@ -35,7 +30,8 @@ const loginSlice = createSlice({
   initialState,
   reducers: {
     // Login Actions
-    loginRequest: (state, action: PayloadAction<LoginRequest>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    loginRequest: (state, _action: PayloadAction<LoginRequest>) => {
       state.isLoading = true;
       state.error = null;
     },
@@ -84,7 +80,7 @@ const loginSlice = createSlice({
       state.error = null;
     },
     
-    googleLoginSuccess: (state, action: PayloadAction<{user: any; jwtToken: string}>) => {
+    googleLoginSuccess: (state, action: PayloadAction<{user: GoogleUser; jwtToken: string}>) => {
       state.isGoogleLoading = false;
       
       // Create user object from Google response with all needed fields

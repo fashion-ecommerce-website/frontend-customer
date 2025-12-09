@@ -7,12 +7,33 @@ import { useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated, selectUser } from '@/features/auth/login/redux/loginSlice';
 import { useToast } from '@/providers/ToastProvider';
 
-interface ReviewsSectionProps {
+interface ReviewsPresenterProps {
+  reviews: ReviewItem[];
+  loading: boolean;
+  average: number;
+  starDistribution: { [key: number]: number };
+  filteredReviews: ReviewItem[];
+  displayedReviews: ReviewItem[];
+  starFilter: number | null;
+  dateFilter: string;
+  visibleReviewsCount: number;
+  showModal: boolean;
+  editingReview: ReviewItem | null;
+  showDeleteModal: boolean;
+  isAuthenticated: boolean;
+  currentUserId: number | null;
+  onOpenModal: () => void;
+  onEditReview: (review: ReviewItem) => void;
+  onDeleteReview: (reviewId: number) => void;
+  onConfirmDelete: () => void;
+  onCancelDelete: () => void;
+  onSetStarFilter: (star: number | null) => void;
+  onSetDateFilter: (filter: string) => void;
+  onViewMore: () => void;
+  onShowLess: () => void;
+  onCloseModal: () => void;
+  onSubmitReview: () => void;
   productDetailId: number;
-}
-
-interface StarDistribution {
-  [key: number]: number;
 }
 
 // Avatar component
@@ -32,7 +53,6 @@ function UserAvatar({ username, avatar, size = 'md' }: { username: string; avata
       .slice(0, 2);
   };
 
-  // Generate a consistent color based on username
   const getAvatarColor = (name: string) => {
     const colors = [
       'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 
@@ -76,153 +96,43 @@ function UserAvatar({ username, avatar, size = 'md' }: { username: string; avata
   );
 }
 
-export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
-  const [reviews, setReviews] = useState<ReviewItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [editingReview, setEditingReview] = useState<ReviewItem | null>(null);
-  const [starFilter, setStarFilter] = useState<number | null>(null);
-  const [dateFilter, setDateFilter] = useState<string>('newest');
-  const [visibleReviewsCount, setVisibleReviewsCount] = useState<number>(5);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const currentUser = useAppSelector(selectUser);
-  const { showError, showSuccess } = useToast();
-
-  const average = useMemo(() => {
-    if (!reviews.length) return 0;
-    const sum = reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
-    return parseFloat((sum / reviews.length).toFixed(2));
-  }, [reviews]);
-
-  const starDistribution = useMemo((): StarDistribution => {
-    const distribution: StarDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    reviews.forEach(review => {
-      if (review.rating >= 1 && review.rating <= 5) {
-        distribution[review.rating]++;
-      }
-    });
-    return distribution;
-  }, [reviews]);
+export function ReviewsPresenter(props: ReviewsPresenterProps) {
+  const {
+    reviews,
+    loading,
+    average,
+    starDistribution,
+    filteredReviews,
+    displayedReviews,
+    starFilter,
+    dateFilter,
+    visibleReviewsCount,
+    showDeleteModal,
+    currentUserId,
+    onOpenModal,
+    onEditReview,
+    onDeleteReview,
+    onConfirmDelete,
+    onCancelDelete,
+    onSetStarFilter,
+    onSetDateFilter,
+    onViewMore,
+    onShowLess,
+  } = props;
 
   const getStarPercentage = (starCount: number): number => {
     if (reviews.length === 0) return 0;
     return (starCount / reviews.length) * 100;
   };
 
-  const filteredReviews = useMemo(() => {
-    let filtered = [...reviews];
+  const isUserReview = (review: ReviewItem): boolean => {
+    return currentUserId ? currentUserId === review.userId : false;
+  };
 
-    // Filter by star rating
-    if (starFilter !== null) {
-      filtered = filtered.filter(r => r.rating === starFilter);
-    }
-
-    // Filter by date
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      
-      switch (dateFilter) {
-        case 'newest':
-          return dateB - dateA;
-        case 'oldest':
-          return dateA - dateB;
-        default:
-          return dateB - dateA;
-      }
-    });
-
-    return filtered;
-  }, [reviews, starFilter, dateFilter]);
-
-  const displayedReviews = useMemo(() => {
-    return filteredReviews.slice(0, visibleReviewsCount);
-  }, [filteredReviews, visibleReviewsCount]);
-
-  // Generate avatar URL for demo purposes (you can replace this with real avatar logic)
   const generateAvatarUrl = (username: string): string => {
-    // Using DiceBear API for demo avatars
     const seed = username.toLowerCase().replace(/\s+/g, '');
     return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
   };
-
-  useEffect(() => {
-    let mounted = true;
-    const fetchReviews = async () => {
-      setLoading(true);
-      const res = await reviewApiService.getReviewsByProduct(productDetailId);
-      if (mounted) {
-        if (res.success && Array.isArray(res.data)) setReviews(res.data);
-        setLoading(false);
-      }
-    };
-    fetchReviews();
-    return () => {
-      mounted = false;
-    };
-  }, [productDetailId]);
-
-  const handleOpenModal = () => {
-    if (!isAuthenticated) {
-      window.location.href = `/auth/login?returnUrl=/products/${productDetailId}`;
-      return;
-    }
-    setShowModal(true);
-  };
-
-  const isUserReview = (review: ReviewItem): boolean => {
-    return currentUser?.id ? Number(currentUser.id) === review.userId : false;
-  };
-
-  const handleEditReview = (review: ReviewItem) => {
-    setEditingReview(review);
-    setShowModal(true);
-  };
-
-  const handleDeleteReview = (reviewId: number) => {
-    setReviewToDelete(reviewId);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDeleteReview = async () => {
-    if (!reviewToDelete) return;
-
-    try {
-      const res = await reviewApiService.deleteReview(reviewToDelete);
-      if (res.success) {
-        // Remove the review from local state
-        setReviews(prev => prev.filter(r => r.id !== reviewToDelete));
-        showSuccess('Review deleted successfully');
-      } else {
-        showError(res.message || 'Failed to delete review');
-      }
-    } catch {
-      showError('Failed to delete review');
-    } finally {
-      setShowDeleteModal(false);
-      setReviewToDelete(null);
-    }
-  };
-
-  const cancelDeleteReview = () => {
-    setShowDeleteModal(false);
-    setReviewToDelete(null);
-  };
-
-  const handleViewMore = () => {
-    setVisibleReviewsCount(prev => prev + 5);
-  };
-
-  const handleShowLess = () => {
-    setVisibleReviewsCount(5);
-  };
-
-  // Reset visible count when filters change
-  useEffect(() => {
-    setVisibleReviewsCount(5);
-  }, [starFilter, dateFilter]);
 
   return (
     <section className="bg-white py-8 sm:py-10 lg:py-12">
@@ -234,7 +144,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <svg key={i} className={`h-4 w-4 sm:h-5 sm:w-5 ${i < Math.round(average) ? 'text-yellow-400' : 'text-gray-300'}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <svg key={i} className={`h-4 w-4 sm:h-5 sm:w-5 ${i < Math.round(average) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
                   </svg>
                 ))}
@@ -243,18 +153,25 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
               <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer">{reviews.length} Reviews</span>
             </div>
           </div>
+          <button 
+            type="button" 
+            onClick={onOpenModal} 
+            className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition-colors whitespace-nowrap"
+          >
+            Write a review
+          </button>
         </div>
 
         {/* Review Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-10 lg:mb-12">
-          {/* Average Rating - Hidden on mobile */}
+          {/* Average Rating */}
           <div className="hidden lg:block">
             <div className="text-center lg:text-left">
               <div className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">{average}</div>
               <div className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">out of 5</div>
               <div className="flex items-center justify-center lg:justify-start gap-0.5 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <svg key={i} className={`h-5 w-5 sm:h-6 sm:w-6 ${i < Math.round(average) ? 'text-yellow-400' : 'text-gray-300'}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <svg key={i} className={`h-5 w-5 sm:h-6 sm:w-6 ${i < Math.round(average) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
                   </svg>
                 ))}
@@ -262,7 +179,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
             </div>
           </div>
 
-          {/* Star Distribution - Always visible */}
+          {/* Star Distribution */}
           <div>
             <div className="space-y-2 sm:space-y-3">
               {[5, 4, 3, 2, 1].map((star) => (
@@ -286,13 +203,12 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
         {/* Filter Controls */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-row gap-2 sm:gap-4 items-center justify-end flex-wrap">
-            {/* Star Filter */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Filter:</label>
               <select
                 value={starFilter || ''}
-                onChange={(e) => setStarFilter(e.target.value ? Number(e.target.value) : null)}
-                className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                onChange={(e) => onSetStarFilter(e.target.value ? Number(e.target.value) : null)}
+                className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
                 <option value="">All</option>
                 <option value="5">5 stars</option>
@@ -303,13 +219,12 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
               </select>
             </div>
 
-            {/* Date Filter */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Sort:</label>
               <select
                 value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                onChange={(e) => onSetDateFilter(e.target.value)}
+                className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>
@@ -335,12 +250,11 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
           )}
           {!loading && displayedReviews.map((r) => (
             <div key={r.id} className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
-              {/* Review Header */}
               <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0">
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <svg key={i} className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${i < r.rating ? 'text-yellow-400' : 'text-gray-300'}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                      <svg key={i} className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${i < r.rating ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 24 24">
                         <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
                       </svg>
                     ))}
@@ -355,7 +269,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                 {isUserReview(r) && (
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
-                      onClick={() => handleEditReview(r)}
+                      onClick={() => onEditReview(r)}
                       className="text-gray-500 hover:text-gray-700 transition-colors p-1"
                       title="Edit review"
                     >
@@ -364,7 +278,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                       </svg>
                     </button>
                     <button
-                      onClick={() => handleDeleteReview(r.id)}
+                      onClick={() => onDeleteReview(r.id)}
                       className="text-gray-500 hover:text-red-600 transition-colors p-1"
                       title="Delete review"
                     >
@@ -376,7 +290,6 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                 )}
               </div>
 
-              {/* Reviewer Info */}
               <div className="mb-3 sm:mb-4">
                 <div className="flex items-start gap-2 sm:gap-3 mb-2">
                   <UserAvatar 
@@ -388,19 +301,10 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                     <div className="flex flex-col">
                       <span className="font-semibold text-sm sm:text-base text-gray-900 truncate">{r.username}</span>
                       <div className="text-xs sm:text-sm text-gray-500">
-                        <span className="block sm:inline">{new Date(r.createdAt).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}</span>
-                        <span className="hidden sm:inline"> at </span>
-                        <span className="block sm:inline">{new Date(r.createdAt).toLocaleTimeString('en-US', { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}</span>
+                        {new Date(r.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        {' at '}
+                        {new Date(r.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                       </div>
-                      
-                      {/* Product details - Color and Size */}
                       {(r.productColor || r.productSize) && (
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                           {r.productColor && (
@@ -420,12 +324,9 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
                 </div>
               </div>
 
-              {/* Review Content */}
               <p className="text-sm sm:text-base text-gray-700 mb-4 leading-relaxed">{r.content}</p>
-
             </div>
           ))}
-        </div>
         </div>
 
         {/* View More/Less Controls */}
@@ -433,14 +334,14 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
           <div className="mt-6 sm:mt-8 text-center">
             {visibleReviewsCount < filteredReviews.length ? (
               <button
-                onClick={handleViewMore}
+                onClick={onViewMore}
                 className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base"
               >
                 View More Reviews
               </button>
             ) : (
               <button
-                onClick={handleShowLess}
+                onClick={onShowLess}
                 className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base"
               >
                 Show Less
@@ -471,13 +372,13 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
               
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={cancelDeleteReview}
+                  onClick={onCancelDelete}
                   className="w-full sm:flex-1 px-4 py-2.5 sm:py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={confirmDeleteReview}
+                  onClick={onConfirmDelete}
                   className="w-full sm:flex-1 px-4 py-2.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm sm:text-base"
                 >
                   Delete Review
@@ -486,154 +387,7 @@ export function ReviewsSection({ productDetailId }: ReviewsSectionProps) {
             </div>
           </div>
         )}
-
-        {showModal && (
-        <AddReviewModal
-          productDetailId={productDetailId}
-          editingReview={editingReview}
-          onClose={() => {
-            setShowModal(false);
-            setEditingReview(null);
-          }}
-          onSubmitted={async () => {
-            const res = await reviewApiService.getReviewsByProduct(productDetailId);
-            if (res.success && Array.isArray(res.data)) {
-              setReviews(res.data);
-              showSuccess(editingReview ? 'Review updated successfully' : 'Review submitted');
-            } else {
-              showError(res.message || 'Failed to refresh reviews');
-            }
-            setEditingReview(null);
-          }}
-        />
-      )}
+      </div>
     </section>
   );
 }
-
-interface AddReviewModalProps {
-  productDetailId: number;
-  editingReview?: ReviewItem | null;
-  onClose: () => void;
-  onSubmitted: () => void;
-}
-
-function AddReviewModal({ productDetailId, editingReview, onClose, onSubmitted }: AddReviewModalProps) {
-  const [rating, setRating] = useState<number>(editingReview?.rating || 5);
-  const [content, setContent] = useState<string>(editingReview?.content || '');
-  const [busy, setBusy] = useState<boolean>(false);
-  const { showError } = useToast();
-
-  const isEditing = !!editingReview;
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!rating || rating < 1 || rating > 5) return;
-    setBusy(true);
-    
-    try {
-      let res;
-      if (isEditing) {
-        res = await reviewApiService.updateReview(editingReview.id, { rating, content });
-      } else {
-        res = await reviewApiService.createReview({ productDetailId, rating, content });
-      }
-      
-      if (res.success) {
-        onClose();
-        onSubmitted();
-      } else {
-        // Check if the error message indicates user has already reviewed
-        const errorMessage = res.message || '';
-        if (errorMessage.toLowerCase().includes('already') || 
-            errorMessage.toLowerCase().includes('duplicate') ||
-            errorMessage.toLowerCase().includes('exists')) {
-          showError('You have already reviewed this product');
-        } else {
-          showError(res.message || `Failed to ${isEditing ? 'update' : 'submit'} review`);
-        }
-      }
-    } catch (error) {
-      // Check if the error message indicates user has already reviewed
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.toLowerCase().includes('already') || 
-          errorMessage.toLowerCase().includes('duplicate') ||
-          errorMessage.toLowerCase().includes('exists')) {
-        showError('You have already reviewed this product');
-      } else {
-        showError(`Failed to ${isEditing ? 'update' : 'submit'} review`);
-      }
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-lg rounded-lg bg-white p-4 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-            {isEditing ? 'Edit Review' : 'Add a review'}
-          </h3>
-          <button onClick={onClose} className="h-8 w-8 inline-flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <form onSubmit={submit} className="space-y-4 sm:space-y-6">
-          <div>
-            <label className="mb-2 sm:mb-3 block text-sm font-medium text-gray-900">Rating</label>
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setRating(i + 1)}
-                  className="p-1 hover:scale-110 transition-transform"
-                  aria-label={`Set rating ${i + 1}`}
-                >
-                  <svg className={`h-7 w-7 sm:h-8 sm:w-8 ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`} aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                  </svg>
-                </button>
-              ))}
-              <span className="ml-1 sm:ml-3 text-base sm:text-lg font-medium text-gray-900">{rating}.0/5.0</span>
-            </div>
-          </div>
-          <div>
-            <label className="mb-2 sm:mb-3 block text-sm font-medium text-gray-900">Review</label>
-            <textarea
-              className="block w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-900 placeholder-gray-500 focus:border-black focus:ring-black focus:outline-none"
-              rows={5}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Share your experience with this product..."
-              required
-            />
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button 
-              disabled={busy} 
-              type="submit" 
-              className="w-full sm:flex-1 bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-60 text-sm sm:text-base"
-            >
-              {busy ? (isEditing ? 'Updating...' : 'Submitting...') : (isEditing ? 'Update Review' : 'Submit Review')}
-            </button>
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 hover:text-gray-900 hover:border-gray-400 rounded-lg transition-colors text-sm sm:text-base"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-export default ReviewsSection;
-
-

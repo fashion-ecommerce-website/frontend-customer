@@ -43,12 +43,6 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     router.push('/');
   };
 
-  const handleCategoryClick = () => {
-    // Navigate to product listing filtered by category
-    const category = filters.category || '';
-    router.push(`/products?category=${encodeURIComponent(category)}`);
-  };
-
   const handleTitleClick = () => {
     // Navigate to product listing with category and name/title param
     const category = filters.category || '';
@@ -59,8 +53,6 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     { value: "productTitle_desc", label: "Name: Z-A" },
     { value: "price_asc", label: "Price: Low to High" },
     { value: "price_desc", label: "Price: High to Low" },
-    { value: "newest", label: "Oldest" },
-    { value: "popular", label: "Newest" },
   ];
 
   const handleFilterChange = (key: keyof ProductFilters, value: string | string[] | number | undefined) => {

@@ -1,37 +1,18 @@
 import React from 'react';
+import Image from 'next/image';
 import { OrderQueryParams, OrderStatus, PaymentStatus } from '@/features/order/types';
 
 interface OrderFiltersProps {
   query: OrderQueryParams;
   onQueryChange: (query: OrderQueryParams) => void;
-  onApplyFilters: () => void;
-  loading?: boolean;
   className?: string;
 }
 
 export const OrderFilters: React.FC<OrderFiltersProps> = ({
   query,
   onQueryChange,
-  onApplyFilters,
-  loading = false,
   className = ''
 }) => {
-
-  const handleFilterChange = (key: keyof OrderQueryParams, value: any) => {
-    onQueryChange({
-      ...query,
-      [key]: value
-    });
-  };
-
-  const handleClearFilters = () => {
-    onQueryChange({
-      sortBy: 'createdAt',
-      direction: 'desc',
-      page: 0,
-      size: 10
-    });
-  };
 
   const getCurrentFilterValue = () => {
     const status = query.status;
@@ -47,7 +28,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   };
 
   const handleCombinedFilterChange = (value: string) => {
-    let newQuery = { ...query };
+    const newQuery = { ...query };
     
     if (value === '') {
       // Clear all filters
@@ -101,7 +82,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   };
 
   const handleCombinedSortChange = (value: string) => {
-    let newQuery = { ...query };
+    const newQuery = { ...query };
     
     if (value === 'totalAmount') {
       newQuery.sortBy = 'totalAmount';
@@ -115,17 +96,6 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     }
     
     onQueryChange(newQuery);
-  };
-
-  const getSortLabel = () => {
-    const sortBy = query.sortBy || 'createdAt';
-    const direction = query.direction || 'desc';
-    
-    if (sortBy === 'totalAmount') return 'Total Amount';
-    if (sortBy === 'createdAt' && direction === 'desc') return 'New';
-    if (sortBy === 'createdAt' && direction === 'asc') return 'Old';
-    
-    return 'New';
   };
 
   return (
@@ -144,9 +114,9 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
           <option value="unpaid">Unpaid</option>
           <option value="refund">Refund</option>
         </select>
-        <img 
-          width="16" 
-          height="16" 
+        <Image 
+          width={16} 
+          height={16} 
           src="https://img.icons8.com/ios/50/filter.png" 
           alt="filter"
           className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 pointer-events-none w-3 h-3 sm:w-4 sm:h-4"
@@ -164,9 +134,9 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
           <option value="old">Oldest</option>
           <option value="totalAmount">Total Amount</option>
         </select>
-        <img 
-          width="16" 
-          height="16" 
+        <Image 
+          width={16} 
+          height={16} 
           src="https://img.icons8.com/ios-glyphs/30/sorting-arrows.png" 
           alt="sorting-arrows"
           className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 pointer-events-none w-3 h-3 sm:w-4 sm:h-4"

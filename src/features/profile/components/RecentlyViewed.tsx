@@ -80,11 +80,6 @@ export const RecentlyViewed: React.FC = () => {
             {items.map((item) => {
               const firstImage = item.imageUrls?.[0] ?? "";
               const secondImage = item.imageUrls?.[1] ?? null;
-              const formatPrice = (price: number) =>
-                new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(price);
               return (
                 <div
                   key={item.detailId}
@@ -203,7 +198,7 @@ export const RecentlyViewed: React.FC = () => {
           <ProductList
             products={items}
             isLoading={loading}
-            onProductClick={(detailId, slug) => router.push(`/products/${detailId}`)}
+            onProductClick={(detailId) => router.push(`/products/${detailId}`)}
           />
         )}
       </div>

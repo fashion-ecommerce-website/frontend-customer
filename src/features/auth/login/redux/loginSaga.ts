@@ -192,7 +192,7 @@ function* handleLogout() {
     yield put(clearCart());
     
     yield put(logoutSuccess());
-  } catch (_error: unknown) {
+  } catch {
     // Clear tokens even on error
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');

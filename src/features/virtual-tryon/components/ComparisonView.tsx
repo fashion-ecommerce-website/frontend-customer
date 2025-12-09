@@ -16,7 +16,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   const handleMouseDown = () => setIsDragging(true);
   const handleMouseUp = () => setIsDragging(false);
 
-  const handleMouseMove = (e: React.MouseEvent | MouseEvent) => {
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
@@ -24,19 +24,19 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
     const percentage = (x / rect.width) * 100;
     
     setSliderPosition(percentage);
-  };
+  }, [isDragging]);
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove as any);
+      window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove as any);
+      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove]);
 
   return (
     <div 

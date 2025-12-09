@@ -6,11 +6,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ReviewPresenterProps } from '../types/profile.types';
+import Image from 'next/image';
+import { ReviewPresenterProps, Review } from '../types/profile.types';
 import { 
   PageLoadingSpinner, 
-  ErrorMessage, 
-  LoadingSpinner 
+  ErrorMessage
 } from '../../../components';
 import { Pagination } from '../../filter-product/components/Pagination';
 import { useToast } from '../../../providers/ToastProvider';
@@ -33,7 +33,6 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
   onDeleteReview,
   onConfirmDelete,
   onCancelDelete,
-  onClearError,
 }) => {
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [editData, setEditData] = useState({ rating: 0, comment: '' });
@@ -50,7 +49,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     }
   }, [submitSuccess, lastActionType, showSuccess]);
 
-  const handleEditClick = (review: any) => {
+  const handleEditClick = (review: Review) => {
     setEditingReview(review.id);
     setEditData({ rating: review.rating, comment: review.comment });
   };
@@ -68,7 +67,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     }
   };
 
-  const handleDeleteClick = (reviewId: string, productName: string) => {
+  const handleDeleteClick = (reviewId: string) => {
     onConfirmDelete(reviewId);
   };
 
@@ -89,7 +88,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     ));
   };
 
-  const renderEditForm = (review: any) => (
+  const renderEditForm = () => (
     <div className="bg-gray-50 p-4 rounded-lg border">
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -143,18 +142,22 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     </div>
   );
 
-  const renderReviewCard = (review: any) => (
+  const renderReviewCard = (review: Review) => (
     <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm">
       {/* Mobile Layout */}
       <div className="sm:hidden">
         {/* Product Image & Name */}
         <div className="flex items-start gap-3 mb-3">
           {review.productImage && (
-            <img
-              src={review.productImage}
-              alt={review.productName}
-              className="w-16 h-16 object-cover rounded-md flex-shrink-0"
-            />
+            <div className="relative w-16 h-16 flex-shrink-0">
+              <Image
+                src={review.productImage}
+                alt={review.productName}
+                fill
+                sizes="64px"
+                className="object-cover rounded-md"
+              />
+            </div>
           )}
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-black line-clamp-2 mb-1">
@@ -203,7 +206,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
             Edit
           </button>
           <button
-            onClick={() => handleDeleteClick(review.id, review.productName)}
+            onClick={() => handleDeleteClick(review.id)}
             className="flex-1 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded text-sm font-medium transition-colors"
           >
             Delete
@@ -217,11 +220,15 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
               {review.productImage && (
-                <img
-                  src={review.productImage}
-                  alt={review.productName}
-                  className="w-20 h-20 object-cover rounded-md"
-                />
+                <div className="relative w-20 h-20">
+                  <Image
+                    src={review.productImage}
+                    alt={review.productName}
+                    fill
+                    sizes="80px"
+                    className="object-cover rounded-md"
+                  />
+                </div>
               )}
               <div>
                 <h3 className="text-lg font-semibold text-black">
@@ -262,7 +269,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
               Edit
             </button>
             <button
-              onClick={() => handleDeleteClick(review.id, review.productName)}
+              onClick={() => handleDeleteClick(review.id)}
               className="text-gray-500 border-b border-gray-500 hover:text-red-600 hover:border-red-600 text-sm font-medium"
             >
               Delete
@@ -411,7 +418,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
             {reviews.map((review) => (
               <div key={review.id}>
                 {editingReview === review.id ? (
-                  renderEditForm(review)
+                  renderEditForm()
                 ) : (
                   renderReviewCard(review)
                 )}
@@ -435,7 +442,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white text-black p-4 sm:p-6 rounded-lg max-w-sm w-full mx-4">
             <p className="mb-4 text-sm sm:text-base text-center">
-              Are you sure you want to delete your review for "{confirmDelete.productName}"?
+              Are you sure you want to delete your review for &quot;{confirmDelete.productName}&quot;?
             </p>
             <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
               <button

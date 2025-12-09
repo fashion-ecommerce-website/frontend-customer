@@ -60,7 +60,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
     setConfirmModal({
       isOpen: true,
       title: 'Delete Address',
-      message: `Are you sure you want to delete this address?\n\n${address.fullName}\n${address.line}, ${address.ward}, ${address.city}`,
+      message: `Are you sure you want to delete this address?\n\n${address.fullName}\n${[address.line, address.ward, address.districtName, address.city].filter(Boolean).join(', ')}`,
       type: 'danger',
       onConfirm: () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -94,7 +94,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
           },
         });
       }
-    } catch (error) {
+    } catch {
       setConfirmModal({
         isOpen: true,
         title: 'Error',
@@ -188,7 +188,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{address.phone}</p>
                       <p className="text-sm text-gray-700">
-                        {address.line}, {address.ward}, {address.city}
+                        {[address.line, address.ward, address.districtName, address.city].filter(Boolean).join(', ')}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 ml-4">

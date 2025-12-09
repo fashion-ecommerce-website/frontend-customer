@@ -1,10 +1,13 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import { ProfileContainer } from '@/features/profile';
 import { useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/components';
+import { useToast } from '@/providers/ToastProvider';
 
-export default function ProfilePage() {
+function ProfileContent() {
+  const { showSuccess, showError } = useToast();
   const params = useSearchParams();
   const sectionParam = params.get('section');
   const tabParam = params.get('tab');
@@ -20,19 +23,27 @@ export default function ProfilePage() {
     <AuthGuard>
       <ProfileContainer
         initialSection={initialSection}
-        onUpdateSuccess={(user) => {
-          console.log('Profile updated successfully:', user);
+        onUpdateSuccess={() => {
+          showSuccess('Profile updated successfully');
         }}
         onUpdateError={(error) => {
-          console.error('Profile update failed:', error);
+          showError(error.message || 'Failed to update profile');
         }}
         onPasswordChangeSuccess={() => {
-          console.log('Password changed successfully');
+          showSuccess('Password changed successfully');
         }}
         onPasswordChangeError={(error) => {
-          console.error('Password change failed:', error);
+          showError(error.message || 'Failed to change password');
         }}
       />
     </AuthGuard>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div>Loading profile...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

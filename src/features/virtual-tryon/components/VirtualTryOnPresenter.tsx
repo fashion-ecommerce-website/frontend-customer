@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { VirtualTryOnPresenterProps } from "../types";
+import { VirtualTryOnPresenterProps, HistoryItem } from "../types";
 import { ImageUpload } from "./ImageUpload";
 import { ProductSelector } from "./ProductSelector";
 import { TryOnResult } from "./TryOnResult";
@@ -15,7 +16,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
   userImage,
   resultImage,
   isProcessing,
-  error,
+
   history,
   category,
   activeSlot,
@@ -54,7 +55,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
     !resultImage
   );
 
-  const handleHistoryItemSelect = (item: any) => {
+  const handleHistoryItemSelect = (item: HistoryItem) => {
     onHistorySelect(item);
     setActiveTab('try-on');
   };
@@ -180,9 +181,11 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                         </div>
                         {selectedProduct ? (
                           <div className="flex items-center gap-2">
-                            <img src={selectedProduct.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover" />
+                            <div className="relative w-10 h-10">
+                              <Image src={selectedProduct.imageUrl} alt="" fill className="rounded-md object-cover" />
+                            </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-smfont-medium truncate">{selectedProduct.productTitle}</p>
+                              <p className="text-sm font-medium truncate">{selectedProduct.productTitle}</p>
                             </div>
                           </div>
                         ) : (
@@ -204,7 +207,9 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                         </div>
                         {selectedLowerProduct ? (
                           <div className="flex items-center gap-2">
-                            <img src={selectedLowerProduct.imageUrl} alt="" className="w-10 h-10 rounded-md object-cover" />
+                            <div className="relative w-10 h-10">
+                              <Image src={selectedLowerProduct.imageUrl} alt="" fill className="rounded-md object-cover" />
+                            </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">{selectedLowerProduct.productTitle}</p>
                             </div>

@@ -49,7 +49,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [productToasts, setProductToasts] = useState<ProductToastItem[]>([]);
 
   const showToast = useCallback((message: string, type: ToastProps['type'], duration = 4000) => {
-    const id = Date.now().toString();
+    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newToast: ToastItem = { id, message, type, duration };
     
     setToasts(prev => [...prev, newToast]);
@@ -72,7 +72,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   }, [showToast]);
 
   const showProductToast = useCallback((data: Omit<ProductToastProps, 'onClose'>) => {
-    const id = Date.now().toString();
+    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newProductToast: ProductToastItem = { 
       id, 
       productImage: data.productImage,

@@ -1,17 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { ProductDetail } from '@/services/api/productApi';
-import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useRouter } from 'next/navigation';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
 import { SizeGuideModal, MeasurementsModal } from '@/components/modals';
 import { Size } from '@/types/size-recommendation.types';
 import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
+import { wishlistApiService } from '@/services/api/wishlistApi';
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -65,24 +65,6 @@ export function ProductInfo({
     return result;
   }, [product.categorySlug, product.title]);
 
-  // Initialize wishlist state for this product
-  useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      try {
-        const res = await wishlistApiService.getWishlist();
-        if (mounted && res.success && res.data) {
-          // Debug: log current wishlist ids
-          // console.debug('Wishlist get success', res.data.map(i => i.detailId));
-          setIsInWishlist(res.data.some(item => item.detailId === product.detailId));
-        }
-      } catch {
-        // ignore initial load errors for wishlist state
-      }
-    };
-    if (isAuthenticated) init(); else setIsInWishlist(false);
-    return () => { mounted = false; };
-  }, [isAuthenticated, product.detailId]);
 
   useCallback(async () => {
     if (!isAuthenticated) {

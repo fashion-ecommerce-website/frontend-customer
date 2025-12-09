@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { Voucher } from '@/features/order/components/VoucherModal';
 import { LoadingSpinner, ErrorMessage } from '../../../components';
 import { Pagination } from '@/features/filter-product/components/Pagination';
@@ -54,17 +55,17 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
   };
 
   // Check if voucher is expired
-  const isExpired = (expiresAt: string) => {
+  const isExpired = React.useCallback((expiresAt: string) => {
     if (!expiresAt) return false;
     return new Date(expiresAt) < new Date();
-  };
+  }, []);
 
   // Check if voucher is available
-  const isAvailable = (voucher: Voucher) => {
+  const isAvailable = React.useCallback((voucher: Voucher) => {
     if (voucher.available === false) return false;
     if (isExpired(voucher.expiresAt || '')) return false;
     return true;
-  };
+  }, [isExpired]);
 
   // Get discount display text
   const getDiscountText = (voucher: Voucher) => {
@@ -73,14 +74,6 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
     } else {
       return `${voucher.value.toLocaleString('vi-VN')}₫ OFF`;
     }
-  };
-
-  // Get minimum order text
-  const getMinOrderText = (voucher: Voucher) => {
-    if (voucher.minSubtotal) {
-      return `Min. order ${voucher.minSubtotal.toLocaleString('vi-VN')}₫`;
-    }
-    return '';
   };
 
   // Filter and search logic
@@ -115,7 +108,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
     }
 
     return filtered;
-  }, [vouchers, searchTerm, filterStatus]);
+  }, [vouchers, searchTerm, filterStatus, isAvailable, isExpired]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredVouchers.length / itemsPerPage);
@@ -231,7 +224,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No vouchers available</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            You don't have any vouchers yet. Check back later for new promotions and special offers!
+            You don&apos;t have any vouchers yet. Check back later for new promotions and special offers!
           </p>
           <button
             onClick={onRefresh}
@@ -282,7 +275,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
               <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'expired' | 'unavailable')}
                 className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               >
                 <option value="all">All</option>
@@ -311,7 +304,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
             <p className="text-gray-500 mb-6 max-w-md mx-auto">
               {searchTerm || filterStatus !== 'all' 
                 ? 'Try adjusting your search or filter criteria.'
-                : 'You don\'t have any vouchers yet. Check back later for new promotions and special offers!'
+                : 'You don&apos;t have any vouchers yet. Check back later for new promotions and special offers!'
               }
             </p>
             {(searchTerm || filterStatus !== 'all') && (
@@ -333,11 +326,15 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
               {/* Mobile Layout */}
               <div className="sm:hidden">
                 <div className="flex items-start gap-2 mb-3">
-                  <img 
-                    src="https://static.vecteezy.com/system/resources/thumbnails/002/191/986/small_2x/discount-voucher-outline-icon-thin-line-black-discount-voucher-icon-vector.jpg"
-                    alt="Voucher"
-                    className="h-8 w-8 flex-shrink-0"
-                  />
+                  <div className="relative h-8 w-8 flex-shrink-0">
+                    <Image 
+                      src="https://static.vecteezy.com/system/resources/thumbnails/002/191/986/small_2x/discount-voucher-outline-icon-thin-line-black-discount-voucher-icon-vector.jpg"
+                      alt="Voucher"
+                      fill
+                      sizes="32px"
+                      className="object-contain"
+                    />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="text-sm font-semibold text-black flex-1 line-clamp-2">{voucher.label || voucher.code}</div>
@@ -405,11 +402,15 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <img 
-                        src="https://static.vecteezy.com/system/resources/thumbnails/002/191/986/small_2x/discount-voucher-outline-icon-thin-line-black-discount-voucher-icon-vector.jpg"
-                        alt="Voucher"
-                        className="h-10 w-10"
-                      />
+                      <div className="relative h-10 w-10">
+                        <Image 
+                          src="https://static.vecteezy.com/system/resources/thumbnails/002/191/986/small_2x/discount-voucher-outline-icon-thin-line-black-discount-voucher-icon-vector.jpg"
+                          alt="Voucher"
+                          fill
+                          sizes="40px"
+                          className="object-contain"
+                        />
+                      </div>
                       <div className="text-black font-semibold truncate">{voucher.label || voucher.code}</div>
                       <span className={`text-xs px-2 py-0.5 rounded-full border ${isAvailable(voucher) ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>
                         {isAvailable(voucher) ? 'Available' : 'Not Available'}

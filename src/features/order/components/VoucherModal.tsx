@@ -45,13 +45,13 @@ interface VoucherModalProps {
 }
 
 export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, subtotal, onClose, onSelect, onApplyCode, onSearchVoucher }) => {
-  if (!isOpen) return null;
-
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
   const [code, setCode] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<Voucher[]>([]);
-  const [isSearching, setIsSearching] = React.useState(false);
   const [showSearchResults, setShowSearchResults] = React.useState(false);
+  const [isSearching, setIsSearching] = React.useState(false);
+
+  if (!isOpen) return null;
 
   // Convert backend response to frontend Voucher type
   const convertBackendToFrontend = (backendVoucher: VoucherByUserResponse): Voucher => {
@@ -140,9 +140,10 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                     setIsSearching(false);
                   }
                 }}
-                className="h-11 shrink-0 rounded bg-black hover:bg-gray-900 px-5 text-sm font-bold uppercase tracking-wide text-white transition-colors cursor-pointer"
+                className="h-11 shrink-0 rounded bg-black hover:bg-gray-900 px-5 text-sm font-bold uppercase tracking-wide text-white transition-colors cursor-pointer disabled:opacity-50"
+                disabled={isSearching}
               >
-                Search
+                {isSearching ? 'Searching...' : 'Search'}
               </button>
             </div>
           </div>

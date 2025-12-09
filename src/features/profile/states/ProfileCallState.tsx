@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import {
   getProfileRequest,
@@ -29,6 +29,7 @@ import { User } from '../../auth/login/types/login.types';
 import {
   UpdateProfileRequest,
   ChangePasswordRequest,
+  ApiError,
 } from '../types/profile.types';
 
 // Define ProfileCallStateProps locally since it's not exported anymore
@@ -38,9 +39,9 @@ interface ProfileCallStateProps {
     isLoading: boolean;
     isUpdating: boolean;
     isChangingPassword: boolean;
-    error: any;
-    updateError: any;
-    passwordError: any;
+    error: ApiError | null;
+    updateError: ApiError | null;
+    passwordError: ApiError | null;
     updateSuccess: boolean;
     passwordChangeSuccess: boolean;
     getProfile: () => void;

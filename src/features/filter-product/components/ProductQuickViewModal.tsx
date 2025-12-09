@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import Image from "next/image"
 import { useAppDispatch, useAppSelector } from "@/hooks/redux"
 import { useCartActions } from "@/hooks/useCartActions"
 import { selectIsAuthenticated } from "@/features/auth/login/redux/loginSlice"
@@ -78,6 +79,17 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const [isAnimating, setIsAnimating] = useState(false)
   const [shouldRender, setShouldRender] = useState(false)
 
+  // Image handling functions - defined early for use in useEffects
+  const handleImageLoad = useCallback((index: number) => {
+    setLoadedImages((prev) => new Set(prev).add(index))
+    setImageError(false)
+  }, [])
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleImageError = useCallback((index: number) => {
+    setImageError(true)
+  }, [])
+
   // Handle escape key to close modal - MOVED UP
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -122,8 +134,24 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
   // Fetch product detail when modal opens
   useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) return
+
+      setLoading(true)
+      try {
+        const response = await productApi.getProductById(productId.toString())
+        if (response.data) {
+          setProduct(response.data)
+        }
+      } catch (error) {
+        console.error("Error fetching product detail:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     if (isOpen && productId) {
-      fetchProductDetail()
+      fetchProduct()
       // Reset quantity when modal opens
       // Default amount to 1 unless editing an existing cart item with a provided quantity
       if (!(isEditMode && typeof currentQuantity === "number")) {
@@ -132,7 +160,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         setSelectedAmount(Math.max(1, currentQuantity))
       }
     }
-  }, [isOpen, productId])
+  }, [isOpen, productId, isEditMode, currentQuantity])
 
   // If modal opened for edit, preselect size from prop when product loads
   useEffect(() => {
@@ -150,6 +178,38 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
   // Reset state when product changes
   useEffect(() => {
+    const fetchPreviewImages = async () => {
+      if (!productId || !product?.colors) return
+
+      const previewImages: { [color: string]: string } = {}
+
+      const colorPromises = product.colors.map(async (color) => {
+        if (color === product.activeColor) {
+          if (product.images && product.images.length > 0) {
+            previewImages[color] = product.images[0]
+          }
+          return
+        }
+
+        try {
+          const response = await productApi.getProductByColor(productId.toString(), color)
+          if (response.data?.images && response.data.images.length > 0) {
+            previewImages[color] = response.data.images[0]
+          }
+        } catch (error) {
+          console.error(`Error fetching preview for color ${color}:`, error)
+        }
+      })
+
+      try {
+        await Promise.all(colorPromises)
+      } catch {
+        // Individual errors already logged above
+      }
+
+      setColorPreviewImages(previewImages)
+    }
+
     if (product) {
       setSelectedColor(product.activeColor || product.colors[0] || "")
 
@@ -173,109 +233,63 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         // Don't reset image loading states - let images load naturally
 
         // Fetch color preview images
-        fetchColorPreviewImages()
+        fetchPreviewImages()
       }
     }
-  }, [product, currentSize])
+  }, [product, currentSize, productId, isEditMode, currentQuantity])
 
-  // Simplified preload effect - avoid complex dependencies
+  // Simplified preload effect - preload first two images when product loads
   useEffect(() => {
+    const doPreload = (src: string, index: number) => {
+      if (!loadedImages.has(index) && src) {
+        const img = new window.Image()
+        img.onload = () => handleImageLoad(index)
+        img.onerror = () => handleImageError(index)
+        img.src = src
+      }
+    }
+
     if (product?.images && product.images.length > 0) {
-      // Preload first two images immediately when product loads
       const firstImage = product.images[0]
       if (firstImage) {
-        preloadImage(firstImage, 0)
+        doPreload(firstImage, 0)
       }
 
       if (product.images.length > 1) {
         const secondImage = product.images[1]
-        setTimeout(() => preloadImage(secondImage, 1), 100)
+        setTimeout(() => doPreload(secondImage, 1), 100)
       }
     }
-  }, [product?.images])
+  }, [product?.images, loadedImages, handleImageLoad, handleImageError])
 
   // Preload adjacent images when user changes selection
   useEffect(() => {
+    const doPreload = (src: string, index: number) => {
+      if (!loadedImages.has(index) && src) {
+        const img = new window.Image()
+        img.onload = () => handleImageLoad(index)
+        img.onerror = () => handleImageError(index)
+        img.src = src
+      }
+    }
+
     if (product?.images && product.images.length > 1) {
       const nextIndex = selectedImageIndex + 1
       const prevIndex = selectedImageIndex - 1
 
       if (nextIndex < product.images.length) {
-        setTimeout(() => preloadImage(product.images[nextIndex], nextIndex), 50)
+        setTimeout(() => doPreload(product.images[nextIndex], nextIndex), 50)
       }
 
       if (prevIndex >= 0) {
-        setTimeout(() => preloadImage(product.images[prevIndex], prevIndex), 50)
+        setTimeout(() => doPreload(product.images[prevIndex], prevIndex), 50)
       }
     }
-  }, [selectedImageIndex, product?.images])
+  }, [selectedImageIndex, product?.images, loadedImages, handleImageLoad, handleImageError])
 
-  const fetchProductDetail = async () => {
-    if (!productId) return
 
-    setLoading(true)
-    try {
-      const response = await productApi.getProductById(productId.toString())
-      if (response.data) {
-        // Set product (don't suppress product-change effects here - we want
-        // the product useEffect to run so color preview images are fetched
-        // when the modal opens).
-        setProduct(response.data)
 
-        // Immediately preload first image after setting product
-        if (response.data.images && response.data.images.length > 0) {
-          const firstImage = response.data.images[0]
-          if (firstImage) {
-            preloadImage(firstImage, 0)
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching product detail:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  // Fetch color preview images
-  const fetchColorPreviewImages = async () => {
-    if (!productId || !product?.colors) return
-
-    const previewImages: { [color: string]: string } = {}
-
-    // Build an array of promises to fetch each color variant in parallel
-    const colorPromises = product.colors.map(async (color) => {
-      if (color === product.activeColor) {
-        // Use current product's first image for active color
-        if (product.images && product.images.length > 0) {
-          previewImages[color] = product.images[0]
-        }
-        return
-      }
-
-      try {
-        const response = await productApi.getProductByColor(productId.toString(), color)
-        if (response.data?.images && response.data.images.length > 0) {
-          previewImages[color] = response.data.images[0]
-        }
-      } catch (error) {
-        console.error(`Error fetching preview for color ${color}:`, error)
-      }
-    })
-
-    // Wait for all requests to settle
-    try {
-      await Promise.all(colorPromises)
-    } catch (e) {
-      // Individual errors already logged above; no-op here
-    }
-
-    setColorPreviewImages(previewImages)
-  }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US").format(price) + " VND"
-  }
 
   // Handle color change with smooth transition (no loading states)
   const handleColorChange = async (color: string) => {
@@ -312,7 +326,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
             setSelectedSizeLocal("")
             try {
               dispatch(setSelectedSizeAction(""))
-            } catch (e) {
+            } catch {
               /* noop */
             }
             setSelectedAmount(1)
@@ -348,8 +362,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     // Update shared Redux state (for consistency with ProductDetail flow)
     try {
       dispatch(setSelectedSizeAction(size))
-    } catch (err) {
-      console.warn("Failed to dispatch setSelectedSizeAction", err)
+    } catch {
+      console.warn("Failed to dispatch setSelectedSizeAction")
     }
 
     // Fetch variant directly so modal's local product (and detailId) reflect selected size
@@ -388,7 +402,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
             size,
           }),
         )
-      } catch (err) {
+      } catch {
         // noop
       }
     } finally {
@@ -469,20 +483,6 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     onClose()
   }
 
-  // Image handling functions
-  const handleImageLoad = (index: number) => {
-    setLoadedImages((prev) => new Set(prev).add(index))
-    if (index === selectedImageIndex) {
-      setImageError(false)
-    }
-  }
-
-  const handleImageError = (index: number) => {
-    if (index === selectedImageIndex) {
-      setImageError(true)
-    }
-  }
-
   const handleImageSelect = (index: number) => {
     setSelectedImageIndex(index)
     // Preload image immediately if not loaded, but don't show loading state
@@ -497,7 +497,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   // Preload image function
   const preloadImage = (src: string, index: number) => {
     if (!loadedImages.has(index) && src) {
-      const img = new Image()
+      const img = new window.Image()
       img.onload = () => handleImageLoad(index)
       img.onerror = () => handleImageError(index)
       img.src = src
@@ -506,11 +506,11 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
 
   if (!shouldRender) return null
 
-  function handleDecreaseAmount(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+  function handleDecreaseAmount(): void {
     setSelectedAmount((prev) => (prev > 1 ? prev - 1 : 1))
   }
 
-  function handleIncreaseAmount(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+  function handleIncreaseAmount(): void {
     // Optionally, you can set a max based on available quantity
     setSelectedAmount((prev) => prev + 1)
   }
@@ -580,13 +580,13 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   </div>
                 )}
 
-                <img
+                <Image
                   src={displayImages[selectedImageIndex] || displayImages[0]}
                   alt={product.title}
-                  className="w-full h-full object-cover rounded transition-opacity duration-300"
+                  fill
+                  className={`object-cover rounded transition-opacity duration-300 ${imageError ? "hidden" : "block"}`}
                   onLoad={() => handleImageLoad(selectedImageIndex)}
                   onError={() => handleImageError(selectedImageIndex)}
-                  style={{ display: imageError ? "none" : "block" }}
                 />
               </div>
               {/* Image thumbnails */}
@@ -600,13 +600,13 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       className={`flex-shrink-0 w-8 h-10 rounded-sm border overflow-hidden relative transition-all duration-200 ${selectedImageIndex === index ? "border-black border-1" : "border-gray-200 hover:border-gray-400"
                         }`}
                     >
-                      <img
+                      <Image
                         src={image || "/placeholder.svg"}
                         alt={`${product.title} ${index + 1}`}
-                        className="w-full h-full object-cover transition-opacity duration-200"
+                        fill
+                        className="object-cover transition-opacity duration-200"
                         onLoad={() => handleImageLoad(index)}
                         onError={() => handleImageError(index)}
-                        loading="lazy"
                       />
                     </button>
                   ))}
@@ -628,15 +628,16 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         <button
                           key={color}
                           onClick={() => handleColorChange(color)}
-                          className={`w-12 h-12 rounded-sm border overflow-hidden flex items-center justify-center ${selectedColor === color ? "ring-2 ring-black" : "border-gray-200"
+                          className={`w-12 h-12 rounded-sm border overflow-hidden flex items-center justify-center relative ${selectedColor === color ? "ring-2 ring-black" : "border-gray-200"
                             }`}
                           title={color}
                         >
                           {colorPreviewImages[color] ? (
-                            <img
+                            <Image
                               src={colorPreviewImages[color] || "/placeholder.svg"}
                               alt={color}
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                             />
                           ) : (
                             <div className="w-full h-full" style={{ backgroundColor: color.toLowerCase() }} />
@@ -788,16 +789,17 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           onClick={() => handleColorChange(color)}
                         >
                           <div
-                            className={`w-20 h-24 rounded-[5px] border-1 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md ${selectedColor === color
+                            className={`w-20 h-24 rounded-[5px] border-1 overflow-hidden transition-all duration-300 ease-out shadow-sm hover:shadow-md relative ${selectedColor === color
                               ? "border-gray-800"
                               : "border-gray-200 hover:border-gray-300"
                               }`}
                           >
                             {colorPreviewImages[color] ? (
-                              <img
+                              <Image
                                 src={colorPreviewImages[color] || "/placeholder.svg"}
                                 alt={`${product.title} in ${color}`}
-                                className="w-full h-full object-cover transition-transform duration-300"
+                                fill
+                                className="object-cover transition-transform duration-300"
                                 title={color}
                               />
                             ) : (

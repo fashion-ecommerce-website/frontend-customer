@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { recommendationApiService } from "@/services/api/recommendationApi";
 import {
   ChatMessage,
   ProductRecommendationResponse,
 } from "@/types/recommendation.types";
-import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 const STORAGE_KEY = "fashion_chat_history";
@@ -86,12 +86,12 @@ const RecommendationCarousel: React.FC<RecommendationCarouselProps> = ({
           )}
 
           {/* Product Content */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <div className="relative w-20 h-24 overflow-hidden rounded-md bg-gray-100 shrink-0">
-            <img
+            <Image
               src={currentProduct.imageUrl}
               alt={currentProduct.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           </div>
           <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
@@ -144,7 +144,7 @@ export const ChatBot: React.FC = () => {
       try {
         const parsed = JSON.parse(saved);
         // Convert string dates back to Date objects
-        const rehydrated = parsed.map((msg: any) => ({
+        const rehydrated = parsed.map((msg: Omit<ChatMessage, 'timestamp'> & { timestamp: string }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         }));
@@ -199,11 +199,8 @@ export const ChatBot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Call recommendation API
-      const response =
-        await recommendationApiService.getCombinedMessageRecommendations({
-          message: textToSend,
-        });
+      // Call chatbot API
+      const response = await recommendationApiService.chat(textToSend);
 
       if (response.success && response.data) {
         // Add assistant response

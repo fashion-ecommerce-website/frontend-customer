@@ -1,7 +1,7 @@
 // Home Redux Saga
 // Side effects management for home page functionality
 
-import { call, put, select } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
   initializeHome,
@@ -152,15 +152,6 @@ function* submitSearchSaga(action: PayloadAction<SearchRequest>) {
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const effects = require('redux-saga/effects');
 const { takeEvery, takeLatest } = effects;
-
-// Watcher sagas
-function* watchInitializeHome() {
-  yield takeEvery(initializeHome.type, initializeHomeSaga);
-}
-
-function* watchSubmitSearch() {
-  yield takeLatest(submitSearch.type, submitSearchSaga);
-}
 
 // Root saga for home feature
 export function* homeSaga() {

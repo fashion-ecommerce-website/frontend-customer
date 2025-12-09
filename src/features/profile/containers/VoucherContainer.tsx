@@ -6,7 +6,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useMinimumLoadingTime } from '@/hooks/useMinimumLoadingTime';
 import { VoucherPresenter } from '../components/VoucherPresenter';
 import { voucherApi } from '@/services/api/voucherApi';

@@ -17,7 +17,6 @@ import {
 export const RegisterContainer: React.FC<RegisterContainerProps> = ({
   onRegisterSuccess,
   onRegisterError,
-  redirectTo,
 }) => {
   // Simple local state
   const [isLoading, setIsLoading] = useState(false);
@@ -85,7 +84,7 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [onRegisterSuccess, onRegisterError, formData.username, formData.email]);
+  }, [onRegisterSuccess, onRegisterError, showSuccess, showError]);
 
   // Handle clear error
   // no internal error state, errors shown via toast

@@ -2,10 +2,11 @@
 
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { googleLoginRequest, selectIsAuthenticated, selectUser, selectIsLoading, selectIsGoogleLoading } from '../features/auth/login/redux/loginSlice';
+import { googleLoginRequest, selectIsAuthenticated, selectUser, selectIsGoogleLoading } from '../features/auth/login/redux/loginSlice';
+import type { User } from '../features/auth/login/types/login.types';
 
 interface GoogleAuthProps {
-  onSuccess?: (user: any) => void;
+  onSuccess?: (user: User) => void;
   onError?: (error: string) => void;
 }
 

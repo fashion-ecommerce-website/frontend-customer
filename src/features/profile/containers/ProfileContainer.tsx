@@ -30,6 +30,7 @@ import {
   ProfileContainerProps, 
   ProfileFormData, 
   ChangePasswordFormData,
+  UpdateProfileRequest,
 } from '../types/profile.types';
 
 export const ProfileContainer: React.FC<ProfileContainerProps> = ({
@@ -88,13 +89,11 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
     return dateString;
   };
 
-  // Load profile data if not already available or if data seems incomplete
+  // Load profile data when component mounts
   useEffect(() => {
-    // Only fetch profile if user is missing key fields that should be available from the profile API
-    if (user && (!user.id || user.id === '')) {
-      dispatch(getProfileRequest());
-    }
-  }, [dispatch, user]);
+    // Always fetch fresh profile data when the profile page is accessed
+    dispatch(getProfileRequest());
+  }, [dispatch]);
 
   // Update form data when user data changes
   useEffect(() => {
@@ -183,7 +182,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
   };
 
   // Handle profile update - unified handler for both old and new format
-  const handleUpdateProfile = useCallback((formData: ProfileFormData | any) => {
+  const handleUpdateProfile = useCallback((formData: UpdateProfileRequest) => {
     // Check if it's UpdateProfileApiPayload format
     if (formData.dob !== undefined || formData.username !== undefined) {
       // New API format - use directly
@@ -194,15 +193,10 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
       };
       dispatch(updateProfileRequest(updateData));
     } else {
-      // Legacy format - convert dob to correct format
       const updateData = {
         username: formData.username || undefined,
         dob: convertDateToApiFormat(formData.dob || ''),
         phone: formData.phone || undefined,
-        // Keep legacy fields for backward compatibility
-        firstName: formData.firstName || undefined,
-        lastName: formData.lastName || undefined,
-        gender: formData.gender === '' ? undefined : formData.gender as 'male' | 'female' | 'other',
       };
       dispatch(updateProfileRequest(updateData));
     }
@@ -255,7 +249,7 @@ export const ProfileContainer: React.FC<ProfileContainerProps> = ({
       onClearError={handleClearError}
       onClearUpdateError={handleClearUpdateError}
       onClearPasswordError={handleClearPasswordError}
-      onClearSuccess={() => {}} // Empty function as it's not needed anymore
+      onClearSuccess={handleClearSuccess}
     />
   );
 };

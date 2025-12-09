@@ -1,13 +1,14 @@
 "use client";
 
 import React from 'react';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useVirtualTryOn } from '../context/VirtualTryOnContext';
 
 export const TryOnStatusFloater: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { isProcessing, resultImage, minimized, setMinimized, dismissResult } = useVirtualTryOn();
+  const { isProcessing, resultImage, setMinimized, dismissResult } = useVirtualTryOn();
   if (pathname === '/cart/virtual-tryon') {
     return null;
   }
@@ -35,11 +36,14 @@ export const TryOnStatusFloater: React.FC = () => {
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-black border-t-transparent"></div>
               </div>
             ) : (
-              <img 
-                src={resultImage!} 
-                alt="Result" 
-                className="w-12 h-12 rounded-lg object-cover bg-gray-100"
-              />
+              <div className="relative w-12 h-12">
+                <Image 
+                  src={resultImage!} 
+                  alt="Result" 
+                  fill
+                  className="rounded-lg object-cover bg-gray-100"
+                />
+              </div>
             )}
             {/* Status Badge */}
             <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${isProcessing ? 'bg-yellow-400 animate-pulse' : 'bg-green-500'}`}></div>

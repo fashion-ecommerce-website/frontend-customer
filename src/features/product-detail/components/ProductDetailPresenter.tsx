@@ -6,11 +6,11 @@ import {
   ProductImageGallery,
   ProductInfo,
   ProductTabs,
-  RelatedProducts,
   ProductDetailRecentlyViewed,
-  ReviewsSection,
   SimilarProducts,
 } from '.';
+import { YouMayAlsoLikeContainer } from '../containers/YouMayAlsoLikeContainer';
+import { ReviewsContainer } from '../containers/ReviewsContainer';
 import { useRouter } from 'next/navigation';
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo';
 
@@ -59,8 +59,6 @@ export function ProductDetailPresenter({
   const handleColorChange = async (color: string) => {
     if (isLoading || color === selectedColor) return;
 
-    setSelectedImageIndex(0); // Reset to first image
-
     try {
       if (onColorChange) {
         await onColorChange(color);
@@ -70,11 +68,6 @@ export function ProductDetailPresenter({
       console.error('Error loading color variant:', error);
     }
   };
-
-  // Reset image index when product changes
-  useEffect(() => {
-    setSelectedImageIndex(0);
-  }, [product.detailId, selectedColor]);
 
   // Mirror isInWishlist prop to local state for immediate UI response
   useEffect(() => {
@@ -166,13 +159,14 @@ export function ProductDetailPresenter({
       </div>
 
       {/* Reviews Section */}
-      <ReviewsSection productDetailId={product.detailId} />
+      <ReviewsContainer productDetailId={product.detailId} />
 
       {/* Similar Products */}
       <SimilarProducts categorySlug={product.categorySlug} currentProductId={product.detailId} currentPrice={product.price} />
 
-      {/* Related Products */}
-      <RelatedProducts productId={product.productId} />
+      {/* You May Also Like (ML-based recommendations) */}
+      <YouMayAlsoLikeContainer productId={product.productId} />
+      
       {/* Recently Viewed Products */}
       <ProductDetailRecentlyViewed />
 

@@ -14,6 +14,8 @@ import {
 } from "@headlessui/react";
 import { Fragment } from "react";
 
+type FilterValue = ProductFilters[keyof ProductFilters];
+
 interface SearchProductFilterProps {
   filters: ProductFilters;
   onFiltersChange: (filters: ProductFilters) => void;
@@ -27,9 +29,6 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
   filters,
   onFiltersChange,
   onOpenSidebar,
-  searchQuery,
-  resultsCount = 0,
-  isLoading = false,
 }) => {
   const sortOptions: FilterDropdownOption[] = [
     { value: "productTitle_asc", label: "Name: A-Z" },
@@ -38,7 +37,7 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
     { value: "price_desc", label: "Price: High to Low" },
   ];
 
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const handleFilterChange = (key: keyof ProductFilters, value: FilterValue) => {
     onFiltersChange({
       ...filters,
       [key]: value,

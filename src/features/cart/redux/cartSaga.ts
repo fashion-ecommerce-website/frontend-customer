@@ -66,7 +66,7 @@ function* fetchCartSaga() {
     } else {
       yield put(setError(response.message || 'Failed to fetch cart items'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while fetching cart'));
   } finally {
     yield put(setLoading(false));
@@ -89,7 +89,7 @@ function* addToCartSaga(action: PayloadAction<AddToCartPayload>) {
     } else {
       yield put(setError(response.message || 'Failed to add item to cart'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while adding to cart'));
   } finally {
     yield put(setLoading(false));
@@ -113,11 +113,24 @@ function* updateCartItemSaga(action: PayloadAction<UpdateCartItemPayload>) {
     );
     
     if (response.success && response.data) {
+      // Update local state first for immediate feedback
       yield put(updateCartItem({ cartItemId: cartDetailId, updatedItem: response.data }));
+      
+      // Silently fetch cart in background to get promotion data without showing loading
+      // This provides better UX - user sees immediate update, then promotion applies
+      try {
+        const cartResponse: ApiResponse<CartItem[]> = yield call(cartApi.getCartItems);
+        if (cartResponse.success && cartResponse.data) {
+          yield put(setCartItems(cartResponse.data));
+        }
+      } catch {
+        // Silently fail - user already has updated cart, just missing promotion
+        console.warn('Failed to fetch promotion data after cart update');
+      }
     } else {
       yield put(setError(response.message || 'Failed to update cart item'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while updating cart item'));
   } finally {
     yield put(setLoading(false));
@@ -138,7 +151,7 @@ function* removeCartItemSaga(action: PayloadAction<number>) {
     } else {
       yield put(setError(response.message || 'Failed to remove cart item'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while removing cart item'));
   } finally {
     yield put(setLoading(false));
@@ -155,7 +168,7 @@ function* removeMultipleCartItemsSaga(action: PayloadAction<number[]>) {
     } else {
       yield put(setError(response.message || 'Failed to remove selected cart items'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while removing selected cart items'));
   } finally {
     yield put(setLoading(false));
@@ -172,7 +185,7 @@ function* clearCartSaga() {
     } else {
       yield put(setError(response.message || 'Failed to clear cart'));
     }
-  } catch (error) {
+  } catch {
     yield put(setError('Network error occurred while clearing cart'));
   } finally {
     yield put(setLoading(false));

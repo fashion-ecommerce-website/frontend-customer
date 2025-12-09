@@ -20,6 +20,7 @@ interface PasswordChangeModalProps {
   onChangePassword: (data: ChangePasswordFormData) => void;
   onClose: () => void;
   onClearPasswordError: () => void;
+  onClearFieldError?: (fieldName: string) => void;
 }
 
 export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
@@ -33,25 +34,43 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   onChangePassword,
   onClose,
   onClearPasswordError,
+  onClearFieldError,
 }) => {
   const { showSuccess, showError } = useToast();
+  
   // Show error via toast when passwordError occurs
   useEffect(() => {
     if (passwordError) {
-      showError(passwordError.message);
+      // Check if it's a current password error from the API
+      const errorMessage = passwordError.message.toLowerCase();
+      if (errorMessage.includes('current password') || errorMessage.includes('incorrect')) {
+        showError('Current password is incorrect.');
+      } else {
+        showError(passwordError.message);
+      }
       onClearPasswordError();
     }
-  }, [passwordError, showError, onClearPasswordError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passwordError]);
+  
   // Show success via toast when password changed
   useEffect(() => {
     if (passwordChangeSuccess) {
-      showSuccess('Password changed successfully');
-      handleClose();
+      showSuccess('Password changed successfully.');
+      onClose();
     }
-  }, [passwordChangeSuccess, showSuccess]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passwordChangeSuccess]);
+  
   // Handle password input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name] && onClearFieldError) {
+      onClearFieldError(name);
+    }
+    
     onPasswordFormDataChange({
       [name]: value,
     });

@@ -7,7 +7,7 @@ export { ProfileSidebar } from './components/ProfileSidebar';
 export { ProfileFormSection } from './components/ProfileFormSection';
 export { PasswordChangeModal } from './components/PasswordChangeModal';
 export { UpdateInfoModal } from './components/UpdateInfoModal';
-export { AddressSection } from './components/AddressSection';
+export { AddressPresenter } from './components/AddressPresenter';
 export { AddressModal } from './components/AddressModal';
 export { ReviewPresenter } from './components/ReviewPresenter';
 export { RefundPresenter } from './components/RefundPresenter';

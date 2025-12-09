@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ShippingFeeData } from '@/features/order/hooks/useShippingFee';
 import { mockOrderProducts, calculateOrderTotals } from '@/features/order/mockData';
@@ -12,6 +13,7 @@ import { useAppDispatch } from '@/hooks/redux';
 import { VoucherModal, Voucher, VoucherByUserResponse } from './VoucherModal';
 import { voucherApi } from '@/services/api/voucherApi';
 import { apiClient } from '@/services/api/baseApi';
+
 
 interface OrderSummaryProps {
 	onClose?: () => void;
@@ -55,30 +57,22 @@ export function OrderSummary({
 		orderError,
 		order,
 	} = useOrder();
-	const dispatch = useAppDispatch();
+	useAppDispatch();
 
 	const [vouchers, setVouchers] = React.useState<Voucher[]>([]);
-	const [isLoadingVouchers, setIsLoadingVouchers] = React.useState(false);
-	const [voucherError, setVoucherError] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
 		let cancelled = false;
-		setIsLoadingVouchers(true);
-		setVoucherError(null);
 		voucherApi.getVouchersByUser()
 			.then(res => {
 				if (cancelled) return;
 				if (res.success && Array.isArray(res.data)) {
 					setVouchers(res.data as Voucher[]);
-				} else {
-					setVoucherError(res.message || 'Failed to load vouchers');
 				}
 			})
-			.catch(err => {
-				if (cancelled) return;
-				setVoucherError(err?.message || 'Failed to load vouchers');
-			})
-			.finally(() => { if (!cancelled) setIsLoadingVouchers(false); });
+			.catch(() => {
+				// Error handling can be added here if needed
+			});
 		return () => { cancelled = true; };
 	}, []);
 
@@ -101,7 +95,6 @@ export function OrderSummary({
 	// Calculate totals from products with promotion support
 	const orderTotals = calculateOrderTotals(products);
 	const subtotal = orderTotals.subtotal;
-	const promotionDiscount = orderTotals.promotionDiscount;
 	
 	const computeVoucherDiscount = (voucher: Voucher | null): number => {
 		if (!voucher) return 0;
@@ -113,7 +106,6 @@ export function OrderSummary({
 		return Math.min(byPercent, subtotal);
 	};
 	const voucherDiscount = computeVoucherDiscount(selectedVoucher);
-	const totalDiscount = promotionDiscount + voucherDiscount;
 	const total = Math.max(0, subtotal - voucherDiscount) + (shippingFee?.fee || 0);
 
 	const formatPrice = (price: number) => {

@@ -111,12 +111,12 @@ export function SimilarProducts({ categorySlug, currentProductId, currentPrice }
     }
 
     return (
-        <div className="bg-white">
+        <section className="bg-white">
             <ProductCarousel
                 products={products}
                 title="Similar Products"
                 onProductClick={handleProductClick}
             />
-        </div>
+        </section>
     );
 }

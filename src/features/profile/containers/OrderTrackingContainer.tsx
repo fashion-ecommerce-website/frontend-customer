@@ -3,7 +3,7 @@
 import React from 'react';
 import { Order } from '@/features/order/types';
 import OrderTrackingPresenter from '../components/OrderTrackingPresenter';
-import ghnApi, { GHNTrackingEvent } from '@/services/api/ghnApi';
+import trackingApi, { TrackingEvent } from '@/services/api/trackingApi';
 
 type OrderTrackingContainerProps = {
   order: Order | null;
@@ -11,70 +11,74 @@ type OrderTrackingContainerProps = {
 };
 
 export const OrderTrackingContainer: React.FC<OrderTrackingContainerProps> = ({ order, onBack }) => {
-  const [events, setEvents] = React.useState<GHNTrackingEvent[] | null>(null);
+  const [events, setEvents] = React.useState<TrackingEvent[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [refreshing, setRefreshing] = React.useState<boolean>(false);
 
-  const resolveTrackingCode = React.useCallback(() => {
-    if (!order) return '';
-    const latest = order.shipments?.slice().sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).at(-1);
-    return latest?.trackingNumber || '';
+  // Get the latest shipment
+  const latestShipment = React.useMemo(() => {
+    if (!order?.shipments?.length) return null;
+    return order.shipments
+      .slice()
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .at(-1) || null;
   }, [order]);
 
-  const fetchTracking = React.useCallback((trackingNumber: string) => {
-    let cancelled = false;
+  // Fetch tracking events from Backend (with optional refresh first)
+  const fetchTracking = React.useCallback(async (shipmentId: number, shouldRefreshFirst: boolean = false) => {
     setLoading(true);
     setError(null);
-    ghnApi.trackOrder(trackingNumber)
-      .then((res) => {
-        if (cancelled) return;
-        if (res.success && res.data) {
-          setEvents(res.data);
-        } else {
-          const now = new Date();
-          const mock: GHNTrackingEvent[] = [
-            { time: new Date(now.getTime() - 1000 * 60 * 60).toISOString(), status: 'CREATED', reason: 'Order created', location: null },
-            { time: new Date(now.getTime() - 1000 * 60 * 30).toISOString(), status: 'READY_TO_PICK', reason: 'Waiting for pickup', location: null },
-          ];
-          setEvents(mock);
-          setError(null);
+    try {
+      // Refresh from carrier first if requested
+      if (shouldRefreshFirst) {
+        try {
+          await trackingApi.refreshTracking(shipmentId);
+        } catch {
+          // Ignore refresh errors, continue to fetch history
         }
-      })
-      .catch((e: any) => {
-        if (cancelled) return;
-        const now = new Date();
-        const mock: GHNTrackingEvent[] = [
-          { time: new Date(now.getTime() - 1000 * 60 * 60).toISOString(), status: 'CREATED', reason: 'Order created', location: null },
-          { time: new Date(now.getTime() - 1000 * 60 * 30).toISOString(), status: 'READY_TO_PICK', reason: 'Waiting for pickup', location: null },
-        ];
-        setEvents(mock);
-        setError(null);
-      })
-      .finally(() => {
-        if (cancelled) return;
-        setLoading(false);
-      });
-    return () => { cancelled = true; };
+      }
+      
+      const res = await trackingApi.getTrackingHistory(shipmentId);
+      if (res.success && res.data) {
+        setEvents(res.data);
+      } else {
+        setError(res.message || 'Failed to fetch tracking');
+        setEvents([]);
+      }
+    } catch {
+      setError('Failed to fetch tracking information');
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  // Refresh tracking from carrier
+  const handleRefresh = React.useCallback(async () => {
+    if (!latestShipment?.id) return;
+    setRefreshing(true);
+    try {
+      await trackingApi.refreshTracking(latestShipment.id);
+      // Re-fetch after refresh
+      await fetchTracking(latestShipment.id);
+    } catch {
+      // Ignore refresh errors, just re-fetch
+      await fetchTracking(latestShipment.id);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [latestShipment?.id, fetchTracking]);
+
+  // Initial fetch - refresh from carrier first to get latest events
   React.useEffect(() => {
-    if (!order) return;
-    const code = resolveTrackingCode();
-    if (!code) {
-      // No tracking code from API/order; show mock timeline instead of error
-      const now = new Date();
-      const mock: GHNTrackingEvent[] = [
-        { time: new Date(now.getTime() - 1000 * 60 * 60).toISOString(), status: 'CREATED', reason: 'Order created', location: null },
-        { time: new Date(now.getTime() - 1000 * 60 * 30).toISOString(), status: 'READY_TO_PICK', reason: 'Waiting for pickup', location: null },
-      ];
-      setEvents(mock);
-      setError(null);
+    if (!latestShipment?.id) {
+      setEvents([]);
       setLoading(false);
       return;
     }
-    const cleanup = fetchTracking(code);
-    return cleanup;
-  }, [order, resolveTrackingCode, fetchTracking]);
+    fetchTracking(latestShipment.id, true); // Refresh first on initial load
+  }, [latestShipment?.id, fetchTracking]);
 
   if (!order) {
     return (
@@ -83,13 +87,16 @@ export const OrderTrackingContainer: React.FC<OrderTrackingContainerProps> = ({ 
       </div>
     );
   }
+
   return (
     <OrderTrackingPresenter 
       order={order}
       onBack={onBack}
-      events={events || []}
+      events={events}
       loading={loading}
       error={error}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
     />
   );
 };

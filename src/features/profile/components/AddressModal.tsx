@@ -1,26 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Address } from '@/services/api/addressApi';
 import { ghnApi, GHNProvince, GHNDistrict, GHNWard } from '@/services/api/ghnApi';
-
-interface Address {
-  id?: number;
-  userId?: number;
-  fullName: string;
-  phone: string;
-  line: string;
-  ward: string;
-  city: string;
-  countryCode: string;
-  isDefault?: boolean;
-  default?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  // GHN Integration fields
-  provinceId?: number;
-  districtId?: number;
-  wardCode?: string;
-}
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -28,6 +10,7 @@ interface AddressModalProps {
   onClose: () => void;
   onSave: (address: Address) => void;
   isLoading?: boolean;
+  isFirstAddress?: boolean;
 }
 
 export const AddressModal: React.FC<AddressModalProps> = ({
@@ -36,6 +19,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   onClose,
   onSave,
   isLoading = false,
+  isFirstAddress = false,
 }) => {
   // Error map for form fields
   type AddressField = keyof Address;
@@ -51,6 +35,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     isDefault: address?.isDefault || address?.default || false,
     provinceId: address?.provinceId,
     districtId: address?.districtId,
+    districtName: address?.districtName,
     wardCode: address?.wardCode,
   });
 
@@ -118,28 +103,32 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   useEffect(() => {
     if (selectedProvince) {
       loadDistricts(selectedProvince);
-      // Reset district and ward selections
-      setSelectedDistrict(null);
-      setSelectedWard(null);
-      setDistricts([]);
-      setWards([]);
+      // Only reset if province actually changed (not initial load)
+      if (selectedProvince !== address?.provinceId) {
+        setSelectedDistrict(null);
+        setSelectedWard(null);
+        setDistricts([]);
+        setWards([]);
+      }
       // Close other dropdowns but keep province dropdown open if user is still interacting
       setIsDistrictOpen(false);
       setIsWardOpen(false);
     }
-  }, [selectedProvince]);
+  }, [selectedProvince, address?.provinceId]);
 
   // Load wards when district changes
   useEffect(() => {
     if (selectedDistrict) {
       loadWards(selectedDistrict);
-      // Reset ward selection
-      setSelectedWard(null);
-      setWards([]);
+      // Only reset if district actually changed (not initial load)
+      if (selectedDistrict !== address?.districtId) {
+        setSelectedWard(null);
+        setWards([]);
+      }
       // Close ward dropdown but keep district dropdown open if user is still interacting
       setIsWardOpen(false);
     }
-  }, [selectedDistrict]);
+  }, [selectedDistrict, address?.districtId]);
 
   // Update form data when GHN selections change
   useEffect(() => {
@@ -152,10 +141,10 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         ...prev,
         provinceId: selectedProvince,
         districtId: selectedDistrict,
+        districtName: district?.DistrictName || prev.districtName,
         wardCode: selectedWard,
         city: province?.ProvinceName || prev.city,
-        ward: district?.DistrictName || prev.ward,
-        line: ward?.WardName || prev.line,
+        ward: ward?.WardName || prev.ward,
       }));
 
       // Clear GHN-related errors
@@ -171,6 +160,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   // Reset form when modal opens/closes or address changes
   React.useEffect(() => {
     if (isOpen) {
+      // If this is the first address, automatically set as default
+      const shouldBeDefault = isFirstAddress || address?.isDefault || address?.default || false;
+      
       setFormData({
         fullName: address?.fullName || '',
         phone: address?.phone || '',
@@ -178,17 +170,30 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         ward: address?.ward || '',
         city: address?.city || '',
         countryCode: address?.countryCode || 'VN',
-        isDefault: address?.isDefault || address?.default || false,
+        isDefault: shouldBeDefault,
         provinceId: address?.provinceId,
         districtId: address?.districtId,
+        districtName: address?.districtName,
         wardCode: address?.wardCode,
       });
+      
+      // Set GHN selections for editing, or reset for new address
       setSelectedProvince(address?.provinceId || null);
       setSelectedDistrict(address?.districtId || null);
       setSelectedWard(address?.wardCode || null);
+      
+      // Reset districts and wards if creating new address
+      if (!address) {
+        setDistricts([]);
+        setWards([]);
+      }
+      
       setErrors({});
+      setProvinceSearch('');
+      setDistrictSearch('');
+      setWardSearch('');
     }
-  }, [isOpen, address]);
+  }, [isOpen, address, isFirstAddress]);
 
   const loadProvinces = async () => {
     setLoading(prev => ({ ...prev, provinces: true }));
@@ -203,7 +208,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load provinces');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load provinces');
     } finally {
       setLoading(prev => ({ ...prev, provinces: false }));
@@ -221,7 +226,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load districts');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load districts');
     } finally {
       setLoading(prev => ({ ...prev, districts: false }));
@@ -239,26 +244,11 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       } else {
         setGhnError(response.message || 'Failed to load wards');
       }
-    } catch (err) {
+    } catch {
       setGhnError('Failed to load wards');
     } finally {
       setLoading(prev => ({ ...prev, wards: false }));
     }
-  };
-
-  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedProvince(value ? parseInt(value) : null);
-  };
-
-  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedDistrict(value ? parseInt(value) : null);
-  };
-
-  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setSelectedWard(value || null);
   };
 
   // Custom dropdown handlers
@@ -343,6 +333,10 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       newErrors.phone = phoneError;
     }
 
+
+    if (!formData.line.trim()) {
+      newErrors.line = 'Address line is required';
+    }
 
     if (!formData.ward.trim()) {
       newErrors.ward = 'Ward is required';
@@ -446,7 +440,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-light cursor-pointer"
           disabled={isLoading}
         >
           ×
@@ -511,7 +505,26 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             )}
           </div>
 
-          {/* Address Line removed; using Ward as address line for API */}
+          {/* Address Line Field */}
+          <div>
+            <label htmlFor="line" className="block text-sm font-medium text-gray-700 mb-1">
+              Address Line <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="line"
+              value={formData.line}
+              onChange={(e) => handleInputChange('line', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
+                errors.line ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="House number, street name..."
+              disabled={isLoading}
+            />
+            {errors.line && (
+              <p className="mt-1 text-sm text-red-600">{errors.line}</p>
+            )}
+          </div>
 
            {/* Province Selection */}
            <div className="relative dropdown-container">
@@ -522,7 +535,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                <div className="relative">
                  <input
                    type="text"
-                   value={provinceSearch || (selectedProvince ? provinces.find(p => p.ProvinceID === selectedProvince)?.ProvinceName || '' : '')}
+                   value={provinceSearch || (selectedProvince ? provinces.find(p => p.ProvinceID === selectedProvince)?.ProvinceName || formData.city || '' : '')}
                    onChange={(e) => {
                      setProvinceSearch(e.target.value);
                      if (!isProvinceOpen) {
@@ -594,7 +607,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               <div className="relative">
                 <input
                   type="text"
-                  value={districtSearch || (selectedDistrict ? districts.find(d => d.DistrictID === selectedDistrict)?.DistrictName || '' : '')}
+                  value={districtSearch || (selectedDistrict ? districts.find(d => d.DistrictID === selectedDistrict)?.DistrictName || formData.districtName || '' : '')}
                   onChange={(e) => {
                     setDistrictSearch(e.target.value);
                     if (!isDistrictOpen) {
@@ -666,7 +679,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               <div className="relative">
                 <input
                   type="text"
-                  value={wardSearch || (selectedWard ? wards.find(w => w.WardCode === selectedWard)?.WardName || '' : '')}
+                  value={wardSearch || (selectedWard ? wards.find(w => w.WardCode === selectedWard)?.WardName || formData.ward || '' : '')}
                   onChange={(e) => {
                     setWardSearch(e.target.value);
                     if (!isWardOpen) {
@@ -744,7 +757,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               checked={formData.isDefault}
               onChange={(e) => handleInputChange('isDefault', e.target.checked)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              disabled={isLoading}
+              disabled={isLoading || isFirstAddress}
             />
             <label htmlFor="isDefault" className="ml-2 text-sm text-black">
               Set as default address.
@@ -755,7 +768,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-black text-white py-3 rounded-md font-medium transition-all duration-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none mt-6"
+            className="w-full bg-black text-white py-3 rounded-md font-medium transition-all duration-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none mt-6 cursor-pointer"
           >
             {isLoading ? (address?.id ? 'Updating...' : 'Adding...') : (address?.id ? 'Update address' : 'Add address')}
           </button>

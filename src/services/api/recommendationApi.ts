@@ -4,6 +4,7 @@ import type {
     UserMeasurements,
     SizeRecommendationResponse
 } from '../../types/size-recommendation.types';
+import { ChatBotResponse } from '../../types/recommendation.types';
 
 // Action Type Enum - matches backend enum
 export enum ActionType {
@@ -29,6 +30,13 @@ export interface RecommendationProduct {
     colors: string[];
     imageUrls: string[];
     categorySlug: string;
+}
+
+// Chatbot response interface
+export interface ChatbotResponse {
+    message?: string;
+    recommendations?: RecommendationProduct[];
+    [key: string]: unknown;
 }
 
 // Recommendation API endpoints
@@ -82,7 +90,6 @@ export class RecommendationApiService {
             count,
         });
     }
-
     /**
      * Get size recommendation based on user measurements
      * URL: /api/recommendations/size-recommendation/{productId}?similarUserLimit={limit}
@@ -136,8 +143,8 @@ export class RecommendationApiService {
      * Get recommendations based on natural language chat message
      * URL: /api/chatbot/chat
      */
-    async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<any>> {
-        return apiClient.post<any>(RECOMMENDATION_ENDPOINTS.CHAT, data);
+    async chat(message: string): Promise<ApiResponse<ChatBotResponse>> {
+        return apiClient.post<ChatBotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, { message }, undefined, true);
     }
 }
 
@@ -157,5 +164,5 @@ export const recommendationApi = {
     getMeasurements: () => recommendationApiService.getMeasurements(),
     hasMeasurements: () => recommendationApiService.hasMeasurements(),
     deleteMeasurements: () => recommendationApiService.deleteMeasurements(),
-    getCombinedMessageRecommendations: (data: { message: string }) => recommendationApiService.getCombinedMessageRecommendations(data),
+    chat: (message: string) => recommendationApiService.chat(message),
 };

@@ -29,9 +29,11 @@ const wishlistSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    toggleWishlistRequest(state, _action: PayloadAction<number>) {
+    toggleWishlistRequest(state, action: PayloadAction<number>) {
       state.loading = true;
       state.error = null;
+      // action.payload is used by saga, not in reducer
+      void action;
     },
     toggleWishlistFailure(state, action: PayloadAction<string>) {
       state.loading = false;
@@ -65,9 +67,9 @@ export const {
 
 export const wishlistReducer = wishlistSlice.reducer;
 
-export const selectWishlistState = (state: any) => state.wishlist as WishlistState;
-export const selectWishlistItems = (state: any) => (state.wishlist as WishlistState).items;
-export const selectWishlistLoading = (state: any) => (state.wishlist as WishlistState).loading;
-export const selectWishlistError = (state: any) => (state.wishlist as WishlistState).error;
+export const selectWishlistState = (state: { wishlist: WishlistState }) => state.wishlist;
+export const selectWishlistItems = (state: { wishlist: WishlistState }) => state.wishlist.items;
+export const selectWishlistLoading = (state: { wishlist: WishlistState }) => state.wishlist.loading;
+export const selectWishlistError = (state: { wishlist: WishlistState }) => state.wishlist.error;
 
 

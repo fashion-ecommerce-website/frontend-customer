@@ -1,13 +1,8 @@
-/**
- * Profile Presenter Component
- * Pure UI component for profile management
- */
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ProfilePresenterProps } from '../types/profile.types';
+import { ProfilePresenterProps, UpdateProfileRequest } from '../types/profile.types';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useFormValidation } from '../hooks/useValidation';
@@ -19,7 +14,7 @@ import {
 import { ProfileSidebar } from './ProfileSidebar';
 import { ProfileFormSection } from './ProfileFormSection';
 import { PasswordChangeModal } from './PasswordChangeModal';
-import { UpdateInfoModal, UpdateProfileApiPayload } from './UpdateInfoModal';
+import { UpdateInfoModal } from './UpdateInfoModal';
 import { RecentlyViewed } from './RecentlyViewed';
 import { WishlistContainer } from '../containers/WishlistContainer';
 import { AccountOverview } from './AccountOverview';
@@ -54,6 +49,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   onChangePassword,
   onClearError,
   onClearPasswordError,
+  onClearSuccess,
 }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
@@ -72,6 +68,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     if (!initialSection && !activeSidebarSection) {
       setActiveSidebarSection('account');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSection]);
   const router = useRouter();
   const { logout } = useAuth();
@@ -79,6 +76,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const {
     validationErrors,
     clearAllErrors,
+    clearFieldError,
     validateAndSetErrors,
   } = useFormValidation();
 
@@ -143,10 +141,13 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   }, [selectedOrder]);
 
   // Handle modal form submission with API format
-  const handleModalSubmit = (data: UpdateProfileApiPayload) => {
-    // Pass the API payload directly to the unified update function
-    onUpdateProfile(data);
-    setShowUpdateInfoModal(false);
+  const handleModalSubmit = (data: UpdateProfileRequest) => {
+    // Validate the form data before submitting
+    if (validateAndSetErrors(profileFormData, 'profile')) {
+      // Pass the API payload directly to the unified update function
+      onUpdateProfile(data);
+      setShowUpdateInfoModal(false);
+    }
   };
 
   // Handle password form submission
@@ -160,7 +161,14 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const handlePasswordModalClose = () => {
     setShowPasswordModal(false);
     onClearPasswordError();
+    onClearSuccess(); // Clear passwordChangeSuccess to prevent toast loop
     clearAllErrors();
+    // Reset password form fields
+    onPasswordFormDataChange({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
   };
 
   // Handle password modal open
@@ -170,6 +178,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
 
   // Handle update info modal open
   const handleUpdateInfoModalOpen = () => {
+    clearAllErrors(); // Clear any previous validation errors
     setShowUpdateInfoModal(true);
   };
 
@@ -407,6 +416,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         onChangePassword={handlePasswordSubmit}
         onClose={handlePasswordModalClose}
         onClearPasswordError={onClearPasswordError}
+        onClearFieldError={clearFieldError}
       />
 
       {/* Update Info Modal */}

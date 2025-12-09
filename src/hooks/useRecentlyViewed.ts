@@ -31,8 +31,8 @@ export const useRecentlyViewed = () => {
         } else {
           throw new Error(response.message || 'Error fetching recently viewed');
         }
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -49,8 +49,8 @@ export const useRecentlyViewed = () => {
       } else {
         throw new Error(res.message || 'Error clearing items');
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -65,8 +65,8 @@ export const useRecentlyViewed = () => {
       } else {
         throw new Error(res.message || 'Error removing items');
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
