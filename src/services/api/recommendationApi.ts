@@ -1,5 +1,9 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
+import type {
+    UserMeasurements,
+    SizeRecommendationResponse
+} from '../../types/size-recommendation.types';
 
 // Action Type Enum - matches backend enum
 export enum ActionType {
@@ -27,30 +31,19 @@ export interface RecommendationProduct {
     categorySlug: string;
 }
 
-// Size fit statistics interface
-export interface SizeFitData {
-    size: string;
-    percentage: number;
-    isRecommended: boolean;
-}
-
-export interface SizeFitStatistics {
-    recommendedSize: string | null;
-    confidence: number;
-    sizeFitData: SizeFitData[];
-    explanation: string;
-}
-
 // Recommendation API endpoints
 const RECOMMENDATION_ENDPOINTS = {
     GET_FOR_YOU: '/recommendations/for-you',
     GET_SIMILAR: '/recommendations/similar',
     RECORD_INTERACTION: '/recommendations/interactions',
-<<<<<<< HEAD
+    SIZE_RECOMMENDATION: '/recommendations/size-recommendation',
     CHAT: '/chatbot/chat',
-=======
-    GET_SIZE_FIT: '/recommendations/size-fit',
->>>>>>> 5e5fc88 (update UI for add profile)
+} as const;
+
+// User Measurements API endpoints
+const MEASUREMENTS_ENDPOINTS = {
+    MEASUREMENTS: '/users/measurements',
+    EXISTS: '/users/measurements/exists',
 } as const;
 
 // Recommendation API service
@@ -91,20 +84,60 @@ export class RecommendationApiService {
     }
 
     /**
-<<<<<<< HEAD
+     * Get size recommendation based on user measurements
+     * URL: /api/recommendations/size-recommendation/{productId}?similarUserLimit={limit}
+     * Requires authentication and user measurements
+     */
+    async getSizeRecommendation(
+        productId: number,
+        similarUserLimit: number = 30
+    ): Promise<ApiResponse<SizeRecommendationResponse>> {
+        const url = `${RECOMMENDATION_ENDPOINTS.SIZE_RECOMMENDATION}/${productId}?similarUserLimit=${similarUserLimit}`;
+        return apiClient.get<SizeRecommendationResponse>(url);
+    }
+
+    /**
+     * Save or update user measurements
+     * URL: /api/users/measurements
+     * Requires authentication
+     */
+    async saveMeasurements(measurements: Omit<UserMeasurements, 'bmi'>): Promise<ApiResponse<UserMeasurements>> {
+        return apiClient.post<UserMeasurements>(MEASUREMENTS_ENDPOINTS.MEASUREMENTS, measurements);
+    }
+
+    /**
+     * Get current user's measurements
+     * URL: /api/users/measurements
+     * Requires authentication
+     */
+    async getMeasurements(): Promise<ApiResponse<UserMeasurements>> {
+        return apiClient.get<UserMeasurements>(MEASUREMENTS_ENDPOINTS.MEASUREMENTS);
+    }
+
+    /**
+     * Check if current user has measurements saved
+     * URL: /api/users/measurements/exists
+     * Requires authentication
+     */
+    async hasMeasurements(): Promise<ApiResponse<boolean>> {
+        return apiClient.get<boolean>(MEASUREMENTS_ENDPOINTS.EXISTS);
+    }
+
+    /**
+     * Delete current user's measurements
+     * URL: /api/users/measurements
+     * Requires authentication
+     */
+    async deleteMeasurements(): Promise<ApiResponse<void>> {
+        return apiClient.delete<void>(MEASUREMENTS_ENDPOINTS.MEASUREMENTS);
+    }
+
+    /**
      * Get recommendations based on natural language chat message
      * URL: /api/chatbot/chat
      */
     async getCombinedMessageRecommendations(data: { message: string }): Promise<ApiResponse<any>> {
         return apiClient.post<any>(RECOMMENDATION_ENDPOINTS.CHAT, data);
-=======
-     * Get size fit statistics for a product
-     * URL: /api/recommendations/size-fit/{productId}
-     */
-    async getSizeFitStatistics(productId: number): Promise<ApiResponse<SizeFitStatistics>> {
-        const url = `${RECOMMENDATION_ENDPOINTS.GET_SIZE_FIT}/${productId}`;
-        return apiClient.get<SizeFitStatistics>(url);
->>>>>>> 5e5fc88 (update UI for add profile)
     }
 }
 
@@ -117,9 +150,12 @@ export const recommendationApi = {
     getSimilarItems: (itemId: number, limit?: number) => recommendationApiService.getSimilarItems(itemId, limit),
     recordInteraction: (productId: number, actionType: ActionType, count?: number) =>
         recommendationApiService.recordInteraction(productId, actionType, count),
-<<<<<<< HEAD
+    getSizeRecommendation: (productId: number, similarUserLimit?: number) =>
+        recommendationApiService.getSizeRecommendation(productId, similarUserLimit),
+    saveMeasurements: (measurements: Omit<UserMeasurements, 'bmi'>) =>
+        recommendationApiService.saveMeasurements(measurements),
+    getMeasurements: () => recommendationApiService.getMeasurements(),
+    hasMeasurements: () => recommendationApiService.hasMeasurements(),
+    deleteMeasurements: () => recommendationApiService.deleteMeasurements(),
     getCombinedMessageRecommendations: (data: { message: string }) => recommendationApiService.getCombinedMessageRecommendations(data),
-=======
-    getSizeFitStatistics: (productId: number) => recommendationApiService.getSizeFitStatistics(productId),
->>>>>>> 5e5fc88 (update UI for add profile)
 };

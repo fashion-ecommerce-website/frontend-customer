@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
@@ -11,6 +11,7 @@ import { recommendationApi, ActionType } from '@/services/api/recommendationApi'
 import { SizeGuideModal, MeasurementsModal } from '@/components/modals';
 import { Size } from '@/types/size-recommendation.types';
 import { addToCartAsync } from '@/features/cart/redux/cartSaga';
+import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -52,9 +53,17 @@ export function ProductInfo({
   const [quantity, setQuantity] = useState(1);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + '₫';
-  };
+
+  // Check if size guide is supported for this product category
+  const showSizeGuideButton = useMemo(() => {
+    const result = isSizeGuideSupported(product.categorySlug);
+    console.log('🔍 Size Guide Check (useMemo):', {
+      categorySlug: product.categorySlug,
+      result,
+      productTitle: product.title
+    });
+    return result;
+  }, [product.categorySlug, product.title]);
 
   // Initialize wishlist state for this product
   useEffect(() => {
@@ -286,20 +295,22 @@ export function ProductInfo({
 
           <div className="flex items-center justify-between">
             <h3 className="text-xs md:text-sm font-medium text-gray-900">Size</h3>
-            <button
-              onClick={() => setShowSizeGuide(true)}
-              className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer group"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
-                <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
-                <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
-                <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
-                <rect x="12.5" y="6" width="1" height="2" fill="black"></rect>
-                <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
-                <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
-              </svg>
-              <span>Size guide</span>
-            </button>
+            {showSizeGuideButton && (
+              <button
+                onClick={() => setShowSizeGuide(true)}
+                className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer group"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
+                  <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
+                  <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
+                  <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
+                  <rect x="12.5" y="6" width="1" height="2" fill="black"></rect>
+                  <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
+                  <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
+                </svg>
+                <span>Size guide</span>
+              </button>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -391,29 +402,34 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Size Guide Modal */}
-      <SizeGuideModal 
-        isOpen={showSizeGuide} 
-        onClose={() => setShowSizeGuide(false)}
-        category={product.title}
-        productId={product.detailId}
-        availableSizes={Object.keys(product.mapSizeToQuantity) as Size[]}
-        onSizeSelect={(size) => onSizeSelect(size)}
-        onAddMeasurements={() => {
-          setShowSizeGuide(false);
-          setShowMeasurementsModal(true);
-        }}
-      />
+      {/* Size Guide Modal - Only show for supported categories */}
+      {showSizeGuideButton && (
+        <>
+          <SizeGuideModal
+            isOpen={showSizeGuide}
+            onClose={() => setShowSizeGuide(false)}
+            category={product.title}
+            categorySlug={product.categorySlug}
+            productId={product.productId}
+            availableSizes={Object.keys(product.mapSizeToQuantity) as Size[]}
+            onSizeSelect={(size) => onSizeSelect(size)}
+            onAddMeasurements={() => {
+              setShowSizeGuide(false);
+              setShowMeasurementsModal(true);
+            }}
+          />
 
-      <MeasurementsModal
-        isOpen={showMeasurementsModal}
-        onClose={() => setShowMeasurementsModal(false)}
-        onSave={() => {
-          setShowMeasurementsModal(false);
-          setShowSizeGuide(true); // Reopen size guide to show AI recommendations
-        }}
-        productImage={product.images[0] || '/images/placeholder.jpg'}
-      />
+          <MeasurementsModal
+            isOpen={showMeasurementsModal}
+            onClose={() => setShowMeasurementsModal(false)}
+            onSave={() => {
+              setShowMeasurementsModal(false);
+              setShowSizeGuide(true); // Reopen size guide to show AI recommendations
+            }}
+            productImage={product.images[0] || '/images/placeholder.jpg'}
+          />
+        </>
+      )}
     </div>
   );
 }

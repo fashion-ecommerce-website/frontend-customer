@@ -79,7 +79,7 @@ export function ProductDetailRecentlyViewed() {
   }
 
   return (
-    <div className="mx-[3%]">
+    <div className="bg-white">
       <ProductCarousel
         products={items}
         title="Recently Viewed"

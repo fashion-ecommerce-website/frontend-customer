@@ -2,67 +2,153 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { getMeasurements } from '@/utils/localStorage/measurements';
+import { getMeasurements, saveMeasurements } from '@/utils/localStorage/measurements';
 import { UserMeasurements, Size } from '@/types/size-recommendation.types';
+import { getSizeChartByCategory, getSizeChartMapByCategory, topsSizeCharts, bottomsSizeCharts, type SizeChart } from '@/data/sizeCharts';
+import { SizeChartTable } from './SizeChartTable';
+import { recommendationApi } from '@/services/api/recommendationApi';
+import {
+  SizeRecommendationResponse,
+  ConfidenceLevel,
+  DataQuality
+} from '@/types/size-recommendation.types';
+import {
+  buildRecommendationReasoning,
+  getConfidenceBadgeColor,
+  getConfidenceBadgeLabel,
+  getDataQualityIcon
+} from '@/utils/size-recommendation';
 
 interface SizeGuideModalProps {
   isOpen: boolean;
   onClose: () => void;
   category?: string;
+  categorySlug?: string;
   productId: number;
   availableSizes: Size[];
   onSizeSelect?: (size: Size) => void;
   onAddMeasurements?: () => void;
 }
 
-export function SizeGuideModal({ 
-  isOpen, 
-  onClose, 
+export function SizeGuideModal({
+  isOpen,
+  onClose,
   category = 'Clothing',
+  categorySlug = '',
   productId,
   availableSizes,
   onSizeSelect,
   onAddMeasurements
 }: SizeGuideModalProps) {
   const [measurements, setMeasurements] = useState<UserMeasurements | null>(null);
-  const [recommendedSize, setRecommendedSize] = useState<Size | null>(null);
-  const [alternativeSize, setAlternativeSize] = useState<Size | null>(null);
-  const [sizeFitStats, setSizeFitStats] = useState<any>(null);
-  const [loadingStats, setLoadingStats] = useState(false);
+  const [sizeChart, setSizeChart] = useState<SizeChart | null>(null);
+
+  // API recommendation state
+  const [apiRecommendation, setApiRecommendation] = useState<SizeRecommendationResponse | null>(null);
+  const [loadingRecommendation, setLoadingRecommendation] = useState(false);
 
   // Load measurements and calculate recommendation when modal opens
   useEffect(() => {
     if (isOpen) {
-      const savedMeasurements = getMeasurements();
-      setMeasurements(savedMeasurements);
-      
-      if (savedMeasurements) {
-        const { recommended, alternative } = calculateRecommendedSizes(
-          savedMeasurements, 
-          category,
-          availableSizes
-        );
-        setRecommendedSize(recommended);
-        setAlternativeSize(alternative);
+      // Load size chart based on category
+      if (categorySlug) {
+        const chart = getSizeChartByCategory(categorySlug);
+        setSizeChart(chart);
       }
 
-      // Load size fit statistics
-      loadSizeFitStatistics();
+      // Try to fetch latest measurements from backend first
+      setLoadingRecommendation(true);
+      
+      console.log('🔍 Fetching measurements from backend...');
+      
+      recommendationApi.getMeasurements()
+        .then(response => {
+          console.log('✅ Backend response:', response);
+          
+          if (response.success && response.data) {
+            console.log('✅ Measurements found in backend:', response.data);
+            // Update state with backend data
+            setMeasurements(response.data);
+            // Sync to local storage
+            saveMeasurements(response.data as any);
+            // Load recommendation with backend data
+            loadSizeRecommendation();
+          } else {
+            console.log('⚠️ No measurements in backend, checking localStorage...');
+            // No measurements in backend, check localStorage as fallback
+            const savedMeasurements = getMeasurements();
+            if (savedMeasurements) {
+              console.log('📦 Found measurements in localStorage:', savedMeasurements);
+              setMeasurements(savedMeasurements);
+              // Try to sync localStorage to backend
+              console.log('🔄 Syncing localStorage to backend...');
+              recommendationApi.saveMeasurements(savedMeasurements)
+                .then((syncResponse) => {
+                  console.log('✅ Synced to backend:', syncResponse);
+                })
+                .catch(err => {
+                  console.error('❌ Failed to sync measurements:', err);
+                });
+            } else {
+              console.log('❌ No measurements found in localStorage either');
+            }
+            setLoadingRecommendation(false);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ Failed to fetch measurements from backend:', error);
+          // Fallback to localStorage
+          const savedMeasurements = getMeasurements();
+          if (savedMeasurements) {
+            console.log('📦 Using localStorage fallback:', savedMeasurements);
+          } else {
+            console.log('❌ No measurements available anywhere');
+          }
+          setMeasurements(savedMeasurements);
+          setLoadingRecommendation(false);
+        });
     }
-  }, [isOpen, category, availableSizes, productId]);
+  }, [isOpen, category, categorySlug, availableSizes, productId]);
 
-  const loadSizeFitStatistics = async () => {
-    setLoadingStats(true);
+  const fallbackToLocalRecommendation = () => {
+    if (measurements) {
+      const localRec = calculateRecommendedSizes(measurements, category, availableSizes);
+      setApiRecommendation({
+        recommendedSize: localRec.recommended,
+        confidence: 0.7,
+        alternatives: localRec.alternative ? [{ size: localRec.alternative, confidence: 0.5 }] : [],
+        metadata: {
+          totalSimilarUsers: 0,
+          totalPurchases: 0,
+          averageRating: 0,
+          highRatingRatio: 0,
+          confidenceLevel: 'MEDIUM',
+          dataQuality: 'LIMITED',
+          hasCloseAlternative: !!localRec.alternative
+        },
+        hasMeasurements: true
+      });
+    }
+  };
+
+  const loadSizeRecommendation = async () => {
+    setLoadingRecommendation(true);
     try {
-      const { recommendationApi } = await import('@/services/api/recommendationApi');
-      const response = await recommendationApi.getSizeFitStatistics(productId);
+      console.log('🔍 Calling size recommendation API for product:', productId);
+      const response = await recommendationApi.getSizeRecommendation(productId);
+      
       if (response.success && response.data) {
-        setSizeFitStats(response.data);
+        console.log('✅ Size recommendation received:', response.data);
+        setApiRecommendation(response.data);
+      } else {
+        console.warn('⚠️ Size recommendation API returned unsuccessful response:', response.message);
+        fallbackToLocalRecommendation();
       }
     } catch (error) {
-      console.error('Failed to load size fit statistics:', error);
+      console.error('❌ Failed to load size recommendation:', error);
+      fallbackToLocalRecommendation();
     } finally {
-      setLoadingStats(false);
+      setLoadingRecommendation(false);
     }
   };
 
@@ -76,12 +162,12 @@ export function SizeGuideModal({
   if (!isOpen || typeof window === 'undefined') return null;
 
   return createPortal(
-    <div 
+    <div
       className="fixed inset-0 flex items-center justify-center z-[9999] px-4"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} 
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       onClick={onClose}
     >
-      <div 
+      <div
         className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
@@ -111,174 +197,181 @@ export function SizeGuideModal({
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6 md:p-8 space-y-8">
-          
-          {/* Size Fit Finder Section - Based on purchase data */}
-          {sizeFitStats && sizeFitStats.recommendedSize && (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6 space-y-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-black">Your best fit</h3>
-                  <p className="text-sm text-black">Based on similar shoppers</p>
-                </div>
-              </div>
 
-              {/* Size options with percentages */}
-              <div className="space-y-3">
-                {sizeFitStats.sizeFitData.map((sizeData: any) => (
-                  <div key={sizeData.size} className="bg-white rounded-lg p-4 border-2 border-gray-200 hover:border-green-500 transition-all cursor-pointer"
-                       onClick={() => handleSizeClick(sizeData.size as Size)}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold text-black">{sizeData.size}</span>
-                        {sizeData.isRecommended && (
-                          <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <span className="text-lg font-semibold text-black">{sizeData.percentage}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all ${sizeData.isRecommended ? 'bg-green-600' : 'bg-gray-400'}`}
-                        style={{ width: `${sizeData.percentage}%` }}
-                      />
-                    </div>
+          {/* Size Recommendation Section */}
+          {measurements && apiRecommendation ? (
+            apiRecommendation.recommendedSize ? (
+              /* Case 1: Measurements exist AND Recommendation exists */
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                   </div>
-                ))}
-              </div>
-
-              {/* Explanation */}
-              <div className="bg-white/80 rounded-lg p-4 border border-green-100">
-                <p className="text-sm text-black">
-                  {sizeFitStats.explanation}
-                </p>
-              </div>
-
-              {/* Add to cart button */}
-              {sizeFitStats.recommendedSize && (
-                <button
-                  onClick={() => handleSizeClick(sizeFitStats.recommendedSize as Size)}
-                  className="w-full px-6 py-4 bg-red-600 text-white font-bold text-base rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  Add size {sizeFitStats.recommendedSize} to cart
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Divider */}
-          {sizeFitStats && sizeFitStats.recommendedSize && (
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-medium">Or use AI Size Recommendation</span>
-              </div>
-            </div>
-          )}
-
-          {/* AI Size Recommendation Section - Only show if measurements exist */}
-          {measurements && recommendedSize ? (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 space-y-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <div>
+                    <h3 className="text-xl font-bold text-black">Size Recommendation</h3>
+                    <p className="text-sm text-black">Based on your body measurements</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-black">AI Size Recommendation</h3>
-                  <p className="text-sm text-black">Based on your body measurements</p>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Recommended Size */}
-                <div className="bg-white border-2 border-blue-600 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-                      <span className="text-3xl font-bold text-white">{recommendedSize}</span>
-                    </div>
-                    <div className="mb-4">
-                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                        Best Match
+                {/* Confidence Badge */}
+                {apiRecommendation.metadata && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getConfidenceBadgeColor(apiRecommendation.metadata.confidenceLevel)}`}>
+                      {getConfidenceBadgeLabel(
+                        apiRecommendation.metadata.confidenceLevel, 
+                        'en',
+                        apiRecommendation.metadata.totalSimilarUsers === 0
+                      )}
+                    </span>
+                    {/* Only show data quality if we have actual user data (not rule-based) */}
+                    {apiRecommendation.metadata.totalSimilarUsers > 0 && (
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        Data Quality: {getDataQualityIcon(apiRecommendation.metadata.dataQuality)}
                       </span>
-                    </div>
-                    <p className="text-sm text-black mb-4">
-                      Recommended size based on your measurements
-                    </p>
-                    <button
-                      onClick={() => handleSizeClick(recommendedSize)}
-                      className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Select Size {recommendedSize}
-                    </button>
+                    )}
                   </div>
-                </div>
+                )}
 
-                {/* Alternative Size */}
-                {alternativeSize && (
-                  <div className="bg-white border-2 border-gray-300 rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Recommended Size */}
+                  <div className="bg-white border-2 border-blue-600 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                     <div className="text-center">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
-                        <span className="text-3xl font-bold text-black">{alternativeSize}</span>
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+                        <span className="text-3xl font-bold text-white">{apiRecommendation.recommendedSize}</span>
                       </div>
                       <div className="mb-4">
-                        <span className="inline-block px-3 py-1 bg-gray-100 text-black text-xs font-semibold rounded-full">
-                          Alternative
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                          Best Match
                         </span>
                       </div>
                       <p className="text-sm text-black mb-4">
-                        Consider if you prefer {getSmallerSize(recommendedSize) === alternativeSize ? 'tighter' : 'looser'} fit
+                        {apiRecommendation.metadata.totalSimilarUsers > 0
+                          ? `${((apiRecommendation.confidence || 0) * 100).toFixed(0)}% of similar users chose this size`
+                          : 'Recommended size based on your measurements'}
                       </p>
                       <button
-                        onClick={() => handleSizeClick(alternativeSize)}
-                        className="w-full px-4 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors"
+                        onClick={() => handleSizeClick(apiRecommendation.recommendedSize as Size)}
+                        className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                       >
-                        Select Size {alternativeSize}
+                        Select Size {apiRecommendation.recommendedSize}
                       </button>
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* User Measurements Summary */}
-              <div className="bg-white/80 rounded-lg p-4 border border-blue-100">
-                <div className="flex items-start justify-between">
-                  <p className="text-xs text-black flex items-center gap-2">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="font-medium">Your Profile:</span>
-                  {measurements.gender} • {measurements.height}cm • {measurements.weight}kg • 
-                  BMI {measurements.bmi.toFixed(1)} • {measurements.fitPreference.toLowerCase()} fit
+                  {/* Alternative Size */}
+                  {apiRecommendation.alternatives && apiRecommendation.alternatives.length > 0 && (
+                    <div className="bg-white border-2 border-gray-300 rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+                      <div className="text-center">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
+                          <span className="text-3xl font-bold text-black">{apiRecommendation.alternatives[0].size}</span>
+                        </div>
+                        <div className="mb-4">
+                          <span className="inline-block px-3 py-1 bg-gray-100 text-black text-xs font-semibold rounded-full">
+                            Alternative
+                          </span>
+                        </div>
+                        <p className="text-sm text-black mb-4">
+                          {apiRecommendation.metadata.totalSimilarUsers > 0
+                            ? `${((apiRecommendation.alternatives[0].confidence || 0) * 100).toFixed(0)}% of similar users chose this size`
+                            : 'May also fit if you prefer a looser fit'}
+                        </p>
+                        <button
+                          onClick={() => handleSizeClick(apiRecommendation.alternatives[0].size as Size)}
+                          className="w-full px-4 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors"
+                        >
+                          Select Size {apiRecommendation.alternatives[0].size}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Reasoning Message */}
+                <div className="bg-white/80 rounded-lg p-4 border border-blue-100 mt-4">
+                  <p className="text-sm text-black whitespace-pre-line">
+                    {buildRecommendationReasoning(apiRecommendation, 'en')}
                   </p>
+                </div>
 
-                  <div className="ml-4 flex-shrink-0">
-                    <button
-                      onClick={() => {
-                        if (onAddMeasurements) onAddMeasurements();
-                      }}
-                      className="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 transition-colors"
-                    >
-                      Edit Measurements
-                    </button>
+                {/* User Measurements Summary */}
+                <div className="bg-white/80 rounded-lg p-4 border border-blue-100 mt-4">
+                  <div className="flex items-start justify-between">
+                    <p className="text-xs text-black flex items-center gap-2">
+                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="font-medium">Your Profile:</span>
+                      {measurements.gender} • {measurements.height}cm • {measurements.weight}kg
+                      {measurements.bmi !== undefined && ` • BMI ${measurements.bmi.toFixed(1)}`}
+                      {measurements.fitPreference && ` • ${measurements.fitPreference.toLowerCase()} fit`}
+                    </p>
+
+                    <div className="ml-4 flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          if (onAddMeasurements) onAddMeasurements();
+                        }}
+                        className="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 transition-colors"
+                      >
+                        Edit Measurements
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* Case 2: Measurements exist but NO Recommendation (e.g. not enough data) */
+              <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-6 space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center">
+                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-black">Recommendation Unavailable</h3>
+                    <p className="text-sm text-black">We have your measurements, but need more data for this product.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <p className="text-sm text-black mb-3">
+                    We couldn't confidently recommend a size for this specific item based on your profile. This usually happens with new products or unique fits.
+                  </p>
+                  <p className="text-sm text-black font-medium">
+                    Please refer to the Size Chart below for the most accurate fit.
+                  </p>
+                </div>
+
+                {/* User Measurements Summary (Still show this so they know we have their data) */}
+                <div className="bg-white/80 rounded-lg p-4 border border-gray-200 mt-4">
+                  <div className="flex items-start justify-between">
+                    <p className="text-xs text-black flex items-center gap-2">
+                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="font-medium">Your Profile:</span>
+                      {measurements.gender} • {measurements.height}cm • {measurements.weight}kg
+                    </p>
+
+                    <div className="ml-4 flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          if (onAddMeasurements) onAddMeasurements();
+                        }}
+                        className="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 transition-colors"
+                      >
+                        Edit Measurements
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
           ) : (
-            /* Show "Add Measurements" button if no measurements */
+            /* Case 3: No measurements - Show "Add Measurements" button */
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 text-center space-y-4">
               <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -286,7 +379,7 @@ export function SizeGuideModal({
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-black mb-2">Get AI-Powered Size Recommendations</h3>
+                <h3 className="text-xl font-bold text-black mb-2">Get Personalized Size Recommendations</h3>
                 <p className="text-black mb-6">
                   Add your measurements to receive personalized size suggestions based on your unique body type
                 </p>
@@ -303,18 +396,6 @@ export function SizeGuideModal({
                   </svg>
                   Add Your Measurements
                 </button>
-              </div>
-            </div>
-          )}
-
-          {/* Divider */}
-          {measurements && recommendedSize && (
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-medium">Traditional Size Charts</span>
               </div>
             </div>
           )}
@@ -347,103 +428,8 @@ export function SizeGuideModal({
             </div>
           </div>
 
-          {/* Size Chart for Tops (Shirts, T-shirts, Jackets, etc.) */}
-          <div>
-            <h3 className="text-lg font-bold text-black mb-4">Size Chart - Tops</h3>
-            <div className="overflow-x-auto rounded-xl border border-gray-200">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-800 text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-gray-700">Size</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">XS</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">S</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">M</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">L</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">XL</th>
-                    <th className="px-4 py-3 text-center font-semibold">XXL</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Chest (cm)</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">80-85</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">86-91</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">92-97</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">98-103</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">104-109</td>
-                    <td className="px-4 py-3 text-black text-center">110-115</td>
-                  </tr>
-                  <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Waist (cm)</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">65-70</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">71-76</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">77-82</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">83-88</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">89-94</td>
-                    <td className="px-4 py-3 text-black text-center">95-100</td>
-                  </tr>
-                  <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Height (cm)</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">155-160</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">160-165</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">165-170</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">170-175</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">175-180</td>
-                    <td className="px-4 py-3 text-black text-center">180-185</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Size Chart for Bottoms (Pants, Shorts, Skirts) */}
-          <div>
-            <h3 className="text-lg font-bold text-black mb-4">Size Chart - Bottoms</h3>
-            <div className="overflow-x-auto rounded-xl border border-gray-200">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-800 text-white">
-                    <th className="px-4 py-3 text-left font-semibold border-r border-gray-700">Size</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">XS</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">S</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">M</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">L</th>
-                    <th className="px-4 py-3 text-center font-semibold border-r border-gray-700">XL</th>
-                    <th className="px-4 py-3 text-center font-semibold">XXL</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Waist (cm)</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">60-65</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">66-71</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">72-77</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">78-83</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">84-89</td>
-                    <td className="px-4 py-3 text-black text-center">90-95</td>
-                  </tr>
-                  <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Hips (cm)</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">85-90</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">91-96</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">97-102</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">103-108</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">109-114</td>
-                    <td className="px-4 py-3 text-black text-center">115-120</td>
-                  </tr>
-                  <tr className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-black bg-gray-50 border-r border-gray-200">Inseam (cm)</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">71-73</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">74-76</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">77-79</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">80-82</td>
-                    <td className="px-4 py-3 text-center text-black border-r border-gray-200">83-85</td>
-                    <td className="px-4 py-3 text-black text-center">86-88</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          {/* Dynamic Size Chart based on Category */}
+          {sizeChart && <SizeChartTable sizeChart={sizeChart} />}
 
           {/* Fit Tips */}
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-6">
@@ -464,7 +450,7 @@ export function SizeGuideModal({
           {/* Note */}
           <div className="text-center text-sm text-gray-500 border-t pt-6">
             <p>
-              📏 Still unsure? Use our <span className="text-blue-600 font-semibold">AI Size Recommendation</span> feature above for personalized sizing based on your body measurements!
+              📏 Still unsure? Use our <span className="text-blue-600 font-semibold">Size Recommendation</span> feature above for personalized sizing based on your body measurements!
             </p>
           </div>
         </div>
@@ -600,7 +586,7 @@ function findBestSizeForBottoms(waist: number, hips: number, availableSizes: Siz
   return bestSize;
 }
 
-function adjustForFitPreference(size: Size, fitPreference: string, availableSizes: Size[]): Size {
+function adjustForFitPreference(size: Size, fitPreference: string | undefined, availableSizes: Size[]): Size {
   let adjustedSize = size;
   if (fitPreference === 'TIGHT') {
     adjustedSize = getSmallerSize(size) || size;
@@ -613,7 +599,7 @@ function adjustForFitPreference(size: Size, fitPreference: string, availableSize
   return adjustedSize;
 }
 
-function adjustForBodyShape(size: Size, bellyShape: string, hipShape: string, isBottoms: boolean, availableSizes: Size[]): Size {
+function adjustForBodyShape(size: Size, bellyShape: string | undefined, hipShape: string | undefined, isBottoms: boolean, availableSizes: Size[]): Size {
   let adjustedSize = size;
   if (bellyShape === 'ROUND' && !isBottoms) {
     adjustedSize = getLargerSize(adjustedSize) || adjustedSize;

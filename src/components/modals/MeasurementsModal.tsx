@@ -4,6 +4,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { MeasurementsWizard } from '@/components/size-recommendation/MeasurementsWizard';
 import { getMeasurements } from '@/utils/localStorage/measurements';
+import { recommendationApi } from '@/services/api/recommendationApi';
 
 interface MeasurementsModalProps {
   isOpen: boolean;
@@ -15,7 +16,25 @@ interface MeasurementsModalProps {
 export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: MeasurementsModalProps) {
   if (!isOpen || typeof window === 'undefined') return null;
 
-  const handleSaveSuccess = () => {
+  const handleSaveSuccess = async (measurements: any) => {
+    console.log('💾 Saving measurements:', measurements);
+    
+    try {
+      // Try to sync with backend
+      console.log('🔄 Syncing to backend API...');
+      const response = await recommendationApi.saveMeasurements(measurements);
+      console.log('✅ Backend save response:', response);
+      
+      if (response.success) {
+        console.log('✅ Measurements successfully synced to backend');
+      } else {
+        console.warn('⚠️ Backend returned unsuccessful response:', response.message);
+      }
+    } catch (error) {
+      console.error('❌ Failed to sync measurements to backend:', error);
+      // Continue anyway as they are saved in local storage
+    }
+
     if (onSave) {
       onSave();
     }
@@ -23,9 +42,9 @@ export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: Mea
   };
 
   return createPortal(
-    <div 
+    <div
       className="fixed inset-0 flex items-center justify-center z-[9999] px-4"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} 
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       onClick={(e) => {
         // Only close if clicking the backdrop
         if (e.target === e.currentTarget) {
@@ -33,7 +52,7 @@ export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: Mea
         }
       }}
     >
-      <div 
+      <div
         className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full h-[90vh] overflow-hidden animate-fadeIn flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -62,7 +81,7 @@ export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: Mea
 
         {/* Content - Wizard takes full height */}
         <div className="flex-1 overflow-hidden">
-          <MeasurementsWizard 
+          <MeasurementsWizard
             onSave={handleSaveSuccess}
             onCancel={onClose}
             initialData={getMeasurements()}

@@ -84,7 +84,7 @@ export function RelatedProducts({ productId }: RelatedProductsProps) {
   }
 
   return (
-    <div className="mx-[3%]">
+    <div className="bg-white">
       <ProductCarousel
         products={products}
         title="You may also like"

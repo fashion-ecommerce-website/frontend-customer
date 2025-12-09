@@ -111,7 +111,7 @@ export function SimilarProducts({ categorySlug, currentProductId, currentPrice }
     }
 
     return (
-        <div className="bg-gray-50">
+        <div className="bg-white">
             <ProductCarousel
                 products={products}
                 title="Similar Products"

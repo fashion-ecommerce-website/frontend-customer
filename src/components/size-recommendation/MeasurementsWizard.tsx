@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   UserMeasurements, 
   Gender, 
@@ -13,6 +13,10 @@ import {
   saveMeasurements, 
   calculateBMI 
 } from '@/utils/localStorage/measurements';
+import { 
+  validateField, 
+  validateMeasurements
+} from '@/utils/validation/measurementsValidation';
 
 interface MeasurementsWizardProps {
   onSave: (measurements: UserMeasurements) => void;
@@ -55,6 +59,8 @@ export function MeasurementsWizard({
     braSize: '',
     ...initialData
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
   // Define step order based on gender
   const getStepOrder = (): Step[] => {
@@ -74,6 +80,31 @@ export function MeasurementsWizard({
   const progress = ((currentStepIndex + 1) / totalSteps) * 100;
 
   const handleNext = () => {
+    // Validate current step before proceeding
+    const stepFields = getFieldsForStep(currentStep);
+    const stepErrors: Record<string, string> = {};
+    
+    for (const field of stepFields) {
+      const value = formData[field];
+      // Only validate if field has a value (not empty)
+      if (value !== undefined && value !== null && value !== '') {
+        const error = validateField(field, value, formData.gender);
+        if (error) {
+          stepErrors[field] = error.message;
+        }
+      }
+    }
+    
+    if (Object.keys(stepErrors).length > 0) {
+      setFieldErrors(stepErrors);
+      setShowValidationErrors(true);
+      return;
+    }
+    
+    // Clear errors and proceed
+    setFieldErrors({});
+    setShowValidationErrors(false);
+    
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < stepOrder.length) {
       setCurrentStep(stepOrder[nextIndex]);
@@ -83,6 +114,10 @@ export function MeasurementsWizard({
   };
 
   const handleBack = () => {
+    // Clear errors when going back
+    setFieldErrors({});
+    setShowValidationErrors(false);
+    
     const prevIndex = currentStepIndex - 1;
     if (prevIndex >= 0) {
       setCurrentStep(stepOrder[prevIndex]);
@@ -91,9 +126,43 @@ export function MeasurementsWizard({
 
   const handleChange = (field: keyof UserMeasurements, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error for this field when user makes changes
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubmit = () => {
+    // Final validation before saving
+    const validationResult = validateMeasurements(formData);
+    
+    if (!validationResult.isValid) {
+      // Find the first step with errors and go back to it
+      const errorFields = validationResult.errors.map(e => e.field);
+      for (let i = 0; i < stepOrder.length; i++) {
+        const stepFields = getFieldsForStep(stepOrder[i]);
+        const hasError = stepFields.some(field => errorFields.includes(field as string));
+        if (hasError) {
+          setCurrentStep(stepOrder[i]);
+          const errors: Record<string, string> = {};
+          validationResult.errors.forEach(error => {
+            if (stepFields.includes(error.field as keyof UserMeasurements)) {
+              errors[error.field] = error.message;
+            }
+          });
+          setFieldErrors(errors);
+          setShowValidationErrors(true);
+          return;
+        }
+      }
+      return;
+    }
+    
     const measurements: UserMeasurements = {
       ...formData as UserMeasurements,
       bmi: calculateBMI(formData.height!, formData.weight!),
@@ -104,29 +173,43 @@ export function MeasurementsWizard({
     onSave(measurements);
   };
 
-  const canProceed = (): boolean => {
-    switch (currentStep) {
+  const getFieldsForStep = (step: Step): (keyof UserMeasurements)[] => {
+    switch (step) {
       case 'gender':
-        return !!formData.gender;
+        return ['gender'];
       case 'height-weight':
-        return !!formData.height && !!formData.weight;
+        return ['height', 'weight'];
       case 'measurements':
-        return !!formData.chest && !!formData.waist && !!formData.hips;
+        return ['chest', 'waist', 'hips'];
       case 'fit-preference':
-        return !!formData.fitPreference;
+        return ['fitPreference'];
       case 'age':
-        return !!formData.age && formData.age >= 18;
+        return ['age'];
       case 'bra-size':
-        return true; // Optional
+        return []; // Optional
       case 'hip-shape':
-        return !!formData.hipShape;
+        return ['hipShape'];
       case 'chest-shape':
-        return !!formData.chestShape;
+        return ['chestShape'];
       case 'belly-shape':
-        return !!formData.bellyShape;
+        return ['bellyShape'];
       default:
-        return true;
+        return [];
     }
+  };
+
+  const canProceed = (): boolean => {
+    const stepFields = getFieldsForStep(currentStep);
+    
+    // Check if all required fields are filled
+    for (const field of stepFields) {
+      const value = formData[field];
+      if (value === undefined || value === null || value === '') {
+        return false;
+      }
+    }
+    
+    return true;
   };
 
   return (
@@ -221,6 +304,7 @@ export function MeasurementsWizard({
             weight={formData.weight!}
             onHeightChange={(v) => handleChange('height', v)}
             onWeightChange={(v) => handleChange('weight', v)}
+            errors={fieldErrors}
           />
         );
       
@@ -233,6 +317,7 @@ export function MeasurementsWizard({
             onChestChange={(v) => handleChange('chest', v)}
             onWaistChange={(v) => handleChange('waist', v)}
             onHipsChange={(v) => handleChange('hips', v)}
+            errors={fieldErrors}
           />
         );
       
@@ -245,7 +330,13 @@ export function MeasurementsWizard({
         );
       
       case 'age':
-        return <AgeStep value={formData.age!} onChange={(v) => handleChange('age', v)} />;
+        return (
+          <AgeStep 
+            value={formData.age!} 
+            onChange={(v) => handleChange('age', v)}
+            errors={fieldErrors}
+          />
+        );
       
       case 'bra-size':
         return (
@@ -365,12 +456,14 @@ function HeightWeightStep({
   height, 
   weight, 
   onHeightChange, 
-  onWeightChange 
+  onWeightChange,
+  errors 
 }: { 
   height: number; 
   weight: number; 
   onHeightChange: (v: number) => void; 
-  onWeightChange: (v: number) => void; 
+  onWeightChange: (v: number) => void;
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="space-y-6">
@@ -388,12 +481,24 @@ function HeightWeightStep({
               type="number"
               value={height}
               onChange={(e) => onHeightChange(parseFloat(e.target.value))}
-              className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 text-black text-lg"
+              className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:outline-none text-black text-lg ${
+                errors?.height 
+                  ? 'border-red-500 focus:border-red-600' 
+                  : 'border-gray-300 focus:border-gray-900'
+              }`}
               placeholder="168"
               step="0.1"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">cm</span>
           </div>
+          {errors?.height && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.height}
+            </p>
+          )}
         </div>
 
         {/* Weight */}
@@ -404,12 +509,24 @@ function HeightWeightStep({
               type="number"
               value={weight}
               onChange={(e) => onWeightChange(parseFloat(e.target.value))}
-              className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 text-black text-lg"
+              className={`w-full px-4 py-3 pr-12 border-2 rounded-lg focus:outline-none text-black text-lg ${
+                errors?.weight 
+                  ? 'border-red-500 focus:border-red-600' 
+                  : 'border-gray-300 focus:border-gray-900'
+              }`}
               placeholder="65"
               step="0.1"
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">kg</span>
           </div>
+          {errors?.weight && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.weight}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -422,7 +539,8 @@ function MeasurementsStep({
   hips,
   onChestChange,
   onWaistChange,
-  onHipsChange
+  onHipsChange,
+  errors
 }: {
   chest: number;
   waist: number;
@@ -430,6 +548,7 @@ function MeasurementsStep({
   onChestChange: (v: number) => void;
   onWaistChange: (v: number) => void;
   onHipsChange: (v: number) => void;
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="space-y-6">
@@ -445,10 +564,22 @@ function MeasurementsStep({
             type="number"
             value={chest}
             onChange={(e) => onChestChange(parseFloat(e.target.value))}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 text-black text-lg"
+            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-black text-lg ${
+              errors?.chest 
+                ? 'border-red-500 focus:border-red-600' 
+                : 'border-gray-300 focus:border-gray-900'
+            }`}
             placeholder="90"
             step="0.1"
           />
+          {errors?.chest && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.chest}
+            </p>
+          )}
         </div>
 
         <div>
@@ -457,10 +588,22 @@ function MeasurementsStep({
             type="number"
             value={waist}
             onChange={(e) => onWaistChange(parseFloat(e.target.value))}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 text-black text-lg"
+            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-black text-lg ${
+              errors?.waist 
+                ? 'border-red-500 focus:border-red-600' 
+                : 'border-gray-300 focus:border-gray-900'
+            }`}
             placeholder="75"
             step="0.1"
           />
+          {errors?.waist && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.waist}
+            </p>
+          )}
         </div>
 
         <div>
@@ -469,10 +612,22 @@ function MeasurementsStep({
             type="number"
             value={hips}
             onChange={(e) => onHipsChange(parseFloat(e.target.value))}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 text-black text-lg"
+            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-black text-lg ${
+              errors?.hips 
+                ? 'border-red-500 focus:border-red-600' 
+                : 'border-gray-300 focus:border-gray-900'
+            }`}
             placeholder="95"
             step="0.1"
           />
+          {errors?.hips && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.hips}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -543,7 +698,15 @@ function FitPreferenceStep({
   );
 }
 
-function AgeStep({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function AgeStep({ 
+  value, 
+  onChange,
+  errors 
+}: { 
+  value: number; 
+  onChange: (v: number) => void;
+  errors?: Record<string, string>;
+}) {
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -555,11 +718,23 @@ function AgeStep({ value, onChange }: { value: number; onChange: (v: number) => 
           type="number"
           value={value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-900 text-black text-lg text-center"
+          className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-black text-lg text-center ${
+            errors?.age 
+              ? 'border-red-500 focus:border-red-600' 
+              : 'border-gray-300 focus:border-gray-900'
+          }`}
           placeholder="25"
           min="18"
           max="100"
         />
+        {errors?.age && (
+          <p className="mt-2 text-sm text-red-600 flex items-center justify-center gap-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {errors.age}
+          </p>
+        )}
       </div>
 
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
