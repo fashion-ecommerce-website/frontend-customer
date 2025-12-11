@@ -9,7 +9,6 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ReviewPresenterProps, Review } from '../types/profile.types';
 import { 
-  PageLoadingSpinner, 
   ErrorMessage
 } from '../../../components';
 import { Pagination } from '../../filter-product/components/Pagination';

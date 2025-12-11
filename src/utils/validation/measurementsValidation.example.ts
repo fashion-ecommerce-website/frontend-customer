@@ -16,16 +16,16 @@ function exampleValidateSingleField() {
   console.log('=== Example 1: Validate Single Field ===');
   
   // Valid height
-  const validHeight = validateField('height', 170, 'MALE');
+  const validHeight = validateField('height', 170);
   console.log('Valid height (170cm):', validHeight); // null (no error)
   
   // Invalid height (too short)
-  const invalidHeight = validateField('height', 100, 'MALE');
+  const invalidHeight = validateField('height', 100);
   console.log('Invalid height (100cm):', invalidHeight?.message);
   // Output: "Height must be at least 140cm"
   
   // Invalid weight (too heavy)
-  const invalidWeight = validateField('weight', 250, 'MALE');
+  const invalidWeight = validateField('weight', 250);
   console.log('Invalid weight (250kg):', invalidWeight?.message);
   // Output: "Weight must be less than 200kg"
 }
@@ -181,7 +181,6 @@ function exampleFormValidation() {
     hipShape: 'NORMAL',
     fitPreference: 'COMFORTABLE',
     hasReturnHistory: false,
-    braSize: '70B',
   };
   
   // Validate before submission

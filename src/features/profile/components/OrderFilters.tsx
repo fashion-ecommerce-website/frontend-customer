@@ -54,21 +54,7 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     onQueryChange(newQuery);
   };
 
-  const getFilterLabel = () => {
-    const status = query.status;
-    const paymentStatus = query.paymentStatus;
-    
-    if (!status && !paymentStatus) return 'All Orders';
-    
-    // Map to display labels
-    if (status === OrderStatus.FULFILLED) return 'Fulfilled';
-    if (status === OrderStatus.CANCELLED) return 'Cancelled';
-    if (paymentStatus === PaymentStatus.PAID) return 'Paid';
-    if (paymentStatus === PaymentStatus.UNPAID) return 'Unpaid';
-    if (paymentStatus === PaymentStatus.REFUNDED) return 'Refund';
-    
-    return 'All Orders';
-  };
+
 
   const getCurrentSortValue = () => {
     const sortBy = query.sortBy || 'createdAt';

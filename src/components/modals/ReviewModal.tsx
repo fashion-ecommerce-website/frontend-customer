@@ -38,11 +38,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmitAll = () => {
     if (!order) return;
     
     const reviewsArray = Object.entries(reviews)
-      .filter(([_, review]) => review.rating > 0)
+      .filter(([, review]) => review.rating > 0)
       .map(([productDetailId, review]) => ({
         productDetailId: Number(productDetailId),
         rating: review.rating,
@@ -58,6 +58,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
     setReviews({});
     onClose();
   };
+  
+  // Keep for potential future use
+  void handleSubmitAll;
 
   // Gửi review cho từng sản phẩm
   const handleSubmitSingle = async (detailId: number) => {
@@ -80,7 +83,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
       } else {
         showError(apiResp?.message || 'You can only review this product once!');
       }
-    } catch (e) {
+    } catch {
       showError('Failed to submit review!');
     }
   };
@@ -128,6 +131,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                     {/* Product Info */}
                     <div className="flex gap-4 mb-4">
                       <div className="w-20 h-24 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={imageSrc}
                           alt={detail.title}

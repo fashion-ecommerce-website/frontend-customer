@@ -51,7 +51,7 @@ export function ProductInfo({
   })();
   const [addingToCart, setAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [, setIsInWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
 
   // Check if size guide is supported for this product category
@@ -167,7 +167,7 @@ export function ProductInfo({
 
       // Navigate to cart page
       router.push('/cart');
-    } catch (error) {
+    } catch {
       setAddingToCart(false);
     }
   };

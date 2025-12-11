@@ -2,7 +2,7 @@
  * Validation utilities for user measurements
  */
 
-import { UserMeasurements, Gender } from '@/types/size-recommendation.types';
+import { UserMeasurements } from '@/types/size-recommendation.types';
 
 export interface ValidationError {
   field: string;
@@ -32,8 +32,7 @@ const VALIDATION_RANGES = {
  */
 export function validateField(
   field: keyof UserMeasurements,
-  value: any,
-  gender?: Gender
+  value: string | number | boolean | undefined
 ): ValidationError | null {
   // Required fields check
   if (value === undefined || value === null || value === '') {
@@ -150,26 +149,26 @@ export function validateField(
 
   // Body shape validations
   if (field === 'bellyShape') {
-    if (!['FLAT', 'NORMAL', 'ROUND'].includes(value)) {
+    if (!['FLAT', 'NORMAL', 'ROUND'].includes(String(value))) {
       return { field, message: 'Please select a valid belly shape' };
     }
   }
 
   if (field === 'hipShape') {
-    if (!['NARROW', 'NORMAL', 'WIDE'].includes(value)) {
+    if (!['NARROW', 'NORMAL', 'WIDE'].includes(String(value))) {
       return { field, message: 'Please select a valid hip shape' };
     }
   }
 
   if (field === 'chestShape') {
-    if (!['SLIM', 'NORMAL', 'BROAD'].includes(value)) {
+    if (!['SLIM', 'NORMAL', 'BROAD'].includes(String(value))) {
       return { field, message: 'Please select a valid chest shape' };
     }
   }
 
   // Fit preference validation
   if (field === 'fitPreference') {
-    if (!['TIGHT', 'COMFORTABLE', 'LOOSE'].includes(value)) {
+    if (!['TIGHT', 'COMFORTABLE', 'LOOSE'].includes(String(value))) {
       return { field, message: 'Please select a valid fit preference' };
     }
   }
@@ -204,7 +203,7 @@ export function validateMeasurements(measurements: Partial<UserMeasurements>): V
 
   // Validate each required field
   for (const field of requiredFields) {
-    const error = validateField(field, measurements[field], measurements.gender);
+    const error = validateField(field, measurements[field]);
     if (error) {
       errors.push(error);
     }

@@ -2,18 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserMeasurements, Size, SizeRecommendationResponse } from '@/types/size-recommendation.types';
-import { getMeasurements, hasMeasurements } from '@/utils/localStorage/measurements';
+import { getMeasurements } from '@/utils/localStorage/measurements';
 import { MeasurementsForm } from './MeasurementsForm';
 
 interface SizeRecommendationProps {
-  productId: number;
   category: string;
   availableSizes: Size[];
   onSizeSelect?: (size: Size) => void;
 }
 
 export function SizeRecommendation({ 
-  productId, 
   category, 
   availableSizes,
   onSizeSelect 
@@ -40,14 +38,22 @@ export function SizeRecommendation({
       // For now, use simple logic based on BMI and preferences
       const recommendedSize = calculateRecommendedSize(userMeasurements, category);
       
+      const altSizes: { size: string; confidence: number }[] = [];
+      const smaller = getSmallerSize(recommendedSize);
+      const larger = getLargerSize(recommendedSize);
+      if (smaller && availableSizes.includes(smaller)) {
+        altSizes.push({ size: smaller, confidence: 0.15 });
+      }
+      if (larger && availableSizes.includes(larger)) {
+        altSizes.push({ size: larger, confidence: 0.10 });
+      }
+      
       setRecommendation({
         recommendedSize,
         confidence: 0.75,
-        alternativeSizes: [
-          { size: getSmallerSize(recommendedSize), confidence: 0.15 },
-          { size: getLargerSize(recommendedSize), confidence: 0.10 }
-        ].filter(alt => alt.size && availableSizes.includes(alt.size)) as any,
-        reasoning: generateReasoning(userMeasurements, recommendedSize, category)
+        alternatives: altSizes,
+        metadata: null,
+        hasMeasurements: true
       });
     } catch (err) {
       setError('Unable to get size recommendation. Please try again.');
@@ -122,36 +128,42 @@ export function SizeRecommendation({
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-blue-800">Recommended Size</span>
-                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                    {(recommendation.confidence * 100).toFixed(0)}% confidence
-                  </span>
+                  {recommendation.confidence && (
+                    <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                      {(recommendation.confidence * 100).toFixed(0)}% confidence
+                    </span>
+                  )}
                 </div>
                 
-                <button
-                  onClick={() => handleSizeClick(recommendation.recommendedSize)}
-                  className="w-full bg-white border-2 border-blue-600 rounded-lg px-6 py-4 hover:bg-blue-50 transition-colors"
-                >
-                  <span className="text-3xl font-bold text-blue-600">
-                    {recommendation.recommendedSize}
-                  </span>
-                </button>
+                {recommendation.recommendedSize && (
+                  <button
+                    onClick={() => handleSizeClick(recommendation.recommendedSize as Size)}
+                    className="w-full bg-white border-2 border-blue-600 rounded-lg px-6 py-4 hover:bg-blue-50 transition-colors"
+                  >
+                    <span className="text-3xl font-bold text-blue-600">
+                      {recommendation.recommendedSize}
+                    </span>
+                  </button>
+                )}
               </div>
 
               {/* Reasoning */}
-              <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-4">
-                <p className="font-medium text-gray-900 mb-2">Why this size?</p>
-                <p>{recommendation.reasoning}</p>
-              </div>
+              {measurements && (
+                <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-4">
+                  <p className="font-medium text-gray-900 mb-2">Why this size?</p>
+                  <p>{generateReasoning(measurements, recommendation.recommendedSize as Size, category)}</p>
+                </div>
+              )}
 
               {/* Alternative Sizes */}
-              {recommendation.alternativeSizes.length > 0 && (
+              {recommendation.alternatives.length > 0 && (
                 <div>
                   <p className="text-sm font-medium text-gray-700 mb-3">Alternative Sizes</p>
                   <div className="flex gap-3">
-                    {recommendation.alternativeSizes.map((alt) => (
+                    {recommendation.alternatives.map((alt) => (
                       <button
                         key={alt.size}
-                        onClick={() => handleSizeClick(alt.size)}
+                        onClick={() => handleSizeClick(alt.size as Size)}
                         className="flex-1 border border-gray-300 rounded-lg px-4 py-3 hover:border-blue-500 hover:bg-blue-50 transition-colors"
                       >
                         <div className="text-xl font-semibold text-gray-900">{alt.size}</div>
@@ -168,7 +180,7 @@ export function SizeRecommendation({
               {measurements && (
                 <div className="text-xs text-gray-500 pt-4 border-t">
                   <p>
-                    Based on: {measurements.gender} • {measurements.height}cm • {measurements.weight}kg • BMI {measurements.bmi.toFixed(1)} • {measurements.fitPreference.toLowerCase()} fit preference
+                    Based on: {measurements.gender} • {measurements.height}cm • {measurements.weight}kg • BMI {measurements.bmi?.toFixed(1) ?? 'N/A'} • {measurements.fitPreference?.toLowerCase() ?? 'comfortable'} fit preference
                   </p>
                 </div>
               )}
@@ -233,7 +245,7 @@ export function SizeRecommendation({
 
 // Helper functions for size calculation (temporary until backend is ready)
 function calculateRecommendedSize(measurements: UserMeasurements, category: string): Size {
-  const { bmi, fitPreference, bellyShape, hipShape, hasReturnHistory, gender } = measurements;
+  const { bmi = 22, fitPreference, bellyShape, hipShape, hasReturnHistory, gender } = measurements;
   
   let baseSize: number;
   
@@ -285,7 +297,7 @@ function getLargerSize(size: Size): Size | null {
 }
 
 function generateReasoning(measurements: UserMeasurements, recommendedSize: Size, category: string): string {
-  const { bmi, fitPreference, gender } = measurements;
+  const { bmi = 22, fitPreference, gender } = measurements;
   
   let reasoning = `Based on your ${gender.toLowerCase()} body measurements (BMI: ${bmi.toFixed(1)}), `;
   

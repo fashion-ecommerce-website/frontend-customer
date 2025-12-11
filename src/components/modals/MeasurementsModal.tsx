@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { MeasurementsWizard } from '@/components/size-recommendation/MeasurementsWizard';
 import { getMeasurements } from '@/utils/localStorage/measurements';
 import { recommendationApi } from '@/services/api/recommendationApi';
+import { UserMeasurements } from '@/types/size-recommendation.types';
 
 interface MeasurementsModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ interface MeasurementsModalProps {
 export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: MeasurementsModalProps) {
   if (!isOpen || typeof window === 'undefined') return null;
 
-  const handleSaveSuccess = async (measurements: any) => {
+  const handleSaveSuccess = async (measurements: UserMeasurements) => {
     console.log('💾 Saving measurements:', measurements);
     
     try {

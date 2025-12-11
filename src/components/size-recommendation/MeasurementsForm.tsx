@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import type { 
   UserMeasurements, 
   Gender, 
   BellyShape, 
@@ -10,7 +10,6 @@ import {
 } from '@/types/size-recommendation.types';
 import { 
   saveMeasurements, 
-  getMeasurements, 
   calculateBMI,
   validateMeasurements 
 } from '@/utils/localStorage/measurements';
@@ -34,7 +33,6 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
     hipShape: 'NORMAL',
     fitPreference: 'COMFORTABLE',
     hasReturnHistory: false,
-    braSize: '',
     ...initialData
   });
   
@@ -48,7 +46,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
     }
   }, [formData.height, formData.weight]);
 
-  const handleChange = (field: keyof UserMeasurements, value: any) => {
+  const handleChange = (field: keyof UserMeasurements, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setErrors([]);
   };
@@ -72,12 +70,16 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
     
     const measurements: UserMeasurements = {
       ...formData as UserMeasurements,
-      bmi: calculateBMI(formData.height!, formData.weight!),
-      lastUpdated: new Date().toISOString()
+      bmi: calculateBMI(formData.height!, formData.weight!)
     };
     
     saveMeasurements(measurements);
     onSave(measurements);
+  };
+
+  const handleBraSizeChange = (value: string) => {
+    setFormData(prev => ({ ...prev, braSize: value }));
+    setErrors([]);
   };
 
   return (
@@ -295,7 +297,7 @@ export function MeasurementsForm({ onSave, onCancel, initialData }: Measurements
               <input
                 type="text"
                 value={formData.braSize || ''}
-                onChange={(e) => handleChange('braSize', e.target.value)}
+                onChange={(e) => handleBraSizeChange(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="e.g., 70B, 75A"
               />

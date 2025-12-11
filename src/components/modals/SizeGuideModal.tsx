@@ -4,13 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getMeasurements, saveMeasurements } from '@/utils/localStorage/measurements';
 import { UserMeasurements, Size } from '@/types/size-recommendation.types';
-import { getSizeChartByCategory, getSizeChartMapByCategory, topsSizeCharts, bottomsSizeCharts, type SizeChart } from '@/data/sizeCharts';
+import { getSizeChartByCategory, type SizeChart } from '@/data/sizeCharts';
 import { SizeChartTable } from './SizeChartTable';
 import { recommendationApi } from '@/services/api/recommendationApi';
 import {
-  SizeRecommendationResponse,
-  ConfidenceLevel,
-  DataQuality
+  SizeRecommendationResponse
 } from '@/types/size-recommendation.types';
 import {
   buildRecommendationReasoning,
@@ -45,7 +43,7 @@ export function SizeGuideModal({
 
   // API recommendation state
   const [apiRecommendation, setApiRecommendation] = useState<SizeRecommendationResponse | null>(null);
-  const [loadingRecommendation, setLoadingRecommendation] = useState(false);
+  const [, setLoadingRecommendation] = useState(false);
 
   // Load measurements and calculate recommendation when modal opens
   useEffect(() => {
@@ -71,7 +69,7 @@ export function SizeGuideModal({
             // Update state with backend data
             setMeasurements(backendMeasurements);
             // Sync to local storage
-            saveMeasurements(backendMeasurements as any);
+            saveMeasurements(backendMeasurements as UserMeasurements);
             // Load recommendation with backend data - pass measurements directly
             loadSizeRecommendation(backendMeasurements);
           } else {
@@ -116,6 +114,7 @@ export function SizeGuideModal({
           }
         });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, category, categorySlug, availableSizes, productId]);
 
   const fallbackToLocalRecommendation = (userMeasurements?: UserMeasurements | null) => {
@@ -264,7 +263,7 @@ export function SizeGuideModal({
                         </span>
                       </div>
                       <p className="text-sm text-black mb-4">
-                        {apiRecommendation.metadata.totalSimilarUsers > 0
+                        {apiRecommendation.metadata?.totalSimilarUsers && apiRecommendation.metadata.totalSimilarUsers > 0
                           ? `${((apiRecommendation.confidence || 0) * 100).toFixed(0)}% of similar users chose this size`
                           : 'Recommended size based on your measurements'}
                       </p>
@@ -290,7 +289,7 @@ export function SizeGuideModal({
                           </span>
                         </div>
                         <p className="text-sm text-black mb-4">
-                          {apiRecommendation.metadata.totalSimilarUsers > 0
+                          {apiRecommendation.metadata?.totalSimilarUsers && apiRecommendation.metadata.totalSimilarUsers > 0
                             ? `${((apiRecommendation.alternatives[0].confidence || 0) * 100).toFixed(0)}% of similar users chose this size`
                             : 'May also fit if you prefer a looser fit'}
                         </p>
@@ -355,7 +354,7 @@ export function SizeGuideModal({
 
                 <div className="bg-white rounded-lg p-4 border border-gray-200">
                   <p className="text-sm text-black mb-3">
-                    We couldn't confidently recommend a size for this specific item based on your profile. This usually happens with new products or unique fits.
+                    We couldn&apos;t confidently recommend a size for this specific item based on your profile. This usually happens with new products or unique fits.
                   </p>
                   <p className="text-sm text-black font-medium">
                     Please refer to the Size Chart below for the most accurate fit.

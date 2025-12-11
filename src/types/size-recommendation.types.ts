@@ -4,6 +4,13 @@ export type DataQuality = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'LIMITED';
 
 export type Size = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
 
+// Type aliases for body shape and preference enums
+export type Gender = 'MALE' | 'FEMALE';
+export type BellyShape = 'FLAT' | 'NORMAL' | 'ROUND';
+export type HipShape = 'NARROW' | 'NORMAL' | 'WIDE';
+export type ChestShape = 'SLIM' | 'NORMAL' | 'BROAD';
+export type FitPreference = 'TIGHT' | 'COMFORTABLE' | 'LOOSE';
+
 export interface RecommendationMetadata {
   totalSimilarUsers: number;
   totalPurchases: number;
@@ -29,7 +36,7 @@ export interface SizeRecommendationResponse {
 
 // Keep existing types
 export interface UserMeasurements {
-  gender: 'MALE' | 'FEMALE';
+  gender: Gender;
   age: number;
   height: number;
   weight: number;
@@ -37,11 +44,13 @@ export interface UserMeasurements {
   waist: number;
   hips: number;
   bmi?: number;
-  bellyShape?: 'FLAT' | 'NORMAL' | 'ROUND';
-  hipShape?: 'NARROW' | 'NORMAL' | 'WIDE';
-  chestShape?: 'SLIM' | 'NORMAL' | 'BROAD';
-  fitPreference?: 'TIGHT' | 'COMFORTABLE' | 'LOOSE';
+  bellyShape?: BellyShape;
+  hipShape?: HipShape;
+  chestShape?: ChestShape;
+  fitPreference?: FitPreference;
   hasReturnHistory?: boolean;
+  braSize?: string;
+  lastUpdated?: string;
 }
 
 

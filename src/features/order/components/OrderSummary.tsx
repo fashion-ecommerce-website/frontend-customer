@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ShippingFeeData } from '@/features/order/hooks/useShippingFee';
 import { mockOrderProducts, calculateOrderTotals } from '@/features/order/mockData';
@@ -256,6 +255,7 @@ export function OrderSummary({
 					{products.map((product) => (
 						<div key={product.detailId} className="flex gap-3">
 							<div className="h-24 w-24 shrink-0 rounded-lg bg-white overflow-hidden">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
 								<img
 									alt={product.productTitle}
 									src={product.imageUrls[0] || "https://placehold.co/100x100"}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
+import type { 
   UserMeasurements, 
   Gender, 
   BellyShape, 
@@ -38,7 +38,6 @@ type Step =
 
 export function MeasurementsWizard({ 
   onSave, 
-  onCancel, 
   initialData,
   productImage 
 }: MeasurementsWizardProps) {
@@ -56,11 +55,10 @@ export function MeasurementsWizard({
     chestShape: 'NORMAL',
     fitPreference: 'COMFORTABLE',
     hasReturnHistory: false,
-    braSize: '',
     ...initialData
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [, setShowValidationErrors] = useState(false);
 
   // Define step order based on gender
   const getStepOrder = (): Step[] => {
@@ -87,8 +85,8 @@ export function MeasurementsWizard({
     for (const field of stepFields) {
       const value = formData[field];
       // Only validate if field has a value (not empty)
-      if (value !== undefined && value !== null && value !== '') {
-        const error = validateField(field, value, formData.gender);
+      if (value !== undefined && value !== null) {
+        const error = validateField(field, value);
         if (error) {
           stepErrors[field] = error.message;
         }
@@ -124,7 +122,7 @@ export function MeasurementsWizard({
     }
   };
 
-  const handleChange = (field: keyof UserMeasurements, value: any) => {
+  const handleChange = (field: keyof UserMeasurements, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error for this field when user makes changes
@@ -165,8 +163,7 @@ export function MeasurementsWizard({
     
     const measurements: UserMeasurements = {
       ...formData as UserMeasurements,
-      bmi: calculateBMI(formData.height!, formData.weight!),
-      lastUpdated: new Date().toISOString()
+      bmi: calculateBMI(formData.height!, formData.weight!)
     };
     
     saveMeasurements(measurements);
@@ -204,7 +201,7 @@ export function MeasurementsWizard({
     // Check if all required fields are filled
     for (const field of stepFields) {
       const value = formData[field];
-      if (value === undefined || value === null || value === '') {
+      if (value === undefined || value === null) {
         return false;
       }
     }
@@ -245,6 +242,7 @@ export function MeasurementsWizard({
           {/* Product Image (if provided) */}
           {productImage && (
             <div className="mb-6 flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={productImage} 
                 alt="Product" 
@@ -342,7 +340,7 @@ export function MeasurementsWizard({
         return (
           <BraSizeStep
             value={formData.braSize || ''}
-            onChange={(v) => handleChange('braSize', v)}
+            onChange={(v) => setFormData(prev => ({ ...prev, braSize: v }))}
           />
         );
       
@@ -400,6 +398,7 @@ function BodyShapeButton({
           ? 'shadow-lg ring-2 ring-blue-600'
           : 'shadow-md hover:shadow-xl'
       }`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src={imageUrl}
           alt={label}
@@ -422,7 +421,7 @@ function BodyShapeButton({
 function GenderStep({ value, onChange }: { value: Gender; onChange: (v: Gender) => void }) {
   return (
     <div className="text-center space-y-6">
-      <h2 className="text-3xl font-bold text-black">What's your gender?</h2>
+      <h2 className="text-3xl font-bold text-black">What&apos;s your gender?</h2>
       <p className="text-gray-600">This helps us provide better size recommendations</p>
       
       <div className="grid grid-cols-2 gap-4 mt-8">

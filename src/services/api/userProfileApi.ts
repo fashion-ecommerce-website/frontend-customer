@@ -76,11 +76,10 @@ export class UserProfileApiService {
       chest: measurements.chest,
       waist: measurements.waist,
       hips: measurements.hips,
-      bellyShape: measurements.bellyShape,
-      hipShape: measurements.hipShape,
+      bellyShape: measurements.bellyShape || 'NORMAL',
+      hipShape: measurements.hipShape || 'NORMAL',
       chestShape: measurements.chestShape,
-      fitPreference: measurements.fitPreference,
-      braSize: measurements.braSize,
+      fitPreference: measurements.fitPreference || 'COMFORTABLE',
     };
   }
 
@@ -89,7 +88,7 @@ export class UserProfileApiService {
    */
   convertToMeasurements(profile: UserProfileResponse): UserMeasurements {
     return {
-      gender: profile.gender as any,
+      gender: profile.gender as 'MALE' | 'FEMALE',
       age: profile.age,
       height: profile.height,
       weight: profile.weight,
@@ -97,13 +96,11 @@ export class UserProfileApiService {
       waist: profile.waist,
       hips: profile.hips,
       bmi: profile.bmi,
-      bellyShape: profile.bellyShape as any,
-      hipShape: profile.hipShape as any,
-      chestShape: profile.chestShape as any,
-      fitPreference: profile.fitPreference as any,
+      bellyShape: profile.bellyShape as 'FLAT' | 'NORMAL' | 'ROUND',
+      hipShape: profile.hipShape as 'NARROW' | 'NORMAL' | 'WIDE',
+      chestShape: profile.chestShape as 'SLIM' | 'NORMAL' | 'BROAD',
+      fitPreference: profile.fitPreference as 'TIGHT' | 'COMFORTABLE' | 'LOOSE',
       hasReturnHistory: profile.hasReturnHistory,
-      braSize: profile.braSize,
-      lastUpdated: profile.updatedAt,
     };
   }
 }

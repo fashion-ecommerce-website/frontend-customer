@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { reviewApiService, ReviewItem } from '@/services/api/reviewApi';
-import { useAppSelector } from '@/hooks/redux';
-import { selectIsAuthenticated, selectUser } from '@/features/auth/login/redux/loginSlice';
-import { useToast } from '@/providers/ToastProvider';
+import { ReviewItem } from '@/services/api/reviewApi';
 
 interface ReviewsPresenterProps {
   reviews: ReviewItem[];

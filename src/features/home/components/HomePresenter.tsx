@@ -10,7 +10,6 @@ import { NewsletterSignup } from './NewsletterSignup';
 import { RankingSection } from './RankingSection';
 import { RecommendContainer } from '../containers/RecommendContainer';
 import { NewArrivalsContainer } from '../containers/NewArrivalsContainer';
-import { AnimatedSection } from '@/components/AnimatedSection';
 
 export const HomePresenter: React.FC<HomePresenterProps> = ({
   banners,

@@ -8,7 +8,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Voucher } from '@/features/order/components/VoucherModal';
-import { LoadingSpinner, ErrorMessage } from '../../../components';
+import { ErrorMessage } from '../../../components';
 import { Pagination } from '@/features/filter-product/components/Pagination';
 
 interface VoucherPresenterProps {

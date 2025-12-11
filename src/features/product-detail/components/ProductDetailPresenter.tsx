@@ -39,21 +39,8 @@ export function ProductDetailPresenter({
   wishlistBusy,
   onToggleWishlist,
 }: ProductDetailPresenterProps) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   useRouter();
   const [isInWishlistLocal, setIsInWishlistLocal] = useState(false);
-
-  const handleImageTransition = (newIndex: number) => {
-    if (newIndex === selectedImageIndex || isTransitioning) return;
-
-    setIsTransitioning(true);
-
-    setTimeout(() => {
-      setSelectedImageIndex(newIndex);
-      setIsTransitioning(false);
-    }, 250);
-  };
 
   // Handle color change with API call
   const handleColorChange = async (color: string) => {

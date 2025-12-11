@@ -18,7 +18,7 @@ export const OrderHistoryContainer: React.FC<{
   onPayAgain?: (paymentId: number, orderId: number) => void,
   onReview?: (order: Order) => void
 }> = ({ onOpenDetail, onTrack, onPayAgain, onReview }) => {
-  const { orders, loading, error, pagination, currentQuery, fetchOrders } = useOrders();
+  const { orders, loading, error, pagination, fetchOrders } = useOrders();
   const user = useAppSelector(selectUser);
   
   // Use minimum loading time hook to ensure skeleton shows for at least 500ms
@@ -99,12 +99,6 @@ export const OrderHistoryContainer: React.FC<{
     const updatedQuery = { ...newQuery, userId: user?.id ? Number(user.id) : undefined };
     setQuery(updatedQuery);
     fetchOrders(updatedQuery);
-  };
-
-  const handleApplyFilters = () => {
-    const newQuery = { ...query, page: 0, userId: user?.id ? Number(user.id) : undefined };
-    setQuery(newQuery);
-    fetchOrders(newQuery);
   };
 
   const handleReviewClick = (order: Order) => {
