@@ -9,7 +9,6 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ReviewPresenterProps, Review } from '../types/profile.types';
 import { 
-  PageLoadingSpinner, 
   ErrorMessage
 } from '../../../components';
 import { Pagination } from '../../filter-product/components/Pagination';
@@ -285,9 +284,108 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     </div>
   );
 
+  // Skeleton loader for reviews
+  const renderReviewSkeleton = () => (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm">
+          {/* Mobile Layout Skeleton */}
+          <div className="sm:hidden animate-pulse">
+            {/* Product Image & Name */}
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-16 h-16 bg-gray-300 rounded-md flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="h-4 bg-gray-300 rounded w-3/4 mb-2" />
+                <div className="h-3 bg-gray-300 rounded w-1/2" />
+              </div>
+            </div>
+            
+            {/* Rating & Date */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <div key={s} className="w-4 h-4 bg-gray-300 rounded" />
+                  ))}
+                </div>
+                <div className="h-5 bg-gray-300 rounded-full w-16" />
+              </div>
+              <div className="h-3 bg-gray-300 rounded w-20" />
+            </div>
+            
+            {/* Comment */}
+            <div className="space-y-2 mb-3">
+              <div className="h-3 bg-gray-300 rounded w-full" />
+              <div className="h-3 bg-gray-300 rounded w-11/12" />
+              <div className="h-3 bg-gray-300 rounded w-3/4" />
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-2 border-t border-gray-100">
+              <div className="flex-1 h-9 bg-gray-300 rounded" />
+              <div className="flex-1 h-9 bg-gray-300 rounded" />
+            </div>
+          </div>
+
+          {/* Desktop Layout Skeleton */}
+          <div className="hidden sm:block animate-pulse">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <div className="flex items-start gap-3 mb-2">
+                  {/* Product Image */}
+                  <div className="w-20 h-20 bg-gray-300 rounded-md flex-shrink-0" />
+                  <div className="flex-1">
+                    {/* Product Name */}
+                    <div className="h-5 bg-gray-300 rounded w-2/3 mb-3" />
+                    {/* Product Details */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="h-3 bg-gray-300 rounded w-24" />
+                      <div className="h-3 bg-gray-300 rounded w-20" />
+                    </div>
+                    {/* Rating & Date */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <div key={s} className="w-5 h-5 bg-gray-300 rounded" />
+                        ))}
+                      </div>
+                      <div className="h-3 bg-gray-300 rounded w-24" />
+                      <div className="h-5 bg-gray-300 rounded-full w-16" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Action Buttons */}
+              <div className="flex gap-3 ml-4">
+                <div className="h-4 bg-gray-300 rounded w-12" />
+                <div className="h-4 bg-gray-300 rounded w-14" />
+              </div>
+            </div>
+            
+            {/* Comment section - aligned with product info */}
+            <div className="ml-24 space-y-2">
+              <div className="h-3 bg-gray-300 rounded w-full" />
+              <div className="h-3 bg-gray-300 rounded w-11/12" />
+              <div className="h-3 bg-gray-300 rounded w-4/5" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   // Loading state
   if (isLoading) {
-    return <PageLoadingSpinner />;
+    return (
+      <div className="p-3 sm:p-6">
+        <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+          <h2 className="text-base sm:text-lg font-semibold text-black">
+            Reviews
+          </h2>
+        </div>
+        {renderReviewSkeleton()}
+      </div>
+    );
   }
 
   return (

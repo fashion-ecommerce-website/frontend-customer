@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import type { RefundPresenterProps } from '../types/refund.types';
 import { Pagination } from '../../filter-product/components/Pagination';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export const RefundPresenter: React.FC<RefundPresenterProps> = ({
   refunds,
@@ -57,11 +58,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className="px-4 py-8">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {

@@ -42,8 +42,6 @@ export function ProductDetailPresenter({
   useRouter();
   const [isInWishlistLocal, setIsInWishlistLocal] = useState(false);
 
-
-
   // Handle color change with API call
   const handleColorChange = async (color: string) => {
     if (isLoading || color === selectedColor) return;

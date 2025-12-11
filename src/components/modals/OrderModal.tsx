@@ -16,7 +16,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, product
 
   return (
     <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] mx-auto shadow-2xl border border-gray-200 flex flex-col">
+      <div className="bg-white rounded-lg w-full max-w-4xl h-[90vh] mx-auto shadow-2xl border border-gray-200 flex flex-col">
         {/* Modal Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex justify-between items-center z-10 rounded-t-lg">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">Order</h2>

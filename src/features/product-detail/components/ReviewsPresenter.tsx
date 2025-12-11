@@ -68,6 +68,19 @@ function UserAvatar({ username, avatar, size = 'md' }: { username: string; avata
           className="rounded-full object-cover border-2 border-gray-200"
           fill
           sizes="48px"
+          onError={(e) => {
+            // Fallback to initials if image fails to load
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = `
+                <div class="${sizeClasses[size]} rounded-full ${getAvatarColor(username)} flex items-center justify-center font-medium text-white border-2 border-gray-200">
+                  ${getInitials(username)}
+                </div>
+              `;
+            }
+          }}
         />
       </div>
     );

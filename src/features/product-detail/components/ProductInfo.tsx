@@ -1,13 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useAppSelector } from '@/hooks/redux';
+import React, { useState, useCallback, useMemo } from 'react';
+import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { ProductDetail } from '@/services/api/productApi';
 import { useRouter } from 'next/navigation';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
+import { SizeGuideModal, MeasurementsModal } from '@/components/modals';
+import { Size } from '@/types/size-recommendation.types';
+import { addToCartAsync } from '@/features/cart/redux/cartSaga';
+import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
+import { wishlistApiService } from '@/services/api/wishlistApi';
+
 interface ProductInfoProps {
   product: ProductDetail;
   selectedColor: string | null;
@@ -26,6 +31,7 @@ export function ProductInfo({
   isColorLoading = false,
 }: ProductInfoProps) {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
@@ -37,6 +43,7 @@ export function ProductInfo({
   });
 
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [showMeasurementsModal, setShowMeasurementsModal] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
   const isAllSizesOut = (() => {
     const quantities = Object.values(product.mapSizeToQuantity || {});
@@ -44,8 +51,51 @@ export function ProductInfo({
   })();
   const [addingToCart, setAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [, setIsInWishlist] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
+
+  // Check if size guide is supported for this product category
+  const showSizeGuideButton = useMemo(() => {
+    const result = isSizeGuideSupported(product.categorySlug);
+    console.log('🔍 Size Guide Check (useMemo):', {
+      categorySlug: product.categorySlug,
+      result,
+      productTitle: product.title
+    });
+    return result;
+  }, [product.categorySlug, product.title]);
 
 
+  useCallback(async () => {
+    if (!isAuthenticated) {
+      router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
+      return;
+    }
+    if (wishlistBusy) return;
+    setWishlistBusy(true);
+    try {
+      // Optimistic update
+      setIsInWishlist(prev => !prev);
+      const res = await wishlistApiService.toggle(product.detailId);
+      if (!res.success) {
+        // revert if failed
+        setIsInWishlist(prev => !prev);
+      } else {
+        // confirm by refetching current wishlist state
+        const current = await wishlistApiService.getWishlist();
+        if (current.success && current.data) {
+          const exists = current.data.some(item => item.detailId === product.detailId);
+          setIsInWishlist(exists);
+        }
+      }
+    } catch {
+      // revert on error
+      setIsInWishlist(prev => !prev);
+      // console.error('Toggle wishlist failed');
+    } finally {
+      setWishlistBusy(false);
+    }
+  }, [isAuthenticated, product.detailId, wishlistBusy, router]);
 
   const handleAddToCart = async () => {
     if (!selectedSize) {
@@ -84,14 +134,42 @@ export function ProductInfo({
     }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
       setTimeout(() => setShowSizeNotice(false), 3000); // Hide after 3 seconds
       return;
     }
-    // Buy now logic here
-    console.log('Buy now:', { product: product.detailId, color: selectedColor, size: selectedSize });
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+
+      // Add to cart without toast
+      dispatch(addToCartAsync({
+        productDetailId: product.detailId,
+        quantity: quantity
+      }));
+
+      // Record interaction for recommendation system
+      try {
+        await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, quantity);
+        console.log('Recorded ADD_TO_CART interaction for Buy Now');
+      } catch (error) {
+        console.error('Failed to record ADD_TO_CART interaction:', error);
+        // Fail silently
+      }
+
+      // Navigate to cart page
+      router.push('/cart');
+    } catch {
+      setAddingToCart(false);
+    }
   };
 
   return (
@@ -199,20 +277,22 @@ export function ProductInfo({
 
           <div className="flex items-center justify-between">
             <h3 className="text-xs md:text-sm font-medium text-gray-900">Size</h3>
-            <button
-              onClick={() => setShowSizeGuide(true)}
-              className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
-                <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
-                <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
-                <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
-                <rect x="12.5" y="6" width="1" height="2" fill="black"></rect>
-                <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
-                <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
-              </svg>
-              <span>Size guide</span>
-            </button>
+            {showSizeGuideButton && (
+              <button
+                onClick={() => setShowSizeGuide(true)}
+                className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer group"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
+                  <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
+                  <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
+                  <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
+                  <rect x="12.5" y="6" width="1" height="2" fill="black"></rect>
+                  <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
+                  <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
+                </svg>
+                <span>Size guide</span>
+              </button>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -304,89 +384,33 @@ export function ProductInfo({
         </div>
       </div>
 
-      {/* Size Guide Modal (portal to body to escape stacking contexts) */}
-      {showSizeGuide && typeof window !== 'undefined' && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center z-[9999]" style={{ backgroundColor: 'rgba(107, 114, 128, 0.4)' }} onClick={() => setShowSizeGuide(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">SIZE GUIDE</h2>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-800">FIT | Áo thun</span>
-                <button
-                  onClick={() => setShowSizeGuide(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+      {/* Size Guide Modal - Only show for supported categories */}
+      {showSizeGuideButton && (
+        <>
+          <SizeGuideModal
+            isOpen={showSizeGuide}
+            onClose={() => setShowSizeGuide(false)}
+            category={product.title}
+            categorySlug={product.categorySlug}
+            productId={product.productId}
+            availableSizes={Object.keys(product.mapSizeToQuantity) as Size[]}
+            onSizeSelect={(size) => onSizeSelect(size)}
+            onAddMeasurements={() => {
+              setShowSizeGuide(false);
+              setShowMeasurementsModal(true);
+            }}
+          />
 
-            <div className="space-y-6">
-              {/* Instructions */}
-              <div>
-                <h3 className="font-semibold mb-4 text-gray-900">How to measure:</h3>
-                <p className="text-sm text-gray-800 mb-4">
-                  Please measure accurately around your waist and chest to determine the correct size based on your body measurements.
-                </p>
-              </div>
-
-              {/* Size Chart */}
-              <div>
-                <div className="w-full">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="bg-gray-800 text-white">
-                        <th className="px-4 py-3 text-left border border-gray-700">SIZE</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">XS</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">S</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">M</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">L</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">XL</th>
-                        <th className="px-4 py-3 text-center border border-gray-700">XXL</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-gray-200">
-                        <td className="px-4 py-3 font-medium bg-gray-50 border border-gray-200 text-gray-900">Chest (cm)</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">43 - 45.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">46 - 48.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">49 - 51.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">52 - 54.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">55 - 56.5</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">57 - 58.5</td>
-                      </tr>
-                      <tr className="border-b border-gray-200">
-                        <td className="px-4 py-3 font-medium bg-gray-50 border border-gray-200 text-gray-900">Waist (cm)</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">95 - 101</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">102 - 108</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">109 - 114</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">115 - 120</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">121 - 127</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">128 - 132</td>
-                      </tr>
-                      <tr className="border-b border-gray-200">
-                        <td className="px-4 py-3 font-medium bg-gray-50 border border-gray-200 text-gray-900">Length (cm)</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">64 - 66</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">67 - 69</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">70 - 72</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">73 - 75</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">76 - 78</td>
-                        <td className="px-4 py-3 text-center border border-gray-200 text-gray-900">79 - 81</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <p className="text-xs text-gray-700 mt-4">
-                  *Size chart is for reference only, please refer to actual product measurements and your individual body measurements for accurate sizing.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body
+          <MeasurementsModal
+            isOpen={showMeasurementsModal}
+            onClose={() => setShowMeasurementsModal(false)}
+            onSave={() => {
+              setShowMeasurementsModal(false);
+              setShowSizeGuide(true); // Reopen size guide to show AI recommendations
+            }}
+            productImage={product.images[0] || '/images/placeholder.jpg'}
+          />
+        </>
       )}
     </div>
   );

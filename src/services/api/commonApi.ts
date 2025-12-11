@@ -9,6 +9,7 @@ export interface EnumResponseDto {
   voucherUsageStatus: Record<string, string>;
   audienceType: Record<string, string>;
   voucherType: Record<string, string>;
+  periodType: Record<string, string>;
 }
 
 const COMMON_ENDPOINTS = {

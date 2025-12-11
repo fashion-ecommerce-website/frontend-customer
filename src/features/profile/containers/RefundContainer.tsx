@@ -34,7 +34,7 @@ export const RefundContainer: React.FC = () => {
         // const data = await response.json();
         
         // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         // Use mock data as fallback (same pattern as home page)
         setRefunds(mockRefunds);

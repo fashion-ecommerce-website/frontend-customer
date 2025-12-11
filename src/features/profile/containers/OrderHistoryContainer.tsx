@@ -5,18 +5,27 @@ import { Order, OrderQueryParams } from '@/features/order/types';
 import { OrderHistoryPresenter } from '../components/OrderHistoryPresenter';
 import { OrderFilters } from '../components/OrderFilters';
 import { useOrders } from '@/hooks/useOrders';
+import { useMinimumLoadingTime } from '@/hooks/useMinimumLoadingTime';
 import { productApi } from '@/services/api/productApi';
 import { useAppSelector } from '@/hooks/redux';
 import { selectUser } from '@/features/auth/login/redux/loginSlice';
+import { ReviewModal } from '@/components/modals/ReviewModal';
+import { reviewApiService } from '@/services/api/reviewApi';
 
 export const OrderHistoryContainer: React.FC<{
   onOpenDetail?: (order: Order) => void,
   onTrack?: (order: Order) => void,
-  onPayAgain?: (paymentId: number, orderId: number) => void
-}> = ({ onOpenDetail, onTrack, onPayAgain }) => {
+  onPayAgain?: (paymentId: number, orderId: number) => void,
+  onReview?: (order: Order) => void
+}> = ({ onOpenDetail, onTrack, onPayAgain, onReview }) => {
   const { orders, loading, error, pagination, fetchOrders } = useOrders();
   const user = useAppSelector(selectUser);
+  
+  // Use minimum loading time hook to ensure skeleton shows for at least 500ms
+  const displayLoading = useMinimumLoadingTime(loading, 500);
   const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedOrderForReview, setSelectedOrderForReview] = useState<Order | null>(null);
   const [query, setQuery] = useState<OrderQueryParams>({
     userId: user?.id ? Number(user.id) : undefined,
     sortBy: 'createdAt',
@@ -92,6 +101,25 @@ export const OrderHistoryContainer: React.FC<{
     fetchOrders(updatedQuery);
   };
 
+  const handleReviewClick = (order: Order) => {
+    setSelectedOrderForReview(order);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleReviewSubmit = async (_orderId: number, reviews: { productDetailId: number; rating: number; comment: string }[]) => {
+    // Gửi từng review tới API, chỉ truyền productDetailId, rating, comment
+    for (const review of reviews) {
+      await reviewApiService.createReview({
+        productDetailId: review.productDetailId,
+        rating: review.rating,
+        content: review.comment,
+      });
+    }
+    if (selectedOrderForReview) {
+      onReview?.(selectedOrderForReview);
+    }
+  };
+
   return (
     <div className="px-2 sm:px-4">
       {/* Header */}
@@ -105,6 +133,8 @@ export const OrderHistoryContainer: React.FC<{
           <OrderFilters
             query={query}
             onQueryChange={handleQueryChange}
+            // onApplyFilters={handleApplyFilters}
+            // loading={displayLoading}
           />
         </div>
         
@@ -113,6 +143,8 @@ export const OrderHistoryContainer: React.FC<{
           <OrderFilters
             query={query}
             onQueryChange={handleQueryChange}
+            // onApplyFilters={handleApplyFilters}
+            // loading={displayLoading}
           />
         </div>
       </div>
@@ -122,7 +154,7 @@ export const OrderHistoryContainer: React.FC<{
       {/* Orders List */}
       <OrderHistoryPresenter
         orders={orders}
-        loading={loading}
+        loading={displayLoading}
         error={error}
         pagination={pagination}
         onReload={() => fetchOrders({ ...query, userId: user?.id ? Number(user.id) : undefined })}
@@ -130,7 +162,17 @@ export const OrderHistoryContainer: React.FC<{
         onOpenDetail={onOpenDetail}
         onTrack={onTrack}
         onPayAgain={onPayAgain}
+        onReview={handleReviewClick}
         imagesByDetailId={imagesByDetailId}
+      />
+
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        order={selectedOrderForReview}
+        imagesByDetailId={imagesByDetailId}
+        onSubmit={handleReviewSubmit}
       />
     </div>
   );

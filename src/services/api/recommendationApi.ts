@@ -1,5 +1,9 @@
 import { apiClient } from './baseApi';
 import { ApiResponse } from '../../types/api.types';
+import type {
+    UserMeasurements,
+    SizeRecommendationResponse
+} from '../../types/size-recommendation.types';
 import { ChatBotResponse } from '../../types/recommendation.types';
 
 // Action Type Enum - matches backend enum
@@ -40,7 +44,14 @@ const RECOMMENDATION_ENDPOINTS = {
     GET_FOR_YOU: '/recommendations/for-you',
     GET_SIMILAR: '/recommendations/similar',
     RECORD_INTERACTION: '/recommendations/interactions',
+    SIZE_RECOMMENDATION: '/recommendations/size-recommendation',
     CHAT: '/chatbot/chat',
+} as const;
+
+// User Measurements API endpoints
+const MEASUREMENTS_ENDPOINTS = {
+    MEASUREMENTS: '/users/measurements',
+    EXISTS: '/users/measurements/exists',
 } as const;
 
 // Recommendation API service
@@ -80,10 +91,57 @@ export class RecommendationApiService {
         });
     }
     /**
-     * Send message to chatbot
-     * URL: POST /api/chatbot/chat
-     * Payload: { message: string }
-     * Note: This endpoint does not require authentication
+     * Get size recommendation based on user measurements
+     * URL: /api/recommendations/size-recommendation/{productId}?similarUserLimit={limit}
+     * Requires authentication and user measurements
+     */
+    async getSizeRecommendation(
+        productId: number,
+        similarUserLimit: number = 30
+    ): Promise<ApiResponse<SizeRecommendationResponse>> {
+        const url = `${RECOMMENDATION_ENDPOINTS.SIZE_RECOMMENDATION}/${productId}?similarUserLimit=${similarUserLimit}`;
+        return apiClient.get<SizeRecommendationResponse>(url);
+    }
+
+    /**
+     * Save or update user measurements
+     * URL: /api/users/measurements
+     * Requires authentication
+     */
+    async saveMeasurements(measurements: Omit<UserMeasurements, 'bmi'>): Promise<ApiResponse<UserMeasurements>> {
+        return apiClient.post<UserMeasurements>(MEASUREMENTS_ENDPOINTS.MEASUREMENTS, measurements);
+    }
+
+    /**
+     * Get current user's measurements
+     * URL: /api/users/measurements
+     * Requires authentication
+     */
+    async getMeasurements(): Promise<ApiResponse<UserMeasurements>> {
+        return apiClient.get<UserMeasurements>(MEASUREMENTS_ENDPOINTS.MEASUREMENTS);
+    }
+
+    /**
+     * Check if current user has measurements saved
+     * URL: /api/users/measurements/exists
+     * Requires authentication
+     */
+    async hasMeasurements(): Promise<ApiResponse<boolean>> {
+        return apiClient.get<boolean>(MEASUREMENTS_ENDPOINTS.EXISTS);
+    }
+
+    /**
+     * Delete current user's measurements
+     * URL: /api/users/measurements
+     * Requires authentication
+     */
+    async deleteMeasurements(): Promise<ApiResponse<void>> {
+        return apiClient.delete<void>(MEASUREMENTS_ENDPOINTS.MEASUREMENTS);
+    }
+
+    /**
+     * Get recommendations based on natural language chat message
+     * URL: /api/chatbot/chat
      */
     async chat(message: string): Promise<ApiResponse<ChatBotResponse>> {
         return apiClient.post<ChatBotResponse>(RECOMMENDATION_ENDPOINTS.CHAT, { message }, undefined, true);
@@ -99,5 +157,12 @@ export const recommendationApi = {
     getSimilarItems: (itemId: number, limit?: number) => recommendationApiService.getSimilarItems(itemId, limit),
     recordInteraction: (productId: number, actionType: ActionType, count?: number) =>
         recommendationApiService.recordInteraction(productId, actionType, count),
+    getSizeRecommendation: (productId: number, similarUserLimit?: number) =>
+        recommendationApiService.getSizeRecommendation(productId, similarUserLimit),
+    saveMeasurements: (measurements: Omit<UserMeasurements, 'bmi'>) =>
+        recommendationApiService.saveMeasurements(measurements),
+    getMeasurements: () => recommendationApiService.getMeasurements(),
+    hasMeasurements: () => recommendationApiService.hasMeasurements(),
+    deleteMeasurements: () => recommendationApiService.deleteMeasurements(),
     chat: (message: string) => recommendationApiService.chat(message),
 };

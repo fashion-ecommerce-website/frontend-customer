@@ -8,7 +8,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Voucher } from '@/features/order/components/VoucherModal';
-import { PageLoadingSpinner, ErrorMessage } from '../../../components';
+import { ErrorMessage } from '../../../components';
 import { Pagination } from '@/features/filter-product/components/Pagination';
 
 interface VoucherPresenterProps {
@@ -121,8 +121,84 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
     setCurrentPage(1);
   }, [searchTerm, filterStatus]);
 
+  // Skeleton loader for vouchers
+  const renderVoucherSkeleton = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+          <div className="flex gap-4">
+            {/* Left side - Icon */}
+            <div className="w-16 h-16 bg-gray-300 rounded-lg flex-shrink-0" />
+            
+            {/* Middle - Voucher info */}
+            <div className="flex-1 min-w-0">
+              {/* Voucher name */}
+              <div className="h-5 bg-gray-300 rounded w-3/4 mb-2" />
+              {/* Discount text */}
+              <div className="h-4 bg-gray-300 rounded w-1/2 mb-2" />
+              {/* Min order */}
+              <div className="h-3 bg-gray-300 rounded w-2/3 mb-3" />
+              {/* Code */}
+              <div className="h-8 bg-gray-300 rounded w-32" />
+            </div>
+            
+            {/* Right side - Expiry */}
+            <div className="text-right">
+              <div className="h-3 bg-gray-300 rounded w-20 mb-1 ml-auto" />
+              <div className="h-3 bg-gray-300 rounded w-24 ml-auto" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   if (isLoading) {
-    return <PageLoadingSpinner />;
+    return (
+      <div className="p-3 sm:p-6">
+        <div className="mb-6">
+          <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+            <h2 className="text-base sm:text-lg font-semibold text-black">
+              Vouchers
+            </h2>
+          </div>
+          
+          {/* Search and Filter Section */}
+          <div className="bg-white rounded-lg py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              {/* Search Input */}
+              <div className="flex-1">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Search Vouchers</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by name or code..."
+                    disabled
+                    className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 pl-9 sm:pl-10 text-xs sm:text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent opacity-50 cursor-not-allowed"
+                  />
+                  <svg className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Filter Dropdown */}
+              <div className="sm:w-48">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
+                <select
+                  disabled
+                  className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent opacity-50 cursor-not-allowed"
+                >
+                  <option value="all">All</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {renderVoucherSkeleton()}
+      </div>
+    );
   }
 
   if (error) {

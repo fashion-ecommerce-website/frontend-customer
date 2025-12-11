@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Order, OrderStatus, PaginatedResponse } from '@/features/order/types';
 import Image from 'next/image';
-import { Order, PaginatedResponse } from '@/features/order/types';
 import { useEnums } from '@/hooks/useEnums';
 import { Pagination } from '@/features/filter-product/components/Pagination';
 
@@ -16,6 +16,7 @@ interface OrderHistoryPresenterProps {
   onOpenDetail?: (order: Order) => void;
   onTrack?: (order: Order) => void;
   onPayAgain?: (paymentId: number, orderId: number) => void;
+  onReview?: (order: Order) => void;
   imagesByDetailId?: Record<number, string>;
 }
 
@@ -29,6 +30,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
   onOpenDetail, 
   onTrack,
   onPayAgain,
+  onReview,
   imagesByDetailId 
 }) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
@@ -78,6 +80,25 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
     return "Payment not available for this order";
   };
 
+  // Check if order is completed (fulfilled)
+  const isCompleted = (order: Order) => {
+    return order.status === OrderStatus.FULFILLED;
+  };
+
+  const getReviewButtonClass = (order: Order) => {
+    if (isCompleted(order)) {
+      return "text-xs sm:text-sm font-medium text-black border border-gray-300 sm:border-transparent hover:bg-gray-50 sm:hover:border-gray-300 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-pointer transition-colors";
+    }
+    return "text-xs sm:text-sm font-medium text-gray-400 border border-gray-300 sm:border-transparent bg-gray-50 sm:bg-transparent sm:hover:border-gray-300 sm:hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-not-allowed transition-colors";
+  };
+
+  const getReviewButtonTitle = (order: Order) => {
+    if (isCompleted(order)) {
+      return "Write a review for this order";
+    }
+    return "Only fulfilled orders can be reviewed";
+  };
+
 
   const toggleExpand = (orderId: number) => {
     setExpandedIds(prev => {
@@ -91,10 +112,56 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
     });
   };
 
+  // Skeleton loader for orders
+  const renderOrderSkeleton = () => (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+          {/* Desktop skeleton */}
+          <div className="hidden lg:block">
+            <div className="grid grid-cols-[64px_200px_auto_160px] gap-x-2 mb-3">
+              <div className="h-5 bg-gray-300 rounded w-16" />
+              <div className="h-5 bg-gray-300 rounded w-32" />
+              <div className="h-5 bg-gray-300 rounded w-24" />
+              <div className="h-5 bg-gray-300 rounded w-36" />
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="h-5 bg-gray-300 rounded w-32" />
+              <div className="h-8 bg-gray-300 rounded w-28" />
+              <div className="h-8 bg-gray-300 rounded w-28" />
+              <div className="h-8 bg-gray-300 rounded w-24" />
+            </div>
+          </div>
+          
+          {/* Mobile skeleton */}
+          <div className="lg:hidden space-y-3">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <div className="h-5 bg-gray-300 rounded w-20" />
+                <div className="h-4 bg-gray-300 rounded w-32" />
+              </div>
+              <div className="h-5 bg-gray-300 rounded w-28" />
+            </div>
+            <div className="flex gap-2">
+              <div className="h-6 bg-gray-300 rounded w-24" />
+              <div className="h-6 bg-gray-300 rounded w-32" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="h-9 bg-gray-300 rounded" />
+              <div className="h-9 bg-gray-300 rounded" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="px-4 py-8 ">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto" />
+      <div className="border-t-3 border-black">
+        <div className="px-2 sm:px-4 pt-4 sm:pt-6">
+          {renderOrderSkeleton()}
+        </div>
       </div>
     );
   }
@@ -131,7 +198,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                     <span className="font-bold text-black text-sm">#{order.id}</span>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${getPaymentBadgeClass(order.paymentStatus)}`}>
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap min-w-[60px] text-center ${getPaymentBadgeClass(order.paymentStatus)}`}>
                       {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
                     </span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200">
@@ -150,14 +217,14 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                 <button
                   type="button"
                   onClick={() => toggleExpand(order.id)}
-                  className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors"
+                  className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
                 >
-                  {expandedIds.has(order.id) ? 'Hide Products' : 'Show Products'}
+                  {expandedIds.has(order.id) ? 'Hide' : 'Show'}
                 </button>
                 <button
                   type="button"
                   onClick={() => onOpenDetail?.(order)}
-                  className="text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded transition-colors"
+                  className="text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
                 >
                   Details
                 </button>
@@ -172,13 +239,22 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   type="button"
                   onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
                   disabled={!canPayAgain(order)}
-                  className={`text-xs font-medium px-3 py-1.5 rounded transition-colors ${
+                  className={`text-xs font-medium px-2 py-1.5 rounded transition-colors ${
                     canPayAgain(order) 
                       ? 'text-red-600 border border-red-300 hover:bg-red-50' 
                       : 'text-gray-400 border border-gray-300 bg-gray-50 cursor-not-allowed'
                   }`}
                 >
                   Pay
+                </button>
+                <button
+                  type="button"
+                  onClick={() => isCompleted(order) && onReview?.(order)}
+                  disabled={!isCompleted(order)}
+                  className={getReviewButtonClass(order)}
+                  title={getReviewButtonTitle(order)}
+                >
+                  Review
                 </button>
               </div>
             </div>
@@ -192,7 +268,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
               >
                 <span className="font-semibold text-black">V{order.id}</span>
                 <span className="whitespace-nowrap">{formatDate(order.createdAt)}</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 ${getPaymentBadgeClass(order.paymentStatus)}`}>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 min-w-[80px] text-center ${getPaymentBadgeClass(order.paymentStatus)}`}>
                   {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
                 </span>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200`}>Shipping: {getShipmentStatus(order)}</span>
@@ -222,6 +298,15 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   disabled={!canPayAgain(order)}
                 >
                   Pay Again
+                </button>
+                <button
+                  type="button"
+                  onClick={() => isCompleted(order) && onReview?.(order)}
+                  disabled={!isCompleted(order)}
+                  className={getReviewButtonClass(order)}
+                  title={getReviewButtonTitle(order)}
+                >
+                  Review
                 </button>
               </div>
             </div>

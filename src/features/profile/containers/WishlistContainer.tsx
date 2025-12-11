@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useToast } from "@/providers/ToastProvider";
+import { useMinimumLoadingTime } from "@/hooks/useMinimumLoadingTime";
 import {
   selectWishlistItems,
   selectWishlistLoading,
@@ -21,6 +22,9 @@ export const WishlistContainer: React.FC = () => {
   const loading = useAppSelector(selectWishlistLoading);
   const error = useAppSelector(selectWishlistError);
   const { showSuccess, showError } = useToast();
+
+  // Use minimum loading time hook to ensure skeleton shows for at least 500ms
+  const displayLoading = useMinimumLoadingTime(loading, 500);
 
   useEffect(() => {
     dispatch(fetchWishlistRequest());
@@ -89,7 +93,7 @@ export const WishlistContainer: React.FC = () => {
   return (
     <WishlistPresenter
       items={viewItems}
-      loading={loading}
+      loading={displayLoading}
       error={error}
       editMode={editMode}
       selected={selected}
