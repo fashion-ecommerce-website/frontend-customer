@@ -67,12 +67,13 @@ export function SizeGuideModal({
           
           if (response.success && response.data) {
             console.log('✅ Measurements found in backend:', response.data);
+            const backendMeasurements = response.data;
             // Update state with backend data
-            setMeasurements(response.data);
+            setMeasurements(backendMeasurements);
             // Sync to local storage
-            saveMeasurements(response.data as any);
-            // Load recommendation with backend data
-            loadSizeRecommendation();
+            saveMeasurements(backendMeasurements as any);
+            // Load recommendation with backend data - pass measurements directly
+            loadSizeRecommendation(backendMeasurements);
           } else {
             console.log('⚠️ No measurements in backend, checking localStorage...');
             // No measurements in backend, check localStorage as fallback
@@ -85,14 +86,18 @@ export function SizeGuideModal({
               recommendationApi.saveMeasurements(savedMeasurements)
                 .then((syncResponse) => {
                   console.log('✅ Synced to backend:', syncResponse);
+                  // After sync, load recommendation
+                  loadSizeRecommendation(savedMeasurements);
                 })
                 .catch(err => {
                   console.error('❌ Failed to sync measurements:', err);
+                  // Still try to load recommendation with local measurements
+                  loadSizeRecommendation(savedMeasurements);
                 });
             } else {
               console.log('❌ No measurements found in localStorage either');
+              setLoadingRecommendation(false);
             }
-            setLoadingRecommendation(false);
           }
         })
         .catch((error) => {
@@ -101,18 +106,22 @@ export function SizeGuideModal({
           const savedMeasurements = getMeasurements();
           if (savedMeasurements) {
             console.log('📦 Using localStorage fallback:', savedMeasurements);
+            setMeasurements(savedMeasurements);
+            // Try to load recommendation with local measurements
+            loadSizeRecommendation(savedMeasurements);
           } else {
             console.log('❌ No measurements available anywhere');
+            setMeasurements(null);
+            setLoadingRecommendation(false);
           }
-          setMeasurements(savedMeasurements);
-          setLoadingRecommendation(false);
         });
     }
   }, [isOpen, category, categorySlug, availableSizes, productId]);
 
-  const fallbackToLocalRecommendation = () => {
-    if (measurements) {
-      const localRec = calculateRecommendedSizes(measurements, category, availableSizes);
+  const fallbackToLocalRecommendation = (userMeasurements?: UserMeasurements | null) => {
+    const measurementsToUse = userMeasurements || measurements;
+    if (measurementsToUse) {
+      const localRec = calculateRecommendedSizes(measurementsToUse, category, availableSizes);
       setApiRecommendation({
         recommendedSize: localRec.recommended,
         confidence: 0.7,
@@ -131,22 +140,30 @@ export function SizeGuideModal({
     }
   };
 
-  const loadSizeRecommendation = async () => {
+  const loadSizeRecommendation = async (userMeasurements?: UserMeasurements | null) => {
     setLoadingRecommendation(true);
     try {
       console.log('🔍 Calling size recommendation API for product:', productId);
       const response = await recommendationApi.getSizeRecommendation(productId);
       
       if (response.success && response.data) {
-        console.log('✅ Size recommendation received:', response.data);
-        setApiRecommendation(response.data);
+        // Check if backend has collaborative data (recommendedSize not null)
+        if (response.data.recommendedSize) {
+          console.log('✅ Size recommendation received from collaborative filtering:', response.data);
+          setApiRecommendation(response.data);
+        } else {
+          // Backend returned no data (no similar users or no order history)
+          // Use frontend rule-based recommendation with detailed size charts
+          console.log('ℹ️ No collaborative data available, using frontend rule-based recommendation');
+          fallbackToLocalRecommendation(userMeasurements);
+        }
       } else {
         console.warn('⚠️ Size recommendation API returned unsuccessful response:', response.message);
-        fallbackToLocalRecommendation();
+        fallbackToLocalRecommendation(userMeasurements);
       }
     } catch (error) {
       console.error('❌ Failed to load size recommendation:', error);
-      fallbackToLocalRecommendation();
+      fallbackToLocalRecommendation(userMeasurements);
     } finally {
       setLoadingRecommendation(false);
     }
