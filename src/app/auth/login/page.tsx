@@ -1,10 +1,10 @@
 'use client';
 
 import { LoginContainer } from '@/features/auth/login';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const { showError } = useToast();
 
   useEffect(() => {
@@ -23,5 +23,17 @@ export default function LoginPage() {
         console.error('Login error:', error);
       }}
     />
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   );
 }

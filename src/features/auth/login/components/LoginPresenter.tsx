@@ -19,11 +19,12 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
   useEffect(() => {
     if (error) {
       // Don't show error for user cancellation cases
-      const isCancelledByUser = error.message.includes('đóng cửa sổ') || 
-                               error.message.includes('bị hủy') || 
-                               error.message.includes('cancelled') ||
-                               error.message.includes('popup-closed-by-user');
-      
+      const isCancelledByUser =
+        error.message.includes("đóng cửa sổ") ||
+        error.message.includes("bị hủy") ||
+        error.message.includes("cancelled") ||
+        error.message.includes("popup-closed-by-user");
+
       if (!isCancelledByUser) {
         showError(error.message);
       }
@@ -54,8 +55,8 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
 
   // Show login form
   return (
-    <div className="min-h-[400px] sm:py-12 lg:py-16 flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
-      <div className="bg-white w-full max-w-md sm:max-w-lg">
+    <div className="py-4 sm:py-6 md:py-8 px-4 sm:px-6 flex items-center justify-center bg-white min-h-[calc(100vh-80px)]">
+      <div className="bg-white w-full max-w-[430px]">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-black mb-4 tracking-wider">
             LOGIN
@@ -72,7 +73,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
           <div className="flex flex-col">
             <label
               htmlFor="email"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               EMAIL
             </label>
@@ -86,7 +87,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               placeholder="Email"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
               } placeholder-gray-400 focus:border-black focus:outline-none`}
             />
@@ -95,7 +96,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
           <div className="flex flex-col">
             <label
               htmlFor="password"
-              className="font-medium text-black mb-2 text-sm tracking-wider"
+              className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
               PASSWORD
             </label>
@@ -109,7 +110,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               placeholder="Password"
               required
               disabled={isLoading}
-              className={`px-4 py-3 h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
+              className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
                 isLoading ? "bg-gray-50 cursor-not-allowed opacity-50" : ""
               } placeholder-gray-400 focus:border-black focus:outline-none`}
             />
@@ -118,7 +119,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className={`bg-black text-white py-3 sm:py-4 px-6 h-[44px] sm:h-[48px] w-full font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 tracking-wider text-sm sm:text-base rounded ${
+            className={`bg-black text-white py-3 sm:py-4 px-4 sm:px-6 h-[44px] sm:h-[48px] w-full font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 tracking-wider text-sm sm:text-base rounded ${
               isLoading
                 ? "opacity-60 cursor-not-allowed"
                 : "hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
@@ -147,39 +148,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
           </div>
 
           <div className="mt-2">
-            <GoogleAuth
-              onSuccess={(user) => {
-                // Remove success message - just log for debugging
-                console.log('Google login successful:', user);
-                // Don't show any toast message to avoid the green "logout" text
-              }}
-              onError={(error) => {
-                // Don't show error for user cancellation cases
-                const isCancelledByUser = error.includes('đóng cửa sổ') || 
-                                         error.includes('bị hủy') || 
-                                         error.includes('cancelled') ||
-                                         error.includes('popup-closed-by-user');
-                
-                if (!isCancelledByUser) {
-                  showError(error);
-                }
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              className="flex items-center justify-center gap-3 py-3 sm:py-4 px-6 bg-[#3B5998] text-white font-semibold cursor-pointer transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 text-sm tracking-wider rounded"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
-                <path
-                  fill="currentColor"
-                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                />
-              </svg>
-              LOGIN FACEBOOK
-            </button>
+            <GoogleAuth/>
           </div>
         </form>
       </div>

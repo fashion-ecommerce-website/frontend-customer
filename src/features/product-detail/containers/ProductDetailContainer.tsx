@@ -9,6 +9,7 @@ import { ProductDetailProps } from '../types';
 import { ProductDetailPresenter } from '../components';
 import { selectWishlistItems, toggleWishlistRequest } from '@/features/profile/redux/wishlistSlice';
 import { useToast } from '@/providers/ToastProvider';
+import { useCartActions } from '@/hooks/useCartActions';
 import {
   fetchProductRequest,
   fetchProductByColorRequest,
@@ -25,6 +26,7 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
   );
   const wishlistItems = useAppSelector((state) => selectWishlistItems(state));
   const { showSuccess } = useToast();
+  const { addToCartWithToast } = useCartActions();
 
   // Handle color change with Redux action
   const handleColorChange = async (color: string) => {
@@ -81,6 +83,48 @@ export function ProductDetailContainer({ productId }: ProductDetailProps) {
 
     addToRecentlyViewed();
   }, [product, isAuthenticated]); // Trigger when product or auth status changes
+
+  // Restore pending cart action after login
+  useEffect(() => {
+    const restorePendingCartAction = async () => {
+      if (isAuthenticated && product && product.detailId) {
+        const pendingActionStr = sessionStorage.getItem('pendingCartAction');
+        if (pendingActionStr) {
+          try {
+            const pendingAction = JSON.parse(pendingActionStr);
+            
+            // Check if this is the same product
+            if (pendingAction.productDetailId === product.detailId) {
+              // Restore size and quantity by dispatching actions
+              if (pendingAction.sizeName) {
+                dispatch(setSelectedSize(pendingAction.sizeName));
+              }
+              
+              // Auto add to cart with the saved size and quantity
+              await addToCartWithToast({
+                productDetailId: pendingAction.productDetailId,
+                quantity: pendingAction.quantity || 1,
+                productImage: product.images[0] || '/images/placeholder.jpg',
+                productTitle: product.title,
+                price: product.price,
+                finalPrice: product.finalPrice
+              });
+              
+              console.log('✅ Restored and added pending cart action');
+            }
+            
+            // Clear the pending action
+            sessionStorage.removeItem('pendingCartAction');
+          } catch (error) {
+            console.error('❌ Failed to restore pending cart action:', error);
+            sessionStorage.removeItem('pendingCartAction');
+          }
+        }
+      }
+    };
+
+    restorePendingCartAction();
+  }, [isAuthenticated, product, dispatch, addToCartWithToast]);
 
   // Clean up on unmount
   useEffect(() => {

@@ -6,6 +6,7 @@ export interface VirtualTryOnProduct {
   id: number;
   productDetailId: number;
   productTitle: string;
+  categorySlug?: string; // Category slug to auto-determine upper/lower
   colorName: string;
   sizeName: string;
   imageUrl: string;
@@ -42,7 +43,7 @@ export interface HistoryItem {
   resultImage: string;
 }
 
-export type TryOnCategory = 'upper' | 'lower' | 'full' | 'combo';
+export type TryOnCategory = 'upper' | 'lower';
 
 export interface VirtualTryOnPresenterProps {
   products: VirtualTryOnProduct[];
@@ -51,9 +52,7 @@ export interface VirtualTryOnPresenterProps {
   userImage: string | null;
   resultImage: string | null;
   isProcessing: boolean;
-  error: string | null;
   history: HistoryItem[];
-  category: TryOnCategory;
   activeSlot: 'upper' | 'lower';
   onProductSelect: (product: VirtualTryOnProduct) => void;
   onImageUpload: (file: File) => void;
@@ -61,8 +60,8 @@ export interface VirtualTryOnPresenterProps {
   onReset: () => void;
   onBack: () => void;
   onHistorySelect: (item: HistoryItem) => void;
-  onCategoryChange: (category: TryOnCategory) => void;
   onActiveSlotChange: (slot: 'upper' | 'lower') => void;
+  onClearSlot: (slot: 'upper' | 'lower') => void;
 }
 
 export interface ImageUploadProps {

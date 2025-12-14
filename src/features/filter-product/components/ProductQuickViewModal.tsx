@@ -13,6 +13,8 @@ import {
   setSelectedSize as setSelectedSizeAction,
 } from "@/features/product-detail/redux/productDetailSlice"
 import { recommendationApi, ActionType } from "@/services/api/recommendationApi"
+import { useToast } from "@/providers/ToastProvider"
+import { useRouter } from "next/navigation"
 
 interface ProductQuickViewModalProps {
   isOpen: boolean
@@ -45,6 +47,8 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   onConfirmEdit,
 }) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const { showError } = useToast()
+  const router = useRouter()
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false)
@@ -416,6 +420,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const handleAddToCart = async () => {
     if (!selectedSizeLocal) {
       setShowSizeNotice(true)
+      showError('Please select a size')
       setTimeout(() => setShowSizeNotice(false), 3000)
       return
     }
@@ -424,19 +429,33 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
       return
     }
 
+    // Verify availability for selected size
+    const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
+    if (availableQty === 0) {
+      showError('This size is out of stock')
+      return
+    }
+
+    if (selectedAmount > availableQty) {
+      setShowSizeNotice(true)
+      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+      setTimeout(() => setShowSizeNotice(false), 3000)
+      return
+    }
+
     if (!isAuthenticated) {
-      alert("Please login to add items to cart")
+      // Save cart intent to sessionStorage before redirecting to login
+      sessionStorage.setItem('pendingCartAction', JSON.stringify({
+        productDetailId: product.detailId,
+        sizeName: selectedSizeLocal,
+        quantity: selectedAmount,
+        returnUrl: window.location.pathname
+      }))
+      router.push(`/auth/login?returnUrl=${encodeURIComponent(window.location.pathname)}`)
       return
     }
 
     try {
-      // Verify availability for selected size
-      const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
-      if (selectedAmount > availableQty) {
-        setShowSizeNotice(true)
-        setTimeout(() => setShowSizeNotice(false), 3000)
-        return
-      }
 
       setAddingToCart(true)
 
@@ -721,12 +740,32 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   {isEditMode ? (
                     <>
                       <button
+                        onClick={onClose}
+                        type="button"
+                        className="flex-1 bg-white text-black py-3 font-bold text-sm uppercase border border-gray-300"
+                      >
+                        Cancel
+                      </button>
+                      <button
                         onClick={() => {
                           if (!selectedSizeLocal) {
                             setShowSizeNotice(true)
+                            showError('Please select a size')
                             setTimeout(() => setShowSizeNotice(false), 3000)
                             return
                           }
+
+                          // Validate stock availability
+                          if (product) {
+                            const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
+                            if (selectedAmount > availableQty) {
+                              setShowSizeNotice(true)
+                              showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+                              setTimeout(() => setShowSizeNotice(false), 3000)
+                              return
+                            }
+                          }
+
                           if (onConfirmEdit) {
                             onConfirmEdit({
                               cartItemId: cartItemId,
@@ -737,16 +776,9 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           }
                         }}
                         type="button"
-                        className="flex-1 bg-white text-black py-3 font-bold text-sm uppercase border border-gray-300"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={onClose}
-                        type="button"
                         className="flex-1 bg-black text-white py-3 font-bold text-sm uppercase"
                       >
-                        Cancel
+                        Edit
                       </button>
                     </>
                   ) : (
@@ -920,12 +952,31 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                 {isEditMode ? (
                   <>
                     <button
+                      onClick={onClose}
+                      type="button"
+                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 w-full"
+                    >
+                      Cancel
+                    </button>
+                    <button
                       onClick={() => {
                         // Validate selection
                         if (!selectedSizeLocal) {
                           setShowSizeNotice(true)
+                          showError('Please select a size')
                           setTimeout(() => setShowSizeNotice(false), 3000)
                           return
+                        }
+
+                        // Validate stock availability
+                        if (product) {
+                          const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
+                          if (selectedAmount > availableQty) {
+                            setShowSizeNotice(true)
+                            showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+                            setTimeout(() => setShowSizeNotice(false), 3000)
+                            return
+                          }
                         }
 
                         if (onConfirmEdit) {
@@ -938,16 +989,9 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         }
                       }}
                       type="button"
-                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity w-full"
+                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase disabled:opacity-50 disabled:cursor-not-allowed transition-opacity w-full"
                     >
                       Edit
-                    </button>
-                    <button
-                      onClick={onClose}
-                      type="button"
-                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase w-full"
-                    >
-                      Cancel
                     </button>
                   </>
                 ) : (

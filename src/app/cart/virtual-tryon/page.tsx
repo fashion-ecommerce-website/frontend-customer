@@ -14,6 +14,7 @@ export default function VirtualTryOnPage() {
     id: item.id,
     productDetailId: item.productDetailId,
     productTitle: item.productTitle,
+    categorySlug: item.categorySlug,
     colorName: item.colorName,
     sizeName: item.sizeName,
     imageUrl: item.imageUrl,

@@ -16,17 +16,15 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
     userImage,
     resultImage,
     isProcessing,
-    error,
     history,
-    category,
     activeSlot,
     handleProductSelect,
     handleImageUpload,
     handleTryOn,
     handleReset,
     handleHistorySelect,
-    setCategory,
-    setActiveSlot
+    setActiveSlot,
+    clearSlot
   } = useVirtualTryOn();
 
   // Handle back navigation
@@ -42,9 +40,7 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
       userImage={userImage}
       resultImage={resultImage}
       isProcessing={isProcessing}
-      error={error}
       history={history}
-      category={category}
       activeSlot={activeSlot}
       onProductSelect={handleProductSelect}
       onImageUpload={handleImageUpload}
@@ -52,8 +48,8 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
       onReset={handleReset}
       onBack={handleBack}
       onHistorySelect={handleHistorySelect}
-      onCategoryChange={setCategory}
       onActiveSlotChange={setActiveSlot}
+      onClearSlot={clearSlot}
     />
   );
 };

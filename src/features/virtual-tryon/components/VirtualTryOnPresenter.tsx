@@ -16,17 +16,15 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
   userImage,
   resultImage,
   isProcessing,
-
   history,
-  category,
   activeSlot,
   onProductSelect,
   onImageUpload,
   onTryOn,
   onReset,
   onHistorySelect,
-  onCategoryChange,
   onActiveSlotChange,
+  onClearSlot,
 }) => {
   const [activeTab, setActiveTab] = useState<'try-on' | 'history'>('try-on');
 
@@ -50,7 +48,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
 
   const canTryOn: boolean = !!(
     userImage &&
-    selectedProduct &&
+    (selectedProduct || selectedLowerProduct) &&
     !isProcessing &&
     !resultImage
   );
@@ -129,105 +127,134 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                          selectedProduct
+                          selectedProduct || selectedLowerProduct
                             ? "bg-black text-white"
                             : "bg-gray-100 text-gray-400"
                         }`}
                       >
-                        {selectedProduct ? "✓" : "1"}
+                        {selectedProduct || selectedLowerProduct ? "✓" : "1"}
                       </div>
                       <h2 className="text-xl font-bold text-black tracking-tight">
-                        SELECT ITEM
+                        SELECT ITEMS
                       </h2>
                     </div>
                   </div>
 
-                  {/* Category Selector */}
+                  {/* Upper and Lower Slots */}
                   <div className="mb-6">
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
-                      Try-On Mode
-                    </label>
-                    <div className="flex gap-2 bg-gray-50 p-1 rounded-lg overflow-x-auto">
-                      {(['upper', 'lower', 'combo'] as const).map((cat) => (
-                        <button
-                          key={cat}
-                          onClick={() => onCategoryChange(cat)}
-                          className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all whitespace-nowrap ${
-                            category === cat
-                              ? 'bg-white text-black shadow-sm border border-gray-200'
-                              : 'text-gray-500 hover:text-black hover:bg-gray-100'
-                          }`}
-                        >
-                          {cat === 'combo' ? 'Combo' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Combo Mode Slots */}
-                  {category === 'combo' && (
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Upper Slot */}
                       <div 
                         onClick={() => onActiveSlotChange('upper')}
-                        className={`p-3 rounded-xl border-2 transition-all text-black cursor-pointer relative ${
+                        className={`p-3 rounded-xl border-2 transition-all cursor-pointer min-h-[100px] ${
                           activeSlot === 'upper' 
-                            ? 'border-black bg-white' 
-                            : 'border-dashed border-gray-500 bg-gray-50 hover:border-black'
+                            ? 'border-black bg-white shadow-sm' 
+                            : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                         }`}
                       >
-                        <div className="text-xs font-semibold text-black uppercase mb-2 flex justify-between">
-                          <span>Upper</span>
-                          {activeSlot === 'upper' && <span className="text-black">● Active</span>}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xs font-semibold text-gray-700 uppercase">
+                            Upper Body
+                          </div>
+                          {activeSlot === 'upper' && (
+                            <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+                          )}
                         </div>
                         {selectedProduct ? (
                           <div className="flex items-center gap-2">
-                            <div className="relative w-10 h-10">
-                              <Image src={selectedProduct.imageUrl} alt="" fill className="rounded-md object-cover" />
+                            <div className="relative w-12 h-14 flex-shrink-0">
+                              <Image 
+                                src={selectedProduct.imageUrl} 
+                                alt={selectedProduct.productTitle} 
+                                fill 
+                                className="rounded-md object-cover border border-gray-200" 
+                              />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{selectedProduct.productTitle}</p>
+                              <p className="text-xs font-medium text-gray-900 line-clamp-2">
+                                {selectedProduct.productTitle}
+                              </p>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onClearSlot('upper');
+                                }}
+                                className="text-[10px] text-red-600 hover:text-red-700 mt-1"
+                              >
+                                Remove
+                              </button>
                             </div>
                           </div>
                         ) : (
-                          <div className="text-sm text-center py-2">Select Top</div>
+                          <div className="text-xs text-gray-400 text-center py-4">
+                            Click to select<br />upper garment
+                          </div>
                         )}
                       </div>
                       
+                      {/* Lower Slot */}
                       <div 
                         onClick={() => onActiveSlotChange('lower')}
-                        className={`p-3 rounded-xl border-2 transition-all text-black cursor-pointer relative ${
+                        className={`p-3 rounded-xl border-2 transition-all cursor-pointer min-h-[100px] ${
                           activeSlot === 'lower' 
-                            ? 'border-black bg-white' 
-                            : 'border-dashed border-gray-500 bg-gray-50 hover:border-black'
+                            ? 'border-black bg-white shadow-sm' 
+                            : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                         }`}
                       >
-                        <div className="text-xs font-semibold text-black uppercase mb-2 flex justify-between">
-                          <span>Lower</span>
-                          {activeSlot === 'lower' && <span className="text-black">● Active</span>}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xs font-semibold text-gray-700 uppercase">
+                            Lower Body
+                          </div>
+                          {activeSlot === 'lower' && (
+                            <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+                          )}
                         </div>
                         {selectedLowerProduct ? (
                           <div className="flex items-center gap-2">
-                            <div className="relative w-10 h-10">
-                              <Image src={selectedLowerProduct.imageUrl} alt="" fill className="rounded-md object-cover" />
+                            <div className="relative w-12 h-14 flex-shrink-0">
+                              <Image 
+                                src={selectedLowerProduct.imageUrl} 
+                                alt={selectedLowerProduct.productTitle} 
+                                fill 
+                                className="rounded-md object-cover border border-gray-200" 
+                              />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{selectedLowerProduct.productTitle}</p>
+                              <p className="text-xs font-medium text-gray-900 line-clamp-2">
+                                {selectedLowerProduct.productTitle}
+                              </p>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onClearSlot('lower');
+                                }}
+                                className="text-[10px] text-red-600 hover:text-red-700 mt-1"
+                              >
+                                Remove
+                              </button>
                             </div>
                           </div>
                         ) : (
-                          <div className="text-sm text-center py-2">Select Bottom</div>
+                          <div className="text-xs text-gray-400 text-center py-4">
+                            Click to select<br />lower garment
+                          </div>
                         )}
                       </div>
                     </div>
-                  )}
+                    
+                    {/* Helper text */}
+                    <p className="text-[11px] text-gray-500 mt-2 text-center">
+                      {activeSlot === 'upper' 
+                        ? '💡 Select an upper garment from products below' 
+                        : '💡 Select a lower garment from products below'}
+                    </p>
+                  </div>
 
                   <div className="flex-1 overflow-auto">
                     <ProductSelector
                       products={products}
                       selectedProduct={
-                        category === 'lower' || (category === 'combo' && activeSlot === 'lower')
-                          ? selectedLowerProduct
-                          : selectedProduct
+                        activeSlot === 'lower' ? selectedLowerProduct : selectedProduct
                       }
                       onProductSelect={onProductSelect}
                       disabled={isProcessing}
