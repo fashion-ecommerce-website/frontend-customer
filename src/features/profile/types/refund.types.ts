@@ -3,26 +3,29 @@
  * TypeScript definitions for refund feature
  */
 
-// Refund item interface
+// Refund status from backend
+export type RefundStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
+
+// Refund item interface - matches backend RefundResponse
 export interface RefundItem {
   id: number;
   orderId: number;
-  productName: string;
-  productImage?: string;
-  colorLabel?: string;
-  sizeLabel?: string;
-  quantity: number;
-  refundAmount: number;
+  userId: number;
+  userEmail: string;
+  status: RefundStatus;
   reason: string;
-  status: 'pending' | 'approved' | 'rejected' | 'completed';
-  requestedAt: string;
-  updatedAt?: string;
-  note?: string;
+  refundAmount: number;
+  adminNote: string | null;
+  processedBy: number | null;
+  processedAt: string | null;
+  stripeRefundId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Refund query parameters
 export interface RefundQueryParams {
-  status?: 'pending' | 'approved' | 'rejected' | 'completed';
+  status?: RefundStatus;
   sortBy?: string;
   direction?: 'asc' | 'desc';
   page?: number;
@@ -39,7 +42,7 @@ export interface RefundPresenterProps {
   hasNext: boolean;
   hasPrevious: boolean;
   onPageChange: (page: number) => void;
-  onFilterChange: (status?: 'pending' | 'approved' | 'rejected' | 'completed') => void;
+  onFilterChange: (status?: RefundStatus) => void;
   onReload: () => void;
 }
 

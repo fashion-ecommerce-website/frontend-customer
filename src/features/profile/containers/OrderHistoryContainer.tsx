@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Order, OrderQueryParams } from '@/features/order/types';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Order, OrderQueryParams, OrderStatus, PaymentStatus } from '@/features/order/types';
 import { OrderHistoryPresenter } from '../components/OrderHistoryPresenter';
 import { OrderFilters } from '../components/OrderFilters';
 import { useOrders } from '@/hooks/useOrders';
 import { useMinimumLoadingTime } from '@/hooks/useMinimumLoadingTime';
-import { productApi } from '@/services/api/productApi';
 import { useAppSelector } from '@/hooks/redux';
 import { selectUser } from '@/features/auth/login/redux/loginSlice';
 import { ReviewModal } from '@/components/modals/ReviewModal';
 import { reviewApiService } from '@/services/api/reviewApi';
+import { RefundModal } from '@/components/modals/RefundModal';
+import { RefundApi } from '@/services/api/refundApi';
 
 export const OrderHistoryContainer: React.FC<{
   onOpenDetail?: (order: Order) => void,
@@ -23,17 +24,37 @@ export const OrderHistoryContainer: React.FC<{
   
   // Use minimum loading time hook to ensure skeleton shows for at least 500ms
   const displayLoading = useMinimumLoadingTime(loading, 500);
-  const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [selectedOrderForReview, setSelectedOrderForReview] = useState<Order | null>(null);
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+  const [selectedOrderForRefund, setSelectedOrderForRefund] = useState<Order | null>(null);
+  const [refundLoading, setRefundLoading] = useState(false);
   const [query, setQuery] = useState<OrderQueryParams>({
     userId: user?.id ? Number(user.id) : undefined,
     sortBy: 'createdAt',
     direction: 'desc',
     page: 0,
-    size: 10
+    size: 10,
+    paymentStatus: PaymentStatus.PAID // Default to Paid tab
   });
   const [initialized, setInitialized] = useState(false);
+
+  // Filter orders based on selected tab
+  const filteredOrders = useMemo(() => {
+    // Fulfilled tab: exclude REFUNDED orders
+    if (query.status === OrderStatus.FULFILLED) {
+      return orders.filter(
+        (order) =>
+          order.paymentStatus !== 'REFUNDED' &&
+          order.paymentStatus !== 'PARTIALLY_REFUNDED'
+      );
+    }
+    // Unpaid tab: exclude CANCELLED orders
+    if (query.paymentStatus === 'UNPAID') {
+      return orders.filter((order) => order.status !== OrderStatus.CANCELLED);
+    }
+    return orders;
+  }, [orders, query.status, query.paymentStatus]);
 
   useEffect(() => {
     if (user?.id && !initialized) {
@@ -42,47 +63,14 @@ export const OrderHistoryContainer: React.FC<{
         sortBy: 'createdAt' as const,
         direction: 'desc' as const,
         page: 0,
-        size: 10
+        size: 10,
+        paymentStatus: PaymentStatus.PAID // Default to Paid tab
       };
       setQuery(queryWithUserId);
       fetchOrders(queryWithUserId);
       setInitialized(true);
     }
   }, [user?.id, initialized, fetchOrders]);
-
-  // Fetch product images when orders change
-  useEffect(() => {
-    if (!orders || orders.length === 0) {
-      setImagesByDetailId({});
-      return;
-    }
-
-    // Collect all unique productDetailIds from all orders
-    const allDetailIds = new Set<number>();
-    orders.forEach(order => {
-      order.orderDetails?.forEach(detail => {
-        allDetailIds.add(detail.productDetailId);
-      });
-    });
-
-    const uniqueDetailIds = Array.from(allDetailIds);
-    if (uniqueDetailIds.length === 0) return;
-
-    let cancelled = false;
-    Promise.all(uniqueDetailIds.map(detailId =>
-      productApi.getProductById(String(detailId))
-        .then(r => ({ id: detailId, img: r.success ? (r.data?.images?.[0] || '') : '' }))
-        .catch(() => ({ id: detailId, img: '' }))
-    ))
-      .then(results => {
-        if (cancelled) return;
-        const map: Record<number, string> = {};
-        results.forEach(({ id, img }) => { if (img) map[id] = img; });
-        setImagesByDetailId(map);
-      });
-
-    return () => { cancelled = true; };
-  }, [orders]);
 
   const handlePageChange = (page: number) => {
     const newQuery = { ...query, page, userId: user?.id ? Number(user.id) : undefined };
@@ -120,6 +108,33 @@ export const OrderHistoryContainer: React.FC<{
     }
   };
 
+  const handleRefundClick = (order: Order) => {
+    setSelectedOrderForRefund(order);
+    setIsRefundModalOpen(true);
+  };
+
+  const handleRefundConfirm = async (orderId: number, reason: string, refundAmount: number) => {
+    setRefundLoading(true);
+    try {
+      const response = await RefundApi.createRefund({
+        orderId,
+        reason,
+        refundAmount,
+      });
+
+      if (response.success) {
+        // Reload orders to reflect the updated status
+        fetchOrders({ ...query, userId: user?.id ? Number(user.id) : undefined });
+        setIsRefundModalOpen(false);
+        setSelectedOrderForRefund(null);
+      } else {
+        throw new Error(response.message || 'Failed to submit refund request');
+      }
+    } finally {
+      setRefundLoading(false);
+    }
+  };
+
   return (
     <div className="px-2 sm:px-4">
       {/* Header */}
@@ -153,7 +168,7 @@ export const OrderHistoryContainer: React.FC<{
 
       {/* Orders List */}
       <OrderHistoryPresenter
-        orders={orders}
+        orders={filteredOrders}
         loading={displayLoading}
         error={error}
         pagination={pagination}
@@ -163,7 +178,7 @@ export const OrderHistoryContainer: React.FC<{
         onTrack={onTrack}
         onPayAgain={onPayAgain}
         onReview={handleReviewClick}
-        imagesByDetailId={imagesByDetailId}
+        onRefund={handleRefundClick}
       />
 
       {/* Review Modal */}
@@ -171,8 +186,19 @@ export const OrderHistoryContainer: React.FC<{
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         order={selectedOrderForReview}
-        imagesByDetailId={imagesByDetailId}
         onSubmit={handleReviewSubmit}
+      />
+
+      {/* Refund Modal */}
+      <RefundModal
+        isOpen={isRefundModalOpen}
+        onClose={() => {
+          setIsRefundModalOpen(false);
+          setSelectedOrderForRefund(null);
+        }}
+        order={selectedOrderForRefund}
+        onConfirm={handleRefundConfirm}
+        loading={refundLoading}
       />
     </div>
   );

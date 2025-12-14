@@ -7,7 +7,7 @@ import { useEnums } from '@/hooks/useEnums';
 type OrderDetailPresenterProps = {
   order: Order;
   onBack?: () => void;
-  imagesByDetailId?: Record<number, string>;
+  onRefund?: (order: Order) => void;
 };
 
 const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
@@ -22,7 +22,7 @@ const getPaymentMethodLabel = (method?: PaymentMethod) => {
   }
 };
 
-export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack, imagesByDetailId }) => {
+export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ order, onBack }) => {
   const { data: enums } = useEnums();
   return (
     <div className="px-4 pb-8">
@@ -42,7 +42,7 @@ export const OrderDetailPresenter: React.FC<OrderDetailPresenterProps> = ({ orde
               <div key={item.id} className="flex gap-4">
                 <div className="relative w-24 rounded overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
                   <Image 
-                    src={imagesByDetailId?.[item.productDetailId] || item.imageUrl || '/images/products/image1.jpg'} 
+                    src={item.images?.[0] || '/images/products/image1.jpg'} 
                     alt={item.title} 
                     fill
                     sizes="96px"

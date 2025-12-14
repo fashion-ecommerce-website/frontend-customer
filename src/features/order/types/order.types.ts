@@ -56,7 +56,7 @@ export interface OrderDetail {
   percentOff?: number;     
   promotionId?: number;   
   promotionName?: string;  
-  imageUrl?: string;
+  images?: string[];       // list of image URLs from backend
 }
 
 // Payment interface

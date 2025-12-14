@@ -8,11 +8,10 @@ interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: Order | null;
-  imagesByDetailId?: Record<number, string>;
   onSubmit?: (productDetailId: number, reviews: { productDetailId: number; rating: number; comment: string }[]) => void;
 }
 
-export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order, imagesByDetailId, onSubmit }) => {
+export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order, onSubmit }) => {
   const [reviews, setReviews] = useState<Record<number, { rating: number; comment: string }>>({});
     const { showError, showSuccess } = useToast();
 
@@ -125,7 +124,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
             <div className="space-y-6">
               {order.orderDetails.map((detail) => {
                 const currentReview = reviews[detail.productDetailId] || { rating: 0, comment: '' };
-                const imageSrc = imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg';
+                const imageSrc = detail.images?.[0] || '/images/products/image1.jpg';
                 return (
                   <div key={detail.id} className="border border-gray-200 rounded-lg p-4 mb-4">
                     {/* Product Info */}
