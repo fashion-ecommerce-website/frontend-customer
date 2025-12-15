@@ -10,6 +10,7 @@ export interface CartItem {
   productDetailId: number;
   productTitle: string;
   productSlug: string;
+  categorySlug?: string; // Category slug for virtual try-on classification
   colorName: string;
   sizeName: string;
   price: number;          // base price

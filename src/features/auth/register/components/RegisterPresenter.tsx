@@ -96,7 +96,10 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 w-full">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3 sm:gap-4 w-full"
+        >
           <div className="flex flex-col">
             <label
               htmlFor="email"
@@ -259,34 +262,16 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
 
           <div className="text-center text-xs sm:text-sm">
             <span className="text-gray-900">Already have an account? </span>
-            <Link href="/auth/login" className="text-gray-900 hover:underline font-medium">
+            <Link
+              href="/auth/login"
+              className="text-gray-900 hover:underline font-medium"
+            >
               Sign in
             </Link>
           </div>
 
           <div className="mt-1 sm:mt-2">
-            <GoogleAuth
-              onSuccess={(user) => {
-                // Remove success message - just log for debugging
-                console.log("Google login successful:", user);
-                // Don't show any toast message to avoid the green "logout" text
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2 sm:gap-3">
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 sm:gap-3 py-2.5 sm:py-3 md:py-4 px-4 sm:px-6 bg-[#3B5998] text-white font-semibold cursor-pointer transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 text-xs sm:text-sm tracking-wider rounded"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
-                <path
-                  fill="currentColor"
-                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                />
-              </svg>
-              LOGIN FACEBOOK
-            </button>
+            <GoogleAuth/>
           </div>
         </form>
       </div>

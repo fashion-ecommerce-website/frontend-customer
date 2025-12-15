@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from 'next/image';
+import Image from "next/image";
 import { CartItemComponentProps } from "../types";
 
 export const CartItemComponent: React.FC<CartItemComponentProps> = ({
@@ -24,7 +24,7 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
 
   const handleRemove = async () => {
     if (isRemoving || loading) return;
-    
+
     setIsRemoving(true);
     try {
       await onRemove(item.id);
@@ -84,22 +84,25 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
       </div>
 
       {/* Product Details */}
-      <div className="flex-1 min-w-0 font-medium">
+      <div className="flex-1 min-w-0 font-medium group cursor-pointer">
         <h3
-          className="text-[14px] text-black mb-1 cursor-pointer"
+          className="text-[14px] text-black group-hover:text-[#BB9244] mb-1"
           onClick={handleProductClick}
           role="button"
           tabIndex={0}
         >
           {item.productTitle}
         </h3>
-        <p className="text-[12px] text-black mb-1">
+
+        <p className="text-[12px] text-black mb-1 group-hover:text-[#BB9244]">
           {item.colorName} / {item.sizeName}
         </p>
-        <p className="text-[14px] text-black mb-2">
+
+        <p className="text-[14px] text-black mb-2 group-hover:text-[#BB9244]">
           Quantity: {item.quantity}
         </p>
-        {/* Price moved here */}
+
+        {/* Price */}
         <div className="flex flex-col">
           {item.finalPrice && item.finalPrice < item.price ? (
             <>
@@ -107,16 +110,15 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
                 {formatPrice(item.price)}
               </div>
               <div className="text-[16px] font-bold text-red-600">
-                {item.finalPrice ? formatPrice(item.finalPrice) : formatPrice(item.price)}
+                {formatPrice(item.finalPrice)}
               </div>
             </>
           ) : (
-            <div className="text-[16px] font-bold text-black">
+            <div className="text-[16px] font-bold text-black group-hover:text-[#BB9244]">
               {formatPrice(item.price)}
             </div>
           )}
         </div>
-       
       </div>
 
       {/* Action Buttons */}
@@ -133,7 +135,7 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
           disabled={loading || isRemoving}
           className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isRemoving ? 'Removing...' : 'Remove'}
+          {isRemoving ? "Removing..." : "Remove"}
         </button>
       </div>
     </div>

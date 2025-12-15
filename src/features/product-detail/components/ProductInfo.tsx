@@ -12,6 +12,7 @@ import { Size } from '@/types/size-recommendation.types';
 import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
 import { wishlistApiService } from '@/services/api/wishlistApi';
+import { useToast } from '@/providers/ToastProvider';
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -33,6 +34,7 @@ export function ProductInfo({
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { showError } = useToast();
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false);
@@ -100,11 +102,31 @@ export function ProductInfo({
   const handleAddToCart = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
+      showError('Please select a size');
       setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
 
+    // Validate stock availability
+    const availableQty = product.mapSizeToQuantity?.[selectedSize] ?? 0;
+    if (availableQty === 0) {
+      showError('This size is out of stock');
+      return;
+    }
+
+    if (quantity > availableQty) {
+      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`);
+      return;
+    }
+
     if (!isAuthenticated) {
+      // Save cart intent to sessionStorage before redirecting to login
+      sessionStorage.setItem('pendingCartAction', JSON.stringify({
+        productDetailId: product.detailId,
+        sizeName: selectedSize,
+        quantity: quantity,
+        returnUrl: `/products/${product.detailId}`
+      }));
       router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
       return;
     }
@@ -137,12 +159,32 @@ export function ProductInfo({
   const handleBuyNow = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
+      showError('Please select a size');
       setTimeout(() => setShowSizeNotice(false), 3000); // Hide after 3 seconds
+      return;
+    }
+
+    // Validate stock availability
+    const availableQty = product.mapSizeToQuantity?.[selectedSize] ?? 0;
+    if (availableQty === 0) {
+      showError('This size is out of stock');
+      return;
+    }
+
+    if (quantity > availableQty) {
+      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`);
       return;
     }
 
     // Check if user is authenticated
     if (!isAuthenticated) {
+      // Save cart intent to sessionStorage before redirecting to login
+      sessionStorage.setItem('pendingCartAction', JSON.stringify({
+        productDetailId: product.detailId,
+        sizeName: selectedSize,
+        quantity: quantity,
+        returnUrl: `/products/${product.detailId}`
+      }));
       router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
       return;
     }

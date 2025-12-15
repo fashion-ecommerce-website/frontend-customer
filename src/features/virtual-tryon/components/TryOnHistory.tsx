@@ -34,7 +34,7 @@ export const TryOnHistory: React.FC<TryOnHistoryProps> = ({
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {history.map((item) => (
+      {history.filter(item => item.product && item.resultImage).map((item) => (
         <div 
           key={item.id}
           onClick={() => onSelect(item)}
@@ -54,12 +54,16 @@ export const TryOnHistory: React.FC<TryOnHistoryProps> = ({
             </div>
           </div>
           <div className="p-2 flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={item.product.imageUrl} 
-              alt={item.product.productTitle} 
-              className="w-8 h-8 rounded-md object-cover border border-gray-100"
-            />
+            {item.product.imageUrl && (
+              <>    
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={item.product.imageUrl} 
+                  alt={item.product.productTitle} 
+                  className="w-8 h-8 rounded-md object-cover border border-gray-100"
+                />
+              </>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-gray-900 truncate">
                 {item.product.productTitle}

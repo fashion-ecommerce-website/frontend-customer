@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { VirtualTryOnProduct, HistoryItem, TryOnCategory } from '../types';
+import { VirtualTryOnProduct, HistoryItem } from '../types';
 
 interface VirtualTryOnContextType {
   selectedProduct: VirtualTryOnProduct | null;
@@ -11,7 +11,6 @@ interface VirtualTryOnContextType {
   isProcessing: boolean;
   error: string | null;
   history: HistoryItem[];
-  category: TryOnCategory;
   activeSlot: 'upper' | 'lower';
   minimized: boolean;
   
@@ -19,7 +18,6 @@ interface VirtualTryOnContextType {
   setSelectedLowerProduct: (product: VirtualTryOnProduct | null) => void;
   setUserImage: (image: string | null) => void;
   setResultImage: (image: string | null) => void;
-  setCategory: (category: TryOnCategory) => void;
   setActiveSlot: (slot: 'upper' | 'lower') => void;
   setMinimized: (minimized: boolean) => void;
   
@@ -29,6 +27,7 @@ interface VirtualTryOnContextType {
   handleReset: () => void;
   handleHistorySelect: (item: HistoryItem) => void;
   dismissResult: () => void;
+  clearSlot: (slot: 'upper' | 'lower') => void;
 }
 
 const VirtualTryOnContext = createContext<VirtualTryOnContextType | undefined>(undefined);
@@ -43,7 +42,6 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [category, setCategory] = useState<TryOnCategory>('upper');
   const [activeSlot, setActiveSlot] = useState<'upper' | 'lower'>('upper');
   const [minimized, setMinimized] = useState(false);
 
@@ -68,23 +66,26 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
   }, []);
 
-  // Handle product selection
+  // Handle product selection based on active slot
   const handleProductSelect = useCallback((product: VirtualTryOnProduct) => {
-    if (category === 'combo') {
-       if (activeSlot === 'upper') {
-         setSelectedProduct(product);
-       } else {
-         setSelectedLowerProduct(product);
-       }
-    } else if (category === 'lower') {
+    // Place product in the active slot
+    if (activeSlot === 'lower') {
       setSelectedLowerProduct(product);
-      setSelectedProduct(null); // Reset upper when in lower mode
     } else {
       setSelectedProduct(product);
-      setSelectedLowerProduct(null); // Reset lower when not in combo or lower mode
     }
+    
     setError(null);
-  }, [category, activeSlot]);
+  }, [activeSlot]);
+  
+  // Clear a specific slot
+  const clearSlot = useCallback((slot: 'upper' | 'lower') => {
+    if (slot === 'upper') {
+      setSelectedProduct(null);
+    } else {
+      setSelectedLowerProduct(null);
+    }
+  }, []);
 
   // Handle image upload
   const handleImageUpload = useCallback((file: File) => {
@@ -127,13 +128,9 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return;
     }
 
-    if (category === 'combo') {
-      if (!selectedProduct || !selectedLowerProduct) {
-        setError('Please select both an upper and lower item');
-        return;
-      }
-    } else if (!selectedProduct) {
-      setError('Please select a product');
+    // Check if at least one product is selected
+    if (!selectedProduct && !selectedLowerProduct) {
+      setError('Please select at least one item');
       return;
     }
 
@@ -145,25 +142,44 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // Convert base64 user image to File
       const userImageFile = await base64ToFile(userImage, 'user-photo.jpg');
       
-      // Fetch product image and convert to File
-      const productImageResponse = await fetch(selectedProduct!.imageUrl);
-      const productImageBlob = await productImageResponse.blob();
-      const productImageFile = new File([productImageBlob], 'product.jpg', { type: 'image/jpeg' });
-
       // Create FormData for API request
       const formData = new FormData();
       formData.append('model_image', userImageFile);
-      formData.append('cloth_image', productImageFile);
       
-      // Map category to API cloth_type
-      let clothType = category === 'full' ? 'full_set' : category;
+      // Determine cloth type based on selected products
+      let clothType: 'upper' | 'lower' | 'combo' = 'upper';
       
-      if (category === 'combo' && selectedLowerProduct) {
+      if (selectedProduct && selectedLowerProduct) {
+        // Both upper and lower selected - combo mode
         clothType = 'combo';
+        
+        // Add upper garment
+        const upperImageResponse = await fetch(selectedProduct.imageUrl);
+        const upperImageBlob = await upperImageResponse.blob();
+        const upperImageFile = new File([upperImageBlob], 'upper-product.jpg', { type: 'image/jpeg' });
+        formData.append('cloth_image', upperImageFile);
+        
+        // Add lower garment
         const lowerImageResponse = await fetch(selectedLowerProduct.imageUrl);
         const lowerImageBlob = await lowerImageResponse.blob();
         const lowerImageFile = new File([lowerImageBlob], 'lower-product.jpg', { type: 'image/jpeg' });
         formData.append('lower_cloth_image', lowerImageFile);
+        
+      } else if (selectedProduct) {
+        // Only upper selected
+        clothType = 'upper';
+        const productImageResponse = await fetch(selectedProduct.imageUrl);
+        const productImageBlob = await productImageResponse.blob();
+        const productImageFile = new File([productImageBlob], 'product.jpg', { type: 'image/jpeg' });
+        formData.append('cloth_image', productImageFile);
+        
+      } else if (selectedLowerProduct) {
+        // Only lower selected
+        clothType = 'lower';
+        const productImageResponse = await fetch(selectedLowerProduct.imageUrl);
+        const productImageBlob = await productImageResponse.blob();
+        const productImageFile = new File([productImageBlob], 'product.jpg', { type: 'image/jpeg' });
+        formData.append('cloth_image', productImageFile);
       }
 
       formData.append('cloth_type', clothType);
@@ -244,7 +260,7 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedProduct, selectedLowerProduct, userImage, category, saveToHistory]);
+  }, [selectedProduct, selectedLowerProduct, userImage, saveToHistory]);
 
   // Handle reset
   const handleReset = useCallback(() => {
@@ -279,14 +295,12 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
         isProcessing,
         error,
         history,
-        category,
         activeSlot,
         minimized,
         setSelectedProduct,
         setSelectedLowerProduct,
         setUserImage,
         setResultImage,
-        setCategory,
         setActiveSlot,
         setMinimized,
         handleProductSelect,
@@ -294,7 +308,8 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
         handleTryOn,
         handleReset,
         handleHistorySelect,
-        dismissResult
+        dismissResult,
+        clearSlot
       }}
     >
       {children}

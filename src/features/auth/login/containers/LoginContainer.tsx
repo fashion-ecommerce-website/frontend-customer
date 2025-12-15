@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { LoginPresenter } from '../components/LoginPresenter';
 import { 
@@ -19,6 +19,7 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
   onLoginError,
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   
   // Redux state
@@ -70,18 +71,24 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
       if (onLoginSuccess) {
         onLoginSuccess(user);
       } else {
-        // Redirect to home page
+        // Check for returnUrl in query params
+        const returnUrl = searchParams.get('returnUrl');
+        
         // Using setTimeout to ensure state is fully updated
         setTimeout(() => {
-          router.push('/');
+          if (returnUrl) {
+            router.push(returnUrl);
+          } else {
+            router.push('/');
+          }
           // Fallback if router.push doesn't work
-          if (typeof window !== 'undefined') {
+          if (typeof window !== 'undefined' && !returnUrl) {
             window.location.href = '/';
           }
         }, 100);
       }
     }
-  }, [isAuthenticated, user, isLoading, onLoginSuccess, router]);
+  }, [isAuthenticated, user, isLoading, onLoginSuccess, router, searchParams]);
 
   // Handle authentication errors
   useEffect(() => {

@@ -14,7 +14,8 @@ export const Header: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
   const router = useRouter();
-  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRefMobile = useRef<HTMLDivElement>(null);
+  const userMenuRefDesktop = useRef<HTMLDivElement>(null);
 
   const { categories, loading: categoriesLoading } = useCategories();
 
@@ -27,19 +28,19 @@ export const Header: React.FC = () => {
   // Close user menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const insideMobile = userMenuRefMobile.current && userMenuRefMobile.current.contains(target);
+      const insideDesktop = userMenuRefDesktop.current && userMenuRefDesktop.current.contains(target);
+      if (!insideMobile && !insideDesktop) {
         setIsUserMenuOpen(false);
       }
     };
 
-    const handleTouchStart = (event: TouchEvent) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
-      ) {
+    const handleTouchEnd = (event: TouchEvent) => {
+      const target = event.target as Node;
+      const insideMobile = userMenuRefMobile.current && userMenuRefMobile.current.contains(target);
+      const insideDesktop = userMenuRefDesktop.current && userMenuRefDesktop.current.contains(target);
+      if (!insideMobile && !insideDesktop) {
         setIsUserMenuOpen(false);
       }
     };
@@ -51,12 +52,12 @@ export const Header: React.FC = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleTouchStart);
+    document.addEventListener("touchend", handleTouchEnd);
     window.addEventListener("scroll", handleScroll);
     
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [isUserMenuOpen]);
@@ -114,7 +115,7 @@ export const Header: React.FC = () => {
       setIsUserMenuOpen(!isUserMenuOpen);
     } else {
       // User is not logged in, redirect to login with return URL
-      router.push("/auth/login?returnUrl=/profile");
+      router.push("/auth/login?returnUrl=/");
     }
   };
 
@@ -217,7 +218,7 @@ export const Header: React.FC = () => {
                 )}
               </Link>
 
-              <div className="relative" ref={userMenuRef}>
+              <div className="relative" ref={userMenuRefMobile}>
                 <button
                   onClick={handleProfileClick}
                   className="text-black hover:text-gray-600 transition-colors p-3 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"
@@ -241,7 +242,7 @@ export const Header: React.FC = () => {
 
                 {/* Mobile User Dropdown Menu */}
                 {isAuthenticated && isUserMenuOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 sm:w-52 mobile-dropdown lg:shadow-lg">
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-100 sm:w-52 mobile-dropdown lg:shadow-lg">
                     <div className="py-2">
                       <Link
                         href="/profile"
@@ -251,7 +252,7 @@ export const Header: React.FC = () => {
                         My Profile
                       </Link>
                       <Link
-                        href="/profile/orders"
+                        href="/profile?section=order-info"
                         className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors font-medium"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
@@ -297,12 +298,15 @@ export const Header: React.FC = () => {
                         key={cat.id}
                         onMouseEnter={() => setHoveredCat(cat.id)}
                       >
-                        <Link
-                          href={`/products?category=${encodeURIComponent(cat.slug)}`}
-                          className="text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors"
+                        <a
+                          className={`text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors ${
+                            cat.children && cat.children.length > 0 
+                              ? 'cursor-default opacity-80' 
+                              : 'cursor-pointer'
+                          }`}
                         >
                           {cat.name.toUpperCase()}
-                        </Link>
+                        </a>
                       </div>
                     ))
                   ) : (
@@ -390,7 +394,7 @@ export const Header: React.FC = () => {
               </button>
                 
               {/* Profile/Login Button with Authentication Check */}
-              <div className="relative" ref={userMenuRef}>
+              <div className="relative" ref={userMenuRefDesktop}>
                 <button
                   onClick={handleProfileClick}
                   className="text-black flex items-center space-x-1 hover:text-gray-600 transition-colors cursor-pointer"
@@ -484,16 +488,15 @@ export const Header: React.FC = () => {
               <div className="space-y-1">
                 {categories.length > 0 ? (
                   categories.map((cat) => (
-                    <div key={cat.id} className="border-b border-gray-50 last:border-b-0">
-                      <Link
-                        href={`/products?category=${encodeURIComponent(cat.slug)}`}
-                        className="block px-4 py-3 text-base font-semibold text-gray-900 hover:text-black hover:bg-gray-50 rounded-lg transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {cat.name}
-                      </Link>
+                    <div key={cat.id}>
+                      <a
+                          className={`text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors`}
+                        >
+                          {cat.name.toUpperCase()}
+                        </a>
                       {cat.children && cat.children.length > 0 && (
                         <div className="ml-4 pb-2">
+                          {/* Child categories are always clickable */}
                           {cat.children.map((child) => (
                             <div key={child.id}>
                               <Link
@@ -532,51 +535,6 @@ export const Header: React.FC = () => {
                     SHOP
                   </Link>
                 )}
-
-                {/* Mobile Profile/Login Button */}
-                <button
-                  onClick={(e) => {
-                    handleProfileClick(e);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 text-base font-semibold text-gray-900 hover:text-black hover:bg-gray-50 rounded-lg transition-colors flex items-center space-x-3"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  <span>{isAuthenticated ? 'Profile' : 'Login'}</span>
-                </button>
-
-                {/* Wishlist button for mobile - only show on xs and up */}
-                <button
-                  onClick={handleWishlistClick}
-                  className="xs:hidden w-full text-left px-4 py-3 text-base font-semibold text-gray-900 hover:text-black hover:bg-gray-50 rounded-lg transition-colors flex items-center space-x-3"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.8}
-                      d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.682 4.318 12.682a4.5 4.5 0 010-6.364z"
-                    />
-                  </svg>
-                  <span>Wishlist</span>
-                </button>
               </div>
             </div>
           </div>

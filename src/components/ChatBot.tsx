@@ -48,7 +48,8 @@ const RecommendationCarousel: React.FC<RecommendationCarouselProps> = ({
             <>
               <button
                 onClick={prevSlide}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800"
+                aria-label="Previous product"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-100 sm:opacity-0 sm:group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800"
               >
                 <svg
                   className="w-5 h-5"
@@ -66,7 +67,8 @@ const RecommendationCarousel: React.FC<RecommendationCarouselProps> = ({
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800"
+                aria-label="Next product"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-100 sm:opacity-0 sm:group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800"
               >
                 <svg
                   className="w-5 h-5"
@@ -291,7 +293,7 @@ export const ChatBot: React.FC = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-20 right-6 z-50 w-[340px] sm:w-[380px] h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-10 duration-300 font-sans">
+        <div className="fixed z-50 bottom-0 sm:bottom-20 left-0 right-0 sm:right-6 sm:left-auto mx-auto w-[92%] sm:w-[340px] h-[70vh] sm:h-[600px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-10 duration-300 font-sans">
           {/* Header */}
           <div className="bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">

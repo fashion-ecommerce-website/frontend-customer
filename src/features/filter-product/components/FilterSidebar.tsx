@@ -75,7 +75,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     { value: "<1m", label: "Under 1 million VND" },
     { value: "1-2m", label: "1-2 million VND" },
     { value: "2-3m", label: "2-3 million VND" },
-    { value: ">4m", label: "Over 4 million VND" },
+    { value: ">3m", label: "Over 3 million VND" },
   ];
 
   const handleFilterChange = (

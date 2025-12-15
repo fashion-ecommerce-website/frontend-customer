@@ -7,8 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Fitroom API configuration
 const FITROOM_API_BASE = 'https://platform.fitroom.app/api/tryon/v2';
-const FITROOM_API_KEY = process.env.FITROOM_API_KEY || '6efa706137cd4c2188c128fc1968484cc6ea9b1141f4fdf4259ea5bddbd62788';
-const FITROOM_STATUS_API_KEY = process.env.FITROOM_STATUS_API_KEY || '38f436e1fb294a5bb62268350044db75f3f14b5003b4c21d434a14fa6b1184ba';
+const FITROOM_API_KEY = process.env.FITROOM_API_KEY || '';
+const FITROOM_STATUS_API_KEY = process.env.FITROOM_STATUS_API_KEY || '';
 
 /**
  * Types
