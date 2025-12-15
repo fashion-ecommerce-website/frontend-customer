@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Order } from '@/features/order/types';
 import OrderDetailPresenter from '@/features/profile/components/OrderDetailPresenter';
 import OrderApi from '@/services/api/orderApi';
-import { productApi } from '@/services/api/productApi';
+import { RefundModal } from '@/components/modals/RefundModal';
+import { RefundApi } from '@/services/api/refundApi';
 
 // Fetch real order detail via API
 export const OrderDetailContainer: React.FC = () => {
@@ -14,7 +15,8 @@ export const OrderDetailContainer: React.FC = () => {
   const [order, setOrder] = React.useState<Order | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [imagesByDetailId, setImagesByDetailId] = React.useState<Record<number, string>>({});
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+  const [refundLoading, setRefundLoading] = useState(false);
 
   React.useEffect(() => {
     if (!id || Number.isNaN(id)) return;
@@ -26,21 +28,6 @@ export const OrderDetailContainer: React.FC = () => {
         if (!isMounted) return;
         if (res.success && res.data) {
           setOrder(res.data);
-          const details = res.data.orderDetails || [];
-          if (details.length > 0) {
-            const uniqueDetailIds = Array.from(new Set(details.map(d => d.productDetailId)));
-            Promise.all(uniqueDetailIds.map(detailId => 
-              productApi.getProductById(String(detailId))
-                .then(r => ({ id: detailId, img: r.success ? (r.data?.images?.[0] || '') : '' }))
-                .catch(() => ({ id: detailId, img: '' }))
-            ))
-            .then(results => {
-              if (!isMounted) return;
-              const map: Record<number, string> = {};
-              results.forEach(({ id, img }) => { if (img) map[id] = img; });
-              setImagesByDetailId(map);
-            });
-          }
         } else {
           setError(res.message || 'Failed to load order');
         }
@@ -74,7 +61,44 @@ export const OrderDetailContainer: React.FC = () => {
     );
   }
 
-  return <OrderDetailPresenter order={order} imagesByDetailId={imagesByDetailId} />;
+  const handleRefundClick = () => {
+    setIsRefundModalOpen(true);
+  };
+
+  const handleRefundConfirm = async (orderId: number, reason: string, refundAmount: number) => {
+    setRefundLoading(true);
+    try {
+      const response = await RefundApi.createRefund({
+        orderId,
+        reason,
+        refundAmount,
+      });
+      
+      if (response.success) {
+        setIsRefundModalOpen(false);
+      } else {
+        throw new Error(response.message || 'Failed to submit refund request');
+      }
+    } finally {
+      setRefundLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <OrderDetailPresenter 
+        order={order} 
+        onRefund={handleRefundClick}
+      />
+      <RefundModal
+        isOpen={isRefundModalOpen}
+        onClose={() => setIsRefundModalOpen(false)}
+        order={order}
+        onConfirm={handleRefundConfirm}
+        loading={refundLoading}
+      />
+    </>
+  );
 };
 
 export default OrderDetailContainer;

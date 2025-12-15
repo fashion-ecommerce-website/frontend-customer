@@ -17,7 +17,7 @@ interface OrderHistoryPresenterProps {
   onTrack?: (order: Order) => void;
   onPayAgain?: (paymentId: number, orderId: number) => void;
   onReview?: (order: Order) => void;
-  imagesByDetailId?: Record<number, string>;
+  onRefund?: (order: Order) => void;
 }
 
 export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({ 
@@ -31,7 +31,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
   onTrack,
   onPayAgain,
   onReview,
-  imagesByDetailId 
+  onRefund
 }) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const { data: enums } = useEnums();
@@ -58,47 +58,40 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
     return latest?.status || 'PENDING';
   };
 
-  const canPayAgain = (order: Order) => {
-    return (order.paymentStatus === 'UNPAID' || order.status === 'CANCELLED') && 
+  // Check if order is cancelled
+  const isCancelled = (order: Order) => order.status === OrderStatus.CANCELLED;
+  
+  // Check if order is refunded
+  const isRefunded = (order: Order) => order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED';
+
+  // Show Pay Again: only when UNPAID (not cancelled, not refunded)
+  const showPayAgain = (order: Order) => {
+    return order.paymentStatus === 'UNPAID' && 
+           !isCancelled(order) &&
            order.payments && 
            order.payments.length > 0 && 
            order.payments[0].provider === 'STRIPE' &&
            order.payments[0].id;
   };
 
-  const getPayAgainButtonClass = (order: Order) => {
-    if (canPayAgain(order)) {
-      return "text-xs sm:text-sm font-medium text-black border border-transparent hover:text-red-600 hover:border-red-300 hover:bg-red-50 px-2 sm:px-3 py-1 rounded cursor-pointer transition-colors";
-    }
-    return "text-xs sm:text-sm font-medium text-gray-400 border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 sm:px-3 py-1 rounded cursor-not-allowed transition-colors";
+  // Show Refund: when PAID or FULFILLED (not cancelled, not refunded)
+  const showRefund = (order: Order) => {
+    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
+           !isCancelled(order) &&
+           !isRefunded(order) &&
+           order.payments && 
+           order.payments.length > 0 && 
+           order.payments[0].provider === 'STRIPE' &&
+           order.payments[0].id;
   };
 
-  const getPayAgainButtonTitle = (order: Order) => {
-    if (canPayAgain(order)) {
-      return "Pay again for this order";
-    }
-    return "Payment not available for this order";
+  // Show Review: when PAID or FULFILLED (not cancelled, not refunded, not unpaid)
+  const showReview = (order: Order) => {
+    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
+           !isCancelled(order) &&
+           !isRefunded(order) &&
+           order.paymentStatus !== 'UNPAID';
   };
-
-  // Check if order is completed (fulfilled)
-  const isCompleted = (order: Order) => {
-    return order.status === OrderStatus.FULFILLED;
-  };
-
-  const getReviewButtonClass = (order: Order) => {
-    if (isCompleted(order)) {
-      return "text-xs sm:text-sm font-medium text-black border border-gray-300 sm:border-transparent hover:bg-gray-50 sm:hover:border-gray-300 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-pointer transition-colors";
-    }
-    return "text-xs sm:text-sm font-medium text-gray-400 border border-gray-300 sm:border-transparent bg-gray-50 sm:bg-transparent sm:hover:border-gray-300 sm:hover:bg-gray-50 px-2 sm:px-3 py-1.5 sm:py-1 rounded cursor-not-allowed transition-colors";
-  };
-
-  const getReviewButtonTitle = (order: Order) => {
-    if (isCompleted(order)) {
-      return "Write a review for this order";
-    }
-    return "Only fulfilled orders can be reviewed";
-  };
-
 
   const toggleExpand = (orderId: number) => {
     setExpandedIds(prev => {
@@ -197,7 +190,6 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                    <span className="font-bold text-black text-sm">#{order.id}</span>
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium whitespace-nowrap min-w-[60px] text-center ${getPaymentBadgeClass(order.paymentStatus)}`}>
                       {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
                     </span>
@@ -212,102 +204,179 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                 </div>
               </div>
 
-              {/* Actions - Compact buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => toggleExpand(order.id)}
-                  className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
-                >
-                  {expandedIds.has(order.id) ? 'Hide' : 'Show'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onOpenDetail?.(order)}
-                  className="text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
-                >
-                  Details
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onTrack?.(order)}
-                  className="text-xs font-medium text-blue-600 border border-blue-300 hover:bg-blue-50 px-3 py-1.5 rounded transition-colors"
-                >
-                  Track
-                </button>
-                <button
-                  type="button"
-                  onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
-                  disabled={!canPayAgain(order)}
-                  className={`text-xs font-medium px-2 py-1.5 rounded transition-colors ${
-                    canPayAgain(order) 
-                      ? 'text-red-600 border border-red-300 hover:bg-red-50' 
-                      : 'text-gray-400 border border-gray-300 bg-gray-50 cursor-not-allowed'
-                  }`}
-                >
-                  Pay
-                </button>
-                <button
-                  type="button"
-                  onClick={() => isCompleted(order) && onReview?.(order)}
-                  disabled={!isCompleted(order)}
-                  className={getReviewButtonClass(order)}
-                  title={getReviewButtonTitle(order)}
-                >
-                  Review
-                </button>
+              {/* Actions */}
+              <div className="space-y-2">
+                {/* UNPAID: Show, Details, Track, Pay Again in 1 row */}
+                {order.paymentStatus === 'UNPAID' && !isCancelled(order) && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(order.id)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      {expandedIds.has(order.id) ? 'Hide' : 'Show'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenDetail?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onTrack?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      Track
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => showPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                      disabled={!showPayAgain(order)}
+                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
+                        showPayAgain(order)
+                          ? 'text-red-600 border border-red-300 hover:bg-red-50 cursor-pointer'
+                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      Pay Again
+                    </button>
+                  </div>
+                )}
+                {/* Other statuses: Row 1 with Show, Details, Track */}
+                {order.paymentStatus !== 'UNPAID' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(order.id)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      {expandedIds.has(order.id) ? 'Hide' : 'Show'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenDetail?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onTrack?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      Track
+                    </button>
+                  </div>
+                )}
+                {/* PAID/FULFILLED: Show Refund + Review */}
+                {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && order.paymentStatus !== 'UNPAID' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => showRefund(order) && onRefund?.(order)}
+                      disabled={!showRefund(order)}
+                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
+                        showRefund(order)
+                          ? 'text-black border border-gray-300 hover:bg-gray-50 cursor-pointer'
+                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      Refund
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => showReview(order) && onReview?.(order)}
+                      disabled={!showReview(order)}
+                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
+                        showReview(order)
+                          ? 'text-black border border-gray-300 hover:bg-gray-50 cursor-pointer'
+                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      Review
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Desktop Layout */}
             <div className="hidden lg:flex flex-col gap-2 md:flex-row md:items-center md:justify-between text-sm text-gray-600 mb-4">
               <div
-                className="grid grid-cols-[64px_200px_auto_160px] justify-items-start items-center gap-y-3 gap-x-2 cursor-pointer select-none"
+                className="flex items-center gap-3 cursor-pointer select-none"
                 onClick={() => toggleExpand(order.id)}
                 title={expandedIds.has(order.id) ? 'Hide details' : 'Show details'}
               >
-                <span className="font-semibold text-black">V{order.id}</span>
                 <span className="whitespace-nowrap">{formatDate(order.createdAt)}</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ml-2 min-w-[80px] text-center ${getPaymentBadgeClass(order.paymentStatus)}`}>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap min-w-[80px] text-center ${getPaymentBadgeClass(order.paymentStatus)}`}>
                   {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
                 </span>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200`}>Shipping: {getShipmentStatus(order)}</span>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <span className="text-black font-semibold">Total: {formatPrice(order.totalAmount)}</span>
-                <button
-                  type="button"
-                  onClick={() => onOpenDetail?.(order)}
-                  className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-3 py-1 rounded cursor-pointer transition-colors"
-                >
-                  Order Details
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onTrack?.(order)}
-                  className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-3 py-1 rounded cursor-pointer transition-colors"
-                  title="Track shipment"
-                >
-                  Track Order
-                </button>
-                <button
-                  type="button"
-                  onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
-                  className={getPayAgainButtonClass(order)}
-                  title={getPayAgainButtonTitle(order)}
-                  disabled={!canPayAgain(order)}
-                >
-                  Pay Again
-                </button>
-                <button
-                  type="button"
-                  onClick={() => isCompleted(order) && onReview?.(order)}
-                  disabled={!isCompleted(order)}
-                  className={getReviewButtonClass(order)}
-                  title={getReviewButtonTitle(order)}
-                >
-                  Review
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onOpenDetail?.(order)}
+                    className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
+                  >
+                    Details
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onTrack?.(order)}
+                    className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
+                  >
+                    Track
+                  </button>
+                  {/* UNPAID: Show Pay Again (red if STRIPE, gray if not) */}
+                  {order.paymentStatus === 'UNPAID' && !isCancelled(order) && (
+                    <button
+                      type="button"
+                      onClick={() => showPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                      disabled={!showPayAgain(order)}
+                      className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
+                        showPayAgain(order)
+                          ? 'text-red-600 border border-transparent hover:border-red-300 hover:bg-red-50 cursor-pointer'
+                          : 'text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      Pay Again
+                    </button>
+                  )}
+                  {/* PAID/FULFILLED: Show Refund + Review */}
+                  {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && order.paymentStatus !== 'UNPAID' && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => showRefund(order) && onRefund?.(order)}
+                        disabled={!showRefund(order)}
+                        className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
+                          showRefund(order)
+                            ? 'text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
+                            : 'text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        Refund
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => showReview(order) && onReview?.(order)}
+                        disabled={!showReview(order)}
+                        className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
+                          showReview(order)
+                            ? 'text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
+                            : 'text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        Review
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -319,7 +388,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     <div key={detail.id} className="flex gap-2">
                       <div className="w-16 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
                         <Image 
-                          src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
+                          src={detail.images?.[0] || '/images/products/image1.jpg'} 
                           alt={detail.title} 
                           width={64}
                           height={80}
@@ -353,7 +422,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     <div key={detail.id} className="flex gap-4">
                       <div className="w-20 xl:w-24 rounded overflow-hidden flex-shrink-0 bg-gray-100" style={{ aspectRatio: '4 / 5' }}>
                         <Image 
-                          src={imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg'} 
+                          src={detail.images?.[0] || '/images/products/image1.jpg'} 
                           alt={detail.title} 
                           width={96}
                           height={120}

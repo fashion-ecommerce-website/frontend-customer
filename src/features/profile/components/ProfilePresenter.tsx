@@ -26,9 +26,10 @@ import { RefundContainer } from '../containers/RefundContainer';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 import OrderApi from '@/services/api/orderApi';
-import { productApi } from '@/services/api/productApi';
 import { OrderTrackingContainer } from '../containers/OrderTrackingContainer';
 import PaymentApi from '@/services/api/paymentApi';
+import { RefundModal } from '@/components/modals/RefundModal';
+import { RefundApi } from '@/services/api/refundApi';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   initialSection = 'account',
@@ -57,7 +58,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const [activeSidebarSection, setActiveSidebarSection] = useState(initialSection);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isLoadingOrderFromQuery, setIsLoadingOrderFromQuery] = useState(false);
-  const [imagesByDetailId, setImagesByDetailId] = useState<Record<number, string>>({});
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+  const [selectedOrderForRefund, setSelectedOrderForRefund] = useState<Order | null>(null);
+  const [refundLoading, setRefundLoading] = useState(false);
   const searchParams = useSearchParams();
   
   // Sync with query-driven initialSection changes (e.g., /profile?section=order-info)
@@ -118,27 +121,6 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
       })
       .finally(() => setIsLoadingOrderFromQuery(false));
   }, [searchParams]);
-
-  useEffect(() => {
-    if (!selectedOrder || !selectedOrder.orderDetails?.length) {
-      setImagesByDetailId({});
-      return;
-    }
-    const uniqueDetailIds = Array.from(new Set(selectedOrder.orderDetails.map(d => d.productDetailId)));
-    let cancelled = false;
-    Promise.all(uniqueDetailIds.map(detailId =>
-      productApi.getProductById(String(detailId))
-        .then(r => ({ id: detailId, img: r.success ? (r.data?.images?.[0] || '') : '' }))
-        .catch(() => ({ id: detailId, img: '' }))
-    ))
-    .then(results => {
-      if (cancelled) return;
-      const map: Record<number, string> = {};
-      results.forEach(({ id, img }) => { if (img) map[id] = img; });
-      setImagesByDetailId(map);
-    });
-    return () => { cancelled = true; };
-  }, [selectedOrder]);
 
   // Handle modal form submission with API format
   const handleModalSubmit = (data: UpdateProfileRequest) => {
@@ -230,6 +212,33 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
     } catch (error) {
       console.error('Error creating checkout session:', error);
       alert('An error occurred. Please try again.');
+    }
+  };
+
+  // Handle refund functionality
+  const handleRefundClick = (order: Order) => {
+    setSelectedOrderForRefund(order);
+    setIsRefundModalOpen(true);
+  };
+
+  const handleRefundConfirm = async (orderId: number, reason: string, refundAmount: number) => {
+    setRefundLoading(true);
+    try {
+      const response = await RefundApi.createRefund({
+        orderId,
+        reason,
+        refundAmount,
+      });
+      
+      if (response.success) {
+        // Close modal on success
+        setIsRefundModalOpen(false);
+        setSelectedOrderForRefund(null);
+      } else {
+        throw new Error(response.message || 'Failed to submit refund request');
+      }
+    } finally {
+      setRefundLoading(false);
     }
   };
 
@@ -359,12 +368,12 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
               {!isLoadingOrderFromQuery && selectedOrder && (
                 <OrderDetailPresenter 
                   order={selectedOrder}
-                  imagesByDetailId={imagesByDetailId}
                   onBack={() => {
                     setActiveSidebarSection('order-info');
                     // keep selected order or clear depending on UX; clear to avoid stale breadcrumb
                     setSelectedOrder(null);
                   }}
+                  onRefund={handleRefundClick}
                 />
               )}
             </div>
@@ -428,6 +437,18 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
         onClose={handleUpdateInfoModalClose}
         onProfileFormDataChange={onProfileFormDataChange}
         onSubmit={handleModalSubmit}
+      />
+
+      {/* Refund Modal */}
+      <RefundModal
+        isOpen={isRefundModalOpen}
+        onClose={() => {
+          setIsRefundModalOpen(false);
+          setSelectedOrderForRefund(null);
+        }}
+        order={selectedOrderForRefund}
+        onConfirm={handleRefundConfirm}
+        loading={refundLoading}
       />
     </div>
   );

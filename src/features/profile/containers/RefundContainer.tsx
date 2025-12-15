@@ -1,79 +1,64 @@
 /**
  * Refund Container Component
  * Smart component that handles business logic for refund management
- * Uses mock data pattern consistent with home page
+ * Uses Redux/Saga for state management
  */
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { RefundPresenter } from '../components/RefundPresenter';
-import { mockRefunds } from '../data/mockRefundData';
-import type { RefundItem, RefundQueryParams } from '../types/refund.types';
+import type { RefundStatus } from '../types/refund.types';
+import {
+  fetchRefundsRequest,
+  setFilter,
+  setPage,
+  selectRefunds,
+  selectRefundsLoading,
+  selectRefundsError,
+  selectCurrentPage,
+  selectTotalPages,
+} from '../redux/refundSlice';
+import { useMinimumLoadingTime } from '@/hooks/useMinimumLoadingTime';
 
 export const RefundContainer: React.FC = () => {
-  const [refunds, setRefunds] = useState<RefundItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [query, setQuery] = useState<RefundQueryParams>({
-    sortBy: 'requestedAt',
-    direction: 'desc',
-    page: 0,
-    size: 10,
-  });
+  const dispatch = useDispatch();
+  
+  // Selectors
+  const refunds = useSelector(selectRefunds);
+  const loading = useSelector(selectRefundsLoading);
+  const error = useSelector(selectRefundsError);
+  const currentPage = useSelector(selectCurrentPage);
+  const totalPages = useSelector(selectTotalPages);
+  
+  // Use minimum loading time hook to ensure skeleton shows for at least 500ms
+  const displayLoading = useMinimumLoadingTime(loading, 500);
 
-  // Fetch refunds with fallback to mock data (pattern from home page)
+  // Fetch refunds on mount
   useEffect(() => {
-    const fetchRefunds = async () => {
-      setLoading(true);
-      try {
-        // TODO: Replace with actual API call
-        // const response = await refundApi.getMyRefunds(query);
-        // const data = await response.json();
-        
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Use mock data as fallback (same pattern as home page)
-        setRefunds(mockRefunds);
-        setTotalPages(1);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load refunds');
-        console.error('Error fetching refunds:', err);
-        // On error, still show mock data
-        setRefunds(mockRefunds);
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchRefundsRequest(undefined));
+  }, [dispatch]);
 
-    fetchRefunds();
-  }, [query]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setQuery({ ...query, page: page - 1 });
-    
-    // Scroll to top
+  const handlePageChange = useCallback((page: number) => {
+    dispatch(setPage(page));
+    dispatch(fetchRefundsRequest(undefined));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [dispatch]);
 
-  const handleFilterChange = (status?: 'pending' | 'approved' | 'rejected' | 'completed') => {
-    setQuery({ ...query, status, page: 0 });
-    setCurrentPage(1);
-  };
+  const handleFilterChange = useCallback((status?: RefundStatus) => {
+    dispatch(setFilter(status));
+    dispatch(fetchRefundsRequest(undefined));
+  }, [dispatch]);
 
-  const handleReload = () => {
-    setQuery({ ...query });
-  };
+  const handleReload = useCallback(() => {
+    dispatch(fetchRefundsRequest(undefined));
+  }, [dispatch]);
 
   return (
     <RefundPresenter
       refunds={refunds}
-      loading={loading}
+      loading={displayLoading}
       error={error}
       currentPage={currentPage}
       totalPages={totalPages}
@@ -85,3 +70,5 @@ export const RefundContainer: React.FC = () => {
     />
   );
 };
+
+export default RefundContainer;

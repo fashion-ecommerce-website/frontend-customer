@@ -8,31 +8,30 @@ interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: Order | null;
-  imagesByDetailId?: Record<number, string>;
-  onSubmit?: (productDetailId: number, reviews: { productDetailId: number; rating: number; comment: string }[]) => void;
+  onSubmit?: (orderId: number, reviews: { orderId: number; orderDetailId: number; rating: number; comment: string }[]) => void;
 }
 
-export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order, imagesByDetailId, onSubmit }) => {
+export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order, onSubmit }) => {
   const [reviews, setReviews] = useState<Record<number, { rating: number; comment: string }>>({});
     const { showError, showSuccess } = useToast();
 
   if (!isOpen || !order) return null;
 
-  const handleRatingChange = (productDetailId: number, rating: number) => {
+  const handleRatingChange = (orderDetailId: number, rating: number) => {
     setReviews(prev => ({
       ...prev,
-      [productDetailId]: {
+      [orderDetailId]: {
         rating,
-        comment: prev[productDetailId]?.comment || ''
+        comment: prev[orderDetailId]?.comment || ''
       }
     }));
   };
 
-  const handleCommentChange = (productDetailId: number, comment: string) => {
+  const handleCommentChange = (orderDetailId: number, comment: string) => {
     setReviews(prev => ({
       ...prev,
-      [productDetailId]: {
-        rating: prev[productDetailId]?.rating || 0,
+      [orderDetailId]: {
+        rating: prev[orderDetailId]?.rating || 0,
         comment
       }
     }));
@@ -43,8 +42,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
     
     const reviewsArray = Object.entries(reviews)
       .filter(([, review]) => review.rating > 0)
-      .map(([productDetailId, review]) => ({
-        productDetailId: Number(productDetailId),
+      .map(([orderDetailId, review]) => ({
+        orderId: order.id,
+        orderDetailId: Number(orderDetailId),
         rating: review.rating,
         comment: review.comment
       }));
@@ -63,23 +63,24 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
   void handleSubmitAll;
 
   // Gửi review cho từng sản phẩm
-  const handleSubmitSingle = async (detailId: number) => {
+  const handleSubmitSingle = async (orderDetailId: number) => {
     if (!order) return;
-    const review = reviews[detailId];
+    const review = reviews[orderDetailId];
     if (!review || review.rating === 0) {
       showError('Please rate this product');
       return;
     }
     try {
-      const resp = await onSubmit?.(detailId, [{
-        productDetailId: detailId,
+      const resp = await onSubmit?.(order.id, [{
+        orderId: order.id,
+        orderDetailId: orderDetailId,
         rating: review.rating,
         comment: review.comment
       }]);
       const apiResp = (resp ?? {}) as { success?: boolean; message?: string };
       if (apiResp && apiResp.success) {
         showSuccess('Review submitted successfully!');
-        setReviews(prev => ({ ...prev, [detailId]: { rating: 0, comment: '' } }));
+        setReviews(prev => ({ ...prev, [orderDetailId]: { rating: 0, comment: '' } }));
       } else {
         showError(apiResp?.message || 'You can only review this product once!');
       }
@@ -124,8 +125,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
           <div className="px-6 py-4 overflow-y-auto max-h-[calc(90vh-140px)]">
             <div className="space-y-6">
               {order.orderDetails.map((detail) => {
-                const currentReview = reviews[detail.productDetailId] || { rating: 0, comment: '' };
-                const imageSrc = imagesByDetailId?.[detail.productDetailId] || detail.imageUrl || '/images/products/image1.jpg';
+                const currentReview = reviews[detail.id] || { rating: 0, comment: '' };
+                const imageSrc = detail.images?.[0] || '/images/products/image1.jpg';
                 return (
                   <div key={detail.id} className="border border-gray-200 rounded-lg p-4 mb-4">
                     {/* Product Info */}
@@ -160,7 +161,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                           <button
                             key={star}
                             type="button"
-                            onClick={() => handleRatingChange(detail.productDetailId, star)}
+                            onClick={() => handleRatingChange(detail.id, star)}
                             className="focus:outline-none transition-transform hover:scale-110"
                           >
                             <svg
@@ -192,7 +193,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                       </label>
                       <textarea
                         value={currentReview.comment}
-                        onChange={(e) => handleCommentChange(detail.productDetailId, e.target.value)}
+                        onChange={(e) => handleCommentChange(detail.id, e.target.value)}
                         placeholder="Share your experience with this product..."
                         rows={3}
                         className="w-full px-3 py-2 text-black border border-gray-300 rounded-md  resize-none"
@@ -201,7 +202,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                     {/* Submit button for this product */}
                     <div className="flex justify-end mt-3">
                       <button
-                        onClick={() => handleSubmitSingle(detail.productDetailId)}
+                        onClick={() => handleSubmitSingle(detail.id)}
                         className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors"
                       >
                         Gửi review

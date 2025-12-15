@@ -46,9 +46,6 @@ export {
 export { profileSaga } from './redux/profileSaga';
 export { reviewSaga } from './redux/reviewSaga';
 
-// Export mock data (same pattern as home feature)
-export { mockRefunds, getPendingRefunds, getApprovedRefunds, getRejectedRefunds, getCompletedRefunds } from './data/mockRefundData';
-
 // Export types
 export type {
   User,
