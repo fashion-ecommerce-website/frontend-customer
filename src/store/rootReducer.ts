@@ -8,6 +8,8 @@ import { orderReducer } from '../features/order/redux';
 import { cartReducer } from '../features/cart/redux/cartSlice';
 import { wishlistReducer } from '../features/profile/redux/wishlistSlice';
 import { default as reviewReducer } from '../features/profile/redux/reviewSlice';
+import { sizeRecommendationReducer } from '../features/size-recommendation/redux';
+import { refundReducer } from '../features/profile/redux/refundSlice';
 
 export const rootReducer = combineReducers({
   login: loginReducer,
@@ -19,6 +21,8 @@ export const rootReducer = combineReducers({
   cart: cartReducer,
   wishlist: wishlistReducer,
   review: reviewReducer,
+  sizeRecommendation: sizeRecommendationReducer,
+  refund: refundReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

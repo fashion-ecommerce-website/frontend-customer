@@ -124,20 +124,36 @@ export const RefundModal: React.FC<RefundModalProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Refund Reason <span className="text-red-500">*</span>
             </label>
-            <select
-              value={reason}
-              onChange={(e) => handleReasonChange(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-              disabled={loading}
-            >
-              <option value="">Select a reason...</option>
-              {REFUND_REASON_SUGGESTIONS.map((r, index) => (
-                <option key={index} value={r}>
-                  {r}
-                </option>
-              ))}
-              <option value="custom">Other (specify below)</option>
-            </select>
+            <div className="relative">
+              <select
+                value={reason}
+                onChange={(e) => handleReasonChange(e.target.value)}
+                className="flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-black text-sm appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+              >
+                <option value="">Select a reason...</option>
+                {REFUND_REASON_SUGGESTIONS.map((r, index) => (
+                  <option key={index} value={r}>
+                    {r}
+                  </option>
+                ))}
+                <option value="custom">Other (specify below)</option>
+              </select>
+              {/* Chevron icon - same as ProductFilter */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg
+                  className="h-4 w-4 text-black"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.354a.75.75 0 011.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Custom Reason Input */}
@@ -150,7 +166,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Enter your reason for requesting a refund..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-colors resize-none"
                 rows={3}
                 disabled={loading}
               />
@@ -171,7 +187,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
             type="button"
             onClick={handleClose}
             disabled={loading}
-            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -179,7 +195,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
             type="button"
             onClick={handleConfirm}
             disabled={loading || !getFinalReason().trim()}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center"
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center"
           >
             {loading ? (
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">

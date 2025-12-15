@@ -30,7 +30,8 @@ export interface BackendReviewResponse {
 }
 
 export interface CreateReviewRequest {
-  productDetailId: number;
+  orderId: number;
+  orderDetailId: number;
   rating: number;
   content: string;
 }
@@ -92,6 +93,11 @@ const fetchProductDetails = async (productDetailId: number): Promise<{
   };
 };
 
+// Helper function to convert DB rating (0.01-0.05) to display rating (1-5)
+const mapRatingFromDb = (dbRating: number): number => {
+  return Math.round(dbRating * 100);
+};
+
 // Helper function to map backend response to frontend format
 const mapBackendToProfileReview = (backendReview: BackendReviewResponse, productDetails?: {
   name: string;
@@ -107,7 +113,7 @@ const mapBackendToProfileReview = (backendReview: BackendReviewResponse, product
     productImage: productDetails?.image,
     productColor: productDetails?.color,
     productSize: productDetails?.size,
-    rating: backendReview.rating,
+    rating: mapRatingFromDb(backendReview.rating),
     comment: backendReview.content,
     createdAt: backendReview.createdAt,
     updatedAt: backendReview.createdAt,
@@ -120,12 +126,13 @@ class ReviewApiService {
     const response = await apiClient.get<ReviewItem[]>(REVIEW_ENDPOINTS.BY_PRODUCT(productDetailId), undefined, true);
     
     if (response.success && response.data) {
-      // Fetch product details for each review individually
+      // Fetch product details for each review individually and map rating
       const reviewsWithProductDetails = await Promise.all(
         response.data.map(async (review) => {
           const productDetails = await fetchProductDetails(review.productDetailId);
           return {
             ...review,
+            rating: mapRatingFromDb(review.rating),
             productName: productDetails.name,
             productImage: productDetails.image,
             productColor: productDetails.color,
@@ -144,7 +151,18 @@ class ReviewApiService {
   }
 
   async createReview(payload: CreateReviewRequest): Promise<ApiResponse<ReviewItem>> {
-    return apiClient.post<ReviewItem>(REVIEW_ENDPOINTS.BASE, payload);
+    // Map rating 1-5 to 0.01-0.05 for database constraint (precision 2, scale 2)
+    const mappedPayload = {
+      ...payload,
+      rating: payload.rating / 100
+    };
+    const response = await apiClient.post<ReviewItem>(REVIEW_ENDPOINTS.BASE, mappedPayload);
+    
+    // Map rating back to 1-5 in response
+    if (response.success && response.data) {
+      response.data.rating = Math.round(response.data.rating * 100);
+    }
+    return response;
   }
 
   async getMyReviews(): Promise<ApiResponse<ReviewItem[]>> {
@@ -212,15 +230,26 @@ class ReviewApiService {
   }
 
   async updateReview(reviewId: number, payload: UpdateReviewRequest): Promise<ApiResponse<ReviewItem>> {
-    return apiClient.put<ReviewItem>(`${REVIEW_ENDPOINTS.BASE}/${reviewId}`, payload);
+    // Map rating 1-5 to 0.01-0.05 for database
+    const mappedPayload = {
+      ...payload,
+      rating: payload.rating / 100
+    };
+    const response = await apiClient.put<ReviewItem>(`${REVIEW_ENDPOINTS.BASE}/${reviewId}`, mappedPayload);
+    
+    // Map rating back to 1-5 in response
+    if (response.success && response.data) {
+      response.data.rating = mapRatingFromDb(response.data.rating);
+    }
+    return response;
   }
 
   async updateProfileReview(reviewId: string, payload: ReviewFormData): Promise<ApiResponse<ProfileReviewItem>> {
     // Convert string ID to number for backend
     const numericId = parseInt(reviewId, 10);
-    // Map ReviewFormData to UpdateReviewRequest format
+    // Map ReviewFormData to UpdateReviewRequest format, convert rating 1-5 to 0.01-0.05
     const backendPayload = {
-      rating: payload.rating,
+      rating: payload.rating / 100,
       content: payload.comment
     };
     const response = await apiClient.put<BackendReviewResponse>(`${REVIEW_ENDPOINTS.BASE}/${numericId}`, backendPayload);

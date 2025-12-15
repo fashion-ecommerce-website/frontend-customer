@@ -25,7 +25,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
   onRefresh,
 }) => {
   // Search and filter state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'expired' | 'unavailable'>('all');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   

@@ -3,10 +3,9 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { reviewApiService, ReviewItem } from '@/services/api/reviewApi';
 import { useAppSelector } from '@/hooks/redux';
-import { selectIsAuthenticated, selectUser } from '@/features/auth/login/redux/loginSlice';
+import { selectUser } from '@/features/auth/login/redux/loginSlice';
 import { useToast } from '@/providers/ToastProvider';
 import { ReviewsPresenter } from '../components/ReviewsPresenter';
-import { AddReviewModal } from '../components/AddReviewModal';
 
 interface ReviewsContainerProps {
   productDetailId: number;
@@ -15,15 +14,12 @@ interface ReviewsContainerProps {
 export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [editingReview, setEditingReview] = useState<ReviewItem | null>(null);
   const [starFilter, setStarFilter] = useState<number | null>(null);
   const [dateFilter, setDateFilter] = useState<string>('newest');
   const [visibleReviewsCount, setVisibleReviewsCount] = useState<number>(5);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
   
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const currentUser = useAppSelector(selectUser);
   const { showError, showSuccess } = useToast();
 
@@ -88,19 +84,6 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
     setVisibleReviewsCount(5);
   }, [starFilter, dateFilter]);
 
-  const handleOpenModal = useCallback(() => {
-    if (!isAuthenticated) {
-      window.location.href = `/auth/login?returnUrl=/products/${productDetailId}`;
-      return;
-    }
-    setShowModal(true);
-  }, [isAuthenticated, productDetailId]);
-
-  const handleEditReview = useCallback((review: ReviewItem) => {
-    setEditingReview(review);
-    setShowModal(true);
-  }, []);
-
   const handleDeleteReview = useCallback((reviewId: number) => {
     setReviewToDelete(reviewId);
     setShowDeleteModal(true);
@@ -138,56 +121,27 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
     setVisibleReviewsCount(5);
   }, []);
 
-  const handleCloseModal = useCallback(() => {
-    setShowModal(false);
-    setEditingReview(null);
-  }, []);
-
-  const handleSubmitReview = useCallback(async () => {
-    await fetchReviews();
-    showSuccess(editingReview ? 'Review updated successfully' : 'Review submitted');
-    setEditingReview(null);
-  }, [fetchReviews, editingReview, showSuccess]);
-
   return (
-    <>
-      <ReviewsPresenter
-        reviews={reviews}
-        loading={loading}
-        average={average}
-        starDistribution={starDistribution}
-        filteredReviews={filteredReviews}
-        displayedReviews={displayedReviews}
-        starFilter={starFilter}
-        dateFilter={dateFilter}
-        visibleReviewsCount={visibleReviewsCount}
-        showModal={showModal}
-        editingReview={editingReview}
-        showDeleteModal={showDeleteModal}
-        isAuthenticated={isAuthenticated}
-        currentUserId={currentUser?.id ? Number(currentUser.id) : null}
-        onOpenModal={handleOpenModal}
-        onEditReview={handleEditReview}
-        onDeleteReview={handleDeleteReview}
-        onConfirmDelete={confirmDeleteReview}
-        onCancelDelete={cancelDeleteReview}
-        onSetStarFilter={setStarFilter}
-        onSetDateFilter={setDateFilter}
-        onViewMore={handleViewMore}
-        onShowLess={handleShowLess}
-        onCloseModal={handleCloseModal}
-        onSubmitReview={handleSubmitReview}
-        productDetailId={productDetailId}
-      />
-      
-      {showModal && (
-        <AddReviewModal
-          productDetailId={productDetailId}
-          editingReview={editingReview}
-          onClose={handleCloseModal}
-          onSubmitted={handleSubmitReview}
-        />
-      )}
-    </>
+    <ReviewsPresenter
+      reviews={reviews}
+      loading={loading}
+      average={average}
+      starDistribution={starDistribution}
+      filteredReviews={filteredReviews}
+      displayedReviews={displayedReviews}
+      starFilter={starFilter}
+      dateFilter={dateFilter}
+      visibleReviewsCount={visibleReviewsCount}
+      showDeleteModal={showDeleteModal}
+      currentUserId={currentUser?.id ? Number(currentUser.id) : null}
+      onDeleteReview={handleDeleteReview}
+      onConfirmDelete={confirmDeleteReview}
+      onCancelDelete={cancelDeleteReview}
+      onSetStarFilter={setStarFilter}
+      onSetDateFilter={setDateFilter}
+      onViewMore={handleViewMore}
+      onShowLess={handleShowLess}
+      productDetailId={productDetailId}
+    />
   );
 }

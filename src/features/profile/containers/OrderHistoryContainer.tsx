@@ -94,11 +94,12 @@ export const OrderHistoryContainer: React.FC<{
     setIsReviewModalOpen(true);
   };
 
-  const handleReviewSubmit = async (_orderId: number, reviews: { productDetailId: number; rating: number; comment: string }[]) => {
-    // Gửi từng review tới API, chỉ truyền productDetailId, rating, comment
+  const handleReviewSubmit = async (orderId: number, reviews: { orderId: number; orderDetailId: number; rating: number; comment: string }[]) => {
+    // Gửi từng review tới API với orderId và orderDetailId
     for (const review of reviews) {
       await reviewApiService.createReview({
-        productDetailId: review.productDetailId,
+        orderId: review.orderId,
+        orderDetailId: review.orderDetailId,
         rating: review.rating,
         content: review.comment,
       });

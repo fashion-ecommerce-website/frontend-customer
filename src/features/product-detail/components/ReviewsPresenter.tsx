@@ -14,13 +14,8 @@ interface ReviewsPresenterProps {
   starFilter: number | null;
   dateFilter: string;
   visibleReviewsCount: number;
-  showModal: boolean;
-  editingReview: ReviewItem | null;
   showDeleteModal: boolean;
-  isAuthenticated: boolean;
   currentUserId: number | null;
-  onOpenModal: () => void;
-  onEditReview: (review: ReviewItem) => void;
   onDeleteReview: (reviewId: number) => void;
   onConfirmDelete: () => void;
   onCancelDelete: () => void;
@@ -28,8 +23,6 @@ interface ReviewsPresenterProps {
   onSetDateFilter: (filter: string) => void;
   onViewMore: () => void;
   onShowLess: () => void;
-  onCloseModal: () => void;
-  onSubmitReview: () => void;
   productDetailId: number;
 }
 
@@ -106,8 +99,6 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
     visibleReviewsCount,
     showDeleteModal,
     currentUserId,
-    onOpenModal,
-    onEditReview,
     onDeleteReview,
     onConfirmDelete,
     onCancelDelete,
@@ -150,13 +141,6 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
               <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer">{reviews.length} Reviews</span>
             </div>
           </div>
-          <button 
-            type="button" 
-            onClick={onOpenModal} 
-            className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition-colors whitespace-nowrap"
-          >
-            Write a review
-          </button>
         </div>
 
         {/* Review Summary */}
@@ -265,15 +249,6 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                 </div>
                 {isUserReview(r) && (
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => onEditReview(r)}
-                      className="text-gray-500 hover:text-gray-700 transition-colors p-1"
-                      title="Edit review"
-                    >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
                     <button
                       onClick={() => onDeleteReview(r.id)}
                       className="text-gray-500 hover:text-red-600 transition-colors p-1"
