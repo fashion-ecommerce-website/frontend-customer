@@ -166,7 +166,17 @@ class ReviewApiService {
   }
 
   async getMyReviews(): Promise<ApiResponse<ReviewItem[]>> {
-    return apiClient.get<ReviewItem[]>(REVIEW_ENDPOINTS.BASE);
+    const response = await apiClient.get<ReviewItem[]>(REVIEW_ENDPOINTS.BASE);
+    
+    // Convert rating from DB format (0.01-0.05) to display format (1-5)
+    if (response.success && response.data) {
+      response.data = response.data.map(review => ({
+        ...review,
+        rating: mapRatingFromDb(review.rating)
+      }));
+    }
+    
+    return response;
   }
 
   async getMyProfileReviews(page: number = 1, limit: number = 5): Promise<ApiResponse<{

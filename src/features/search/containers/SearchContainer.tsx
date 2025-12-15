@@ -7,11 +7,13 @@ import { SearchPresenter } from '../components/SearchPresenter';
 interface SearchContainerProps {
   className?: string;
   initialQuery?: string;
+  initialCategory?: string;
 }
 
 export const SearchContainer: React.FC<SearchContainerProps> = ({
   className = '',
-  initialQuery = ""
+  initialQuery = "",
+  initialCategory
 }) => {
   const router = useRouter();
 
@@ -27,6 +29,7 @@ export const SearchContainer: React.FC<SearchContainerProps> = ({
       <SearchPresenter 
         onProductClick={handleProductClick} 
         initialQuery={initialQuery}
+        initialCategory={initialCategory}
       />
     </div>
   );

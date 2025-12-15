@@ -173,6 +173,8 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                   <input
                     type="text"
                     placeholder="Search by name or code..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     disabled
                     className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 pl-9 sm:pl-10 text-xs sm:text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent opacity-50 cursor-not-allowed"
                   />
@@ -186,6 +188,8 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
               <div className="sm:w-48">
                 <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
                 <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'expired' | 'unavailable')}
                   disabled
                   className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent opacity-50 cursor-not-allowed"
                 >

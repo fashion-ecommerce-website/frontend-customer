@@ -5,6 +5,7 @@ import { SearchInput } from './SearchInput';
 import { SearchResults } from './SearchResults';
 import { SearchProductFilter } from './SearchProductFilter';
 import { FilterSidebar } from '../../filter-product/components/FilterSidebar';
+import { Pagination } from '../../filter-product/components/Pagination';
 import { SearchResultItem } from '../types';
 import { ProductFilters } from '../../filter-product/types';
 import { productApi } from '../../../services/api/productApi';
@@ -30,37 +31,39 @@ const useDebounce = (value: ProductFilters, delay: number): ProductFilters => {
 interface SearchPresenterProps {
   onProductClick: (detailId: number, slug: string) => void;
   initialQuery?: string;
+  initialCategory?: string; // Optional - if provided, filter by this category
 }
 
 export const SearchPresenter: React.FC<SearchPresenterProps> = ({
   onProductClick,
-  initialQuery = ""
+  initialQuery = "",
+  initialCategory
 }) => {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false
+  });
   
   const [filters, setFilters] = useState<ProductFilters>({
-    category: 'ao-thun', // Default category required by API
+    category: initialCategory, // Only set if provided (e.g., from profile)
     title: initialQuery,
     page: 1,
-    pageSize: 12
+    pageSize: 12,
+    sort: 'productTitle_asc'
   });
 
   // Debounce filters to avoid too many API calls
   const debouncedFilters = useDebounce(filters, 300);
 
   const searchProducts = async (searchFilters: ProductFilters) => {
-    // Only search if there's a query or specific filters
-    if (!searchFilters.title?.trim() && !searchFilters.category && !searchFilters.sort && !searchFilters.price) {
-      setResults([]);
-      setHasSearched(false);
-      return;
-    }
 
     // Save search query to history only on first page (avoid saving during pagination)
     if (searchFilters.title?.trim() && searchFilters.page === 1) {
@@ -73,14 +76,13 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
     }
     setIsLoading(true);
     setError(null);
-    setHasSearched(true);
     const start = Date.now();
     
     try {
-      // Convert search filters to product API format - category is already required
+      // Convert search filters to product API format - category is optional
       const apiParams = {
         title: searchFilters.title?.trim(),
-        category: searchFilters.category, // Already required in ProductFilters
+        category: searchFilters.category, // Optional - searches all categories if not provided
         page: searchFilters.page || 1,
         pageSize: searchFilters.pageSize || 12,
         colors: searchFilters.colors,
@@ -93,6 +95,12 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
       
       if (response.success && response.data) {
         setResults(response.data.items);
+        setPagination({
+          page: response.data.page + 1, // Convert: Server page 0 → UI page 1
+          totalPages: response.data.totalPages,
+          hasNext: response.data.hasNext,
+          hasPrevious: response.data.hasPrevious
+        });
       } else {
         setError(response.message || 'An error occurred while searching for products');
         setResults([]);
@@ -113,11 +121,9 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
     }
   };
 
-  // Auto-search when debounced filters change
+  // Auto-search when debounced filters change - always fetch products
   useEffect(() => {
-    if (debouncedFilters.title?.trim() || debouncedFilters.category || debouncedFilters.sort || debouncedFilters.price) {
-      searchProducts(debouncedFilters);
-    }
+    searchProducts(debouncedFilters);
   }, [debouncedFilters]);
 
   const handleSearch = useCallback((searchQuery: string) => {
@@ -127,7 +133,7 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
     const updatedFilters: ProductFilters = {
       ...filters,
       title: newQuery,
-      category: filters.category, // Keep existing category
+      category: undefined, // Clear category when user searches to search across all categories
       page: 1 // Reset to first page for new search
     };
     
@@ -138,11 +144,15 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
     const updatedFilters: ProductFilters = {
       ...newFilters,
       title: query, // Preserve current search query
-      category: newFilters.category, // Category is required
       page: newFilters.page || 1
     };
     setFilters(updatedFilters);
   }, [query]);
+
+  const handlePageChange = useCallback((page: number) => {
+    setFilters(prev => ({ ...prev, page }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const handleClearError = () => {
     setError(null);
@@ -182,64 +192,43 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
         </div>
       )}
 
-      {/* Filters */}
-      {(hasSearched || query.trim()) && (
-        <>
-          <div className="max-w-7xl mx-auto px-4">
-            <SearchProductFilter
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              onOpenSidebar={() => setIsSidebarOpen(true)}
-              searchQuery={query}
-              resultsCount={results.length}
-              isLoading={isLoading}
-            />
-          </div>
+      {/* Filters - always show */}
+      <div className="max-w-7xl mx-auto px-4">
+        <SearchProductFilter
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+          searchQuery={query}
+          resultsCount={results.length}
+          isLoading={isLoading}
+        />
+      </div>
 
-          {/* Filter Sidebar */}
-          <FilterSidebar
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
-        </>
-      )}
+      {/* Filter Sidebar */}
+      <FilterSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+      />
 
-      {/* Results */}
+      {/* Results - always show */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {hasSearched || query.trim() ? (
-          <SearchResults
-            results={results}
-            isLoading={isLoading}
-            onProductClick={onProductClick}
-            query={query}
-          />
-        ) : (
-          <div className="text-center py-16">
-            <div className="mb-4">
-              <svg
-                className="w-16 h-16 text-gray-400 mx-auto"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-medium text-black mb-2">
-              Search for your favorite products
-            </h3>
-            <p className="text-black">
-              Enter keywords to search for products you want
-            </p>
-          </div>
-        )}
+        <SearchResults
+          results={results}
+          isLoading={isLoading}
+          onProductClick={onProductClick}
+          query={query}
+        />
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          hasNext={pagination.hasNext}
+          hasPrevious={pagination.hasPrevious}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );

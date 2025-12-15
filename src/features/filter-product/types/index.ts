@@ -24,7 +24,7 @@ export interface FilterProductResponse {
 }
 
 export interface ProductFilters {
-  category: string;  // Required to match API requirement
+  category?: string;  // Optional - backend supports search without category
   page?: number;
   pageSize?: number;
   colors?: string[];

@@ -26,12 +26,8 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
   totalPages,
   hasNext,
   hasPrevious,
-  confirmDelete,
   onPageChange,
   onEditReview,
-  onDeleteReview,
-  onConfirmDelete,
-  onCancelDelete,
 }) => {
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [editData, setEditData] = useState({ rating: 0, comment: '' });
@@ -64,10 +60,6 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
       setEditingReview(null);
       setEditData({ rating: 0, comment: '' });
     }
-  };
-
-  const handleDeleteClick = (reviewId: string) => {
-    onConfirmDelete(reviewId);
   };
 
   const renderStars = (rating: number) => {
@@ -204,12 +196,6 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
           >
             Edit
           </button>
-          <button
-            onClick={() => handleDeleteClick(review.id)}
-            className="flex-1 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded text-sm font-medium transition-colors"
-          >
-            Delete
-          </button>
         </div>
       </div>
 
@@ -266,12 +252,6 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
               className="text-gray-500 border-b border-gray-500 hover:text-black hover:border-black text-sm font-medium"
             >
               Edit
-            </button>
-            <button
-              onClick={() => handleDeleteClick(review.id)}
-              className="text-gray-500 border-b border-gray-500 hover:text-red-600 hover:border-red-600 text-sm font-medium"
-            >
-              Delete
             </button>
           </div>
         </div>
@@ -436,30 +416,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
         </>
       )}
       
-      {/* Delete Confirmation Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white text-black p-4 sm:p-6 rounded-lg max-w-sm w-full mx-4">
-            <p className="mb-4 text-sm sm:text-base text-center">
-              Are you sure you want to delete your review for &quot;{confirmDelete.productName}&quot;?
-            </p>
-            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
-              <button
-                onClick={onCancelDelete}
-                className="w-full sm:w-auto px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => onDeleteReview(confirmDelete.reviewId)}
-                className="w-full sm:w-auto px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

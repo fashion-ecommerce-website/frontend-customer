@@ -161,7 +161,7 @@ export const Header: React.FC = () => {
               </button>
               
               <button
-                onClick={() => router.push("/search")}
+                onClick={() => router.push("/search?category=ao-thun")}
                 className="text-black hover:text-gray-600 transition-colors p-3 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Search"
               >
@@ -326,7 +326,7 @@ export const Header: React.FC = () => {
             <div className="flex items-center space-x-6">
               {/* Search Bar */}
               <button
-                onClick={() => router.push("/search")}
+                onClick={() => router.push("/search?category=ao-thun")}
                 className="text-black hover:text-gray-600 transition-colors cursor-pointer"
                 aria-label="Search"
               >

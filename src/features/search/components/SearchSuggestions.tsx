@@ -150,11 +150,11 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                       Color: {product.colorName}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm font-semibold text-black">
-                        {product.finalPrice.toLocaleString('vi-VN')}₫
-                      </span>
-                      {product.percentOff && product.percentOff > 0 && (
+                      {product.percentOff && product.percentOff > 0 ? (
                         <>
+                          <span className="text-sm font-semibold text-black">
+                            {product.finalPrice.toLocaleString('vi-VN')}₫
+                          </span>
                           <span className="text-xs text-gray-400 line-through">
                             {product.price.toLocaleString('vi-VN')}₫
                           </span>
@@ -162,6 +162,10 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                             -{product.percentOff}%
                           </span>
                         </>
+                      ) : (
+                        <span className="text-sm font-semibold text-black">
+                          {product.price.toLocaleString('vi-VN')}₫
+                        </span>
                       )}
                     </div>
                   </div>

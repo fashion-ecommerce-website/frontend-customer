@@ -55,7 +55,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     // Loading state is already set in handleInputChange
     try {
       const response = await productApi.getProducts({
-        category: 'ao-thun', // Default category
         title: searchQuery.trim(),
         page: 1,
         pageSize: 5 // Only fetch 5 suggestions
@@ -265,11 +264,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             type="submit"
             className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-black text-white rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              "Search"
-            )}
+            Search
           </button>
         </div>
 

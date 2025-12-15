@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { reviewApiService, ReviewItem } from '@/services/api/reviewApi';
 import { useAppSelector } from '@/hooks/redux';
 import { selectUser } from '@/features/auth/login/redux/loginSlice';
-import { useToast } from '@/providers/ToastProvider';
+
 import { ReviewsPresenter } from '../components/ReviewsPresenter';
 
 interface ReviewsContainerProps {
@@ -17,11 +17,7 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
   const [starFilter, setStarFilter] = useState<number | null>(null);
   const [dateFilter, setDateFilter] = useState<string>('newest');
   const [visibleReviewsCount, setVisibleReviewsCount] = useState<number>(5);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
-  
   const currentUser = useAppSelector(selectUser);
-  const { showError, showSuccess } = useToast();
 
   const average = useMemo(() => {
     if (!reviews.length) return 0;
@@ -84,35 +80,6 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
     setVisibleReviewsCount(5);
   }, [starFilter, dateFilter]);
 
-  const handleDeleteReview = useCallback((reviewId: number) => {
-    setReviewToDelete(reviewId);
-    setShowDeleteModal(true);
-  }, []);
-
-  const confirmDeleteReview = useCallback(async () => {
-    if (!reviewToDelete) return;
-
-    try {
-      const res = await reviewApiService.deleteReview(reviewToDelete);
-      if (res.success) {
-        setReviews(prev => prev.filter(r => r.id !== reviewToDelete));
-        showSuccess('Review deleted successfully');
-      } else {
-        showError(res.message || 'Failed to delete review');
-      }
-    } catch {
-      showError('Failed to delete review');
-    } finally {
-      setShowDeleteModal(false);
-      setReviewToDelete(null);
-    }
-  }, [reviewToDelete, showSuccess, showError]);
-
-  const cancelDeleteReview = useCallback(() => {
-    setShowDeleteModal(false);
-    setReviewToDelete(null);
-  }, []);
-
   const handleViewMore = useCallback(() => {
     setVisibleReviewsCount(prev => prev + 5);
   }, []);
@@ -132,11 +99,7 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
       starFilter={starFilter}
       dateFilter={dateFilter}
       visibleReviewsCount={visibleReviewsCount}
-      showDeleteModal={showDeleteModal}
       currentUserId={currentUser?.id ? Number(currentUser.id) : null}
-      onDeleteReview={handleDeleteReview}
-      onConfirmDelete={confirmDeleteReview}
-      onCancelDelete={cancelDeleteReview}
       onSetStarFilter={setStarFilter}
       onSetDateFilter={setDateFilter}
       onViewMore={handleViewMore}

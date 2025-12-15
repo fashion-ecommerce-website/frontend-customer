@@ -57,6 +57,7 @@ const sizeRecommendationSlice = createSlice({
     
     // ===== SAVE MEASUREMENTS =====
     saveMeasurementsRequest: (state, _action: PayloadAction<Omit<UserMeasurements, 'bmi'>>) => {
+      void _action; // Saga handles the payload
       state.measurementsLoading = true;
       state.measurementsError = null;
     },

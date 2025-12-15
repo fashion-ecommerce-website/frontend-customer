@@ -71,7 +71,7 @@ export interface PaginatedProductsResponse {
 // Product search/filter request interface
 // Note: page is 1-based in UI, will be converted to 0-based for server
 export interface ProductsRequest {
-  category: string;  // Required - API yêu cầu bắt buộc
+  category?: string;  // Optional - backend supports search without category
   page?: number;     // 1-based page number (UI), converted to 0-based for server
   pageSize?: number;
   colors?: string[]; // Nhiều màu thì: ?colors=Red&colors=Blue
@@ -118,9 +118,10 @@ export class ProductApiService {
   async getProducts(params?: ProductsRequest): Promise<ApiResponse<PaginatedProductsResponse>> {
     const searchParams = new URLSearchParams();
 
-    // Category filter - Required parameter, use default if not provided
-    const category = params?.category || 'ao-thun'; // Default category
-    searchParams.append('category', category);
+    // Category filter - Optional, backend supports search without category
+    if (params?.category) {
+      searchParams.append('category', params.category);
+    }
 
     // Pagination - Convert from UI (1-based) to Server (0-based)
     if (params?.page) {

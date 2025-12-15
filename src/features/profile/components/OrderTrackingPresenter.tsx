@@ -135,7 +135,6 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
         <div className="border rounded-lg p-4 mb-6 bg-gray-50">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-sm text-gray-700 space-y-1">
-              <div className="text-black font-semibold text-base">Order #{order.id}</div>
               <div>
                 Tracking Number: {' '}
                 <span className="text-black font-medium font-mono">
@@ -161,7 +160,7 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
                 </div>
               )}
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end gap-3">
               <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(latest?.status || 'PENDING')}`}>
                 {getStatusLabel(latest?.status || 'PENDING')}
               </span>
@@ -170,7 +169,7 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
                   type="button"
                   onClick={onRefresh}
                   disabled={refreshing}
-                  className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400 flex items-center gap-1"
+                  className="px-2.5 py-1 text-xs font-semibold text-white bg-black border border-black rounded-full hover:bg-gray-800 disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center gap-1"
                 >
                   <svg className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
