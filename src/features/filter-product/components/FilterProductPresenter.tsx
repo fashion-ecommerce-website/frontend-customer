@@ -181,12 +181,12 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   const handleFiltersChange = useCallback((newFilters: ProductFilters) => {
     const updatedFilters = {
       ...newFilters,
-      category: newFilters.category || 'ao-thun', // Ensure category is always set
+      category: newFilters.category || filters.category, // Keep current category if not provided
       page: 1 // Reset to first page when filters change
     };
     setFilters(updatedFilters);
     // Auto-fetch will be triggered by useEffect with debounce
-  }, []);
+  }, [filters.category]);
 
   const handlePageChange = useCallback((page: number) => {
     const updatedFilters = {

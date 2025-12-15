@@ -78,11 +78,13 @@ const refundSlice = createSlice({
       reason: string;
       refundAmount: number;
     }>) => {
+      void _action; // Saga handles the payload
       state.createLoading = true;
       state.createError = null;
       state.createSuccess = false;
     },
     createRefundSuccess: (state, _action: PayloadAction<RefundItem>) => {
+      void _action; // Success indicator only, saga refetches list
       state.createLoading = false;
       state.createSuccess = true;
       state.createError = null;

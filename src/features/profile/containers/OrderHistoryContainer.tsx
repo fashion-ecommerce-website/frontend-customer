@@ -96,17 +96,29 @@ export const OrderHistoryContainer: React.FC<{
 
   const handleReviewSubmit = async (orderId: number, reviews: { orderId: number; orderDetailId: number; rating: number; comment: string }[]) => {
     // Gửi từng review tới API với orderId và orderDetailId
+    // Return response của review cuối cùng để Modal biết kết quả
+    let lastResponse: { success: boolean; message?: string } = { success: false };
+    
     for (const review of reviews) {
-      await reviewApiService.createReview({
+      const response = await reviewApiService.createReview({
         orderId: review.orderId,
         orderDetailId: review.orderDetailId,
         rating: review.rating,
         content: review.comment,
       });
+      lastResponse = response;
+      
+      // Nếu có lỗi, return ngay để Modal hiển thị error
+      if (!response.success) {
+        return response;
+      }
     }
+    
     if (selectedOrderForReview) {
       onReview?.(selectedOrderForReview);
     }
+    
+    return lastResponse;
   };
 
   const handleRefundClick = (order: Order) => {

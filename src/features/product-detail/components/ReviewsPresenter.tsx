@@ -14,11 +14,7 @@ interface ReviewsPresenterProps {
   starFilter: number | null;
   dateFilter: string;
   visibleReviewsCount: number;
-  showDeleteModal: boolean;
   currentUserId: number | null;
-  onDeleteReview: (reviewId: number) => void;
-  onConfirmDelete: () => void;
-  onCancelDelete: () => void;
   onSetStarFilter: (star: number | null) => void;
   onSetDateFilter: (filter: string) => void;
   onViewMore: () => void;
@@ -97,11 +93,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
     starFilter,
     dateFilter,
     visibleReviewsCount,
-    showDeleteModal,
     currentUserId,
-    onDeleteReview,
-    onConfirmDelete,
-    onCancelDelete,
     onSetStarFilter,
     onSetDateFilter,
     onViewMore,
@@ -113,9 +105,8 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
     return (starCount / reviews.length) * 100;
   };
 
-  const isUserReview = (review: ReviewItem): boolean => {
-    return currentUserId ? currentUserId === review.userId : false;
-  };
+  // Keep currentUserId for potential future use (e.g., edit own review)
+  void currentUserId;
 
   const generateAvatarUrl = (username: string): string => {
     const seed = username.toLowerCase().replace(/\s+/g, '');
@@ -247,19 +238,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                     <span className="text-xs sm:text-sm text-green-600">Verified purchase</span>
                   </div>
                 </div>
-                {isUserReview(r) && (
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => onDeleteReview(r.id)}
-                      className="text-gray-500 hover:text-red-600 transition-colors p-1"
-                      title="Delete review"
-                    >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
+
               </div>
 
               <div className="mb-3 sm:mb-4">
@@ -322,43 +301,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-            <div className="w-full max-w-md rounded-lg bg-white p-4 sm:p-6 shadow-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Delete Review</h3>
-                  <p className="text-xs sm:text-sm text-gray-500">This action cannot be undone</p>
-                </div>
-              </div>
-              
-              <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">
-                Are you sure you want to delete this review? This action cannot be undone and the review will be permanently removed.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={onCancelDelete}
-                  className="w-full sm:flex-1 px-4 py-2.5 sm:py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={onConfirmDelete}
-                  className="w-full sm:flex-1 px-4 py-2.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm sm:text-base"
-                >
-                  Delete Review
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     </section>
   );
