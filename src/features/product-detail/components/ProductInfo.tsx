@@ -207,8 +207,8 @@ export function ProductInfo({
         // Fail silently
       }
 
-      // Navigate to cart page
-      router.push('/cart');
+      // Navigate to cart page with checkout flag to auto-open checkout modal
+      router.push('/cart?checkout=true');
     } catch {
       setAddingToCart(false);
     }

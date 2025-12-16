@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Order, OrderQueryParams, OrderStatus, PaymentStatus } from '@/features/order/types';
+import { Order, OrderQueryParams, OrderStatus } from '@/features/order/types';
 import { OrderHistoryPresenter } from '../components/OrderHistoryPresenter';
 import { OrderFilters } from '../components/OrderFilters';
 import { useOrders } from '@/hooks/useOrders';
@@ -35,7 +35,7 @@ export const OrderHistoryContainer: React.FC<{
     direction: 'desc',
     page: 0,
     size: 10,
-    paymentStatus: PaymentStatus.PAID // Default to Paid tab
+    status: OrderStatus.UNFULFILLED // Default to Unfulfilled tab
   });
   const [initialized, setInitialized] = useState(false);
 
@@ -64,7 +64,7 @@ export const OrderHistoryContainer: React.FC<{
         direction: 'desc' as const,
         page: 0,
         size: 10,
-        paymentStatus: PaymentStatus.PAID // Default to Paid tab
+        status: OrderStatus.UNFULFILLED // Default to Unfulfilled tab
       };
       setQuery(queryWithUserId);
       fetchOrders(queryWithUserId);

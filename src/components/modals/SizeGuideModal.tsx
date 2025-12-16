@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { getMeasurements, saveMeasurements } from '@/utils/localStorage/measurements';
+import { getMeasurements, saveMeasurements, clearMeasurements } from '@/utils/localStorage/measurements';
 import { UserMeasurements, Size } from '@/types/size-recommendation.types';
 import { getSizeChartByCategory, type SizeChart } from '@/data/sizeCharts';
 import { SizeChartTable } from './SizeChartTable';
@@ -16,6 +16,7 @@ import {
   getConfidenceBadgeLabel,
   getDataQualityIcon
 } from '@/utils/size-recommendation';
+import { ConfirmModal } from './ConfirmModal';
 
 interface SizeGuideModalProps {
   isOpen: boolean;
@@ -44,6 +45,39 @@ export function SizeGuideModal({
   // API recommendation state
   const [apiRecommendation, setApiRecommendation] = useState<SizeRecommendationResponse | null>(null);
   const [, setLoadingRecommendation] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Handle delete measurements
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await recommendationApi.deleteMeasurements();
+      if (response.success) {
+        // Clear local storage
+        clearMeasurements();
+        // Clear state
+        setMeasurements(null);
+        setApiRecommendation(null);
+        setShowDeleteConfirm(false);
+        console.log('✅ Measurements deleted successfully');
+      } else {
+        console.error('❌ Failed to delete measurements:', response.message);
+      }
+    } catch (error) {
+      console.error('❌ Error deleting measurements:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+  };
 
   // Load measurements and calculate recommendation when modal opens
   useEffect(() => {
@@ -188,24 +222,24 @@ export function SizeGuideModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4 flex items-center justify-between">
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Size Guide</h2>
-              <p className="text-sm text-gray-300">{category}</p>
+              <h2 className="text-xl font-bold text-black">Size Guide</h2>
+              <p className="text-sm text-gray-600">{category}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
             aria-label="Close modal"
           >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -324,14 +358,21 @@ export function SizeGuideModal({
                       {measurements.fitPreference && ` • ${measurements.fitPreference.toLowerCase()} fit`}
                     </p>
 
-                    <div className="ml-4 flex-shrink-0">
+                    <div className="ml-4 flex-shrink-0 flex gap-2">
                       <button
                         onClick={() => {
                           if (onAddMeasurements) onAddMeasurements();
                         }}
-                        className="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 transition-colors"
+                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors"
                       >
-                        Edit Measurements
+                        Edit
+                      </button>
+                      <button
+                        onClick={handleDeleteClick}
+                        disabled={isDeleting}
+                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete'}
                       </button>
                     </div>
                   </div>
@@ -372,14 +413,21 @@ export function SizeGuideModal({
                       {measurements.gender} • {measurements.height}cm • {measurements.weight}kg
                     </p>
 
-                    <div className="ml-4 flex-shrink-0">
+                    <div className="ml-4 flex-shrink-0 flex gap-2">
                       <button
                         onClick={() => {
                           if (onAddMeasurements) onAddMeasurements();
                         }}
-                        className="px-3 py-1.5 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-900 transition-colors"
+                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors"
                       >
-                        Edit Measurements
+                        Edit
+                      </button>
+                      <button
+                        onClick={handleDeleteClick}
+                        disabled={isDeleting}
+                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeleting ? 'Deleting...' : 'Delete'}
                       </button>
                     </div>
                   </div>
@@ -475,12 +523,25 @@ export function SizeGuideModal({
         <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium"
+            className="px-6 py-2.5 bg-black text-white rounded-lg cursor-pointer transition-colors font-medium"
           >
             Got it, thanks!
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Measurements"
+        message="Are you sure you want to delete your measurements? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={isDeleting}
+        type="info"
+      />
     </div>,
     document.body
   );
