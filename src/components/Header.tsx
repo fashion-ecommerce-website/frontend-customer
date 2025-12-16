@@ -292,23 +292,34 @@ export const Header: React.FC = () => {
                   {categoriesLoading ? (
                     <div className="text-sm text-gray-500">Loading...</div>
                   ) : categories.length > 0 ? (
-                    categories.map((cat) => (
-                      // hover sets hoveredCat; wrapper onMouseLeave clears it
-                      <div
-                        key={cat.id}
-                        onMouseEnter={() => setHoveredCat(cat.id)}
-                      >
-                        <a
-                          className={`text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors ${
-                            cat.children && cat.children.length > 0 
-                              ? 'cursor-default opacity-80' 
-                              : 'cursor-pointer'
-                          }`}
+                    <>
+                      {categories.map((cat) => (
+                        // hover sets hoveredCat; wrapper onMouseLeave clears it
+                        <div
+                          key={cat.id}
+                          onMouseEnter={() => setHoveredCat(cat.id)}
                         >
-                          {cat.name.toUpperCase()}
-                        </a>
+                          <a
+                            className={`text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors ${
+                              cat.children && cat.children.length > 0 
+                                ? 'cursor-default opacity-80' 
+                                : 'cursor-pointer'
+                            }`}
+                          >
+                            {cat.name.toUpperCase()}
+                          </a>
+                        </div>
+                      ))}
+                      {/* Sale link */}
+                      <div onMouseEnter={() => setHoveredCat(null)}>
+                        <Link
+                          href="/sale"
+                          className="text-red-600 hover:text-red-700 text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors"
+                        >
+                          SALE
+                        </Link>
                       </div>
-                    ))
+                    </>
                   ) : (
                     // fallback: single SHOP link if API empty/fails
                     <Link
@@ -487,45 +498,57 @@ export const Header: React.FC = () => {
               {/* Categories */}
               <div className="space-y-1">
                 {categories.length > 0 ? (
-                  categories.map((cat) => (
-                    <div key={cat.id}>
-                      <a
-                          className={`text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors`}
+                  <>
+                    {categories.map((cat) => (
+                      <div key={cat.id}>
+                        <a
+                          className="text-black hover:text-[#BB9244] text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors"
                         >
                           {cat.name.toUpperCase()}
                         </a>
-                      {cat.children && cat.children.length > 0 && (
-                        <div className="ml-4 pb-2">
-                          {/* Child categories are always clickable */}
-                          {cat.children.map((child) => (
-                            <div key={child.id}>
-                              <Link
-                                href={`/products?category=${encodeURIComponent(child.slug)}`}
-                                className="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-colors"
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                {child.name}
-                              </Link>
-                              {child.children && child.children.length > 0 && (
-                                <div className="ml-4">
-                                  {child.children.map((g) => (
-                                    <Link
-                                      key={g.id}
-                                      href={`/products?category=${encodeURIComponent(g.slug)}`}
-                                      className="block px-4 py-1 text-sm text-gray-500 hover:text-black hover:bg-gray-50 rounded-lg transition-colors"
-                                      onClick={() => setIsMenuOpen(false)}
-                                    >
-                                      {g.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                        {cat.children && cat.children.length > 0 && (
+                          <div className="ml-4 pb-2">
+                            {/* Child categories are always clickable */}
+                            {cat.children.map((child) => (
+                              <div key={child.id}>
+                                <Link
+                                  href={`/products?category=${encodeURIComponent(child.slug)}`}
+                                  className="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-colors"
+                                  onClick={() => setIsMenuOpen(false)}
+                                >
+                                  {child.name}
+                                </Link>
+                                {child.children && child.children.length > 0 && (
+                                  <div className="ml-4">
+                                    {child.children.map((g) => (
+                                      <Link
+                                        key={g.id}
+                                        href={`/products?category=${encodeURIComponent(g.slug)}`}
+                                        className="block px-4 py-1 text-sm text-gray-500 hover:text-black hover:bg-gray-50 rounded-lg transition-colors"
+                                        onClick={() => setIsMenuOpen(false)}
+                                      >
+                                        {g.name}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {/* Sale link for mobile */}
+                    <div className="border-t border-gray-100 pt-2 mt-2">
+                      <Link
+                        href="/sale"
+                        className="block px-4 py-3 text-base font-semibold text-red-600 hover:text-red-700 hover:bg-gray-50 rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        🔥 SALE
+                      </Link>
                     </div>
-                  ))
+                  </>
                 ) : (
                   <Link
                     href="/shop"
