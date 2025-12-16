@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Order, OrderQueryParams, OrderStatus, PaymentStatus } from '@/features/order/types';
+import { Order, OrderQueryParams, OrderStatus } from '@/features/order/types';
 import { OrderHistoryPresenter } from '../components/OrderHistoryPresenter';
 import { OrderFilters } from '../components/OrderFilters';
 import { useOrders } from '@/hooks/useOrders';
