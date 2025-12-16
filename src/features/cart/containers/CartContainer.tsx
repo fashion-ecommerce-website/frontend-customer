@@ -1,6 +1,6 @@
 "use client";
-import React, { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useCallback, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { CartItem } from "@/types/cart.types";
 import { removeCartItemAsync, updateCartItemAsync } from "../redux/cartSaga";
@@ -28,6 +28,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   className = "",
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const allItemsSelected = useAppSelector(selectAllItemsSelected);
 
@@ -50,6 +51,20 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   // Note state
   const [note, setNote] = useState<string>("");
+
+  // Auto-open checkout modal when coming from Buy Now
+  useEffect(() => {
+    const shouldCheckout = searchParams.get('checkout') === 'true';
+    if (shouldCheckout) {
+      // Small delay to ensure cart is loaded
+      const timer = setTimeout(() => {
+        setIsOrderModalOpen(true);
+        // Remove the query param from URL without reload
+        router.replace('/cart', { scroll: false });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, router]);
 
   // Handle item removal
   const handleRemoveItem = useCallback(

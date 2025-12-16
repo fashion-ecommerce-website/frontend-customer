@@ -64,8 +64,18 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
   // Check if order is refunded
   const isRefunded = (order: Order) => order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED';
 
-  // Show Pay Again: only when UNPAID (not cancelled, not refunded)
-  const showPayAgain = (order: Order) => {
+  // Check if order is unfulfilled
+  const isUnfulfilled = (order: Order) => order.status === OrderStatus.UNFULFILLED;
+
+  // Check if payment method is COD
+  const isCOD = (order: Order) => {
+    return order.payments && 
+           order.payments.length > 0 && 
+           order.payments[0].provider === 'COD';
+  };
+
+  // Pay Again is enabled: only when UNPAID, STRIPE, and has payment id
+  const canPayAgain = (order: Order) => {
     return order.paymentStatus === 'UNPAID' && 
            !isCancelled(order) &&
            order.payments && 
@@ -74,22 +84,36 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
            order.payments[0].id;
   };
 
-  // Show Refund: when PAID or FULFILLED (not cancelled, not refunded)
-  const showRefund = (order: Order) => {
-    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
-           !isCancelled(order) &&
-           !isRefunded(order) &&
+  // For UNFULFILLED: Pay Again enabled only if UNPAID and STRIPE
+  const canPayAgainForUnfulfilled = (order: Order) => {
+    // Enabled only if UNPAID and STRIPE
+    return isUnfulfilled(order) && 
+           order.paymentStatus === 'UNPAID' && 
+           !isCOD(order) &&
            order.payments && 
            order.payments.length > 0 && 
            order.payments[0].provider === 'STRIPE' &&
            order.payments[0].id;
   };
 
-  // Show Review: when PAID or FULFILLED (not cancelled, not refunded, not unpaid)
+  // Show Refund: when PAID or FULFILLED (not cancelled, not refunded, not unfulfilled)
+  const showRefund = (order: Order) => {
+    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
+           !isCancelled(order) &&
+           !isRefunded(order) &&
+           !isUnfulfilled(order) &&
+           order.payments && 
+           order.payments.length > 0 && 
+           order.payments[0].provider === 'STRIPE' &&
+           order.payments[0].id;
+  };
+
+  // Show Review: when PAID or FULFILLED (not cancelled, not refunded, not unpaid, not unfulfilled)
   const showReview = (order: Order) => {
     return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
            !isCancelled(order) &&
            !isRefunded(order) &&
+           !isUnfulfilled(order) &&
            order.paymentStatus !== 'UNPAID';
   };
 
@@ -206,8 +230,8 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
 
               {/* Actions */}
               <div className="space-y-2">
-                {/* UNPAID: Show, Details, Track, Pay Again in 1 row */}
-                {order.paymentStatus === 'UNPAID' && !isCancelled(order) && (
+                {/* UNFULFILLED: Show, Details, Track, Pay Again (enabled if UNPAID+STRIPE, disabled if PAID or COD) */}
+                {isUnfulfilled(order) && !isCancelled(order) && (
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -232,10 +256,10 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => showPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
-                      disabled={!showPayAgain(order)}
+                      onClick={() => canPayAgainForUnfulfilled(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                      disabled={!canPayAgainForUnfulfilled(order)}
                       className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
-                        showPayAgain(order)
+                        canPayAgainForUnfulfilled(order)
                           ? 'text-red-600 border border-red-300 hover:bg-red-50 cursor-pointer'
                           : 'text-gray-400 border border-gray-200 cursor-not-allowed'
                       }`}
@@ -244,8 +268,46 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     </button>
                   </div>
                 )}
-                {/* Other statuses: Row 1 with Show, Details, Track */}
-                {order.paymentStatus !== 'UNPAID' && (
+                {/* UNPAID (not unfulfilled): Show, Details, Track, Pay Again in 1 row */}
+                {order.paymentStatus === 'UNPAID' && !isCancelled(order) && !isUnfulfilled(order) && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(order.id)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      {expandedIds.has(order.id) ? 'Hide' : 'Show'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenDetail?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onTrack?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                    >
+                      Track
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                      disabled={!canPayAgain(order)}
+                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
+                        canPayAgain(order)
+                          ? 'text-red-600 border border-red-300 hover:bg-red-50 cursor-pointer'
+                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      Pay Again
+                    </button>
+                  </div>
+                )}
+                {/* Other statuses (not UNPAID, not UNFULFILLED): Row 1 with Show, Details, Track */}
+                {order.paymentStatus !== 'UNPAID' && !isUnfulfilled(order) && (
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -270,8 +332,8 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     </button>
                   </div>
                 )}
-                {/* PAID/FULFILLED: Show Refund + Review */}
-                {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && order.paymentStatus !== 'UNPAID' && (
+                {/* PAID/FULFILLED (not UNFULFILLED): Show Refund + Review */}
+                {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && !isUnfulfilled(order) && order.paymentStatus !== 'UNPAID' && (
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -332,14 +394,14 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                   >
                     Track
                   </button>
-                  {/* UNPAID: Show Pay Again (red if STRIPE, gray if not) */}
-                  {order.paymentStatus === 'UNPAID' && !isCancelled(order) && (
+                  {/* UNFULFILLED: Show Pay Again (enabled if UNPAID+STRIPE, disabled if PAID or COD) */}
+                  {isUnfulfilled(order) && !isCancelled(order) && (
                     <button
                       type="button"
-                      onClick={() => showPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
-                      disabled={!showPayAgain(order)}
+                      onClick={() => canPayAgainForUnfulfilled(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                      disabled={!canPayAgainForUnfulfilled(order)}
                       className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
-                        showPayAgain(order)
+                        canPayAgainForUnfulfilled(order)
                           ? 'text-red-600 border border-transparent hover:border-red-300 hover:bg-red-50 cursor-pointer'
                           : 'text-gray-400 cursor-not-allowed'
                       }`}
@@ -347,8 +409,23 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                       Pay Again
                     </button>
                   )}
-                  {/* PAID/FULFILLED: Show Refund + Review */}
-                  {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && order.paymentStatus !== 'UNPAID' && (
+                  {/* UNPAID (not UNFULFILLED): Show Pay Again (red if STRIPE, gray if not) */}
+                  {order.paymentStatus === 'UNPAID' && !isCancelled(order) && !isUnfulfilled(order) && (
+                    <button
+                      type="button"
+                      onClick={() => canPayAgain(order) && onPayAgain?.(order.payments[0].id, order.id)}
+                      disabled={!canPayAgain(order)}
+                      className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
+                        canPayAgain(order)
+                          ? 'text-red-600 border border-transparent hover:border-red-300 hover:bg-red-50 cursor-pointer'
+                          : 'text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      Pay Again
+                    </button>
+                  )}
+                  {/* PAID/FULFILLED (not UNFULFILLED): Show Refund + Review */}
+                  {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && !isUnfulfilled(order) && order.paymentStatus !== 'UNPAID' && (
                     <>
                       <button
                         type="button"

@@ -197,6 +197,7 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
         onClose={closeAddressFormModal}
         onSave={handleAddressSave}
         isLoading={false}
+        isFirstAddress={addresses.length === 0 && !editingAddress}
       />
     </div>
   );

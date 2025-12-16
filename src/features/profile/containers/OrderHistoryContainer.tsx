@@ -35,7 +35,7 @@ export const OrderHistoryContainer: React.FC<{
     direction: 'desc',
     page: 0,
     size: 10,
-    paymentStatus: PaymentStatus.PAID // Default to Paid tab
+    status: OrderStatus.UNFULFILLED // Default to Unfulfilled tab
   });
   const [initialized, setInitialized] = useState(false);
 
@@ -64,7 +64,7 @@ export const OrderHistoryContainer: React.FC<{
         direction: 'desc' as const,
         page: 0,
         size: 10,
-        paymentStatus: PaymentStatus.PAID // Default to Paid tab
+        status: OrderStatus.UNFULFILLED // Default to Unfulfilled tab
       };
       setQuery(queryWithUserId);
       fetchOrders(queryWithUserId);

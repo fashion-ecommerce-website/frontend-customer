@@ -228,7 +228,7 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
           {currentStepIndex > 0 && (
             <button
               onClick={handleBack}
-              className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg cursor-pointer transition-colors flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -242,7 +242,7 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
             disabled={!canProceed()}
             className={`flex-1 px-6 py-3 font-bold text-white rounded-lg transition-colors flex items-center justify-center gap-2 ${
               canProceed()
-                ? 'bg-red-600 hover:bg-red-700'
+                ? 'bg-black cursor-pointer'
                 : 'bg-gray-300 cursor-not-allowed'
             }`}
           >
@@ -704,55 +704,30 @@ function AgeStep({
 }
 
 function BraSizeStep({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const sizes = ['60', '65', '70', '75', '80', '85', '90', '95', '100', '105', '110', '115', '120', '125'];
   const cups = ['AA', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-3xl font-bold text-black mb-2">Add bra size</h2>
-        <p className="text-gray-600">Showing: European sizes</p>
       </div>
 
       <div className="mt-8">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">Bust</label>
-            <div className="grid grid-cols-4 gap-2">
-              {sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => onChange(size + (value.replace(/\d+/g, '') || 'B'))}
-                  className={`p-2 border rounded text-sm ${
-                    value.startsWith(size)
-                      ? 'border-blue-600 bg-blue-50 text-blue-600'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 text-center">Cup</label>
-            <div className="grid grid-cols-4 gap-2">
-              {cups.map((cup) => (
-                <button
-                  key={cup}
-                  onClick={() => onChange((value.match(/\d+/)?.[0] || '70') + cup)}
-                  className={`p-2 border rounded text-sm ${
-                    value.endsWith(cup)
-                      ? 'border-blue-600 bg-blue-50 text-blue-600'
-                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  {cup}
-                </button>
-              ))}
-            </div>
-          </div>
+        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">Cup</label>
+        <div className="grid grid-cols-4 gap-2 max-w-md mx-auto">
+          {cups.map((cup) => (
+            <button
+              key={cup}
+              onClick={() => onChange(cup)}
+              className={`p-3 border rounded text-sm font-medium ${
+                value === cup
+                  ? 'border-blue-600 bg-blue-50 text-blue-600'
+                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
+              }`}
+            >
+              {cup}
+            </button>
+          ))}
         </div>
       </div>
     </div>

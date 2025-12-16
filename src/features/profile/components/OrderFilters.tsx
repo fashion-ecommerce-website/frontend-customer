@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { OrderQueryParams, OrderStatus, PaymentStatus } from '@/features/order/types';
 
 // Status tab type
-export type StatusTab = 'fulfilled' | 'cancelled' | 'paid' | 'unpaid' | 'refund';
+export type StatusTab = 'unfulfilled' | 'fulfilled' | 'cancelled' | 'refund';
 
 interface OrderFiltersProps {
   query: OrderQueryParams;
@@ -12,8 +12,7 @@ interface OrderFiltersProps {
 }
 
 const STATUS_TABS: { value: StatusTab; label: string }[] = [
-  { value: 'paid', label: 'Paid' },
-  { value: 'unpaid', label: 'Unpaid' },
+  { value: 'unfulfilled', label: 'Unfulfilled' },
   { value: 'fulfilled', label: 'Fulfilled' },
   { value: 'cancelled', label: 'Cancelled' },
   { value: 'refund', label: 'Refunded' },
@@ -29,10 +28,9 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
     const status = query.status;
     const paymentStatus = query.paymentStatus;
     
+    if (status === OrderStatus.UNFULFILLED) return 'unfulfilled';
     if (status === OrderStatus.FULFILLED) return 'fulfilled';
     if (status === OrderStatus.CANCELLED) return 'cancelled';
-    if (paymentStatus === PaymentStatus.PAID) return 'paid';
-    if (paymentStatus === PaymentStatus.UNPAID) return 'unpaid';
     if (paymentStatus === PaymentStatus.REFUNDED) return 'refund';
     
     return null; // No filter selected
@@ -47,18 +45,15 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
       return;
     }
     
-    if (value === 'fulfilled') {
+    if (value === 'unfulfilled') {
+      newQuery.status = OrderStatus.UNFULFILLED;
+      newQuery.paymentStatus = undefined;
+    } else if (value === 'fulfilled') {
       newQuery.status = OrderStatus.FULFILLED;
       newQuery.paymentStatus = undefined;
     } else if (value === 'cancelled') {
       newQuery.status = OrderStatus.CANCELLED;
       newQuery.paymentStatus = undefined;
-    } else if (value === 'paid') {
-      newQuery.status = undefined;
-      newQuery.paymentStatus = PaymentStatus.PAID;
-    } else if (value === 'unpaid') {
-      newQuery.status = undefined;
-      newQuery.paymentStatus = PaymentStatus.UNPAID;
     } else if (value === 'refund') {
       newQuery.status = undefined;
       newQuery.paymentStatus = PaymentStatus.REFUNDED;
