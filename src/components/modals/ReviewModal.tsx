@@ -16,6 +16,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
   const [reviews, setReviews] = useState<Record<number, { rating: number; comment: string }>>({});
   const [existingReviews, setExistingReviews] = useState<Map<number, ReviewItem>>(new Map());
   const [loadingReviews, setLoadingReviews] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const [editReview, setEditReview] = useState<{ rating: number; comment: string }>({ rating: 0, comment: '' });
+  const [isUpdating, setIsUpdating] = useState(false);
   const { showError, showSuccess } = useToast();
 
   // Fetch user's reviews to check which orderDetails are already reviewed
@@ -127,7 +130,65 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
 
   const handleClose = () => {
     setReviews({});
+    setEditingReviewId(null);
+    setEditReview({ rating: 0, comment: '' });
     onClose();
+  };
+
+  // Start editing a review
+  const handleStartEdit = (orderDetailId: number, existingReview: ReviewItem) => {
+    setEditingReviewId(orderDetailId);
+    setEditReview({
+      rating: existingReview.rating,
+      comment: existingReview.content || ''
+    });
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setEditReview({ rating: 0, comment: '' });
+  };
+
+  // Update existing review
+  const handleUpdateReview = async (reviewId: number, orderDetailId: number) => {
+    if (editReview.rating === 0) {
+      showError('Please select a rating');
+      return;
+    }
+    
+    setIsUpdating(true);
+    try {
+      const response = await reviewApiService.updateReview(reviewId, {
+        rating: editReview.rating,
+        content: editReview.comment
+      });
+      
+      if (response.success && response.data) {
+        showSuccess('Review updated successfully!');
+        // Update existing reviews map
+        setExistingReviews(prev => {
+          const newMap = new Map(prev);
+          const existing = newMap.get(orderDetailId);
+          if (existing) {
+            newMap.set(orderDetailId, {
+              ...existing,
+              rating: editReview.rating,
+              content: editReview.comment
+            });
+          }
+          return newMap;
+        });
+        setEditingReviewId(null);
+        setEditReview({ rating: 0, comment: '' });
+      } else {
+        showError(response.message || 'Failed to update review');
+      }
+    } catch {
+      showError('Failed to update review');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -149,7 +210,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
             <h2 className="text-xl font-semibold text-gray-900">Review Order #{order.id}</h2>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -180,34 +241,113 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                   <div className="space-y-4">
                     {order.orderDetails.map((detail) => {
                       const reviewData = existingReviews.get(detail.id);
+                      const isEditing = editingReviewId === detail.id;
+                      
                       return (
-                        <div key={detail.id} className="flex gap-3">
-                          <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img 
-                              src={detail.images?.[0] || '/images/products/image1.jpg'}
-                              alt={detail.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 line-clamp-1">{detail.title}</p>
-                            <div className="flex items-center gap-1 mt-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <svg
-                                  key={star}
-                                  className={`w-4 h-4 ${star <= (reviewData?.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                              ))}
+                        <div key={detail.id} className={`${isEditing ? 'bg-white rounded-lg p-3 border border-gray-300' : ''}`}>
+                          {!isEditing ? (
+                            <div className="flex gap-3">
+                              <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img 
+                                  src={detail.images?.[0] || '/images/products/image1.jpg'}
+                                  alt={detail.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between">
+                                  <p className="text-sm font-medium text-gray-800 line-clamp-1">{detail.title}</p>
+                                  <button
+                                    onClick={() => handleStartEdit(detail.id, reviewData!)}
+                                    className="text-xs text-gray-700 hover:text-black font-medium cursor-pointer ml-2 flex-shrink-0"
+                                  >
+                                    Edit
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-1 mt-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <svg
+                                      key={star}
+                                      className={`w-4 h-4 ${star <= (reviewData?.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                  ))}
+                                </div>
+                                {reviewData?.content && (
+                                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">{reviewData.content}</p>
+                                )}
+                              </div>
                             </div>
-                            {reviewData?.content && (
-                              <p className="text-xs text-gray-600 mt-1 line-clamp-2">{reviewData.content}</p>
-                            )}
-                          </div>
+                          ) : (
+                            <div>
+                              <div className="flex gap-3 mb-3">
+                                <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img 
+                                    src={detail.images?.[0] || '/images/products/image1.jpg'}
+                                    alt={detail.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-800 line-clamp-1">{detail.title}</p>
+                                  <p className="text-xs text-gray-500">{detail.colorLabel} / {detail.sizeLabel}</p>
+                                </div>
+                              </div>
+                              <div className="mb-3">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Rating</label>
+                                <div className="flex gap-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                      key={star}
+                                      type="button"
+                                      onClick={() => setEditReview(prev => ({ ...prev, rating: star }))}
+                                      className="focus:outline-none transition-transform hover:scale-110 cursor-pointer"
+                                    >
+                                      <svg
+                                        className={`w-6 h-6 ${star <= editReview.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                        fill={star <= editReview.rating ? 'currentColor' : 'none'}
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                      </svg>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="mb-3">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Comment</label>
+                                <textarea
+                                  value={editReview.comment}
+                                  onChange={(e) => setEditReview(prev => ({ ...prev, comment: e.target.value }))}
+                                  placeholder="Share your experience..."
+                                  rows={2}
+                                  className="w-full px-2 py-1.5 text-sm text-black border border-gray-300 rounded-md resize-none"
+                                />
+                              </div>
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer"
+                                  disabled={isUpdating}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateReview(reviewData!.id, detail.id)}
+                                  disabled={isUpdating}
+                                  className="px-3 py-1.5 text-xs font-medium text-white bg-black rounded-md hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
+                                >
+                                  {isUpdating ? 'Updating...' : 'Update'}
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -245,26 +385,101 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                           </div>
                           
                           {/* Show existing review info */}
-                          {isReviewed && (
+                          {isReviewed && editingReviewId !== detail.id && (
                             <div className="mt-3 pt-3 border-t border-green-200">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-green-700">Your review:</span>
-                                <div className="flex items-center gap-0.5">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <svg
-                                      key={star}
-                                      className={`w-4 h-4 ${star <= (existingReview?.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                  ))}
+                              <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-medium text-green-700">Your review:</span>
+                                  <div className="flex items-center gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <svg
+                                        key={star}
+                                        className={`w-4 h-4 ${star <= (existingReview?.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                      </svg>
+                                    ))}
+                                  </div>
                                 </div>
+                                <button
+                                  onClick={() => handleStartEdit(detail.id, existingReview!)}
+                                  className="text-xs text-gray-700 hover:text-black font-medium cursor-pointer"
+                                >
+                                  Edit
+                                </button>
                               </div>
                               {existingReview?.content && (
                                 <p className="text-sm text-gray-600 italic">&quot;{existingReview.content}&quot;</p>
                               )}
+                            </div>
+                          )}
+                          
+                          {/* Edit mode for existing review */}
+                          {isReviewed && editingReviewId === detail.id && (
+                            <div className="mt-3 pt-3 border-t border-gray-300">
+                              <div className="mb-3">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Rating <span className="text-red-500">*</span>
+                                </label>
+                                <div className="flex gap-2">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                      key={star}
+                                      type="button"
+                                      onClick={() => setEditReview(prev => ({ ...prev, rating: star }))}
+                                      className="focus:outline-none transition-transform hover:scale-110 cursor-pointer"
+                                    >
+                                      <svg
+                                        className={`w-8 h-8 ${
+                                          star <= editReview.rating
+                                            ? 'text-yellow-400 fill-current'
+                                            : 'text-gray-300'
+                                        }`}
+                                        fill={star <= editReview.rating ? 'currentColor' : 'none'}
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                        />
+                                      </svg>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="mb-3">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Your Review (Optional)
+                                </label>
+                                <textarea
+                                  value={editReview.comment}
+                                  onChange={(e) => setEditReview(prev => ({ ...prev, comment: e.target.value }))}
+                                  placeholder="Share your experience with this product..."
+                                  rows={3}
+                                  className="w-full px-3 py-2 text-black border border-gray-300 rounded-md resize-none"
+                                />
+                              </div>
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+                                  disabled={isUpdating}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateReview(existingReview!.id, detail.id)}
+                                  disabled={isUpdating}
+                                  className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 cursor-pointer"
+                                >
+                                  {isUpdating ? 'Updating...' : 'Update Review'}
+                                </button>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -338,15 +553,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
             )}
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Close
-            </button>
-          </div>
+
         </div>
       </div>
     </div>

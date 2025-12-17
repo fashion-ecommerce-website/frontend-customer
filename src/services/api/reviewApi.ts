@@ -7,7 +7,8 @@ export interface ReviewItem {
   id: number;
   userId: number;
   username: string;
-  avatar?: string; // Optional avatar URL
+  avatar?: string; // Optional avatar URL (legacy/generated)
+  avatarUrl?: string; // User's real avatar from backend
   productDetailId: number;
   productName?: string;
   productImage?: string;
