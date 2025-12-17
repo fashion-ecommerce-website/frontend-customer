@@ -7,14 +7,15 @@ export type Voucher = {
   code: string;
   label: string;
   discountType: 'amount' | 'percent';
-  value: number; 
-  minSubtotal?: number; 
-  maxDiscountAmount?: number; 
-  expiresAt?: string; 
+  value: number;
+  minSubtotal?: number;
+  maxDiscountAmount?: number;
+  startsAt?: string;
+  expiresAt?: string;
   userUsage?: { used: number; limit: number };
-  globalUsagePercent?: number; 
-  available?: boolean; 
-  message?: string; 
+  globalUsagePercent?: number;
+  available?: boolean;
+  message?: string;
 };
 
 // Backend response type
@@ -30,7 +31,7 @@ export type VoucherByUserResponse = {
   usageLimitPerUser?: number;
   startAt: string;
   endAt: string;
-  isAvailable: boolean;
+  available: boolean;  // Backend returns 'available', not 'isAvailable'
   message?: string;
 };
 
@@ -63,10 +64,17 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
       value: backendVoucher.value,
       minSubtotal: backendVoucher.minOrderAmount,
       maxDiscountAmount: backendVoucher.maxDiscount,
+      startsAt: backendVoucher.startAt,
       expiresAt: backendVoucher.endAt,
-      available: backendVoucher.isAvailable,
+      available: backendVoucher.available,
       message: backendVoucher.message,
     };
+  };
+
+  // Check if voucher has not started yet
+  const isNotStarted = (startsAt: string) => {
+    if (!startsAt) return false;
+    return new Date(startsAt) > new Date();
   };
 
   const computeDiscountPreview = (voucher: Voucher): string => {
@@ -80,10 +88,26 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
     return `- ${formatPrice(amount)}`;
   };
 
+  // Check if order meets minimum subtotal requirement
+  const passesMinSubtotal = (voucher: Voucher): boolean => {
+    return typeof voucher.minSubtotal === 'number' ? subtotal >= voucher.minSubtotal : true;
+  };
+
+  // Check if voucher is available from backend
+  const isServerAvailable = (voucher: Voucher): boolean => {
+    return voucher.available !== undefined ? voucher.available : true;
+  };
+
   const isEligible = (voucher: Voucher): boolean => {
-    const passesMin = typeof voucher.minSubtotal === 'number' ? subtotal >= voucher.minSubtotal : true;
-    const serverAvailable = voucher.available !== undefined ? voucher.available : true;
-    return passesMin && serverAvailable;
+    return passesMinSubtotal(voucher) && isServerAvailable(voucher);
+  };
+
+  // Get status label for voucher
+  const getStatusLabel = (voucher: Voucher): string => {
+    if (isEligible(voucher)) return 'Available';
+    if (!passesMinSubtotal(voucher)) return 'Not Eligible';
+    if (!isServerAvailable(voucher)) return 'Unavailable';
+    return 'Unavailable';
   };
 
   return (
@@ -150,11 +174,9 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
 
           {/* Available list */}
           <div className="mt-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-gray-700 font-semibold">
-                {showSearchResults ? 'Search Results' : 'Available Vouchers'}
-              </div>
-              {showSearchResults && (
+            {showSearchResults && (
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-sm text-gray-700 font-semibold">Search Results</div>
                 <button
                   type="button"
                   onClick={() => {
@@ -166,8 +188,8 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                 >
                   Show All Vouchers
                 </button>
-              )}
-            </div>
+              </div>
+            )}
             <div className="space-y-4">
               {(showSearchResults ? searchResults : vouchers).length === 0 && (
                 <div className="text-sm text-gray-600">
@@ -192,21 +214,26 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                           <div className="flex items-center gap-2">
                             <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-black text-white text-xs">🏷️</span>
                             <div className="text-black font-semibold truncate">{v.label}</div>
-                            <span className={`text-xs px-2 py-0.5 rounded-full border ${eligible ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>{eligible ? 'Available' : 'Not Eligible'}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full border ${eligible ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>{getStatusLabel(v)}</span>
                           </div>
                           <div className="text-xs text-gray-600 mt-1">Code: <span className="font-mono">{v.code}</span></div>
                           {typeof v.minSubtotal === 'number' && (
                             <div className="text-xs text-gray-500 mt-1">Min. order: {formatPrice(v.minSubtotal)}</div>
                           )}
                           
-                          <div className="flex items-center gap-6 text-[11px] text-gray-600 mt-2">
-                            {typeof v.maxDiscountAmount === 'number' && (
-                              <span>Max: {formatPrice(v.maxDiscountAmount)}</span>
+                          {typeof v.maxDiscountAmount === 'number' && (
+                            <div className="text-[11px] text-gray-600 mt-1">
+                              Max: {formatPrice(v.maxDiscountAmount)}
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center gap-6 text-[11px] text-gray-600 mt-1">
+                            {v.startsAt && isNotStarted(v.startsAt) && (
+                              <span>Starts: {new Date(v.startsAt).toLocaleDateString('vi-VN')}</span>
                             )}
                             {v.expiresAt && (
                               <span>Expires: {new Date(v.expiresAt).toLocaleDateString('vi-VN')}</span>
                             )}
-                            
                           </div>
                         </div>
                         <div className="pl-4 flex flex-col items-end">

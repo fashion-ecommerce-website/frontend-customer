@@ -19,10 +19,11 @@ export class VoucherApiService {
       value: Number(v.value) || 0,
       minSubtotal: typeof v.minOrderAmount === 'number' ? v.minOrderAmount : undefined,
       maxDiscountAmount: typeof v.maxDiscount === 'number' ? v.maxDiscount : undefined,
+      startsAt: v.startAt,
       expiresAt: v.endAt,
       userUsage: v.usageLimitPerUser ? { used: 0, limit: v.usageLimitPerUser } : undefined,
       globalUsagePercent: v.usageLimitTotal ? 0 : undefined,
-      available: typeof v.isAvailable === 'boolean' ? v.isAvailable : undefined,
+      available: typeof v.available === 'boolean' ? v.available : undefined,
       message: v.message,
     }));
     return { success: true, data: mapped, message: res.message };

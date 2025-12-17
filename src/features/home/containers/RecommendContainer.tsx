@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/hooks/redux';
-import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
+
 import { recommendationApi } from '@/services/api/recommendationApi';
 import { RecommendPresenter } from '../components/RecommendPresenter';
 
@@ -21,20 +20,11 @@ interface RecommendProduct {
 
 export function RecommendContainer() {
     const router = useRouter();
-    const isAuthenticated = useAppSelector(selectIsAuthenticated);
     const [products, setProducts] = useState<RecommendProduct[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchRecommendations = useCallback(async () => {
-        // Only fetch if user is authenticated
-        if (!isAuthenticated) {
-            setProducts([]);
-            setLoading(false);
-            setError(null);
-            return;
-        }
-
         try {
             setLoading(true);
             setError(null);
@@ -64,7 +54,7 @@ export function RecommendContainer() {
         } finally {
             setLoading(false);
         }
-    }, [isAuthenticated]);
+    }, []);
 
     useEffect(() => {
         fetchRecommendations();

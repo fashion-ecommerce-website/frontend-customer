@@ -61,11 +61,8 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
           <h2 className="text-2xl sm:text-3xl font-bold text-black mb-4 tracking-wider">
             LOGIN
           </h2>
-          <p className="text-black text-sm sm:text-base mb-2 text-start">
-            Register as a member and receive a 10% discount on your first order
-          </p>
           <p className="text-black text-sm sm:text-base text-start">
-            Enter code: <strong>FITWELCOME</strong>
+            Welcome to FIT Fashion. Your journey starts here.
           </p>
         </div>
 

@@ -26,12 +26,12 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
 }) => {
   // Search and filter state
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'expired' | 'unavailable'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'unavailable'>('all');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 5;
 
   // Copy code function
   const copyToClipboard = async (code: string) => {
@@ -58,6 +58,12 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
   const isExpired = React.useCallback((expiresAt: string) => {
     if (!expiresAt) return false;
     return new Date(expiresAt) < new Date();
+  }, []);
+
+  // Check if voucher has not started yet
+  const isNotStarted = React.useCallback((startsAt: string) => {
+    if (!startsAt) return false;
+    return new Date(startsAt) > new Date();
   }, []);
 
   // Check if voucher is available
@@ -88,19 +94,16 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
       );
     }
 
-    // Status filter
+    // Status filter (backend already filters out expired vouchers)
     if (filterStatus !== 'all') {
       filtered = filtered.filter(voucher => {
         const available = isAvailable(voucher);
-        const expired = isExpired(voucher.expiresAt || '');
         
         switch (filterStatus) {
           case 'available':
             return available;
-          case 'expired':
-            return expired;
           case 'unavailable':
-            return !available && !expired;
+            return !available;
           default:
             return true;
         }
@@ -108,7 +111,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
     }
 
     return filtered;
-  }, [vouchers, searchTerm, filterStatus, isAvailable, isExpired]);
+  }, [vouchers, searchTerm, filterStatus, isAvailable]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredVouchers.length / itemsPerPage);
@@ -189,7 +192,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                 <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'expired' | 'unavailable')}
+                  onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'unavailable')}
                   disabled
                   className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent opacity-50 cursor-not-allowed"
                 >
@@ -279,12 +282,11 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
               <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'expired' | 'unavailable')}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'unavailable')}
                 className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               >
                 <option value="all">All</option>
                 <option value="available">Available</option>
-                <option value="expired">Expired</option>
                 <option value="unavailable">Unavailable</option>
               </select>
             </div>
@@ -378,6 +380,14 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       <span>Max discount: <span className="font-medium">{voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫</span></span>
                     </div>
                   )}
+                  {voucher.startsAt && isNotStarted(voucher.startsAt) && (
+                    <div className="flex items-center gap-1">
+                      <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Starts: <span className="font-medium">{formatDate(voucher.startsAt)}</span></span>
+                    </div>
+                  )}
                   {voucher.expiresAt && (
                     <div className="flex items-center gap-1">
                       <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -417,7 +427,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       </div>
                       <div className="text-black font-semibold truncate">{voucher.label || voucher.code}</div>
                       <span className={`text-xs px-2 py-0.5 rounded-full border ${isAvailable(voucher) ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>
-                        {isAvailable(voucher) ? 'Available' : 'Not Available'}
+                        {isAvailable(voucher) ? 'Available' : 'Unavailable'}
                       </span>
                     </div>
                     
@@ -427,9 +437,15 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       <div className="text-xs text-gray-500 mb-1">Min. order: {voucher.minSubtotal.toLocaleString('vi-VN')}₫</div>
                     )}
                     
+                    {voucher.maxDiscountAmount && (
+                      <div className="text-[11px] text-gray-600 mb-1">
+                        Max: {voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-6 text-[11px] text-gray-600">
-                      {voucher.maxDiscountAmount && (
-                        <span>Max: {voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫</span>
+                      {voucher.startsAt && isNotStarted(voucher.startsAt) && (
+                        <span>Starts: {formatDate(voucher.startsAt)}</span>
                       )}
                       {voucher.expiresAt && (
                         <span>Expires: {formatDate(voucher.expiresAt)}</span>

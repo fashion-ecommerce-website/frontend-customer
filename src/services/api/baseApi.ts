@@ -159,7 +159,8 @@ class BaseApi {
       // Không kiểm tra với GET /products hoặc các API public
       const isGetProducts = options.method === 'GET' && endpoint.startsWith('/products');
       const isChatbot = endpoint.includes('/chatbot/');
-      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts && !isChatbot;
+      const isPublicRecommendation = options.method === 'GET' && (endpoint.includes('/recommendations/for-you') || endpoint.includes('/recommendations/similar'));
+      const shouldCheckAuth = !options.skipAuth && !endpoint.includes('/auth/') && !endpoint.includes('/public/') && !isGetProducts && !isChatbot && !isPublicRecommendation;
       if (shouldCheckAuth) {
         const tokenValid = await this.ensureValidToken();
         if (!tokenValid) {
