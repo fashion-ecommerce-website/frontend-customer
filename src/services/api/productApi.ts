@@ -98,7 +98,6 @@ const PRODUCT_ENDPOINTS = {
   GET_DISCOUNTED_PRODUCTS: '/products/discounted',
   GET_PRODUCT_BY_ID: '/products',
   GET_PRODUCT_BY_COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
-  GET_DISCOUNTED_PRODUCTS: '/products/discounted',
 } as const;
 
 // Product API service
@@ -121,61 +120,6 @@ export class ProductApiService {
     if (activeSize) search.append('activeSize', activeSize);
     const url = `${PRODUCT_ENDPOINTS.GET_PRODUCT_BY_COLOR}/${id}/color?${search.toString()}`;
     return apiClient.get<ProductDetail>(url);
-  }
-
-  /**
-   * Get discounted products (sale products) with filters
-   * URL example: /products/discounted?page=0&pageSize=12&sort=price_asc
-   * Note: UI sends page=1, converted to page=0 for server
-   */
-  async getDiscountedProducts(params?: Omit<ProductsRequest, 'category'>): Promise<ApiResponse<PaginatedProductsResponse>> {
-    const searchParams = new URLSearchParams();
-
-    // Pagination - Convert from UI (1-based) to Server (0-based)
-    if (params?.page) {
-      const serverPage = params.page - 1;
-      searchParams.append('page', serverPage.toString());
-    }
-
-    // Page size
-    if (params?.pageSize) {
-      searchParams.append('pageSize', params.pageSize.toString());
-    }
-
-    // Colors filter
-    if (params?.colors && params.colors.length > 0) {
-      params.colors.forEach(color => {
-        searchParams.append('colors', color);
-      });
-    }
-
-    // Sizes filter
-    if (params?.sizes && params.sizes.length > 0) {
-      params.sizes.forEach(size => {
-        searchParams.append('sizes', size);
-      });
-    }
-
-    // Sort
-    if (params?.sort) {
-      searchParams.append('sort', params.sort);
-    }
-
-    // Price range
-    if (params?.price) {
-      searchParams.append('price', params.price);
-    }
-
-    // Title search
-    if (params?.title) {
-      searchParams.append('title', params.title);
-    }
-
-    const url = searchParams.toString()
-      ? `${PRODUCT_ENDPOINTS.GET_DISCOUNTED_PRODUCTS}?${searchParams.toString()}`
-      : PRODUCT_ENDPOINTS.GET_DISCOUNTED_PRODUCTS;
-
-    return apiClient.get<PaginatedProductsResponse>(url);
   }
 
   /**
@@ -299,8 +243,7 @@ export const productApiService = new ProductApiService();
 // Export API functions for saga factories
 export const productApi = {
   getProducts: (params?: ProductsRequest) => productApiService.getProducts(params),
-  getDiscountedProducts: (params?: Omit<ProductsRequest, 'category'>) => productApiService.getDiscountedProducts(params),
+  getDiscountedProducts: (params?: DiscountedProductsRequest) => productApiService.getDiscountedProducts(params),
   getProductById: (id: string) => productApiService.getProductById(id),
   getProductByColor: (id: string, activeColor: string, activeSize?: string) => productApiService.getProductByColor(id, activeColor, activeSize),
-  getDiscountedProducts: (params?: DiscountedProductsRequest) => productApiService.getDiscountedProducts(params),
 };
