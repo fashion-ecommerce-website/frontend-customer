@@ -19,55 +19,51 @@ interface ReviewsPresenterProps {
   onSetDateFilter: (filter: string) => void;
   onViewMore: () => void;
   onShowLess: () => void;
-  productDetailId: number;
+  productId: number;
 }
 
-// Avatar component
+// Avatar component with anonymous fallback icon
 function UserAvatar({ username, avatar, size = 'md' }: { username: string; avatar?: string; size?: 'sm' | 'md' | 'lg' }) {
   const sizeClasses = {
-    sm: 'w-6 h-6 text-xs',
-    md: 'w-8 h-8 text-sm',
-    lg: 'w-12 h-12 text-lg'
+    sm: 'w-6 h-6',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12'
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  const iconSizeClasses = {
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+    lg: 'w-6 h-6'
   };
 
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 
-      'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500'
-    ];
-    const index = name.charCodeAt(0) % colors.length;
-    return colors[index];
-  };
+  // Anonymous user icon fallback (same as profile page)
+  const renderFallbackIcon = () => (
+    <div className={`${sizeClasses[size]} rounded-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 border-2 border-gray-200`}>
+      <svg className={`${iconSizeClasses[size]} text-gray-400`} fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+      </svg>
+    </div>
+  );
 
   if (avatar) {
     return (
-      <div className={`relative ${sizeClasses[size]}`}>
+      <div className={`relative ${sizeClasses[size]} rounded-full overflow-hidden border-2 border-gray-200`}>
         <Image
           src={avatar}
           alt={`${username}'s avatar`}
-          className="rounded-full object-cover border-2 border-gray-200"
+          className="object-cover"
           fill
           sizes="48px"
           onError={(e) => {
-            // Fallback to initials if image fails to load
+            // Fallback to anonymous icon if image fails to load
             const target = e.target as HTMLImageElement;
             target.style.display = 'none';
             const parent = target.parentElement;
-            if (parent) {
-              parent.innerHTML = `
-                <div class="${sizeClasses[size]} rounded-full ${getAvatarColor(username)} flex items-center justify-center font-medium text-white border-2 border-gray-200">
-                  ${getInitials(username)}
-                </div>
-              `;
+            if (parent && !parent.querySelector('.fallback-icon')) {
+              const fallback = document.createElement('div');
+              fallback.className = 'fallback-icon w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300';
+              fallback.innerHTML = `<svg class="${iconSizeClasses[size]} text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>`;
+              parent.appendChild(fallback);
             }
           }}
         />
@@ -75,11 +71,7 @@ function UserAvatar({ username, avatar, size = 'md' }: { username: string; avata
     );
   }
 
-  return (
-    <div className={`${sizeClasses[size]} rounded-full ${getAvatarColor(username)} flex items-center justify-center font-medium text-white border-2 border-gray-200`}>
-      {getInitials(username)}
-    </div>
-  );
+  return renderFallbackIcon();
 }
 
 export function ReviewsPresenter(props: ReviewsPresenterProps) {
@@ -108,9 +100,9 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
   // Keep currentUserId for potential future use (e.g., edit own review)
   void currentUserId;
 
-  const generateAvatarUrl = (username: string): string => {
-    const seed = username.toLowerCase().replace(/\s+/g, '');
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+  // Use user's real avatar if available, otherwise return undefined to show fallback icon
+  const getAvatarUrl = (review: ReviewItem): string | undefined => {
+    return review.avatarUrl || review.avatar || undefined;
   };
 
   return (
@@ -245,7 +237,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                 <div className="flex items-start gap-2 sm:gap-3 mb-2">
                   <UserAvatar 
                     username={r.username} 
-                    avatar={r.avatar || generateAvatarUrl(r.username)} 
+                    avatar={getAvatarUrl(r)} 
                     size="md" 
                   />
                   <div className="flex-1 min-w-0">

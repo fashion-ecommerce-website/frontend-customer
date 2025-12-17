@@ -8,10 +8,10 @@ import { selectUser } from '@/features/auth/login/redux/loginSlice';
 import { ReviewsPresenter } from '../components/ReviewsPresenter';
 
 interface ReviewsContainerProps {
-  productDetailId: number;
+  productId: number;
 }
 
-export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
+export function ReviewsContainer({ productId }: ReviewsContainerProps) {
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [starFilter, setStarFilter] = useState<number | null>(null);
@@ -65,12 +65,12 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
-    const res = await reviewApiService.getReviewsByProduct(productDetailId);
+    const res = await reviewApiService.getReviewsByProduct(productId);
     if (res.success && Array.isArray(res.data)) {
       setReviews(res.data);
     }
     setLoading(false);
-  }, [productDetailId]);
+  }, [productId]);
 
   useEffect(() => {
     fetchReviews();
@@ -104,7 +104,7 @@ export function ReviewsContainer({ productDetailId }: ReviewsContainerProps) {
       onSetDateFilter={setDateFilter}
       onViewMore={handleViewMore}
       onShowLess={handleShowLess}
-      productDetailId={productDetailId}
+      productId={productId}
     />
   );
 }

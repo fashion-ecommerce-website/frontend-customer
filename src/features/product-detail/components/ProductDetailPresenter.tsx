@@ -146,7 +146,7 @@ export function ProductDetailPresenter({
       </div>
 
       {/* Reviews Section */}
-      <ReviewsContainer productDetailId={product.detailId} />
+      <ReviewsContainer productId={product.productId} />
 
       {/* Similar Products */}
       <SimilarProducts categorySlug={product.categorySlug} currentProductId={product.detailId} currentPrice={product.price} />

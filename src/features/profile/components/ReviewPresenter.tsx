@@ -119,13 +119,13 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
         <button
           onClick={handleEditSave}
           disabled={isSubmitting}
-          className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 disabled:opacity-50"
+          className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? 'Saving...' : 'Save'}
         </button>
         <button
           onClick={handleEditCancel}
-          className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+          className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 cursor-pointer"
         >
           Cancel
         </button>
