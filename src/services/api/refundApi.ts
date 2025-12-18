@@ -19,13 +19,15 @@ export interface RefundResponse {
   stripeRefundId: string | null;
   createdAt: string;
   updatedAt: string;
+  imageUrls: string[] | null; // List of image URLs from Cloudinary
 }
 
-// Create refund request
-export interface CreateRefundRequest {
+// Create refund request data
+export interface CreateRefundData {
   orderId: number;
   reason: string;
   refundAmount: number;
+  imageUrls?: string[]; // Optional list of image URLs from Cloudinary
 }
 
 // Paginated response
@@ -71,9 +73,14 @@ export class RefundApi {
    * POST /api/refunds
    */
   static async createRefund(
-    data: CreateRefundRequest
+    data: CreateRefundData
   ): Promise<ApiResponse<RefundResponse>> {
-    return apiClient.post<RefundResponse>('/refunds', data);
+    return apiClient.post<RefundResponse>('/refunds', {
+      orderId: data.orderId,
+      reason: data.reason,
+      refundAmount: data.refundAmount,
+      imageUrls: data.imageUrls,
+    });
   }
 
   /**

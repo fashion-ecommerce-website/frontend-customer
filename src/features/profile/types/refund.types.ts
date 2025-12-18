@@ -21,6 +21,7 @@ export interface RefundItem {
   stripeRefundId: string | null;
   createdAt: string;
   updatedAt: string;
+  imageUrls: string[] | null; // List of image URLs from Cloudinary
 }
 
 // Refund query parameters

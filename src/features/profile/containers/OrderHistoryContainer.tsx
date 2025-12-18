@@ -126,13 +126,14 @@ export const OrderHistoryContainer: React.FC<{
     setIsRefundModalOpen(true);
   };
 
-  const handleRefundConfirm = async (orderId: number, reason: string, refundAmount: number) => {
+  const handleRefundConfirm = async (orderId: number, reason: string, refundAmount: number, imageUrls?: string[]) => {
     setRefundLoading(true);
     try {
       const response = await RefundApi.createRefund({
         orderId,
         reason,
         refundAmount,
+        imageUrls,
       });
 
       if (response.success) {
