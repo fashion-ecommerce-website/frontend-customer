@@ -1,15 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Order } from '@/features/order/types';
+import { uploadMultipleToCloudinary } from '@/services/api/cloudinaryApi';
 
 interface RefundModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: Order | null;
-  onConfirm: (orderId: number, reason: string, refundAmount: number) => Promise<void>;
+  onConfirm: (orderId: number, reason: string, refundAmount: number, imageUrls?: string[]) => Promise<void>;
   loading?: boolean;
 }
+
+const MAX_IMAGES = 5;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 const REFUND_REASON_SUGGESTIONS = [
   'Product is defective or does not match the website description',
@@ -29,8 +33,57 @@ export const RefundModal: React.FC<RefundModalProps> = ({
   const [reason, setReason] = useState('');
   const [customReason, setCustomReason] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen || !order) return null;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+
+    files.forEach((file) => {
+      if (!file.type.startsWith('image/')) {
+        errors.push(`${file.name} is not an image`);
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`${file.name} exceeds 5MB limit`);
+        return;
+      }
+      if (selectedFiles.length + validFiles.length >= MAX_IMAGES) {
+        errors.push(`Maximum ${MAX_IMAGES} images allowed`);
+        return;
+      }
+      validFiles.push(file);
+    });
+
+    if (errors.length > 0) {
+      setError(errors.join('. '));
+    }
+
+    if (validFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...validFiles]);
+      validFiles.forEach((file) => {
+        const url = URL.createObjectURL(file);
+        setPreviewUrls((prev) => [...prev, url]);
+      });
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    URL.revokeObjectURL(previewUrls[index]);
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('vi-VN', {
@@ -55,26 +108,51 @@ export const RefundModal: React.FC<RefundModalProps> = ({
 
   const handleConfirm = async () => {
     const finalReason = getFinalReason();
-    
+
     if (!finalReason.trim()) {
       setError('Please provide a reason for the refund request');
       return;
     }
 
     setError(null);
+
     try {
-      await onConfirm(order.id, finalReason, order.totalAmount);
+      let imageUrls: string[] | undefined;
+
+      // Upload images to Cloudinary if any
+      if (selectedFiles.length > 0) {
+        setUploading(true);
+        try {
+          imageUrls = await uploadMultipleToCloudinary(selectedFiles);
+        } catch {
+          setUploading(false);
+          setError('Failed to upload images. Please try again.');
+          return;
+        }
+        setUploading(false);
+      }
+
+      await onConfirm(order.id, finalReason, order.totalAmount, imageUrls);
+
+      // Cleanup
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
       setReason('');
       setCustomReason('');
+      setSelectedFiles([]);
+      setPreviewUrls([]);
       onClose();
     } catch (err) {
+      setUploading(false);
       setError(err instanceof Error ? err.message : 'Failed to submit refund request');
     }
   };
 
   const handleClose = () => {
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
     setReason('');
     setCustomReason('');
+    setSelectedFiles([]);
+    setPreviewUrls([]);
     setError(null);
     onClose();
   };
@@ -173,6 +251,79 @@ export const RefundModal: React.FC<RefundModalProps> = ({
             </div>
           )}
 
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Evidence Images <span className="text-red-500">*</span>
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              Upload up to {MAX_IMAGES} images as evidence for your refund request (max 5MB each)
+            </p>
+            
+            {/* Upload Button */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+              disabled={loading || uploading || selectedFiles.length >= MAX_IMAGES}
+            />
+            
+            {selectedFiles.length < MAX_IMAGES && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading || uploading}
+                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg
+                  className="mx-auto h-8 w-8 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span className="mt-2 block text-sm text-gray-600">
+                  Click to upload images
+                </span>
+              </button>
+            )}
+
+            {/* Image Previews */}
+            {previewUrls.length > 0 && (
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {previewUrls.map((url, index) => (
+                  <div key={index} className="relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      disabled={loading || uploading}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Error */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -186,34 +337,37 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           <button
             type="button"
             onClick={handleClose}
-            disabled={loading}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            disabled={loading || uploading}
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            disabled={loading || !getFinalReason().trim()}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center"
+            disabled={loading || uploading || !getFinalReason().trim() || selectedFiles.length === 0}
+            className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {loading ? (
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+            {loading || uploading ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span>{uploading ? 'Uploading...' : 'Submitting...'}</span>
+              </>
             ) : (
               'Submit Request'
             )}

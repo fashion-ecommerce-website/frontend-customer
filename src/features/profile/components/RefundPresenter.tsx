@@ -252,6 +252,33 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                     </div>
                   </div>
 
+                  {/* Supporting Images - Mobile */}
+                  {refund.imageUrls && refund.imageUrls.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-[10px] text-gray-500 mb-1">
+                        Evidence Images:
+                      </div>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {refund.imageUrls.map((url, index) => (
+                          <a
+                            key={index}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={`Refund image ${index + 1}`}
+                              className="w-14 h-14 object-cover rounded border border-gray-200 hover:border-gray-400 transition-colors"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Update Info */}
                   {refund.updatedAt && refund.updatedAt !== refund.createdAt && (
                     <div className="text-[10px] text-gray-500">
@@ -343,6 +370,33 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                           <span>{refund.reason}</span>
                         </div>
                       </div>
+
+                      {/* Supporting Images - Desktop */}
+                      {refund.imageUrls && refund.imageUrls.length > 0 && (
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-500 mb-1.5">
+                            Evidence Images:
+                          </div>
+                          <div className="flex gap-2 flex-wrap">
+                            {refund.imageUrls.map((url, index) => (
+                              <a
+                                key={index}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block"
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={url}
+                                  alt={`Refund image ${index + 1}`}
+                                  className="w-16 h-16 object-cover rounded border border-gray-200 hover:border-gray-400 transition-colors"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Processed Info */}
                       {refund.processedAt && (
