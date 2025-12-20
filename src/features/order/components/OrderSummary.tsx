@@ -6,7 +6,6 @@ import { ProductItem } from '@/services/api/productApi';
 import { useOrder } from '@/features/order/hooks/useOrder';
 import { CreateOrderRequest, PaymentMethod } from '../types';
 import { validateOrderData } from '@/utils/orderValidation';
-import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { PaymentApi } from '@/services/api/paymentApi';
 import { useAppDispatch } from '@/hooks/redux';
 import { VoucherModal, Voucher, VoucherByUserResponse } from './VoucherModal';
@@ -34,19 +33,6 @@ export function OrderSummary({
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
 	const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
-	const [confirmModal, setConfirmModal] = useState<{
-		isOpen: boolean;
-		title: string;
-		message: string;
-		type: 'danger' | 'warning' | 'info';
-		onConfirm: () => void;
-	}>({
-		isOpen: false,
-		title: '',
-		message: '',
-		type: 'info',
-		onConfirm: () => {},
-	});
 	
 	const {
 		selectedAddress,
@@ -134,19 +120,8 @@ export function OrderSummary({
 
 		setSubmitError(null);
 
-		// Show confirmation modal
-		const voucherText = voucherDiscount > 0 ? `\nVoucher Discount: ${formatPrice(voucherDiscount)}` : '';
-		
-		setConfirmModal({
-			isOpen: true,
-			title: 'Complete Order',
-			message: `Are you sure you want to complete this order?\n\nSubtotal: ${formatPrice(subtotal)}${voucherText}\nShipping: ${formatPrice(shippingFee?.fee || 0)}\nTotal Amount: ${formatPrice(total)}\nPayment Method: ${selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY ? 'Cash on Delivery' : 'Credit Card'}\n\nThis action cannot be undone.`,
-			type: 'info',
-			onConfirm: () => {
-				setConfirmModal(prev => ({ ...prev, isOpen: false }));
-				performOrderSubmission();
-			},
-		});
+		// Submit order directly without confirmation
+		performOrderSubmission();
 	};
 
 	const performOrderSubmission = async () => {
@@ -386,7 +361,7 @@ export function OrderSummary({
 						<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M11.4375 18.75L4.6875 12L11.4375 5.25M5.625 12H19.3125" stroke="#2E2E2E" strokeLinecap="round" strokeLinejoin="round" />
 						</svg>
-						<div className="text-center text-zinc-800 text-sm font-bold uppercase leading-tight tracking-wide">Back to Cart</div>
+						<div className="text-center text-zinc-800 text-sm font-bold uppercase leading-tight tracking-wide">Back</div>
 					</div>
 				</button>
 				<button 
@@ -403,19 +378,7 @@ export function OrderSummary({
 				</button>
 			</div>
 			</div>
-		</div>			{/* Confirm Modal */}
-			<ConfirmModal
-				isOpen={confirmModal.isOpen}
-				title={confirmModal.title}
-				message={confirmModal.message}
-				type={confirmModal.type}
-				confirmText="Complete Order"
-				cancelText="Cancel"
-				onConfirm={confirmModal.onConfirm}
-				onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-				isLoading={isOrderLoading}
-			/>
-
+		</div>
 			{/* Voucher Modal */}
 			<VoucherModal
 				isOpen={isVoucherModalOpen}

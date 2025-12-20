@@ -9,9 +9,10 @@ interface OrderModalProps {
   onClose: () => void;
   products?: ProductItem[];
   note?: string;
+  isBuyNow?: boolean;
 }
 
-export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, products, note }) => {
+export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, products, note, isBuyNow }) => {
   if (!isOpen) return null;
 
   return (
@@ -19,7 +20,9 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, product
       <div className="bg-white rounded-lg w-full max-w-4xl h-[90vh] mx-auto shadow-2xl border border-gray-200 flex flex-col">
         {/* Modal Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex justify-between items-center z-10 rounded-t-lg">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900">Order</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+            {isBuyNow ? 'Buy Now' : 'Order'}
+          </h2>
           <button 
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full hover:bg-gray-100"
@@ -33,7 +36,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, product
         
         {/* Modal Content */}
         <div className="flex-1 overflow-y-auto">
-          <OrderPresenter onClose={onClose} products={products} note={note} />
+          <OrderPresenter onClose={onClose} products={products} note={note} isBuyNow={isBuyNow} />
         </div>
       </div>
     </div>

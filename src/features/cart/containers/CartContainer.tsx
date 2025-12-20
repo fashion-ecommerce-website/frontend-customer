@@ -14,11 +14,10 @@ import {
 import { CartPresenter } from "../components/CartPresenter";
 import { CartCallState } from "../states/CartCallState";
 import { CartContainerProps } from "../types";
-import { ProductItem } from "@/services/api/productApi";
+import { ProductItem, productApi } from "@/services/api/productApi";
 import ProductQuickViewModal from "@/features/filter-product/components/ProductQuickViewModal";
 import { OrderModal } from "@/components";
 import { recommendationApi, ActionType } from "@/services/api/recommendationApi";
-import { productApi } from "@/services/api/productApi";
 
 type ExtendedGlobal = typeof globalThis & {
   __selectedProducts?: ProductItem[];
@@ -52,7 +51,7 @@ export const CartContainer: React.FC<CartContainerProps> = ({
   // Note state
   const [note, setNote] = useState<string>("");
 
-  // Auto-open checkout modal when coming from Buy Now
+  // Auto-open checkout modal when coming from normal checkout flow
   useEffect(() => {
     const shouldCheckout = searchParams.get('checkout') === 'true';
     if (shouldCheckout) {
