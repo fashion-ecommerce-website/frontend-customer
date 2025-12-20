@@ -23,7 +23,7 @@ export type VoucherByUserResponse = {
   id: number;
   name: string;
   code: string;
-  type: 'AMOUNT' | 'PERCENT';
+  type: 'AMOUNT' | 'FIXED' | 'PERCENT';
   value: number;
   maxDiscount?: number;
   minOrderAmount?: number;
@@ -31,7 +31,7 @@ export type VoucherByUserResponse = {
   usageLimitPerUser?: number;
   startAt: string;
   endAt: string;
-  available: boolean;  // Backend returns 'available', not 'isAvailable'
+  available: boolean; // Backend returns 'available', not 'isAvailable'
   message?: string;
 };
 
@@ -56,14 +56,21 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
 
   // Convert backend response to frontend Voucher type
   const convertBackendToFrontend = (backendVoucher: VoucherByUserResponse): Voucher => {
+    // Backend returns type as 'AMOUNT', 'FIXED' (fixed amount) or 'PERCENT'
+    const typeUpper = backendVoucher.type?.toUpperCase();
+    const isFixedAmount = typeUpper === 'AMOUNT' || typeUpper === 'FIXED';
     return {
       id: backendVoucher.id,
       code: backendVoucher.code,
       label: backendVoucher.name,
-      discountType: backendVoucher.type === 'AMOUNT' ? 'amount' : 'percent',
-      value: backendVoucher.value,
-      minSubtotal: backendVoucher.minOrderAmount,
-      maxDiscountAmount: backendVoucher.maxDiscount,
+      discountType: isFixedAmount ? 'amount' : 'percent',
+      value: Number(backendVoucher.value),
+      minSubtotal: backendVoucher.minOrderAmount
+        ? Number(backendVoucher.minOrderAmount)
+        : undefined,
+      maxDiscountAmount: backendVoucher.maxDiscount
+        ? Number(backendVoucher.maxDiscount)
+        : undefined,
       startsAt: backendVoucher.startAt,
       expiresAt: backendVoucher.endAt,
       available: backendVoucher.available,
