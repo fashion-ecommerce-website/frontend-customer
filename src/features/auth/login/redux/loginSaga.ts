@@ -32,6 +32,7 @@ interface ApiResponse<T = unknown> {
 }
 
 import { authApi, type BackendUser } from '../../../../services/api/authApi';
+import { authUtils } from '@/utils/auth';
 import { profileApiService, ApiUserResponse } from '../../../../services/api/profileApi';
 import { setUser } from './loginSlice';
 
@@ -116,11 +117,8 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
     
     const response: ApiResponse<LoginResponse> = yield call(() => authApi.login(action.payload));
     if (response.success && response.data.accessToken) {
-      // Store tokens
-      localStorage.setItem('accessToken', response.data.accessToken);
-      if (response.data.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-      }
+      // Store tokens in cookies
+      authUtils.setTokens(response.data.accessToken, response.data.refreshToken || '');
       
       // Store basic user data from login response
       const basicUserData = {
@@ -134,7 +132,7 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      localStorage.setItem('user', JSON.stringify(basicUserData));
+      authUtils.setUser(basicUserData as User);
       
       // First, set login success with basic data
       yield put(loginSuccess(response.data));
@@ -145,8 +143,8 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
         
         if (profileResponse.success && profileResponse.data) {
           const fullUserData = convertApiUserToUser(profileResponse.data);
-          // Update localStorage with full user data
-          localStorage.setItem('user', JSON.stringify(fullUserData));
+          // Update cookie with full user data
+          authUtils.setUser(fullUserData as User);
           // Update Redux store with full user data
           yield put(setUser(fullUserData));
         }
@@ -181,22 +179,16 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
 // Logout saga with token clearing
 function* handleLogout() {
   try {
-    // Just clear local storage - no API call needed for logout
-    
-    // Clear tokens regardless of API response
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    // Clear auth cookies - no API call needed for logout
+    authUtils.clearAuth();
     
     // Clear cart data when user logs out
     yield put(clearCart());
     
     yield put(logoutSuccess());
   } catch {
-    // Clear tokens even on error
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    // Clear auth cookies even on error
+    authUtils.clearAuth();
     
     // Clear cart data even on error
     yield put(clearCart());
@@ -214,11 +206,8 @@ function* handleRefreshToken(action: PayloadAction<RefreshTokenRequest>) {
     const response: ApiResponse<RefreshTokenResponse> = yield call(() => authApi.refreshToken(action.payload));
     
     if (response.success && response.data.accessToken) {
-      // Store new tokens
-      localStorage.setItem('accessToken', response.data.accessToken);
-      if (response.data.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-      }
+      // Store new tokens in cookies
+      authUtils.setTokens(response.data.accessToken, response.data.refreshToken || '');
       
       yield put(refreshTokenSuccess({
         accessToken: response.data.accessToken,
@@ -259,11 +248,11 @@ function* handleGoogleLogin() {
     // Convert BackendUser to User format
     const convertedUser = convertBackendUserToUser(backendUser);
     
-    // Get token from localStorage (authApi now saves it as 'accessToken')
-    const token = localStorage.getItem('accessToken');
-    
-    // Update localStorage with converted user data for consistency
-    localStorage.setItem('user', JSON.stringify(convertedUser));
+    // Get token from cookies
+    const token = authUtils.getAccessToken();
+
+    // Update cookie with converted user data for consistency
+    authUtils.setUser(convertedUser as User);
     
     const googleResponse = {
       user: convertedUser, // Use converted user instead of backendUser
@@ -277,7 +266,7 @@ function* handleGoogleLogin() {
       const profileResponse: ApiResponse<ApiUserResponse> = yield call(() => profileApiService.getProfile());
       if (profileResponse.success && profileResponse.data) {
         const fullUserData = convertApiUserToUser(profileResponse.data);
-        localStorage.setItem('user', JSON.stringify(fullUserData));
+        authUtils.setUser(fullUserData as User);
         yield put(setUser(fullUserData));
       }
     } catch (profileError) {

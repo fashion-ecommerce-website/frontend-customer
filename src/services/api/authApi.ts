@@ -3,6 +3,7 @@ import { ApiResponse } from '../../types/api.types';
 import { LoginRequest, LoginResponse, User, RefreshTokenRequest, RefreshTokenResponse } from '../../features/auth/login/types/login.types';
 import { RegisterRequest, RegisterResponse } from '../../features/auth/register/types/register.types';
 import { API_ENDPOINTS } from '../../config/environment';
+import { authUtils } from '@/utils/auth';
 
 // Firebase imports for Google Auth
 import { signInWithPopup, signOut } from 'firebase/auth';
@@ -234,10 +235,7 @@ export class AuthApiService {
           email?: string;
           expiresIn?: number;
         };
-        localStorage.setItem('accessToken', tokenResp.accessToken);
-        if (tokenResp.refreshToken) {
-          localStorage.setItem('refreshToken', tokenResp.refreshToken);
-        }
+        authUtils.setTokens(tokenResp.accessToken, tokenResp.refreshToken || '');
 
         const normalizedUser: BackendUser = {
           id: firebaseUser.uid,
@@ -248,7 +246,21 @@ export class AuthApiService {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        localStorage.setItem('user', JSON.stringify(normalizedUser));
+
+        // Map backend user shape to frontend `User` type
+        const userToStore: User = {
+          id: normalizedUser.id,
+          username: normalizedUser.name,
+          email: normalizedUser.email,
+          firstName: '',
+          lastName: '',
+          role: 'USER',
+          enabled: true,
+          createdAt: normalizedUser.createdAt,
+          updatedAt: normalizedUser.updatedAt,
+        } as User;
+
+        authUtils.setUser(userToStore);
         console.log('💾 Saved token-only response and constructed user from Firebase');
         console.log('✅ Google authentication flow completed successfully');
         return normalizedUser;
@@ -269,7 +281,7 @@ export class AuthApiService {
    */
   async logout(): Promise<void> {
     try {
-      const token = localStorage.getItem('token');
+      const token = authUtils.getAccessToken();
       
       // Logout from backend
       if (token) {
@@ -293,8 +305,7 @@ export class AuthApiService {
       console.error('❌ Logout error:', error);
     } finally {
       // Always clear local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      authUtils.clearAuth();
       console.log('✅ Logout complete');
     }
   }

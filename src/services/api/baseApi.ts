@@ -55,7 +55,7 @@ class BaseApi {
     this.isRefreshing = true;
 
     try {
-      const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+      const refreshToken = authUtils.getRefreshToken();
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
@@ -98,8 +98,7 @@ class BaseApi {
       }
 
       if (typeof window !== 'undefined') {
-        localStorage.setItem('accessToken', newAccessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
+        authUtils.setTokens(newAccessToken, newRefreshToken);
       }
 
       this.processQueue(null, newAccessToken);
@@ -116,13 +115,13 @@ class BaseApi {
 
   // Get authorization header
   private getAuthHeaders(): Record<string, string> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const token = authUtils.getAccessToken();
     return token ? { Authorization: `${JWT_CONFIG.HEADER_PREFIX}${token}` } : {};
   }
 
   // Check if token is expired or about to expire
   private isTokenExpired(): boolean {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const token = authUtils.getAccessToken();
     if (!token) return true;
 
     try {

@@ -7,6 +7,7 @@ import { AddressModal } from '../components/AddressModal';
 import { ConfirmModal } from '../../../components/modals/ConfirmModal';
 import { useToast } from '../../../providers/ToastProvider';
 import { Address } from '../../../services/api/addressApi';
+import { authUtils } from '@/utils/auth';
 import {
   getAddressesRequest,
   createAddressRequest,
@@ -70,9 +71,9 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
     console.log('AddressContainer: Loading addresses...');
     
     // Check if user is authenticated
-    const token = localStorage.getItem('accessToken');
+    const token = authUtils.getAccessToken();
     console.log('AddressContainer: Access token exists:', !!token);
-    
+
     if (!token) {
       console.error('AddressContainer: No access token found');
       return;

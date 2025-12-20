@@ -2,14 +2,18 @@
  * Authentication utilities
  */
 
+import { cookies } from './cookies';
+import { User } from '@/features/auth/login/types/login.types';
+
 export const authUtils = {
   /**
    * Clear all authentication data
    */
   clearAuth: () => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      cookies.remove('accessToken');
+      cookies.remove('refreshToken');
+      cookies.remove('user');
     }
   },
 
@@ -18,10 +22,10 @@ export const authUtils = {
    */
   isAuthenticated: (): boolean => {
     if (typeof window === 'undefined') return false;
-    
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    
+
+    const accessToken = cookies.get('accessToken');
+    const refreshToken = cookies.get('refreshToken');
+
     return !!(accessToken || refreshToken);
   },
 
@@ -30,7 +34,7 @@ export const authUtils = {
    */
   getAccessToken: (): string | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('accessToken');
+    return cookies.get('accessToken');
   },
 
   /**
@@ -38,7 +42,7 @@ export const authUtils = {
    */
   getRefreshToken: (): string | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('refreshToken');
+    return cookies.get('refreshToken');
   },
 
   /**
@@ -46,8 +50,34 @@ export const authUtils = {
    */
   setTokens: (accessToken: string, refreshToken: string) => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      cookies.set('accessToken', accessToken);
+      cookies.set('refreshToken', refreshToken);
+    }
+  },
+
+  /**
+   * Get stored user object (stringified JSON in cookie)
+   */
+  getUser: (): User | null => {
+    if (typeof window === 'undefined') return null;
+    const raw = cookies.get('user');
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as User;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Persist user object into cookie
+   */
+  setUser: (user: User) => {
+    if (typeof window === 'undefined') return;
+    try {
+      cookies.set('user', JSON.stringify(user));
+    } catch {
+      // ignore
     }
   },
 
