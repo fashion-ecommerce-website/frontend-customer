@@ -9,11 +9,7 @@ import type {
   FitPreference,
   MeasurementsFormProps 
 } from '../types';
-import { 
-  saveMeasurements, 
-  calculateBMI,
-  validateMeasurements 
-} from '@/utils/localStorage/measurements';
+import { calculateBMI } from '@/utils/bmi';
 
 export const MeasurementsForm: React.FC<MeasurementsFormProps> = ({ 
   onSave, 
@@ -22,7 +18,6 @@ export const MeasurementsForm: React.FC<MeasurementsFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<Partial<UserMeasurements>>({
     gender: 'MALE',
-    age: 25,
     height: 168,
     weight: 65,
     chest: 90,
@@ -52,12 +47,6 @@ export const MeasurementsForm: React.FC<MeasurementsFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const validationErrors = validateMeasurements(formData);
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    
     if (!formData.gender || !formData.height || !formData.weight || 
         !formData.chest || !formData.waist || !formData.hips) {
       setErrors(['Please fill in all required fields']);
@@ -69,7 +58,6 @@ export const MeasurementsForm: React.FC<MeasurementsFormProps> = ({
       bmi: calculateBMI(formData.height!, formData.weight!)
     };
     
-    saveMeasurements(measurements);
     onSave(measurements);
   };
 
@@ -105,20 +93,7 @@ export const MeasurementsForm: React.FC<MeasurementsFormProps> = ({
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Age <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              value={formData.age}
-              onChange={(e) => handleChange('age', parseInt(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-              placeholder="25"
-              min="18"
-              max="100"
-            />
-          </div>
+
         </div>
       </div>
 
@@ -268,20 +243,6 @@ export const MeasurementsForm: React.FC<MeasurementsFormProps> = ({
             </select>
           </div>
 
-          {formData.gender === 'FEMALE' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bra Size (optional)
-              </label>
-              <input
-                type="text"
-                value={formData.braSize || ''}
-                onChange={(e) => handleChange('braSize', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="e.g., 70B, 75A"
-              />
-            </div>
-          )}
         </div>
 
         <div className="flex items-center">

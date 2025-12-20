@@ -35,7 +35,6 @@ export interface SizeRecommendationResponse {
 
 export interface UserMeasurements {
   gender: Gender;
-  age: number;
   height: number;
   weight: number;
   chest: number;
@@ -47,7 +46,6 @@ export interface UserMeasurements {
   chestShape?: ChestShape;
   fitPreference?: FitPreference;
   hasReturnHistory?: boolean;
-  braSize?: string;
   lastUpdated?: string;
 }
 
@@ -74,7 +72,7 @@ export interface MeasurementsFormProps {
 
 export interface MeasurementsWizardProps {
   onSave: (measurements: UserMeasurements) => void;
-  onCancel: () => void;
+  onCancel?: () => void;
   initialData?: UserMeasurements | null;
   productImage?: string;
 }

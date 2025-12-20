@@ -5,7 +5,6 @@ import { UserMeasurements } from '../../types/size-recommendation.types';
 export interface UserProfileResponse {
   id: number;
   gender: string;
-  age: number;
   height: number;
   weight: number;
   chest: number;
@@ -17,13 +16,11 @@ export interface UserProfileResponse {
   chestShape?: string;
   fitPreference: string;
   hasReturnHistory: boolean;
-  braSize?: string;
   updatedAt: string;
 }
 
 export interface UserProfileRequest {
   gender: string;
-  age: number;
   height: number;
   weight: number;
   chest: number;
@@ -33,7 +30,6 @@ export interface UserProfileRequest {
   hipShape: string;
   chestShape?: string;
   fitPreference: string;
-  braSize?: string;
 }
 
 const USER_PROFILE_ENDPOINTS = {
@@ -70,7 +66,6 @@ export class UserProfileApiService {
   convertToProfileRequest(measurements: UserMeasurements): UserProfileRequest {
     return {
       gender: measurements.gender,
-      age: measurements.age,
       height: measurements.height,
       weight: measurements.weight,
       chest: measurements.chest,
@@ -89,7 +84,6 @@ export class UserProfileApiService {
   convertToMeasurements(profile: UserProfileResponse): UserMeasurements {
     return {
       gender: profile.gender as 'MALE' | 'FEMALE',
-      age: profile.age,
       height: profile.height,
       weight: profile.weight,
       chest: profile.chest,
