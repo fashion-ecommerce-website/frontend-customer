@@ -1,15 +1,14 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { useAppSelector, useAppDispatch } from '@/hooks/redux';
+import { useAppSelector } from '@/hooks/redux';
 import { useCartActions } from '@/hooks/useCartActions';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
-import { ProductDetail } from '@/services/api/productApi';
+import { ProductDetail, ProductItem } from '@/services/api/productApi';
 import { useRouter } from 'next/navigation';
 import { recommendationApi, ActionType } from '@/services/api/recommendationApi';
-import { SizeGuideModal, MeasurementsModal } from '@/components/modals';
+import { SizeGuideModal, MeasurementsModal, OrderModal } from '@/components/modals';
 import { Size } from '@/types/size-recommendation.types';
-import { addToCartAsync } from '@/features/cart/redux/cartSaga';
 import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useToast } from '@/providers/ToastProvider';
@@ -32,7 +31,6 @@ export function ProductInfo({
   isColorLoading = false,
 }: ProductInfoProps) {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const { showError } = useToast();
   const { addToCartWithToast } = useCartActions({
@@ -47,6 +45,7 @@ export function ProductInfo({
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [showMeasurementsModal, setShowMeasurementsModal] = useState(false);
   const [showSizeNotice, setShowSizeNotice] = useState(false);
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
   const isAllSizesOut = (() => {
     const quantities = Object.values(product.mapSizeToQuantity || {});
     return quantities.length > 0 && quantities.every((q) => q === 0);
@@ -160,7 +159,7 @@ export function ProductInfo({
     if (!selectedSize) {
       setShowSizeNotice(true);
       showError('Please select a size');
-      setTimeout(() => setShowSizeNotice(false), 3000); // Hide after 3 seconds
+      setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
 
@@ -178,41 +177,46 @@ export function ProductInfo({
 
     // Check if user is authenticated
     if (!isAuthenticated) {
-      // Save cart intent to sessionStorage before redirecting to login
       sessionStorage.setItem('pendingCartAction', JSON.stringify({
         productDetailId: product.detailId,
         sizeName: selectedSize,
         quantity: quantity,
-        returnUrl: `/products/${product.detailId}`
+        returnUrl: `/products/${product.detailId}`,
+        isBuyNow: true
       }));
       router.push(`/auth/login?returnUrl=/products/${product.detailId}`);
       return;
     }
 
+    // Record interaction for recommendation system
     try {
-      setAddingToCart(true);
-
-      // Add to cart without toast
-      dispatch(addToCartAsync({
-        productDetailId: product.detailId,
-        quantity: quantity
-      }));
-
-      // Record interaction for recommendation system
-      try {
-        await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, quantity);
-        console.log('Recorded ADD_TO_CART interaction for Buy Now');
-      } catch (error) {
-        console.error('Failed to record ADD_TO_CART interaction:', error);
-        // Fail silently
-      }
-
-      // Navigate to cart page with checkout flag to auto-open checkout modal
-      router.push('/cart?checkout=true');
-    } catch {
-      setAddingToCart(false);
+      await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, quantity);
+      console.log('Recorded ADD_TO_CART interaction for Buy Now');
+    } catch (error) {
+      console.error('Failed to record ADD_TO_CART interaction:', error);
     }
+
+    // Open Buy Now modal directly
+    setShowBuyNowModal(true);
   };
+
+  // Create ProductItem for Buy Now modal
+  const buyNowProduct: ProductItem = useMemo(
+    () => ({
+      detailId: product.detailId,
+      productTitle: product.title,
+      productSlug: product.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''),
+      price: product.price,
+      finalPrice: product.finalPrice ?? product.price,
+      percentOff: product.percentOff,
+      quantity: quantity,
+      colors: product.colors || [],
+      colorName: selectedColor || product.activeColor,
+      sizeName: selectedSize || product.activeSize || '',
+      imageUrls: product.images || [],
+    }),
+    [product, quantity, selectedColor, selectedSize]
+  );
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -454,6 +458,14 @@ export function ProductInfo({
           />
         </>
       )}
+
+      {/* Buy Now Order Modal */}
+      <OrderModal
+        isOpen={showBuyNowModal}
+        onClose={() => setShowBuyNowModal(false)}
+        products={[buyNowProduct]}
+        isBuyNow={true}
+      />
     </div>
   );
 }

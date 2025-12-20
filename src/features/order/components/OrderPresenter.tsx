@@ -17,9 +17,10 @@ export type OrderPresenterProps = {
   onClose?: () => void;
   products?: ProductItem[];
   note?: string;
+  isBuyNow?: boolean;
 };
 
-export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, products, note }) => {
+export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, products, note, isBuyNow }) => {
   const dispatch = useAppDispatch();
   const selectedCartItems = useAppSelector(selectSelectedCartItems);
   
@@ -135,12 +136,15 @@ export const OrderPresenter: React.FC<OrderPresenterProps> = ({ onClose, product
     resetOrder();
 
     // Remove selected items from cart in bulk (best-effort)
-    try {
-      const ids = selectedCartItems.map(item => item.id);
-      if (ids.length > 0) {
-        dispatch(removeMultipleCartItemsAsync(ids));
-      }
-    } catch {}
+    // Skip if this is a Buy Now order (items weren't added to cart)
+    if (!isBuyNow) {
+      try {
+        const ids = selectedCartItems.map(item => item.id);
+        if (ids.length > 0) {
+          dispatch(removeMultipleCartItemsAsync(ids));
+        }
+      } catch {}
+    }
 
     // Close modal
     if (onClose) onClose();

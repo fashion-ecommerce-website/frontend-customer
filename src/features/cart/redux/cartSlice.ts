@@ -62,6 +62,21 @@ const cartSlice = createSlice({
       state.hasInitiallyLoaded = true; // Mark as loaded
     },
 
+    // Set cart items for Buy Now - only select the specific item by productDetailId
+    setCartItemsForBuyNow: (state, action: PayloadAction<{ items: CartItem[]; buyNowDetailId: number }>) => {
+      const { items, buyNowDetailId } = action.payload;
+      // Only select the item that matches the buyNowDetailId
+      state.items = items.map(item => ({
+        ...item,
+        selected: item.productDetailId === buyNowDetailId
+      }));
+      state.summary = calculateCartSummary(state.items);
+      state.loading = false;
+      state.error = null;
+      state.status = ApiStatus.SUCCESS;
+      state.hasInitiallyLoaded = true;
+    },
+
     // Add item to cart
     addCartItem: (state, action: PayloadAction<CartItem>) => {
       const existingItem = state.items.find(item => item.id === action.payload.id);
@@ -199,6 +214,7 @@ const cartSlice = createSlice({
 export const {
   setLoading,
   setCartItems,
+  setCartItemsForBuyNow,
   addCartItem,
   updateCartItem,
   removeCartItem,

@@ -15,6 +15,7 @@ import {
 import { recommendationApi, ActionType } from "@/services/api/recommendationApi"
 import { useToast } from "@/providers/ToastProvider"
 import { useRouter } from "next/navigation"
+import { OrderModal } from "@/components/modals"
 
 interface ProductQuickViewModalProps {
   isOpen: boolean
@@ -68,6 +69,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const [selectedSizeLocal, setSelectedSizeLocal] = useState<string>("")
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showSizeNotice, setShowSizeNotice] = useState(false)
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false)
   const [isVariantLoading, setIsVariantLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
@@ -487,20 +489,67 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     }
   }
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!selectedSizeLocal) {
       setShowSizeNotice(true)
+      showError('Please select a size')
       setTimeout(() => setShowSizeNotice(false), 3000)
       return
     }
-    // TODO: Buy now logic
-    console.log("Buy now:", {
-      product: product?.detailId,
-      color: selectedColor,
-      size: selectedSizeLocal,
-    })
-    onClose()
+
+    if (!product) return
+
+    // Validate stock availability
+    const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
+    if (availableQty === 0) {
+      showError('This size is out of stock')
+      return
+    }
+
+    if (selectedAmount > availableQty) {
+      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+      return
+    }
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      sessionStorage.setItem('pendingCartAction', JSON.stringify({
+        productDetailId: product.detailId,
+        sizeName: selectedSizeLocal,
+        quantity: selectedAmount,
+        returnUrl: `/products/${product.detailId}`,
+        isBuyNow: true
+      }))
+      router.push(`/auth/login?returnUrl=/products/${product.detailId}`)
+      return
+    }
+
+    // Record interaction for recommendation system
+    try {
+      await recommendationApi.recordInteraction(product.productId, ActionType.ADD_TO_CART, selectedAmount)
+      console.log('Recorded ADD_TO_CART interaction for Buy Now')
+    } catch (error) {
+      console.error('Failed to record ADD_TO_CART interaction:', error)
+    }
+
+    // Open Buy Now modal directly instead of navigating
+    setShowBuyNowModal(true)
   }
+
+  // Create ProductItem for Buy Now modal
+  const buyNowProduct = product ? {
+    detailId: product.detailId,
+    productTitle: product.title,
+    productSlug: product.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''),
+    price: product.price,
+    finalPrice: product.finalPrice ?? product.price,
+    percentOff: product.percentOff,
+    quantity: selectedAmount,
+    colors: product.colors || [],
+    colorName: product.activeColor || selectedColor,
+    sizeName: selectedSizeLocal || product.activeSize || '',
+    imageUrls: product.images || []
+  } : null
 
   const handleImageSelect = (index: number) => {
     setSelectedImageIndex(index)
@@ -543,11 +592,12 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     product?.images && product.images.length > 0 ? product.images : ["/images/placeholder-product.jpg"]
 
   return (
-    <div
-      className={`fixed inset-0 bg-black/75 flex items-end md:items-center justify-center z-50 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"
-        }`}
-      onClick={onClose} // Click backdrop to close
-    >
+    <>
+      {/* Quick View Modal - hidden when Buy Now modal is open */}
+      <div
+        className={`fixed inset-0 bg-black/75 flex items-end md:items-center justify-center z-50 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"} ${showBuyNowModal ? "hidden" : ""}`}
+        onClick={onClose} // Click backdrop to close
+      >
       <div
         className={`bg-white rounded-t-2xl md:rounded-lg p-4 w-full max-w-4xl mx-4 relative shadow-2xl border border-gray-200 overflow-hidden h-[70vh] transition-all duration-300 ${isAnimating
           ? "translate-y-0 md:scale-100 opacity-100"
@@ -1024,6 +1074,20 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         )}
       </div>
     </div>
+
+      {/* Buy Now Order Modal */}
+      {buyNowProduct && (
+        <OrderModal
+          isOpen={showBuyNowModal}
+          onClose={() => {
+            setShowBuyNowModal(false)
+            onClose() // Also close the quick view modal
+          }}
+          products={[buyNowProduct]}
+          isBuyNow={true}
+        />
+      )}
+    </>
   )
 }
 

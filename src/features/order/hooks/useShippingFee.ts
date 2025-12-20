@@ -75,40 +75,28 @@ const calculateShippingFeeFromGHN = async (
   throw new Error('Missing GHN district ID or ward code');
 };
 
-// Fallback mock calculation for addresses without GHN IDs
-const calculateMockShippingFee = (address: AddressData): GHNShippingFeeData => {
-  let fee = 0;
-  
-  if (address.province) {
-    const province = address.province.toLowerCase();
-    
-    if (province.includes('hà nội') || province.includes('hanoi')) {
-      fee = 30000; // 30k for Hanoi
-    } else if (province.includes('hồ chí minh') || province.includes('ho chi minh') || province.includes('tp.hcm')) {
-      fee = 25000; // 25k for HCMC
-    } else if (province.includes('đà nẵng') || province.includes('da nang')) {
-      fee = 35000; // 35k for Da Nang
-    } else if (province.includes('hải phòng') || province.includes('hai phong')) {
-      fee = 40000; // 40k for Hai Phong
-    } else {
-      fee = 50000; // 50k for other provinces
-    }
-  }
+// Fallback fee constant when GHN API fails
+const FALLBACK_SHIPPING_FEE = 25000;
 
-  return {
-    total: fee,
-    service_fee: fee,
-    insurance_fee: 0,
-    pick_station_fee: 0,
-    coupon_value: 0,
-    r2s_fee: 0,
-    document_return: 0,
-    double_check: 0,
-    cod_fee: 0,
-    pick_remote_areas_fee: 0,
-    deliver_remote_areas_fee: 0,
-    cod_failed_fee: 0,
-  };
+// Fallback shipping fee data when GHN API fails
+const getFallbackShippingFee = (): GHNShippingFeeData => ({
+  total: FALLBACK_SHIPPING_FEE,
+  service_fee: FALLBACK_SHIPPING_FEE,
+  insurance_fee: 0,
+  pick_station_fee: 0,
+  coupon_value: 0,
+  r2s_fee: 0,
+  document_return: 0,
+  double_check: 0,
+  cod_fee: 0,
+  pick_remote_areas_fee: 0,
+  deliver_remote_areas_fee: 0,
+  cod_failed_fee: 0,
+});
+
+// Fallback mock calculation for addresses without GHN IDs
+const calculateMockShippingFee = (): GHNShippingFeeData => {
+  return getFallbackShippingFee();
 };
 
 export const useShippingFee = (address: AddressData, options?: ShippingFeeOptions) => {
@@ -160,8 +148,8 @@ export const useShippingFee = (address: AddressData, options?: ShippingFeeOption
             details: feeData
           });
         } else {
-          // Fallback to mock calculation
-          const feeData = calculateMockShippingFee(addr);
+          // Fallback to fixed fee
+          const feeData = calculateMockShippingFee();
           setShippingFee({ 
             fee: feeData.total, 
             isCalculating: false,
@@ -170,13 +158,12 @@ export const useShippingFee = (address: AddressData, options?: ShippingFeeOption
         }
       } catch (error) {
         console.error('Shipping fee calculation error:', error);
-        // Fallback to mock on error
-        const mockFee = calculateMockShippingFee(addr);
+        // Fallback to fixed 25,000đ on error
+        const fallbackFee = getFallbackShippingFee();
         setShippingFee({
-          fee: mockFee.total,
+          fee: fallbackFee.total,
           isCalculating: false,
-          details: mockFee,
-          error: error instanceof Error ? error.message : 'Không thể tính phí ship từ GHN. Đang sử dụng phí ước tính.'
+          details: fallbackFee,
         });
       }
     };

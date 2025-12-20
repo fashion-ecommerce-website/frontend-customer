@@ -9,6 +9,7 @@ import { AddToCartPayload, UpdateCartItemPayload } from '@/types/cart.types';
 import {
   setLoading,
   setCartItems,
+  setCartItemsForBuyNow,
   addCartItem,
   updateCartItem,
   removeCartItem,
@@ -21,6 +22,7 @@ import {
 export const CART_ACTIONS = {
   FETCH_CART: 'cart/fetchCart',
   ADD_TO_CART: 'cart/addToCart',
+  BUY_NOW: 'cart/buyNow',
   // Use a distinct async action type to avoid colliding with the slice reducer's
   // `updateCartItem` action (which shares the same type string when generated
   // by the slice). If they share the same type string the saga and reducer
@@ -40,6 +42,10 @@ export const fetchCart = () => ({ type: CART_ACTIONS.FETCH_CART });
 export const addToCartAsync = (payload: AddToCartPayload) => ({ 
   type: CART_ACTIONS.ADD_TO_CART, 
   payload 
+});
+export const buyNowAsync = (payload: AddToCartPayload) => ({
+  type: CART_ACTIONS.BUY_NOW,
+  payload
 });
 export const updateCartItemAsync = (payload: UpdateCartItemPayload) => ({ 
   type: CART_ACTIONS.UPDATE_CART_ITEM, 
@@ -91,6 +97,59 @@ function* addToCartSaga(action: PayloadAction<AddToCartPayload>) {
     }
   } catch {
     yield put(setError('Network error occurred while adding to cart'));
+  } finally {
+    yield put(setLoading(false));
+  }
+}
+
+function* buyNowSaga(action: PayloadAction<AddToCartPayload>) {
+  try {
+    yield put(setLoading(true));
+    const { productDetailId, quantity } = action.payload;
+
+    // First, fetch current cart to check if item already exists
+    const currentCartResponse: ApiResponse<CartItem[]> = yield call(cartApi.getCartItems);
+    
+    if (currentCartResponse.success && currentCartResponse.data) {
+      const existingItem = currentCartResponse.data.find(
+        item => item.productDetailId === productDetailId
+      );
+
+      if (existingItem) {
+        // Item exists - update quantity to the new value (not add)
+        const updateRequest = {
+          cartDetailId: existingItem.id,
+          quantity: quantity // Set to exact quantity, not add
+        };
+        const updateResponse: ApiResponse<CartItem> = yield call(cartApi.updateCartItem, updateRequest);
+        
+        if (!updateResponse.success) {
+          yield put(setError(updateResponse.message || 'Failed to update cart item'));
+          return;
+        }
+      } else {
+        // Item doesn't exist - add new
+        const addResponse: ApiResponse<CartItem> = yield call(cartApi.addToCart, action.payload);
+        
+        if (!addResponse.success) {
+          yield put(setError(addResponse.message || 'Failed to add item to cart'));
+          return;
+        }
+      }
+
+      // Fetch cart again to get latest data with promotions, only select the buy now item
+      const cartResponse: ApiResponse<CartItem[]> = yield call(cartApi.getCartItems);
+      if (cartResponse.success && cartResponse.data) {
+        yield put(setCartItemsForBuyNow({
+          items: cartResponse.data,
+          buyNowDetailId: productDetailId
+        }));
+      }
+    } else {
+      yield put(setError(currentCartResponse.message || 'Failed to fetch cart'));
+    }
+  } catch {
+    yield put(setError('Network error occurred while processing buy now'));
   } finally {
     yield put(setLoading(false));
   }
@@ -196,6 +255,7 @@ function* clearCartSaga() {
 export function* cartSaga() {
   yield takeLatest(CART_ACTIONS.FETCH_CART, fetchCartSaga);
   yield takeEvery(CART_ACTIONS.ADD_TO_CART, addToCartSaga);
+  yield takeEvery(CART_ACTIONS.BUY_NOW, buyNowSaga);
   // Use takeLatest so if the update action is dispatched multiple times
   // (for example due to UI duplicate events or HMR/dev double-invocation),
   // only the most recent update will be processed and previous ones will be cancelled.
