@@ -10,10 +10,7 @@ import type {
   FitPreference,
   MeasurementsWizardProps
 } from '../types';
-import { 
-  saveMeasurements, 
-  calculateBMI 
-} from '@/utils/localStorage/measurements';
+import { calculateBMI } from '@/utils/bmi';
 import { 
   validateField, 
   validateMeasurements
@@ -24,8 +21,6 @@ type Step =
   | 'height-weight' 
   | 'measurements'
   | 'fit-preference'
-  | 'age'
-  | 'bra-size'
   | 'hip-shape'
   | 'chest-shape'
   | 'belly-shape';
@@ -38,7 +33,6 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
   const [currentStep, setCurrentStep] = useState<Step>('gender');
   const [formData, setFormData] = useState<Partial<UserMeasurements>>({
     gender: 'MALE',
-    age: 25,
     height: 168,
     weight: 65,
     chest: 90,
@@ -55,10 +49,10 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
   const [, setShowValidationErrors] = useState(false);
 
   const getStepOrder = (): Step[] => {
-    const baseSteps: Step[] = ['gender', 'height-weight', 'measurements', 'fit-preference', 'age'];
+    const baseSteps: Step[] = ['gender', 'height-weight', 'measurements', 'fit-preference'];
     
     if (formData.gender === 'FEMALE') {
-      return [...baseSteps, 'bra-size', 'hip-shape', 'belly-shape'];
+      return [...baseSteps, 'hip-shape', 'belly-shape'];
     }
     return [...baseSteps, 'chest-shape', 'belly-shape'];
   };
@@ -74,8 +68,6 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
       case 'height-weight': return ['height', 'weight'];
       case 'measurements': return ['chest', 'waist', 'hips'];
       case 'fit-preference': return ['fitPreference'];
-      case 'age': return ['age'];
-      case 'bra-size': return [];
       case 'hip-shape': return ['hipShape'];
       case 'chest-shape': return ['chestShape'];
       case 'belly-shape': return ['bellyShape'];
@@ -165,7 +157,6 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
       bmi: calculateBMI(formData.height!, formData.weight!)
     };
     
-    saveMeasurements(measurements);
     onSave(measurements);
   };
 
@@ -287,21 +278,6 @@ export const MeasurementsWizard: React.FC<MeasurementsWizardProps> = ({
           <FitPreferenceStep
             value={formData.fitPreference!}
             onChange={(v: FitPreference) => handleChange('fitPreference', v)}
-          />
-        );
-      case 'age':
-        return (
-          <AgeStep 
-            value={formData.age!} 
-            onChange={(v: number) => handleChange('age', v)}
-            errors={fieldErrors}
-          />
-        );
-      case 'bra-size':
-        return (
-          <BraSizeStep
-            value={formData.braSize || ''}
-            onChange={(v: string) => setFormData(prev => ({ ...prev, braSize: v }))}
           />
         );
       case 'hip-shape':
@@ -653,88 +629,6 @@ function FitPreferenceStep({
     </div>
   );
 }
-
-function AgeStep({ 
-  value, 
-  onChange,
-  errors 
-}: { 
-  value: number; 
-  onChange: (v: number) => void;
-  errors?: Record<string, string>;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-black mb-2">How old are you?</h2>
-      </div>
-
-      <div className="mt-8">
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(parseInt(e.target.value))}
-          className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-black text-lg text-center ${
-            errors?.age 
-              ? 'border-red-500 focus:border-red-600' 
-              : 'border-gray-300 focus:border-gray-900'
-          }`}
-          placeholder="25"
-          min="18"
-          max="100"
-        />
-        {errors?.age && (
-          <p className="mt-2 text-sm text-red-600 flex items-center justify-center gap-1">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            {errors.age}
-          </p>
-        )}
-      </div>
-
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6">
-        <p className="text-sm text-gray-600">
-          <strong>Why do we ask for this?</strong> Age has an impact on how your weight is distributed. 
-          Knowing your age helps us recommend the right size.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function BraSizeStep({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const cups = ['AA', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
-
-  return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-black mb-2">Add bra size</h2>
-      </div>
-
-      <div className="mt-8">
-        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">Cup</label>
-        <div className="grid grid-cols-4 gap-2 max-w-md mx-auto">
-          {cups.map((cup) => (
-            <button
-              key={cup}
-              onClick={() => onChange(cup)}
-              className={`p-3 border rounded text-sm font-medium ${
-                value === cup
-                  ? 'border-blue-600 bg-blue-50 text-blue-600'
-                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
-              }`}
-            >
-              {cup}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
 function HipShapeStep({ 
   value, 
   onChange,

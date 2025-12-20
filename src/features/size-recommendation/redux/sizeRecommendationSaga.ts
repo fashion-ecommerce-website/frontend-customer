@@ -18,12 +18,6 @@ import {
   getSizeRecommendationFailure,
   setLocalRecommendation,
 } from './sizeRecommendationSlice';
-import { 
-  saveMeasurements as saveToLocalStorage,
-  getMeasurements as getFromLocalStorage,
-  calculateBMI
-} from '@/utils/localStorage/measurements';
-
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const effects = require('redux-saga/effects');
 const { call, put, takeLatest, select } = effects;
@@ -31,31 +25,16 @@ const { call, put, takeLatest, select } = effects;
 // ===== FETCH MEASUREMENTS SAGA =====
 function* handleFetchMeasurements(): Generator {
   try {
-    // First try to get from API (if user is logged in)
     const response = yield call([recommendationApi, 'getMeasurements']);
     
     if (response.success && response.data) {
       yield put(fetchMeasurementsSuccess(response.data as UserMeasurements));
-      // Also save to localStorage for offline access
-      saveToLocalStorage(response.data as UserMeasurements);
     } else {
-      // Fallback to localStorage
-      const localMeasurements = getFromLocalStorage();
-      if (localMeasurements) {
-        yield put(fetchMeasurementsSuccess(localMeasurements));
-      } else {
-        yield put(fetchMeasurementsFailure('No measurements found'));
-      }
+      yield put(fetchMeasurementsFailure('No measurements found'));
     }
   } catch (error) {
-    // Fallback to localStorage on API error
-    const localMeasurements = getFromLocalStorage();
-    if (localMeasurements) {
-      yield put(fetchMeasurementsSuccess(localMeasurements));
-    } else {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch measurements';
-      yield put(fetchMeasurementsFailure(errorMessage));
-    }
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch measurements';
+    yield put(fetchMeasurementsFailure(errorMessage));
   }
 }
 
@@ -64,28 +43,13 @@ function* handleSaveMeasurements(
   action: PayloadAction<Omit<UserMeasurements, 'bmi'>>
 ): Generator {
   try {
-    const measurementsWithBmi: UserMeasurements = {
-      ...action.payload,
-      bmi: calculateBMI(action.payload.height, action.payload.weight),
-      lastUpdated: new Date().toISOString(),
-    };
+    const response = yield call([recommendationApi, 'saveMeasurements'], action.payload);
     
-    // Save to localStorage first (always works)
-    saveToLocalStorage(measurementsWithBmi);
-    
-    // Try to save to API (if user is logged in)
-    try {
-      const response = yield call([recommendationApi, 'saveMeasurements'], action.payload);
-      if (response.success && response.data) {
-        yield put(saveMeasurementsSuccess(response.data as UserMeasurements));
-        return;
-      }
-    } catch {
-      // API save failed, but localStorage succeeded - still success
-      console.warn('Failed to save measurements to API, using localStorage');
+    if (response.success && response.data) {
+      yield put(saveMeasurementsSuccess(response.data as UserMeasurements));
+    } else {
+      yield put(saveMeasurementsFailure('Failed to save measurements'));
     }
-    
-    yield put(saveMeasurementsSuccess(measurementsWithBmi));
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to save measurements';
     yield put(saveMeasurementsFailure(errorMessage));

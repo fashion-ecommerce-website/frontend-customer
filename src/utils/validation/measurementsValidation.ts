@@ -18,7 +18,6 @@ export interface ValidationResult {
  * Validation ranges for measurements
  */
 const VALIDATION_RANGES = {
-  age: { min: 18, max: 100 },
   height: { min: 140, max: 220 },
   weight: { min: 35, max: 200 },
   chest: { min: 60, max: 150 },
@@ -40,20 +39,6 @@ export function validateField(
       field,
       message: `${getFieldLabel(field)} is required`,
     };
-  }
-
-  // Age validation
-  if (field === 'age') {
-    const age = Number(value);
-    if (isNaN(age)) {
-      return { field, message: 'Age must be a valid number' };
-    }
-    if (age < VALIDATION_RANGES.age.min) {
-      return { field, message: `Age must be at least ${VALIDATION_RANGES.age.min}` };
-    }
-    if (age > VALIDATION_RANGES.age.max) {
-      return { field, message: `Age must be less than ${VALIDATION_RANGES.age.max}` };
-    }
   }
 
   // Height validation
@@ -185,7 +170,6 @@ export function validateMeasurements(measurements: Partial<UserMeasurements>): V
   // Required fields
   const requiredFields: (keyof UserMeasurements)[] = [
     'gender',
-    'age',
     'height',
     'weight',
     'chest',
@@ -269,7 +253,6 @@ export function validateMeasurements(measurements: Partial<UserMeasurements>): V
 function getFieldLabel(field: keyof UserMeasurements): string {
   const labels: Record<string, string> = {
     gender: 'Gender',
-    age: 'Age',
     height: 'Height',
     weight: 'Weight',
     chest: 'Chest',
@@ -280,7 +263,6 @@ function getFieldLabel(field: keyof UserMeasurements): string {
     hipShape: 'Hip shape',
     chestShape: 'Chest shape',
     fitPreference: 'Fit preference',
-    braSize: 'Bra size',
     hasReturnHistory: 'Return history',
   };
   return labels[field] || field;

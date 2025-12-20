@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { MeasurementsWizard } from '@/components/size-recommendation/MeasurementsWizard';
-import { getMeasurements } from '@/utils/localStorage/measurements';
+import { MeasurementsWizard } from '@/features/size-recommendation/components/MeasurementsWizard';
 import { recommendationApi } from '@/services/api/recommendationApi';
 import { UserMeasurements } from '@/types/size-recommendation.types';
 
@@ -84,8 +83,6 @@ export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: Mea
         <div className="flex-1 overflow-hidden">
           <MeasurementsWizard
             onSave={handleSaveSuccess}
-            onCancel={onClose}
-            initialData={getMeasurements()}
             productImage={productImage}
           />
         </div>

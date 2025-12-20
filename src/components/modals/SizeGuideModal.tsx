@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { getMeasurements, saveMeasurements, clearMeasurements } from '@/utils/localStorage/measurements';
 import { UserMeasurements, Size } from '@/types/size-recommendation.types';
+import { calculateRecommendedSizes } from '@/features/size-recommendation/utils/sizeCalculation';
 import { getSizeChartByCategory, type SizeChart } from '@/data/sizeCharts';
 import { SizeChartTable } from './SizeChartTable';
 import { recommendationApi } from '@/services/api/recommendationApi';
@@ -58,8 +58,6 @@ export function SizeGuideModal({
     try {
       const response = await recommendationApi.deleteMeasurements();
       if (response.success) {
-        // Clear local storage
-        clearMeasurements();
         // Clear state
         setMeasurements(null);
         setApiRecommendation(null);
@@ -100,52 +98,18 @@ export function SizeGuideModal({
           if (response.success && response.data) {
             console.log('✅ Measurements found in backend:', response.data);
             const backendMeasurements = response.data;
-            // Update state with backend data
             setMeasurements(backendMeasurements);
-            // Sync to local storage
-            saveMeasurements(backendMeasurements as UserMeasurements);
-            // Load recommendation with backend data - pass measurements directly
             loadSizeRecommendation(backendMeasurements);
           } else {
-            console.log('⚠️ No measurements in backend, checking localStorage...');
-            // No measurements in backend, check localStorage as fallback
-            const savedMeasurements = getMeasurements();
-            if (savedMeasurements) {
-              console.log('📦 Found measurements in localStorage:', savedMeasurements);
-              setMeasurements(savedMeasurements);
-              // Try to sync localStorage to backend
-              console.log('🔄 Syncing localStorage to backend...');
-              recommendationApi.saveMeasurements(savedMeasurements)
-                .then((syncResponse) => {
-                  console.log('✅ Synced to backend:', syncResponse);
-                  // After sync, load recommendation
-                  loadSizeRecommendation(savedMeasurements);
-                })
-                .catch(err => {
-                  console.error('❌ Failed to sync measurements:', err);
-                  // Still try to load recommendation with local measurements
-                  loadSizeRecommendation(savedMeasurements);
-                });
-            } else {
-              console.log('❌ No measurements found in localStorage either');
-              setLoadingRecommendation(false);
-            }
+            console.log('⚠️ No measurements in backend');
+            setMeasurements(null);
+            setLoadingRecommendation(false);
           }
         })
         .catch((error) => {
           console.error('❌ Failed to fetch measurements from backend:', error);
-          // Fallback to localStorage
-          const savedMeasurements = getMeasurements();
-          if (savedMeasurements) {
-            console.log('📦 Using localStorage fallback:', savedMeasurements);
-            setMeasurements(savedMeasurements);
-            // Try to load recommendation with local measurements
-            loadSizeRecommendation(savedMeasurements);
-          } else {
-            console.log('❌ No measurements available anywhere');
-            setMeasurements(null);
-            setLoadingRecommendation(false);
-          }
+          setMeasurements(null);
+          setLoadingRecommendation(false);
         });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -154,7 +118,7 @@ export function SizeGuideModal({
   const fallbackToLocalRecommendation = (userMeasurements?: UserMeasurements | null) => {
     const measurementsToUse = userMeasurements || measurements;
     if (measurementsToUse) {
-      const localRec = calculateRecommendedSizes(measurementsToUse, category, availableSizes);
+      const localRec = calculateRecommendedSizes(measurementsToUse, categorySlug || category, availableSizes);
       setApiRecommendation({
         recommendedSize: localRec.recommended,
         confidence: 0.7,
@@ -548,172 +512,5 @@ export function SizeGuideModal({
 }
 
 
-// Size chart data
-const sizeCharts = {
-  tops: {
-    XS: { chest: [80, 85], waist: [65, 70], height: [155, 160] },
-    S: { chest: [86, 91], waist: [71, 76], height: [160, 165] },
-    M: { chest: [92, 97], waist: [77, 82], height: [165, 170] },
-    L: { chest: [98, 103], waist: [83, 88], height: [170, 175] },
-    XL: { chest: [104, 109], waist: [89, 94], height: [175, 180] },
-    XXL: { chest: [110, 115], waist: [95, 100], height: [180, 185] }
-  },
-  bottoms: {
-    XS: { waist: [60, 65], hips: [85, 90] },
-    S: { waist: [66, 71], hips: [91, 96] },
-    M: { waist: [72, 77], hips: [97, 102] },
-    L: { waist: [78, 83], hips: [103, 108] },
-    XL: { waist: [84, 89], hips: [109, 114] },
-    XXL: { waist: [90, 95], hips: [115, 120] }
-  }
-};
 
-function calculateRecommendedSizes(
-  measurements: UserMeasurements,
-  category: string,
-  availableSizes: Size[]
-): { recommended: Size; alternative: Size | null } {
-  const { chest, waist, hips, height, fitPreference, bellyShape, hipShape, hasReturnHistory } = measurements;
-
-  // Determine if it's bottoms or tops
-  const isBottoms = category.toLowerCase().includes('pants') ||
-    category.toLowerCase().includes('shorts') ||
-    category.toLowerCase().includes('skirt') ||
-    category.toLowerCase().includes('jeans') ||
-    category.toLowerCase().includes('leggings');
-
-  // Find best size based on measurements
-  let recommendedSize: Size;
-  if (isBottoms) {
-    recommendedSize = findBestSizeForBottoms(waist, hips, availableSizes);
-  } else {
-    recommendedSize = findBestSizeForTops(chest, waist, height, availableSizes);
-  }
-
-  // Fit preference
-  recommendedSize = adjustForFitPreference(recommendedSize, fitPreference, availableSizes);
-
-  // Body shape
-  recommendedSize = adjustForBodyShape(recommendedSize, bellyShape, hipShape, isBottoms, availableSizes);
-
-  // Return history (be more conservative)
-  if (hasReturnHistory) {
-    recommendedSize = getLargerSize(recommendedSize) || recommendedSize;
-  }
-
-  // Ensure recommended size is available
-  if (!availableSizes.includes(recommendedSize)) {
-    recommendedSize = findClosestAvailableSize(recommendedSize, availableSizes);
-  }
-
-  // Alternative size
-  let alternativeSize: Size | null = null;
-  const largerSize = getLargerSize(recommendedSize);
-  const smallerSize = getSmallerSize(recommendedSize);
-  if (largerSize && availableSizes.includes(largerSize)) {
-    alternativeSize = largerSize;
-  } else if (smallerSize && availableSizes.includes(smallerSize)) {
-    alternativeSize = smallerSize;
-  }
-
-  return { recommended: recommendedSize, alternative: alternativeSize };
-}
-
-function findBestSizeForTops(chest: number, waist: number, height: number, availableSizes: Size[]): Size {
-  let bestSize: Size = 'M';
-  let maxScore = -1;
-  for (const size of availableSizes) {
-    const ranges = sizeCharts.tops[size];
-    if (!ranges) continue;
-    let score = 0;
-    // Chest is most important
-    if (chest >= ranges.chest[0] && chest <= ranges.chest[1]) score += 3;
-    else if (chest >= ranges.chest[0] - 2 && chest <= ranges.chest[1] + 2) score += 1;
-    // Waist
-    if (waist >= ranges.waist[0] && waist <= ranges.waist[1]) score += 2;
-    else if (waist >= ranges.waist[0] - 2 && waist <= ranges.waist[1] + 2) score += 1;
-    // Height
-    if (height >= ranges.height[0] && height <= ranges.height[1]) score += 1;
-    if (score > maxScore) {
-      maxScore = score;
-      bestSize = size;
-    }
-  }
-  return bestSize;
-}
-
-function findBestSizeForBottoms(waist: number, hips: number, availableSizes: Size[]): Size {
-  let bestSize: Size = 'M';
-  let maxScore = -1;
-  for (const size of availableSizes) {
-    const ranges = sizeCharts.bottoms[size];
-    if (!ranges) continue;
-    let score = 0;
-    // Waist is most important
-    if (waist >= ranges.waist[0] && waist <= ranges.waist[1]) score += 3;
-    else if (waist >= ranges.waist[0] - 2 && waist <= ranges.waist[1] + 2) score += 1;
-    // Hips
-    if (hips >= ranges.hips[0] && hips <= ranges.hips[1]) score += 3;
-    else if (hips >= ranges.hips[0] - 2 && hips <= ranges.hips[1] + 2) score += 1;
-    if (score > maxScore) {
-      maxScore = score;
-      bestSize = size;
-    }
-  }
-  return bestSize;
-}
-
-function adjustForFitPreference(size: Size, fitPreference: string | undefined, availableSizes: Size[]): Size {
-  let adjustedSize = size;
-  if (fitPreference === 'TIGHT') {
-    adjustedSize = getSmallerSize(size) || size;
-  } else if (fitPreference === 'LOOSE') {
-    adjustedSize = getLargerSize(size) || size;
-  }
-  if (!availableSizes.includes(adjustedSize)) {
-    adjustedSize = size;
-  }
-  return adjustedSize;
-}
-
-function adjustForBodyShape(size: Size, bellyShape: string | undefined, hipShape: string | undefined, isBottoms: boolean, availableSizes: Size[]): Size {
-  let adjustedSize = size;
-  if (bellyShape === 'ROUND' && !isBottoms) {
-    adjustedSize = getLargerSize(adjustedSize) || adjustedSize;
-  }
-  if (hipShape === 'WIDE' && isBottoms) {
-    adjustedSize = getLargerSize(adjustedSize) || adjustedSize;
-  }
-  if (!availableSizes.includes(adjustedSize)) {
-    adjustedSize = size;
-  }
-  return adjustedSize;
-}
-
-function findClosestAvailableSize(targetSize: Size, availableSizes: Size[]): Size {
-  const sizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const targetIndex = sizes.indexOf(targetSize);
-  let closestSize = availableSizes[0];
-  let minDistance = Math.abs(sizes.indexOf(closestSize) - targetIndex);
-  for (const size of availableSizes) {
-    const distance = Math.abs(sizes.indexOf(size) - targetIndex);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestSize = size;
-    }
-  }
-  return closestSize;
-}
-
-function getSmallerSize(size: Size): Size | null {
-  const sizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const index = sizes.indexOf(size);
-  return index > 0 ? sizes[index - 1] : null;
-}
-
-function getLargerSize(size: Size): Size | null {
-  const sizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const index = sizes.indexOf(size);
-  return index < sizes.length - 1 ? sizes[index + 1] : null;
-}
 

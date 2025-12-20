@@ -37,7 +37,6 @@ export interface SizeRecommendationResponse {
 // Keep existing types
 export interface UserMeasurements {
   gender: Gender;
-  age: number;
   height: number;
   weight: number;
   chest: number;
@@ -49,7 +48,6 @@ export interface UserMeasurements {
   chestShape?: ChestShape;
   fitPreference?: FitPreference;
   hasReturnHistory?: boolean;
-  braSize?: string;
   lastUpdated?: string;
 }
 
