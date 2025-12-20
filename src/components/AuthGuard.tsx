@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from './LoadingSpinner';
+import { authUtils } from '@/utils/auth';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -24,8 +25,8 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 
   const checkAuthentication = async () => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
+      const accessToken = authUtils.getAccessToken();
+      const refreshToken = authUtils.getRefreshToken();
 
       if (!accessToken && !refreshToken) {
         setIsAuthenticated(false);
@@ -54,7 +55,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
       // If access token is expired but we have refresh token, try to refresh
       if (refreshToken) {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -64,17 +65,14 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 
           if (response.ok) {
             const data = await response.json();
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
+            authUtils.setTokens(data.accessToken, data.refreshToken || '');
             setIsAuthenticated(true);
           } else {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
+            authUtils.clearAuth();
             setIsAuthenticated(false);
           }
         } catch {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          authUtils.clearAuth();
           setIsAuthenticated(false);
         }
       } else {

@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated, selectUser, selectAccessToken, setUser } from '@/features/auth/login/redux/loginSlice';
 import { profileApiService, ApiUserResponse } from '@/services/api/profileApi';
+import { authUtils } from '@/utils/auth';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -60,9 +61,9 @@ export const useAuth = () => {
 
     const initializeAuth = async () => {
       try {
-        const storedToken = localStorage.getItem('accessToken');
-        const storedUser = localStorage.getItem('user');
-        
+        const storedToken = authUtils.getAccessToken();
+        const storedUser = authUtils.getUser();
+
         if (storedToken && storedUser) {
           // Verify token is not expired
           const tokenData = JSON.parse(atob(storedToken.split('.')[1]));
@@ -73,7 +74,7 @@ export const useAuth = () => {
             dispatch({
               type: 'login/restoreAuthState',
               payload: {
-                user: JSON.parse(storedUser),
+                user: storedUser,
                 accessToken: storedToken,
                 isAuthenticated: true,
               }
@@ -84,8 +85,8 @@ export const useAuth = () => {
               const profileResponse = await profileApiService.getProfile();
               if (profileResponse.success && profileResponse.data) {
                 const fullUserData = convertApiUserToUser(profileResponse.data);
-                // Update localStorage with fresh user data
-                localStorage.setItem('user', JSON.stringify(fullUserData));
+                // Update cookie with fresh user data
+                authUtils.setUser(fullUserData);
                 // Update Redux store with fresh user data
                 dispatch(setUser(fullUserData));
               }
@@ -95,15 +96,13 @@ export const useAuth = () => {
             }
           } else {
             // Token expired, clear storage
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('user');
+            authUtils.clearAuth();
           }
         }
       } catch (error) {
         console.error('Error initializing auth state:', error);
         // Clear corrupted data
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
+        authUtils.clearAuth();
       }
     };
 
@@ -113,11 +112,10 @@ export const useAuth = () => {
   // Persist auth state to localStorage when it changes
   useEffect(() => {
     if (isAuthenticated && user && accessToken) {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      authUtils.setTokens(accessToken, authUtils.getRefreshToken() || '');
+      if (user) authUtils.setUser(user);
     } else {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('user');
+      authUtils.clearAuth();
     }
   }, [isAuthenticated, user, accessToken]);
 
@@ -125,8 +123,7 @@ export const useAuth = () => {
     dispatch({ type: 'login/logoutRequest' });
     
     // Clear all auth-related storage
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
+    authUtils.clearAuth();
   };
 
   return {

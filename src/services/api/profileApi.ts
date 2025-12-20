@@ -1,4 +1,5 @@
 import { apiClient } from './baseApi';
+import { authUtils } from '@/utils/auth';
 import { ApiResponse } from '../../types/api.types';
 
 // API User Response interface - matches actual API response
@@ -87,7 +88,7 @@ export class ProfileApiService {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+          Authorization: `Bearer ${authUtils.getAccessToken() || ''}`,
         },
         body: formData,
       }
