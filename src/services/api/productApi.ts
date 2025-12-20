@@ -18,6 +18,30 @@ export interface ProductItem {
   imageUrls: string[];
 }
 
+// Types for /products/new-arrivals response
+export interface NewArrivalProduct {
+  productId?: number;
+  detailId?: number;
+  productTitle?: string;
+  productSlug?: string;
+  colorName?: string;
+  price?: number;
+  finalPrice?: number;
+  percentOff?: number;
+  promotionId?: number | null;
+  promotionName?: string | null;
+  quantity?: number;
+  colors?: string[];
+  imageUrls?: string[];
+}
+
+export interface NewArrivalsCategory {
+  categoryId?: number;
+  categoryName?: string;
+  categorySlug?: string;
+  products: NewArrivalProduct[];
+}
+
 // Product detail interface - matches the new API response format with promotion
 export interface ProductDetail {
   detailId: number;

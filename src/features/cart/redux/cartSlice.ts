@@ -1,27 +1,26 @@
-import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
-import { RootState } from '@/store';
-import { ApiStatus } from '@/types/api.types';
-import { 
-  CartItem, 
-  CartState, 
-  CartSummary 
-} from '@/types/cart.types';
+import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
+import { RootState } from "@/store";
+import { ApiStatus } from "@/types/api.types";
+import { CartItem, CartState, CartSummary } from "@/types/cart.types";
 
 // Calculate cart summary
 const calculateCartSummary = (items: CartItem[]): CartSummary => {
   // Only calculate for selected items
-  const selectedItems = items.filter(item => item.selected !== false); // Default to selected if not specified
+  const selectedItems = items.filter((item) => item.selected !== false); // Default to selected if not specified
   const subtotal = selectedItems.reduce((sum, item) => {
     // Use finalPrice if available (after promotion), otherwise use base price
     const itemPrice = item.finalPrice || item.price;
-    return sum + (itemPrice * item.quantity);
+    return sum + itemPrice * item.quantity;
   }, 0);
-  const itemCount = selectedItems.reduce((count, item) => count + item.quantity, 0);
-  
+  const itemCount = selectedItems.reduce(
+    (count, item) => count + item.quantity,
+    0
+  );
+
   return {
     subtotal,
     total: subtotal, // Total is same as subtotal without shipping
-    itemCount
+    itemCount,
   };
 };
 
@@ -31,18 +30,18 @@ const initialState: CartState = {
   summary: {
     subtotal: 0,
     total: 0,
-    itemCount: 0
+    itemCount: 0,
   },
   status: ApiStatus.SUCCESS,
   error: null,
   loading: false,
   // Track if we've ever loaded cart data to prevent empty state flash
-  hasInitiallyLoaded: false
+  hasInitiallyLoaded: false,
 };
 
 // Cart slice
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
     // Set loading state
@@ -54,7 +53,7 @@ const cartSlice = createSlice({
     // Set cart items
     setCartItems: (state, action: PayloadAction<CartItem[]>) => {
       // Set all items as selected by default when loading from API
-      state.items = action.payload.map(item => ({ ...item, selected: true }));
+      state.items = action.payload.map((item) => ({ ...item, selected: true }));
       state.summary = calculateCartSummary(state.items);
       state.loading = false;
       state.error = null;
@@ -79,7 +78,9 @@ const cartSlice = createSlice({
 
     // Add item to cart
     addCartItem: (state, action: PayloadAction<CartItem>) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const existingItem = state.items.find(
+        (item) => item.id === action.payload.id
+      );
       if (existingItem) {
         // Update all fields including promotion data
         existingItem.quantity = action.payload.quantity;
@@ -105,20 +106,30 @@ const cartSlice = createSlice({
     // the API returns the merged item (with a different id). We must remove
     // the old cartDetail and update/merge into the existing one to avoid
     // displaying duplicates in the UI.
-    updateCartItem: (state, action: PayloadAction<{ cartItemId: number; updatedItem: CartItem }>) => {
+    updateCartItem: (
+      state,
+      action: PayloadAction<{ cartItemId: number; updatedItem: CartItem }>
+    ) => {
       const { cartItemId, updatedItem } = action.payload;
 
       // Find indices for the original item and any existing item with the
       // same id as the updated item returned by the server.
-      const originalIndex = state.items.findIndex(item => item.id === cartItemId);
-      const existingIndex = state.items.findIndex(item => item.id === updatedItem.id);
+      const originalIndex = state.items.findIndex(
+        (item) => item.id === cartItemId
+      );
+      const existingIndex = state.items.findIndex(
+        (item) => item.id === updatedItem.id
+      );
 
       if (existingIndex !== -1) {
         // Server returned an item that already exists in the list (merge case).
         // Preserve the selected flag from the existing item if present, otherwise
         // default to true.
         const preservedSelected = state.items[existingIndex].selected !== false;
-        state.items[existingIndex] = { ...updatedItem, selected: preservedSelected };
+        state.items[existingIndex] = {
+          ...updatedItem,
+          selected: preservedSelected,
+        };
 
         // If the original item still exists separately (different id), remove it.
         if (originalIndex !== -1 && originalIndex !== existingIndex) {
@@ -128,7 +139,10 @@ const cartSlice = createSlice({
         // Normal case: replace the original item with the updated item and
         // preserve the selected flag if present.
         const preservedSelected = state.items[originalIndex].selected !== false;
-        state.items[originalIndex] = { ...updatedItem, selected: preservedSelected };
+        state.items[originalIndex] = {
+          ...updatedItem,
+          selected: preservedSelected,
+        };
       }
 
       state.summary = calculateCartSummary(state.items);
@@ -138,7 +152,7 @@ const cartSlice = createSlice({
 
     // Remove item from cart
     removeCartItem: (state, action: PayloadAction<number>) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+      state.items = state.items.filter((item) => item.id !== action.payload);
       state.summary = calculateCartSummary(state.items);
       state.loading = false;
       state.error = null;
@@ -147,7 +161,7 @@ const cartSlice = createSlice({
     // Remove multiple items from cart
     removeCartItems: (state, action: PayloadAction<number[]>) => {
       const idsToRemove = new Set(action.payload);
-      state.items = state.items.filter(item => !idsToRemove.has(item.id));
+      state.items = state.items.filter((item) => !idsToRemove.has(item.id));
       state.summary = calculateCartSummary(state.items);
       state.loading = false;
       state.error = null;
@@ -165,7 +179,7 @@ const cartSlice = createSlice({
 
     // Select/unselect cart item
     selectCartItem: (state, action: PayloadAction<number>) => {
-      const item = state.items.find(item => item.id === action.payload);
+      const item = state.items.find((item) => item.id === action.payload);
       if (item) {
         item.selected = true;
         state.summary = calculateCartSummary(state.items);
@@ -173,7 +187,7 @@ const cartSlice = createSlice({
     },
 
     unselectCartItem: (state, action: PayloadAction<number>) => {
-      const item = state.items.find(item => item.id === action.payload);
+      const item = state.items.find((item) => item.id === action.payload);
       if (item) {
         item.selected = false;
         state.summary = calculateCartSummary(state.items);
@@ -182,14 +196,14 @@ const cartSlice = createSlice({
 
     // Select/unselect all cart items
     selectAllCartItems: (state) => {
-      state.items.forEach(item => {
+      state.items.forEach((item) => {
         item.selected = true;
       });
       state.summary = calculateCartSummary(state.items);
     },
 
     unselectAllCartItems: (state) => {
-      state.items.forEach(item => {
+      state.items.forEach((item) => {
         item.selected = false;
       });
       state.summary = calculateCartSummary(state.items);
@@ -206,8 +220,13 @@ const cartSlice = createSlice({
     clearError: (state) => {
       state.error = null;
       state.status = ApiStatus.SUCCESS;
-    }
-  }
+    },
+
+    // Mark cart as initially loaded (for guest users who don't fetch from API)
+    markAsInitiallyLoaded: (state) => {
+      state.hasInitiallyLoaded = true;
+    },
+  },
 });
 
 // Export actions
@@ -225,7 +244,8 @@ export const {
   selectAllCartItems,
   unselectAllCartItems,
   setError,
-  clearError
+  clearError,
+  markAsInitiallyLoaded,
 } = cartSlice.actions;
 
 // Export selectors
@@ -234,19 +254,22 @@ export const selectCartItems = (state: RootState) => state.cart.items;
 export const selectCartSummary = (state: RootState) => state.cart.summary;
 export const selectCartLoading = (state: RootState) => state.cart.loading;
 export const selectCartError = (state: RootState) => state.cart.error;
-export const selectCartItemCount = (state: RootState) => state.cart.summary.itemCount;
-export const selectCartTotalItemCount = (state: RootState) => state.cart.items.reduce((total, item) => total + item.quantity, 0);
-export const selectCartHasInitiallyLoaded = (state: RootState) => state.cart.hasInitiallyLoaded;
+export const selectCartItemCount = (state: RootState) =>
+  state.cart.summary.itemCount;
+export const selectCartTotalItemCount = (state: RootState) =>
+  state.cart.items.reduce((total, item) => total + item.quantity, 0);
+export const selectCartHasInitiallyLoaded = (state: RootState) =>
+  state.cart.hasInitiallyLoaded;
 
 // Optimized selectors using createSelector for better performance
 export const selectSelectedCartItems = createSelector(
   [selectCartItems],
-  (items) => items.filter(item => item.selected !== false)
+  (items) => items.filter((item) => item.selected !== false)
 );
 
 export const selectAllItemsSelected = createSelector(
   [selectCartItems],
-  (items) => items.length > 0 && items.every(item => item.selected !== false)
+  (items) => items.length > 0 && items.every((item) => item.selected !== false)
 );
 
 export const selectCartTotalQuantity = createSelector(
@@ -256,7 +279,8 @@ export const selectCartTotalQuantity = createSelector(
 
 export const selectCartSubtotal = createSelector(
   [selectSelectedCartItems],
-  (selectedItems) => selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  (selectedItems) =>
+    selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
 );
 
 export const selectHasSelectedItems = createSelector(
