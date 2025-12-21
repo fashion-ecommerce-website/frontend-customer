@@ -6,7 +6,6 @@
 import React from 'react';
 import { HomePresenterProps } from '../types/home.types';
 import { Banner } from './Banner';
-import { NewsletterSignup } from './NewsletterSignup';
 import { RankingSection } from './RankingSection';
 import { RecommendContainer } from '../containers/RecommendContainer';
 import { NewArrivalsContainer } from '../containers/NewArrivalsContainer';
@@ -55,8 +54,6 @@ export const HomePresenter: React.FC<HomePresenterProps> = ({
 
             <RankingSection />
           </div>
-
-          <NewsletterSignup onSubmit={(email) => console.log('subscribe', email)} />
         </div>
       )}
     </div>

@@ -70,7 +70,7 @@ export const Footer: React.FC = () => {
     companyInfo: {
       name: 'FIT',
       description: 'Nền tảng thời trang trực tuyến với công nghệ AI, mang đến trải nghiệm mua sắm cá nhân hóa.',
-      copyright: '© 2000-2025, FIT.com, Inc. or its affiliates'
+      copyright: '© 2024-2025, FIT.com, Inc.'
     },
     socialLinks: [
       { id: 'twitter', platform: 'twitter', href: '#' },
