@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useLanguage } from '@/hooks/useLanguage';
 import { ProductDetail } from '@/services/api/productApi';
 
 interface ProductTabsProps {
@@ -9,11 +10,12 @@ interface ProductTabsProps {
 
 export function ProductTabs({ product }: ProductTabsProps) {
   const [activeTab, setActiveTab] = useState('INFORMATION');
+  const { translations } = useLanguage();
 
   const tabs = [
-    { key: 'INFORMATION', label: 'INFORMATION' },
-    { key: 'PRODUCT CARE', label: 'PRODUCT CARE' },
-    { key: 'EXCHANGE & RETURN', label: 'EXCHANGE & RETURN' }
+    { key: 'INFORMATION', label: translations.product.tabs.information.toUpperCase() },
+    { key: 'PRODUCT CARE', label: translations.product.tabs.productCare.toUpperCase() },
+    { key: 'EXCHANGE & RETURN', label: translations.product.tabs.exchangeReturn.toUpperCase() }
   ];
 
   const renderTabContent = () => {
@@ -38,24 +40,11 @@ export function ProductTabs({ product }: ProductTabsProps) {
           <div className="w-full relative min-h-[150px] md:min-h-[200px]">
             <div className="w-full pl-3 md:pl-5 py-2 md:py-2.5 inline-flex flex-col justify-start items-start">
               <ul className="list-none space-y-1 md:space-y-0">
-                <li className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
-                  Wash with water at 30℃
-                </li>
-                <li className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
-                  Dry in a well-ventilated area with mild sunlight
-                </li>
-                <li className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
-                  Do not wash with items of different colors
-                </li>
-                <li className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
-                  Avoid using strong detergents or bleach
-                </li>
-                <li className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
-                  Do not dry under direct sunlight
-                </li>
-                <li className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
-                  Select the appropriate washing mode as indicated on the product tag
-                </li>
+                {translations.product.careItems.map((item, idx) => (
+                  <li key={idx} className="text-[#202846] text-xs md:text-sm font-normal font-['Product Sans'] leading-relaxed md:leading-loose">
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -66,29 +55,28 @@ export function ProductTabs({ product }: ProductTabsProps) {
           <div className="w-full relative min-h-[150px] md:min-h-[200px]">
             <div className="w-full inline-flex flex-col justify-start items-start">
               <div className="item-content-tab content-policy-return active" data-tab="tab4">
-                <p className="text-xs md:text-sm leading-5 text-[#202846]">Applicable to all apparel products at full price or with a discount of no more than 30%.</p>
-                <p className="text-xs md:text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">Return/Exchange Period:</strong></p>
+                <p className="text-xs md:text-sm leading-5 text-[#202846]">{translations.product.exchange.applicability}</p>
+                <p className="text-xs md:text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">{translations.product.exchange.returnExchangePeriodLabel}</strong></p>
                 <ul className="list-disc pl-6 md:pl-8 py-2 md:py-2.5 space-y-2 md:space-y-3 text-xs md:text-sm leading-5 text-[#202846]">
                   <li>
-                    <p className="text-[#202846]"><strong className="text-[#202846]">Exchange:</strong> Within 30 days from the date the customer receives the product.</p>
+                    <p className="text-[#202846]"><strong className="text-[#202846]">{translations.product.exchange.exchangeText.split(':')[0]}:</strong> {translations.product.exchange.exchangeText.replace(/^Exchange:\s*/i, '')}</p>
                   </li>
                   <li>
-                    <p className="text-[#202846]"><strong className="text-[#202846]">Return:</strong> Within 3 days from the date the customer receives the product.</p>
+                    <p className="text-[#202846]"><strong className="text-[#202846]">{translations.product.exchange.returnText.split(':')[0]}:</strong> {translations.product.exchange.returnText.replace(/^Return:\s*/i, '')}</p>
                   </li>
                 </ul>
-                <p className="text-xs md:text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">Notes:</strong></p>
+                <p className="text-xs md:text-sm leading-5 text-[#202846] mt-2"><strong className="text-[#202846]">{translations.product.exchange.notesTitle}</strong></p>
                 <ul className="list-disc pl-6 md:pl-8 py-2 md:py-2.5 space-y-2 md:space-y-3 text-xs md:text-sm leading-5 text-[#202846]">
                   <li>
-                    <p className="text-[#202846]">Not applicable to products discounted by 30% or more or products purchased directly at Maison&apos;s retail stores.</p>
+                    <p className="text-[#202846]">{translations.product.exchange.note1}</p>
                   </li>
                   <li>
-                    <p className="text-[#202846]">For orders using promotional programs, only product exchanges and coupon refunds are allowed — no cash refunds.</p>
+                    <p className="text-[#202846]">{translations.product.exchange.note2}</p>
                   </li>
                 </ul>
                 <p className="text-xs md:text-sm leading-5 text-[#202846] mt-2">
-                  <strong className="text-[#202846]">Remark:</strong><br />
-                  The return/exchange period is calculated from the date the customer receives the product to the date it is handed over to the shipping carrier for return/exchange.<br />
-                  Please refer to our Return &amp; Exchange Policy for more information.
+                  <strong className="text-[#202846]">{translations.product.exchange.remarkTitle}</strong><br />
+                  {translations.product.exchange.remarkBody}
                 </p>
               </div>
             </div>

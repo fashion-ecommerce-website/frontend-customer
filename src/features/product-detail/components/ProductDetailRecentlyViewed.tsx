@@ -6,6 +6,7 @@ import { ProductCarousel } from '@/components/ProductCarousel';
 import { useAppSelector } from '@/hooks/redux';
 import { selectIsAuthenticated } from '@/features/auth/login/redux/loginSlice';
 import { recentlyViewedApiService } from '@/services/api/recentlyViewedApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface RecentlyViewedItem {
   detailId: number;
@@ -22,6 +23,7 @@ interface RecentlyViewedItem {
 export function ProductDetailRecentlyViewed() {
   const router = useRouter();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const { translations } = useLanguage();
   const [items, setItems] = useState<RecentlyViewedItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +66,7 @@ export function ProductDetailRecentlyViewed() {
       <div className="bg-gray-50 py-8 md:py-12">
         <div className="mx-auto px-4 sm:px-6 lg:px-12 max-w-7xl">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-            Recently Viewed
+            {translations.product.recentlyViewed}
           </h2>
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
@@ -82,7 +84,7 @@ export function ProductDetailRecentlyViewed() {
     <section className="bg-white">
       <ProductCarousel
         products={items}
-        title="Recently Viewed"
+        title={translations.product.recentlyViewed}
         onProductClick={handleProductClick}
       />
     </section>

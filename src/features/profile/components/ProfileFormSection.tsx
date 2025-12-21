@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { ProfileFormData } from '../types/profile.types';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ProfileFormSectionProps {
   user: {
@@ -30,16 +31,17 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
   onShowUpdateInfoModal,
   isChangingPassword,
 }) => {
+  const { translations } = useLanguage();
 
   return (
     <div className="space-y-6">
       {/* Account Login Section */}
       <section className="bg-white">
-        <h3 className="text-lg sm:text-xl w-full font-semibold pb-2 text-black border-b-2 border-black mb-4">ACCOUNT LOGIN</h3>
+        <h3 className="text-lg sm:text-xl w-full font-semibold pb-2 text-black border-b-2 border-black mb-4">{translations.profile.accountLoginHeader || 'ACCOUNT LOGIN'}</h3>
         
         {/* Username row */}
         <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-1 sm:gap-0">
-          <div className="w-full sm:w-[220px] text-xs sm:text-sm font-medium text-gray-700 sm:text-black">Username</div>
+          <div className="w-full sm:w-[220px] text-xs sm:text-sm font-medium text-gray-700 sm:text-black">{translations.profile.usernameLabel || 'Username'}</div>
           <div className="text-black text-sm sm:text-base break-all">{user.email}</div>
         </div>
         
@@ -50,21 +52,21 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
             onClick={onShowPasswordModal}
             disabled={isChangingPassword}
           >
-            Change Password
+            {translations.profile.changePasswordButton || 'Change Password'}
           </button>
         </div>
       </section>
 
       {/* Account Information Section */}
       <section className="bg-white pt-6 border-t border-gray-200">
-        <h3 className="text-lg sm:text-xl w-full pb-2 font-semibold text-black border-b-2 border-black mb-4 sm:mb-6">ACCOUNT</h3>
+        <h3 className="text-lg sm:text-xl w-full pb-2 font-semibold text-black border-b-2 border-black mb-4 sm:mb-6">{translations.profile.accountHeader || 'ACCOUNT'}</h3>
 
         <div className="space-y-3 sm:space-y-1">
           {[
-            { label: 'Name', htmlFor: 'username', value: profileFormData.username, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
-            { label: 'Birthday', id: 'dob', value: profileFormData.dob, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
+            { label: translations.profile.nameLabel || 'Name', htmlFor: 'username', value: profileFormData.username, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
+            { label: translations.profile.birthdayLabel || 'Birthday', id: 'dob', value: profileFormData.dob, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
             // { label: 'Gender', htmlFor: 'gender', value: profileFormData.gender, className: 'flex-1 py-2 text-black' },
-            { label: 'Phone', htmlFor: 'phone', value: profileFormData.phone, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
+            { label: translations.profile.phoneLabel || 'Phone', htmlFor: 'phone', value: profileFormData.phone, className: 'flex-1 py-1 sm:py-2 text-black text-sm sm:text-base' },
           ].map((field) => (
             <div key={field.label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
               <div className="w-full sm:w-[220px] text-xs sm:text-sm font-medium text-gray-700 sm:text-black">{field.label}</div>
@@ -78,13 +80,13 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
             </div>
           ))}
 
-          <div className="pt-2 sm:pt-0 sm:ml-[220px]">
+            <div className="pt-2 sm:pt-0 sm:ml-[220px]">
             <button
               type="button"
               onClick={onShowUpdateInfoModal}
               className="w-full sm:w-auto bg-black text-white border-none rounded px-6 py-2.5 sm:py-3 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-gray-800 focus:outline-none"
             >
-              Update information
+              {translations.profile.updateInformationButton || 'Update information'}
             </button>
           </div>
         </div>
@@ -92,7 +94,7 @@ export const ProfileFormSection: React.FC<ProfileFormSectionProps> = ({
 
       {/* Email Section */}
       <section className="bg-white pt-6 border-t border-gray-200">
-        <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Email *</div>
+        <div className="text-xs sm:text-sm font-medium text-gray-700 mb-2">{translations.profile.emailLabel || 'Email *'}</div>
         <label
           className="block w-full max-w-md px-3 py-2.5 sm:py-3 rounded-md text-sm sm:text-base bg-gray-50 cursor-not-allowed text-black break-all"
         >

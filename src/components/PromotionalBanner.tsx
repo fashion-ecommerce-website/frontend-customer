@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface PromotionalBannerProps {
   isAuthenticated: boolean;
@@ -11,26 +12,39 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
   isAuthenticated
 }) => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const { translations } = useLanguage();
 
   // Different messages for authenticated and non-authenticated users
   const guestMessages = [
     {
-      text: 'Đăng ký để khám phá thời trang cá nhân hóa.',
-      action: { text: 'Đăng Ký Ngay', href: '/auth/register' }
+      text: translations.promotionalBanner.signUpDiscount,
+      action: { text: translations.promotionalBanner.signUpAction, href: '/auth/register' }
     },
     {
-      text: 'Thử đồ ảo - Xem trước outfit trước khi mua',
+      text: translations.promotionalBanner.freeShipping,
       action: null
+    },
+    {
+      text: translations.promotionalBanner.newArrivals,
+      action: { text: translations.promotionalBanner.shopNow, href: '/new-arrivals' }
     }
   ];
 
   const authenticatedMessages = [
     {
-      text: 'Sản phẩm mới - Khám phá ngay!',
+      text: translations.promotionalBanner.freeShipping,
       action: null
     },
     {
-      text: 'Ưu đãi độc quyền dành cho thành viên',
+      text: translations.promotionalBanner.newArrivals,
+      action: { text: translations.promotionalBanner.shopNow, href: '/new-arrivals' }
+    },
+    {
+      text: translations.promotionalBanner.exclusiveDeals,
+      action: { text: translations.promotionalBanner.viewDeals, href: '/deals' }
+    },
+    {
+      text: translations.promotionalBanner.easyReturns,
       action: null
     },
   ];

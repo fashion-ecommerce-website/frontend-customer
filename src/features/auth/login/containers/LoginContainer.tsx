@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { LoginPresenter } from '../components/LoginPresenter';
@@ -28,6 +28,10 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
   const isLoading = useAppSelector(selectIsLoading);
   const error = useAppSelector(selectError);
 
+  // Track if user just performed a login action (not just restored from cookies)
+  const justLoggedIn = useRef(false);
+  const previousAuthState = useRef(isAuthenticated);
+
   // Local form state
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -44,6 +48,7 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
 
   // Handle form submission
   const handleSubmit = (formData: LoginFormData) => {
+    justLoggedIn.current = true; // Mark that user is actively logging in
     dispatch(loginRequest({
       email: formData.email,
       password: formData.password,
@@ -67,27 +72,35 @@ export const LoginContainer: React.FC<LoginContainerProps> = ({
 
   // Handle successful authentication
   useEffect(() => {
+    // Only redirect if the user just logged in, not if they were already authenticated
     if (isAuthenticated && user && !isLoading) {
-      if (onLoginSuccess) {
-        onLoginSuccess(user);
-      } else {
-        // Check for returnUrl in query params
-        const returnUrl = searchParams.get('returnUrl');
+      // Check if auth state just changed from false to true (fresh login)
+      const authStateChanged = !previousAuthState.current && isAuthenticated;
+      
+      if (justLoggedIn.current || authStateChanged) {
+        if (onLoginSuccess) {
+          onLoginSuccess(user);
+        } else {
+          // Check for returnUrl in query params
+          const returnUrl = searchParams.get('returnUrl');
+          
+          // Using setTimeout to ensure state is fully updated
+          setTimeout(() => {
+            if (returnUrl) {
+              router.push(returnUrl);
+            } else {
+              router.push('/');
+            }
+          }, 100);
+        }
         
-        // Using setTimeout to ensure state is fully updated
-        setTimeout(() => {
-          if (returnUrl) {
-            router.push(returnUrl);
-          } else {
-            router.push('/');
-          }
-          // Fallback if router.push doesn't work
-          if (typeof window !== 'undefined' && !returnUrl) {
-            window.location.href = '/';
-          }
-        }, 100);
+        // Reset the flag after handling redirect
+        justLoggedIn.current = false;
       }
     }
+    
+    // Update previous auth state
+    previousAuthState.current = isAuthenticated;
   }, [isAuthenticated, user, isLoading, onLoginSuccess, router, searchParams]);
 
   // Handle authentication errors

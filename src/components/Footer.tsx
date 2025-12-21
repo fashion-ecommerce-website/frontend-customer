@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useLanguage } from '@/hooks/useLanguage';
 
 // Icon components for social media
 const getSocialIcon = (platform: string, className: string) => {
@@ -65,12 +66,13 @@ const getPaymentIcon = (method: string, className: string) => {
 
 export const Footer: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('company');
+  const { translations } = useLanguage();
 
   const footerData = {
     companyInfo: {
       name: 'FIT',
-      description: 'Nền tảng thời trang trực tuyến với công nghệ AI, mang đến trải nghiệm mua sắm cá nhân hóa.',
-      copyright: '© 2024-2025, FIT.com, Inc.'
+      description: translations.footer.description,
+      copyright: translations.footer.copyright
     },
     socialLinks: [
       { id: 'twitter', platform: 'twitter', href: '#' },
@@ -80,28 +82,32 @@ export const Footer: React.FC = () => {
     sections: [
       {
         id: 'company',
-        title: 'Công Ty',
+        title: translations.footer.company,
         links: [
-          { id: 'about', label: 'Về Chúng Tôi', href: '/about' },
-          { id: 'terms', label: 'Điều Khoản Sử Dụng', href: '/terms' }
+          { id: 'about', label: translations.footer.aboutUs, href: '/about' },
+          { id: 'features', label: translations.footer.features, href: '/features' },
+          { id: 'works', label: translations.footer.works, href: '/works' },
+          { id: 'career', label: translations.footer.career, href: '/career' }
         ]
       },
       {
         id: 'help',
-        title: 'Hỗ Trợ',
+        title: translations.footer.help,
         links: [
-          { id: 'customer-support', label: 'Trung Tâm Hỗ Trợ', href: '/support' },
-          { id: 'faq', label: 'Câu Hỏi Thường Gặp', href: '/faq' }
+          { id: 'customer-support', label: translations.footer.customerSupport, href: '/support' },
+          { id: 'delivery-details', label: translations.footer.deliveryDetails, href: '/delivery' },
+          { id: 'terms-conditions', label: translations.footer.termsConditions, href: '/terms' },
+          { id: 'privacy-policy', label: translations.footer.privacyPolicy, href: '/privacy' }
         ]
       },
       {
         id: 'faq',
-        title: 'FAQ',
+        title: translations.footer.faq,
         links: [
-          { id: 'account', label: 'Tài Khoản', href: '/faq?tab=account' },
-          { id: 'orders', label: 'Đơn Hàng', href: '/faq?tab=order' },
-          { id: 'payments', label: 'Thanh Toán', href: '/faq?tab=payment' },
-          { id: 'shipping', label: 'Vận Chuyển', href: '/faq?tab=shipping' }
+          { id: 'account', label: translations.profile.profile, href: '/faq/account' },
+          { id: 'manage-deliveries', label: translations.checkout.shippingAddress, href: '/faq/deliveries' },
+          { id: 'orders', label: translations.profile.orderHistory, href: '/faq/orders' },
+          { id: 'payments', label: translations.checkout.paymentMethod, href: '/faq/payments' }
         ]
       }
     ],

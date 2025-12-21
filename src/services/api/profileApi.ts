@@ -11,6 +11,13 @@ export interface ApiUserResponse {
   dob: string;
   avatarUrl: string | null;
   reason: string | null;
+  // Membership tier can be returned in multiple shapes depending on API version:
+  // - camelCase: `rankName`
+  // - snake_case: `rank_name`
+  // - nested object: `rank: { name: string }`
+  rankName?: string; // membership tier returned by API (camelCase)
+  rank_name?: string; // alternative snake_case from older APIs
+  rank?: { id?: number; name?: string } | null; // nested rank object
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;

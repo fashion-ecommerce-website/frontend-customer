@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCarousel } from '@/components/ProductCarousel';
 import { productApi } from '@/services/api/productApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface SimilarProductsProps {
     categorySlug?: string;
@@ -25,6 +26,7 @@ interface Product {
 
 export function SimilarProducts({ categorySlug, currentProductId, currentPrice }: SimilarProductsProps) {
     const router = useRouter();
+    const { translations } = useLanguage();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -96,7 +98,7 @@ export function SimilarProducts({ categorySlug, currentProductId, currentPrice }
             <div className="bg-gray-50 py-8 md:py-12">
                 <div className="mx-auto px-4 sm:px-6 lg:px-12 max-w-8xl">
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-                        Similar Products
+                        {translations.product.similarProducts}
                     </h2>
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
@@ -114,7 +116,7 @@ export function SimilarProducts({ categorySlug, currentProductId, currentPrice }
         <section className="bg-white">
             <ProductCarousel
                 products={products}
-                title="Similar Products"
+                title={translations.product.similarProducts}
                 onProductClick={handleProductClick}
             />
         </section>

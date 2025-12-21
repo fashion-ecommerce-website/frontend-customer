@@ -6,6 +6,7 @@ import { ProductItem } from '@/services/api/productApi';
 import { ProductCard } from '@/components';
 import { Product } from '@/types/product.types';
 import { AnimatedSection } from '@/components/AnimatedSection';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface Category {
   id: string;
@@ -32,6 +33,8 @@ export function NewArrivalsPresenter({
   onProductClick,
   onViewAll,
 }: NewArrivalsPresenterProps) {
+  const { translations } = useLanguage();
+  
   // Transform ProductItem to Product format expected by ProductCard
   const transformedProducts: Product[] = products.map((item) => ({
     id: item.detailId.toString(),
@@ -56,7 +59,7 @@ export function NewArrivalsPresenter({
       <div className="self-stretch flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div className="flex flex-col justify-start items-start">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            NEW ARRIVALS
+            {translations.home.newArrivals}
           </h2>
         </div>
 

@@ -3,11 +3,25 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCarousel } from '@/components/ProductCarousel';
-import { productApi, ProductCardWithPromotion } from '@/services/api/productApi';
+import { productApi } from '@/services/api/productApi';
+import { useLanguage } from '@/hooks/useLanguage';
+
+interface RankingProduct {
+  detailId: number;
+  productSlug: string;
+  productTitle: string;
+  price: number;
+  finalPrice?: number;
+  percentOff?: number;
+  imageUrls: string[];
+  colors: string[];
+  quantity: number;
+}
 
 export function RankingSection() {
   const router = useRouter();
-  const [products, setProducts] = useState<ProductCardWithPromotion[]>([]);
+  const { translations } = useLanguage();
+  const [products, setProducts] = useState<RankingProduct[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,7 +65,7 @@ export function RankingSection() {
     return (
       <div className="py-12 sm:py-16 lg:py-20">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-          RANKING
+          {translations.home.ranking}
         </h2>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
@@ -67,7 +81,7 @@ export function RankingSection() {
   return (
     <div className="py-12 sm:py-16 lg:py-20">
       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-        RANKING
+        {translations.home.ranking}
       </h2>
       <ProductCarousel
         products={transformedProducts}

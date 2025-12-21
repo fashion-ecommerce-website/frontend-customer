@@ -5,6 +5,7 @@ import Link from "next/link";
 import { LoginPresenterProps } from "../types/login.types";
 import { GoogleAuth } from "../../../../components";
 import { useToast } from "../../../../providers/ToastProvider";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const LoginPresenter: React.FC<LoginPresenterProps> = ({
   isLoading,
@@ -15,6 +16,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
   onClearError,
 }) => {
   const { showError } = useToast();
+  const { translations } = useLanguage();
   // Show toast on error prop change and clear error state
   useEffect(() => {
     if (error) {
@@ -59,10 +61,10 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
       <div className="bg-white w-full max-w-[430px]">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-black mb-4 tracking-wider">
-            LOGIN
+            {translations.auth.login.toUpperCase()}
           </h2>
           <p className="text-black text-sm sm:text-base text-start">
-            Welcome to FIT Fashion. Your journey starts here.
+            {translations.auth.welcomeMessage} {translations.auth.journeyStarts}
           </p>
         </div>
 
@@ -72,7 +74,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               htmlFor="email"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              EMAIL
+              {translations.auth.email.toUpperCase()}
             </label>
             <input
               type="email"
@@ -81,7 +83,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               value={formData.email}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
-              placeholder="Email"
+              placeholder={translations.auth.email}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -95,7 +97,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               htmlFor="password"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              PASSWORD
+              {translations.auth.password.toUpperCase()}
             </label>
             <input
               type="password"
@@ -104,7 +106,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               value={formData.password}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
-              placeholder="Password"
+              placeholder={translations.auth.password}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -125,7 +127,7 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
             {isLoading && (
               <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-transparent border-t-current rounded-full animate-spin"></div>
             )}
-            {isLoading ? "Signing in..." : "LOGIN"}
+            {isLoading ? translations.auth.signingIn : translations.auth.loginButton}
           </button>
 
           <div className="text-center text-sm">
@@ -133,14 +135,14 @@ export const LoginPresenter: React.FC<LoginPresenterProps> = ({
               href="/auth/forgot-password"
               className="text-gray-900 hover:underline transition-colors"
             >
-              Forgot password?
+              {translations.auth.forgotPassword}
             </Link>
             <span className="text-gray-500 mx-2">|</span>
             <Link
               href="/auth/register"
               className="text-gray-900 hover:underline transition-colors"
             >
-              Register
+              {translations.auth.register}
             </Link>
           </div>
 

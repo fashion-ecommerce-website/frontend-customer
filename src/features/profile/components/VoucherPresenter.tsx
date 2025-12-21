@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Voucher } from '@/features/order/components/VoucherModal';
 import { ErrorMessage } from '../../../components';
 import { Pagination } from '@/features/filter-product/components/Pagination';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface VoucherPresenterProps {
   vouchers: Voucher[];
@@ -32,6 +33,8 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const { translations } = useLanguage();
 
   // Copy code function
   const copyToClipboard = async (code: string) => {
@@ -162,7 +165,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
         <div className="mb-6">
           <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
             <h2 className="text-base sm:text-lg font-semibold text-black">
-              Vouchers
+              {translations.profile.voucherHeader || 'Vouchers'}
             </h2>
           </div>
           
@@ -171,11 +174,11 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               {/* Search Input */}
               <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Search Vouchers</label>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">{translations.profile.searchVouchers || 'Search Vouchers'}</label>
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search by name or code..."
+                    placeholder={translations.profile.searchVouchers || 'Search by name or code...'}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     disabled
@@ -189,14 +192,14 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
 
               {/* Filter Dropdown */}
               <div className="sm:w-48">
-                <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
+                <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">{translations.profile.statusLabel || 'Status'}</label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'unavailable')}
                   disabled
                   className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent opacity-50 cursor-not-allowed"
                 >
-                  <option value="all">All</option>
+                  <option value="all">{translations.profile.statusOptions_all || 'All'}</option>
                 </select>
               </div>
             </div>
@@ -229,9 +232,9 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
           <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
             <span className="text-4xl">🏷️</span>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No vouchers available</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">{translations.profile.noVouchersAvailable || 'No vouchers available'}</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            You don&apos;t have any vouchers yet. Check back later for new promotions and special offers!
+            {translations.profile.noVouchersAvailable || 'You don\'t have any vouchers yet. Check back later for new promotions and special offers!'}
           </p>
           <button
             onClick={onRefresh}
@@ -240,7 +243,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh Vouchers
+            {translations.profile.refreshVouchers || 'Refresh Vouchers'}
           </button>
         </div>
       </div>
@@ -251,9 +254,9 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
     <div className="p-3 sm:p-6">
       {/* Header Section */}
       <div className="mb-6 sm:mb-8">
-        <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+          <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
           <h2 className="text-base sm:text-lg font-semibold text-black">
-            {vouchers.length} Vouchers
+            {vouchers.length} {translations.profile.vouchers || 'Vouchers'}
           </h2>
         </div>
 
@@ -262,13 +265,13 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {/* Search Input */}
             <div className="flex-1">
-              <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Search Vouchers</label>
+              <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">{translations.profile.searchVouchers || 'Search Vouchers'}</label>
               <div className="relative">
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by name or code..."
+                  placeholder={translations.profile.searchVouchers || 'Search by name or code...'}
                   className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 pl-9 sm:pl-10 text-xs sm:text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
                 <svg className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,23 +282,23 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
 
             {/* Filter Dropdown */}
             <div className="sm:w-48">
-              <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">Status</label>
+              <label className="block text-xs sm:text-sm font-semibold text-gray-800 mb-1.5 sm:mb-2">{translations.profile.statusLabel || 'Status'}</label>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as 'all' | 'available' | 'unavailable')}
                 className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               >
-                <option value="all">All</option>
-                <option value="available">Available</option>
-                <option value="unavailable">Unavailable</option>
+                <option value="all">{translations.profile.statusOptions_all || 'All'}</option>
+                <option value="available">{translations.profile.statusOptions_available || 'Available'}</option>
+                <option value="unavailable">{translations.profile.statusOptions_unavailable || 'Unavailable'}</option>
               </select>
             </div>
           </div>
 
           {/* Results Count */}
           {filteredVouchers.length !== vouchers.length && (
-            <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-gray-600">
-              Showing {filteredVouchers.length} of {vouchers.length} vouchers
+              <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-gray-600">
+              Showing {filteredVouchers.length} of {vouchers.length} {translations.profile.vouchers || 'vouchers'}
             </div>
           )}
         </div>
@@ -306,11 +309,11 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
         {filteredVouchers.length === 0 ? (
           <div className="text-center py-12">
          
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No vouchers found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{translations.profile.noVouchersFound || 'No vouchers found'}</h3>
             <p className="text-gray-500 mb-6 max-w-md mx-auto">
-              {searchTerm || filterStatus !== 'all' 
-                ? 'Try adjusting your search or filter criteria.'
-                : 'You don&apos;t have any vouchers yet. Check back later for new promotions and special offers!'
+              {searchTerm || filterStatus !== 'all'
+                ? (translations.profile.tryAdjustFilters || 'Try adjusting your search or filter criteria.')
+                : (translations.profile.noVouchersAvailable || 'You don\'t have any vouchers yet. Check back later for new promotions and special offers!')
               }
             </p>
             {(searchTerm || filterStatus !== 'all') && (
@@ -321,7 +324,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                 }}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors shadow-sm"
               >
-                Clear Filters
+                {translations.profile.clearFilters || 'Clear Filters'}
               </button>
             )}
           </div>
@@ -345,11 +348,11 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="text-sm font-semibold text-black flex-1 line-clamp-2">{voucher.label || voucher.code}</div>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full border flex-shrink-0 ${isAvailable(voucher) ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>
-                        {isAvailable(voucher) ? 'Available' : 'Unavailable'}
+                        {isAvailable(voucher) ? (translations.profile.statusOptions_available || 'Available') : (translations.profile.statusOptions_unavailable || 'Unavailable')}
                       </span>
                     </div>
                     <div className="text-xs text-gray-600 mb-1">
-                      Code: <span className="font-mono font-semibold">{voucher.code}</span>
+                      {translations.profile.codeLabel || 'Code:'} <span className="font-mono font-semibold">{voucher.code}</span>
                     </div>
                   </div>
                 </div>
@@ -359,7 +362,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                     {getDiscountText(voucher)}
                   </div>
                   <div className="text-[10px] text-center text-gray-600">
-                    {isAvailable(voucher) ? 'Ready to use' : 'Not available'}
+                    {isAvailable(voucher) ? (translations.profile.readyToUse || 'Ready to use') : (translations.profile.notAvailable || 'Not available')}
                   </div>
                 </div>
                 
@@ -369,7 +372,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>Min. order: <span className="font-medium">{voucher.minSubtotal.toLocaleString('vi-VN')}₫</span></span>
+                      <span>{translations.profile.minOrderLabel || 'Min. order:'} <span className="font-medium">{voucher.minSubtotal.toLocaleString('vi-VN')}₫</span></span>
                     </div>
                   )}
                   {voucher.maxDiscountAmount && (
@@ -377,7 +380,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                       </svg>
-                      <span>Max discount: <span className="font-medium">{voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫</span></span>
+                      <span>{translations.profile.maxDiscountLabel || 'Max discount:'} <span className="font-medium">{voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫</span></span>
                     </div>
                   )}
                   {voucher.startsAt && isNotStarted(voucher.startsAt) && (
@@ -385,7 +388,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>Starts: <span className="font-medium">{formatDate(voucher.startsAt)}</span></span>
+                      <span>{translations.profile.startsLabel || 'Starts:'} <span className="font-medium">{formatDate(voucher.startsAt)}</span></span>
                     </div>
                   )}
                   {voucher.expiresAt && (
@@ -393,7 +396,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>Expires: <span className="font-medium">{formatDate(voucher.expiresAt)}</span></span>
+                      <span>{translations.profile.expiresLabel || 'Expires:'} <span className="font-medium">{formatDate(voucher.expiresAt)}</span></span>
                     </div>
                   )}
                 </div>
@@ -407,7 +410,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                 >
-                  {copiedCode === voucher.code ? '✓ Copied!' : 'Copy Code'}
+                  {copiedCode === voucher.code ? (translations.profile.copied || '✓ Copied!') : (translations.profile.copyCode || 'Copy Code')}
                 </button>
               </div>
 
@@ -427,28 +430,28 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       </div>
                       <div className="text-black font-semibold truncate">{voucher.label || voucher.code}</div>
                       <span className={`text-xs px-2 py-0.5 rounded-full border ${isAvailable(voucher) ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>
-                        {isAvailable(voucher) ? 'Available' : 'Unavailable'}
+                        {isAvailable(voucher) ? (translations.profile.statusOptions_available || 'Available') : (translations.profile.statusOptions_unavailable || 'Unavailable')}
                       </span>
                     </div>
                     
-                    <div className="text-xs text-gray-600 mb-2">Code: <span className="font-mono">{voucher.code}</span></div>
+                    <div className="text-xs text-gray-600 mb-2">{translations.profile.codeLabel || 'Code:'} <span className="font-mono">{voucher.code}</span></div>
                     
                     {voucher.minSubtotal && (
-                      <div className="text-xs text-gray-500 mb-1">Min. order: {voucher.minSubtotal.toLocaleString('vi-VN')}₫</div>
+                      <div className="text-xs text-gray-500 mb-1">{translations.profile.minOrderLabel || 'Min. order:'} {voucher.minSubtotal.toLocaleString('vi-VN')}₫</div>
                     )}
                     
                     {voucher.maxDiscountAmount && (
-                      <div className="text-[11px] text-gray-600 mb-1">
-                        Max: {voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫
+                        <div className="text-[11px] text-gray-600 mb-1">
+                        {translations.profile.maxDiscountLabel || 'Max discount:'} {voucher.maxDiscountAmount.toLocaleString('vi-VN')}₫
                       </div>
                     )}
                     
                     <div className="flex items-center gap-6 text-[11px] text-gray-600">
                       {voucher.startsAt && isNotStarted(voucher.startsAt) && (
-                        <span>Starts: {formatDate(voucher.startsAt)}</span>
+                        <span>{translations.profile.startsLabel || 'Starts:'} {formatDate(voucher.startsAt)}</span>
                       )}
                       {voucher.expiresAt && (
-                        <span>Expires: {formatDate(voucher.expiresAt)}</span>
+                        <span>{translations.profile.expiresLabel || 'Expires:'} {formatDate(voucher.expiresAt)}</span>
                       )}
                     </div>
                   </div>
@@ -458,7 +461,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                       {getDiscountText(voucher)}
                     </div>
                     <div className="text-xs text-gray-500 mb-2">
-                      {isAvailable(voucher) ? 'Ready to use' : 'Not available'}
+                      {isAvailable(voucher) ? (translations.profile.readyToUse || 'Ready to use') : (translations.profile.notAvailable || 'Not available')}
                     </div>
                     <button
                       onClick={() => copyToClipboard(voucher.code)}
@@ -469,7 +472,7 @@ export const VoucherPresenter: React.FC<VoucherPresenterProps> = ({
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
                     >
-                      {copiedCode === voucher.code ? 'Copied!' : 'Copy'}
+                      {copiedCode === voucher.code ? (translations.profile.copiedShort || 'Copied!') : (translations.profile.copy || 'Copy')}
                     </button>
                   </div>
                 </div>

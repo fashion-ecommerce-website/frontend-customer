@@ -12,7 +12,7 @@ interface AuthInitializerProps {
  * Initializes authentication state when the app starts
  */
 export const AuthInitializer: React.FC<AuthInitializerProps> = ({ children }) => {
-  // This hook will automatically initialize auth state from localStorage
+  // This hook will automatically initialize auth state from cookies
   useAuth();
 
   return <>{children}</>;

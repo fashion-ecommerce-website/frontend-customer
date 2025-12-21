@@ -15,7 +15,7 @@ export const useAuth = () => {
   const user = useAppSelector(selectUser);
   const accessToken = useAppSelector(selectAccessToken);
 
-  // Initialize auth state from localStorage on app start
+  // Initialize auth state from cookies on app start
   useEffect(() => {
     // Helper function to convert date from YYYY-MM-DD to DD/MM/YYYY
     const convertDateFromApi = (dateString: string): string => {
@@ -56,6 +56,8 @@ export const useAuth = () => {
         phoneVerified: apiUser.phoneVerified,
         roles: apiUser.roles,
         active: apiUser.active,
+        // Preserve membership tier from API (accept camelCase, snake_case, or nested)
+        rankName: apiUser.rankName ?? apiUser.rank_name ?? apiUser.rank?.name ?? undefined,
       };
     };
 
@@ -109,7 +111,7 @@ export const useAuth = () => {
     initializeAuth();
   }, [dispatch]);
 
-  // Persist auth state to localStorage when it changes
+  // Persist auth state to cookies when it changes
   useEffect(() => {
     if (isAuthenticated && user && accessToken) {
       authUtils.setTokens(accessToken, authUtils.getRefreshToken() || '');

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useLanguage } from '@/hooks/useLanguage';
 import { ProfileFormData } from "../types/profile.types";
 
 // Update profile API payload interface
@@ -29,6 +30,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
   onProfileFormDataChange,
   onSubmit,
 }) => {
+  const { translations } = useLanguage();
   // Handle input changes
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -88,7 +90,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
 
         {/* Modal title */}
         <h2 className="text-xl font-semibold text-black mb-6">
-          Update Information
+          {translations.profile.updateInformationTitle || 'Update Information'}
         </h2>
 
         {/* Form */}
@@ -99,7 +101,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
               htmlFor="firstName"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-                Name
+                {translations.profile.nameLabel || 'Name'}
             </label>
             <input
               type="text"
@@ -107,7 +109,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
               name="username"
               value={profileFormData.username || ""}
               onChange={handleInputChange}
-              placeholder="Username"
+              placeholder={translations.profile.nameLabel || 'Username'}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
               disabled={isUpdating}
             />
@@ -124,7 +126,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
               htmlFor="dob"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Date of Birth
+              {translations.profile.dateOfBirthLabel || 'Date of Birth'}
             </label>
             <input
               type="date"
@@ -148,7 +150,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
               htmlFor="phone"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Phone Number
+              {translations.profile.phoneNumberLabel || 'Phone Number'}
             </label>
             <input
               type="tel"
@@ -156,7 +158,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
               name="phone"
               value={profileFormData.phone || ""}
               onChange={handleInputChange}
-              placeholder="Phone number"
+              placeholder={translations.profile.phoneNumberLabel || 'Phone number'}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
               disabled={isUpdating}
             />
@@ -173,7 +175,7 @@ export const UpdateInfoModal: React.FC<UpdateInfoModalProps> = ({
             disabled={isUpdating}
             className="w-full bg-black text-white py-3 rounded-md font-medium transition-all duration-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none mt-6"
           >
-            {isUpdating ? "Updating..." : "Update"}
+            {isUpdating ? (translations.profile.updating || 'Updating...') : (translations.profile.updateButton || 'Update')}
           </button>
         </form>
       </div>

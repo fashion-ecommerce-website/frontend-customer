@@ -8,6 +8,7 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectCartUniqueItemCount } from "@/features/cart/redux/cartSlice";
 import { PromotionalBanner } from "./PromotionalBanner";
 import { useCategories } from '@/hooks/useCategories';
+import useLanguage from '@/hooks/useLanguage';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,6 +19,12 @@ export const Header: React.FC = () => {
   const userMenuRefDesktop = useRef<HTMLDivElement>(null);
 
   const { categories, loading: categoriesLoading } = useCategories();
+
+  const { lang, setLang, translations } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Get authentication state from custom hook
   const { isAuthenticated, user, logout } = useAuth();
@@ -143,7 +150,7 @@ export const Header: React.FC = () => {
               <button
                 onClick={toggleMenu}
                 className="text-gray-700 hover:text-black transition-colors p-3 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label="Toggle mobile menu"
+                aria-label={translations.header.menu}
               >
                 <svg
                   className="h-5 w-5"
@@ -163,7 +170,7 @@ export const Header: React.FC = () => {
               <button
                 onClick={() => router.push("/search")}
                 className="text-black hover:text-gray-600 transition-colors p-3 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label="Search"
+                aria-label={translations.header.search}
               >
                 <svg
                   className="h-5 w-5"
@@ -193,10 +200,22 @@ export const Header: React.FC = () => {
 
             {/* Right side - Cart + User */}
             <div className="flex items-center space-x-1 relative z-10">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setLang(lang === 'en' ? 'vi' : 'en');
+                }}
+                className="text-black hover:text-gray-600 transition-colors flex items-center justify-center text-xs font-medium"
+                style={{ width: 44, height: 36, minWidth: 44 }}
+                aria-label={translations.header.switchLanguage}
+                title={mounted ? translations.header.switchLanguage : 'Switch language'}
+              >
+                {mounted ? lang.toUpperCase() : 'EN'}
+              </button>
               <Link
                 href="/cart"
                 className="text-black relative hover:text-gray-600 transition-colors p-3 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label="Shopping Cart"
+                aria-label={translations.header.cart}
               >
                 <svg
                   className="h-5 w-5"
@@ -222,7 +241,7 @@ export const Header: React.FC = () => {
                 <button
                   onClick={handleProfileClick}
                   className="text-black hover:text-gray-600 transition-colors p-3 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"
-                  aria-label="Profile"
+                  aria-label={translations.header.profile}
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
                   <svg
@@ -249,21 +268,21 @@ export const Header: React.FC = () => {
                         className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors font-medium"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        My Profile
+                        {translations.header.myProfile}
                       </Link>
                       <Link
                         href="/profile?section=order-info"
                         className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors font-medium"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        My Orders
+                        {translations.header.myOrders}
                       </Link>
                       <hr className="my-1 border-gray-100" />
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50 transition-colors font-medium"
                       >
-                        Sign Out
+                        {translations.header.signOut}
                       </button>
                     </div>
                   </div>
@@ -316,7 +335,7 @@ export const Header: React.FC = () => {
                           href="/sale"
                           className="text-red-600 hover:text-red-700 text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold inline-block transition-colors"
                         >
-                          SALE
+                          {translations.header.sale}
                         </Link>
                       </div>
                     </>
@@ -326,7 +345,7 @@ export const Header: React.FC = () => {
                       href="/shop"
                       className="text-black text-sm lg:text-base xl:text-[17px] px-1 py-2 font-bold"
                     >
-                      SHOP
+                      {translations.header.shop}
                     </Link>
                   )}
                 </nav>
@@ -335,11 +354,23 @@ export const Header: React.FC = () => {
 
             {/* Right side icons */}
             <div className="flex items-center space-x-6">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setLang(lang === 'en' ? 'vi' : 'en');
+                }}
+                className="text-black hover:text-gray-600 transition-colors cursor-pointer rounded-sm text-sm font-medium flex items-center justify-center"
+                style={{ width: 56, height: 34, minWidth: 56 }}
+                aria-label={translations.header.switchLanguage}
+                title={mounted ? translations.header.switchLanguage : 'Switch language'}
+              >
+                {mounted ? lang.toUpperCase() : 'EN'}
+              </button>
               {/* Search Bar */}
               <button
                 onClick={() => router.push("/search")}
                 className="text-black hover:text-gray-600 transition-colors cursor-pointer"
-                aria-label="Search"
+                aria-label={translations.header.search}
               >
                 <svg
                   className="h-6 w-6"
@@ -360,7 +391,7 @@ export const Header: React.FC = () => {
               <Link
                 href="/cart"
                 className="text-black relative hover:text-gray-600 transition-colors"
-                aria-label="Shopping Cart"
+                aria-label={translations.header.cart}
               >
                 <svg
                   className="h-6 w-6"
@@ -386,8 +417,8 @@ export const Header: React.FC = () => {
               <button
                 onClick={handleWishlistClick}
                 className="text-black relative cursor-pointer hover:text-gray-600 transition-colors"
-                title={isAuthenticated ? "Wishlist" : "Login to view wishlist"}
-                aria-label="Wishlist"
+                title={isAuthenticated ? translations.header.wishlist : translations.header.login}
+                aria-label={translations.header.wishlist}
               >
                 <svg
                   className="h-6 w-6"
@@ -411,8 +442,8 @@ export const Header: React.FC = () => {
                   className="text-black flex items-center space-x-1 hover:text-gray-600 transition-colors cursor-pointer"
                   title={
                     isAuthenticated
-                      ? `Profile (${user?.username || "User"})`
-                      : "Login to access profile"
+                      ? `${translations.header.profile} (${user?.username || "User"})`
+                      : translations.header.login
                   }
                 >
                   <svg
@@ -455,21 +486,21 @@ export const Header: React.FC = () => {
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        My Profile
+                        {translations.header.myProfile}
                       </Link>
                       <Link
                         href="/profile?section=order-info"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        My Orders
+                        {translations.header.myOrders}
                       </Link>
                       <hr className="my-1 border-gray-100" />
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
                       >
-                        Sign Out
+                        {translations.header.signOut}
                       </button>
                     </div>
                   </div>
@@ -545,7 +576,7 @@ export const Header: React.FC = () => {
                         className="block px-4 py-3 text-base font-semibold text-red-600 hover:text-red-700 hover:bg-gray-50 rounded-lg transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        SALE
+                        🔥 {translations.header.sale}
                       </Link>
                     </div>
                   </>
@@ -555,7 +586,7 @@ export const Header: React.FC = () => {
                     className="block px-4 py-3 text-base font-semibold text-gray-900 hover:text-black hover:bg-gray-50 rounded-lg transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    SHOP
+                    {translations.header.shop}
                   </Link>
                 )}
               </div>

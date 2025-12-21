@@ -5,6 +5,7 @@ import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { Product, ProductCategory } from '../types/home.types';
 import { ProductCard } from '@/components';
+import { useLanguageContext } from '@/providers/LanguageProvider';
 import { mockRankingProducts } from '../data/mockData';
 
 interface ProductSectionProps {
@@ -38,6 +39,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
     containScroll: 'trimSnaps'
   });
 
+  const { translations } = useLanguageContext();
+
   const scrollPrev = useCallback(() => {
     emblaApi?.scrollPrev();
   }, [emblaApi]);
@@ -68,7 +71,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
                 : "text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900"
             }
           >
-            {variant === 'newArrivals' ? 'NEW ARRIVALS' : variant === 'ranking' ? 'RANKING' : title}
+            {variant === 'newArrivals' ? translations.home.newArrivals : variant === 'ranking' ? translations.home.ranking : title}
           </h2>
         </div>
 

@@ -8,6 +8,7 @@ import { ImageUpload } from "./ImageUpload";
 import { ProductSelector } from "./ProductSelector";
 import { TryOnResult } from "./TryOnResult";
 import { TryOnHistory } from "./TryOnHistory";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
   products,
@@ -27,20 +28,21 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
   onClearSlot,
 }) => {
   const [activeTab, setActiveTab] = useState<'try-on' | 'history'>('try-on');
+  const { translations } = useLanguage();
 
   const breadcrumbItems = [
     {
-      label: "HOME",
+      label: translations.common.home,
       className: "text-gray-400 font-semibold font-[12px]",
       href: "/",
     },
     {
-      label: "SHOPPING CART",
+      label: translations.header.cart.toUpperCase(),
       className: "text-gray-400 font-semibold font-[12px]",
       href: "/cart",
     },
     {
-      label: "VIRTUAL TRY-ON",
+      label: translations.virtualTryOn.title.toUpperCase(),
       className: "text-black font-semibold font-[12px]",
       href: "/cart/virtual-tryon",
     },
@@ -74,7 +76,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                   : 'text-gray-500 hover:text-black'
               }`}
             >
-              New Try-On
+              {translations.virtualTryOn.tryOnNow}
             </button>
             <button
               onClick={() => setActiveTab('history')}
@@ -84,7 +86,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                   : 'text-gray-500 hover:text-black'
               }`}
             >
-              History
+              {translations.profile.orderHistory}
             </button>
           </div>
         </div>
@@ -95,7 +97,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
             {isProcessing ? (
               <div className="inline-flex items-center gap-3 bg-gray-50 text-black px-3 py-2 rounded-full border border-gray-200 shadow-sm">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent" />
-                <span className="text-sm font-medium">Processing...</span>
+                <span className="text-sm font-medium">{translations.common.processing}</span>
               </div>
             ) : resultImage ? (
               <div className="inline-flex items-center gap-2 bg-black text-white px-3 py-2 rounded-full shadow-sm">
@@ -106,7 +108,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="text-sm font-medium">Completed</span>
+                <span className="text-sm font-medium">{translations.common.completed}</span>
               </div>
             ) : null}
           </div>
@@ -135,7 +137,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                         {selectedProduct || selectedLowerProduct ? "✓" : "1"}
                       </div>
                       <h2 className="text-xl font-bold text-black tracking-tight">
-                        SELECT ITEMS
+                        {translations.virtualTryOn.selectProduct.toUpperCase()}
                       </h2>
                     </div>
                   </div>
@@ -154,7 +156,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-xs font-semibold text-gray-700 uppercase">
-                            Upper Body
+                            {translations.virtualTryOn.selectTShirt}
                           </div>
                           {activeSlot === 'upper' && (
                             <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
@@ -181,13 +183,13 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                                 }}
                                 className="text-[10px] text-red-600 hover:text-red-700 mt-1"
                               >
-                                Remove
+                                {translations.common.remove}
                               </button>
                             </div>
                           </div>
                         ) : (
                           <div className="text-xs text-gray-400 text-center py-4">
-                            Click to select<br />upper garment
+                            {translations.virtualTryOn.noProductSelected}
                           </div>
                         )}
                       </div>
@@ -203,7 +205,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-xs font-semibold text-gray-700 uppercase">
-                            Lower Body
+                            {translations.virtualTryOn.selectShirt}
                           </div>
                           {activeSlot === 'lower' && (
                             <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
@@ -230,13 +232,13 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                                 }}
                                 className="text-[10px] text-red-600 hover:text-red-700 mt-1"
                               >
-                                Remove
+                                {translations.common.remove}
                               </button>
                             </div>
                           </div>
                         ) : (
                           <div className="text-xs text-gray-400 text-center py-4">
-                            Click to select<br />lower garment
+                            {translations.virtualTryOn.noProductSelected}
                           </div>
                         )}
                       </div>
