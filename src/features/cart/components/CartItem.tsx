@@ -84,9 +84,9 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
       </div>
 
       {/* Product Details */}
-      <div className="flex-1 min-w-0 font-medium group cursor-pointer">
+      <div className="flex-1 min-w-0 font-medium">
         <h3
-          className="text-[14px] text-black group-hover:text-[#BB9244] mb-1"
+          className="text-[14px] text-black hover:text-[#BB9244] mb-1 cursor-pointer"
           onClick={handleProductClick}
           role="button"
           tabIndex={0}
@@ -94,11 +94,11 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
           {item.productTitle}
         </h3>
 
-        <p className="text-[12px] text-black mb-1 group-hover:text-[#BB9244]">
+        <p className="text-[12px] text-black mb-1">
           {item.colorName} / {item.sizeName}
         </p>
 
-        <p className="text-[14px] text-black mb-2 group-hover:text-[#BB9244]">
+        <p className="text-[14px] text-black mb-2">
           Quantity: {item.quantity}
         </p>
 
@@ -114,7 +114,7 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
               </div>
             </>
           ) : (
-            <div className="text-[16px] font-bold text-black group-hover:text-[#BB9244]">
+            <div className="text-[16px] font-bold text-black">
               {formatPrice(item.price)}
             </div>
           )}

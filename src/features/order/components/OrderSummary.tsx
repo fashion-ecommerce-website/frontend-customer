@@ -44,10 +44,21 @@ export function OrderSummary({
 		order,
 	} = useOrder();
 	const dispatch = useAppDispatch();
+	
+	// Track if we've initialized (to ignore stale orderError on mount)
+	const hasInitialized = React.useRef(false);
+	const prevOrderError = React.useRef<string | null>(null);
 
 	// Clear previous order error when component mounts
 	React.useEffect(() => {
 		dispatch(resetOrderState());
+		setSubmitError(null);
+		// Mark as initialized after a tick to allow Redux to update
+		const timer = setTimeout(() => {
+			hasInitialized.current = true;
+			prevOrderError.current = null;
+		}, 0);
+		return () => clearTimeout(timer);
 	}, [dispatch]);
 
 	const [vouchers, setVouchers] = React.useState<Voucher[]>([]);
@@ -190,8 +201,15 @@ export function OrderSummary({
 		}
 	}, [order, onOrderComplete, selectedPaymentMethod, router]);
 
-	// Handle order errors
+	// Handle order errors - only show new errors after initialization
 	React.useEffect(() => {
+		// Skip if not initialized yet or if error hasn't changed
+		if (!hasInitialized.current || orderError === prevOrderError.current) {
+			return;
+		}
+		
+		prevOrderError.current = orderError;
+		
 		if (orderError) {
 			if (orderError.includes('does not belong to user')) {
 				setSubmitError('The selected shipping address is not valid. Please select a different address.');
@@ -254,7 +272,7 @@ export function OrderSummary({
 									<div className="flex items-center gap-2">
 										{product.finalPrice && product.finalPrice < product.price ? (
 											<>
-												<span className="text-sm font-bold text-neutral-600">
+												<span className="text-sm font-bold text-red-600">
 													{formatPrice(product.finalPrice)}
 												</span>
 												<span className="text-xs line-through text-gray-500">
