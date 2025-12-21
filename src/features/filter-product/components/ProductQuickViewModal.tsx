@@ -16,6 +16,7 @@ import { recommendationApi, ActionType } from "@/services/api/recommendationApi"
 import { useToast } from "@/providers/ToastProvider"
 import { useRouter } from "next/navigation"
 import { OrderModal } from "@/components/modals"
+import { useColorMap } from "@/hooks/useColorMap"
 
 interface ProductQuickViewModalProps {
   isOpen: boolean
@@ -50,6 +51,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const { showError } = useToast()
   const router = useRouter()
+  const { getColorHex } = useColorMap()
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false)
@@ -709,7 +711,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                               className="object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full" style={{ backgroundColor: color.toLowerCase() }} />
+                            <div className="w-full h-full" style={{ backgroundColor: getColorHex(color) }} />
                           )}
                         </button>
                       ))}
@@ -887,7 +889,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                             ) : (
                               <div
                                 className="w-full h-full flex items-center justify-center"
-                                style={{ backgroundColor: color.toLowerCase() }}
+                                style={{ backgroundColor: getColorHex(color) }}
                                 title={color}
                               >
                                 <span className="text-sm text-white bg-black bg-opacity-60 px-2 py-1 rounded-md font-medium">

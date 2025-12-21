@@ -92,12 +92,39 @@ export interface DiscountedProductsRequest {
   title?: string;    // Keyword search by title
 }
 
+// New Arrivals response interface - matches backend NewArrivalsResponse
+export interface NewArrivalsCategory {
+  categoryId: number;
+  categoryName: string;
+  categorySlug: string;
+  products: ProductCardWithPromotion[];
+}
+
+// Product card with promotion - matches backend ProductCardWithPromotionResponse
+export interface ProductCardWithPromotion {
+  productId: number;
+  detailId: number;
+  productTitle: string;
+  productSlug: string;
+  colorName: string;
+  price: number;
+  finalPrice: number;
+  percentOff?: number;
+  promotionId?: number;
+  promotionName?: string;
+  quantity: number;
+  colors: string[];
+  imageUrls: string[];
+}
+
 // Product API endpoints
 const PRODUCT_ENDPOINTS = {
   GET_PRODUCTS: '/products',
   GET_DISCOUNTED_PRODUCTS: '/products/discounted',
   GET_PRODUCT_BY_ID: '/products',
   GET_PRODUCT_BY_COLOR: '/products/details', // GET /products/details/{id}/color?activeColor={color}
+  GET_NEW_ARRIVALS: '/products/new-arrivals',
+  GET_BEST_SELLERS: '/products/best-sellers',
 } as const;
 
 // Product API service
@@ -235,6 +262,30 @@ export class ProductApiService {
 
     return apiClient.get<PaginatedProductsResponse>(url);
   }
+
+  /**
+   * Get new arrivals by root categories
+   * URL example: /products/new-arrivals?category=ao-thun&limit=8
+   */
+  async getNewArrivals(category?: string, limit: number = 8): Promise<ApiResponse<NewArrivalsCategory[]>> {
+    const searchParams = new URLSearchParams();
+    
+    if (category) {
+      searchParams.append('category', category);
+    }
+    searchParams.append('limit', limit.toString());
+
+    const url = `${PRODUCT_ENDPOINTS.GET_NEW_ARRIVALS}?${searchParams.toString()}`;
+    return apiClient.get<NewArrivalsCategory[]>(url);
+  }
+
+  /**
+   * Get best selling products (ranking)
+   * URL example: /products/best-sellers
+   */
+  async getBestSellers(): Promise<ApiResponse<ProductCardWithPromotion[]>> {
+    return apiClient.get<ProductCardWithPromotion[]>(PRODUCT_ENDPOINTS.GET_BEST_SELLERS);
+  }
 }
 
 // Export singleton instance
@@ -246,4 +297,6 @@ export const productApi = {
   getDiscountedProducts: (params?: DiscountedProductsRequest) => productApiService.getDiscountedProducts(params),
   getProductById: (id: string) => productApiService.getProductById(id),
   getProductByColor: (id: string, activeColor: string, activeSize?: string) => productApiService.getProductByColor(id, activeColor, activeSize),
+  getNewArrivals: (category?: string, limit?: number) => productApiService.getNewArrivals(category, limit),
+  getBestSellers: () => productApiService.getBestSellers(),
 };

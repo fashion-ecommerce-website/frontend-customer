@@ -12,6 +12,7 @@ import { Size } from '@/types/size-recommendation.types';
 import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useToast } from '@/providers/ToastProvider';
+import { useColorMap } from '@/hooks/useColorMap';
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -33,6 +34,7 @@ export function ProductInfo({
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const router = useRouter();
   const { showError } = useToast();
+  const { getColorHex } = useColorMap();
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false);
@@ -264,23 +266,7 @@ export function ProductInfo({
                 >
                   <div
                     className="w-7 h-7 md:w-8 md:h-8 rounded-full"
-                    style={{
-                      backgroundColor: color.toLowerCase() === 'white' ? '#f1f0eb' :
-                        color.toLowerCase() === 'mint' ? '#60a1a7' :
-                          color.toLowerCase() === 'dark blue' ? '#202846' :
-                            color.toLowerCase() === 'blue' ? '#acbdcd' :
-                              color.toLowerCase() === 'pink' ? '#ddb3bd' :
-                                color.toLowerCase() === 'black' ? '#000000' :
-                                  color.toLowerCase() === 'red' ? '#6d2028' :
-                                    color.toLowerCase() === 'green' ? '#2c5449' :
-                                      color.toLowerCase() === 'yellow' ? '#dcbe9a' :
-                                        color.toLowerCase() === 'purple' ? '#47458e' :
-                                          color.toLowerCase() === 'orange' ? '#f97316' :
-                                            color.toLowerCase() === 'gray' ? '#a7a9a8' :
-                                              color.toLowerCase() === 'brown' ? '#61493f' :
-                                                color.toLowerCase() === 'beige' ? '#ebe7dc' :
-                                                  color.toLowerCase()
-                    }}
+                    style={{ backgroundColor: getColorHex(color) }}
                     title={color}
                   />
                 </div>

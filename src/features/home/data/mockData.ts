@@ -3,17 +3,6 @@ import { Banner, Product, ProductCategory } from '../types/home.types';
 // Mock Banners
 export const mockBanners: Banner[] = [
   {
-    id: '1',
-    title: 'FASHION SALE',
-    subtitle: 'THỜI TRANG ƯU ĐÃI',
-    description: 'GIẢM GIÁ ĐẾN 50%',
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
-    link: '/sale',
-    buttonText: 'Mua ngay',
-    type: 'hero',
-    isActive: true,
-  },
-  {
     id: '2',
     title: 'NEW COLLECTION',
     subtitle: 'BỘ SƯU TẬP MỚI',
@@ -21,6 +10,17 @@ export const mockBanners: Banner[] = [
     image: 'https://file.hstatic.net/200000642007/file/summer_cooling_tee.jpg',
     link: '/products?collection=new',
     buttonText: 'Khám phá',
+    type: 'hero',
+    isActive: true,
+  },
+  {
+    id: '1',
+    title: 'FASHION SALE',
+    subtitle: 'THỜI TRANG ƯU ĐÃI',
+    description: 'GIẢM GIÁ ĐẾN 50%',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
+    link: '/sale',
+    buttonText: 'Mua ngay',
     type: 'hero',
     isActive: true,
   },

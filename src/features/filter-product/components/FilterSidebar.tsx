@@ -1,8 +1,9 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ProductFilters, FilterDropdownOption } from "../types";
+import { colorApiService, type ColorResponse } from "@/services/api/colorApi";
 
 type FilterValue = ProductFilters[keyof ProductFilters];
 
@@ -28,20 +29,26 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     price: false,
   });
 
-  const colorOptions: FilterDropdownOption[] = [
-    { value: "#2c2d31", label: "black" },
-    { value: "#d6d8d3", label: "white" },
-    { value: "#14202e", label: "dark blue" },
-    { value: "#cf2525", label: "red" },
-    { value: "#8ba6c1", label: "blue" },
-    { value: "#d4a2bb", label: "pink" },
-    { value: "#dac7a7", label: "yellow" },
-    { value: "#c69338", label: "orange" },
-    { value: "#60a1a7", label: "mint" },
-    { value: "#624e4f", label: "brown" },
-    { value: "#76715d", label: "green" },
-    { value: "#c6c6c4", label: "gray" },
-  ];
+  const [colorOptions, setColorOptions] = useState<FilterDropdownOption[]>([]);
+
+  // Fetch colors from API on mount
+  useEffect(() => {
+    const fetchColors = async () => {
+      try {
+        const response = await colorApiService.getActiveColors();
+        if (response.success && response.data) {
+          const options = response.data.map((color: ColorResponse) => ({
+            value: color.hex || color.name.toLowerCase(),
+            label: color.name.toLowerCase(),
+          }));
+          setColorOptions(options);
+        }
+      } catch (error) {
+        console.error("Failed to fetch colors:", error);
+      }
+    };
+    fetchColors();
+  }, []);
 
   const sizeOptions: FilterDropdownOption[] = [
     { value: "XS", label: "XS" },
@@ -410,8 +417,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
                   >
                     <span className="mr-1">
-                      Color:{" "}
-                      {colorOptions.find((opt) => opt.value === color)?.label}
+                      Color: {color}
                     </span>
                     <svg
                       className="ml-1 w-3 h-3"

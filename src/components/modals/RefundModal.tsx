@@ -238,7 +238,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           {reason === 'custom' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Please describe your reason
+                Please describe your reason <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={customReason}
