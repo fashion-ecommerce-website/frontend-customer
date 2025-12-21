@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppSelector } from "@/hooks/redux";
-import { selectCartTotalItemCount } from "@/features/cart/redux/cartSlice";
+import { selectCartUniqueItemCount } from "@/features/cart/redux/cartSlice";
 import { PromotionalBanner } from "./PromotionalBanner";
 import { useCategories } from '@/hooks/useCategories';
 
@@ -22,8 +22,8 @@ export const Header: React.FC = () => {
   // Get authentication state from custom hook
   const { isAuthenticated, user, logout } = useAuth();
   
-  // Get cart item count from Redux store
-  const cartItemCount = useAppSelector(selectCartTotalItemCount);
+  // Get cart item count from Redux store (number of unique items)
+  const cartItemCount = useAppSelector(selectCartUniqueItemCount);
 
   // Close user menu when clicking outside
   useEffect(() => {

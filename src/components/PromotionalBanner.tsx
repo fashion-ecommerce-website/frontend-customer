@@ -15,36 +15,24 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
   // Different messages for authenticated and non-authenticated users
   const guestMessages = [
     {
-      text: 'Sign up and get 20% off to your first order.',
-      action: { text: 'Sign Up Now', href: '/auth/register' }
+      text: 'Đăng ký để khám phá thời trang cá nhân hóa.',
+      action: { text: 'Đăng Ký Ngay', href: '/auth/register' }
     },
     {
-      text: 'Free shipping on orders over 500,000₫',
+      text: 'Thử đồ ảo - Xem trước outfit trước khi mua',
       action: null
-    },
-    {
-      text: 'New arrivals every week - Stay updated!',
-      action: { text: 'Shop Now', href: '/new-arrivals' }
     }
   ];
 
   const authenticatedMessages = [
     {
-      text: 'Free shipping on orders over 500,000₫',
+      text: 'Sản phẩm mới - Khám phá ngay!',
       action: null
     },
     {
-      text: 'New arrivals every week - Check them out!',
-      action: { text: 'Shop Now', href: '/new-arrivals' }
-    },
-    {
-      text: 'Exclusive member deals available now',
-      action: { text: 'View Deals', href: '/deals' }
-    },
-    {
-      text: 'Easy returns within 30 days',
+      text: 'Ưu đãi độc quyền dành cho thành viên',
       action: null
-    }
+    },
   ];
 
   const messages = isAuthenticated ? authenticatedMessages : guestMessages;
