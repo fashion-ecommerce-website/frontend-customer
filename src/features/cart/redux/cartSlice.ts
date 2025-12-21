@@ -258,6 +258,8 @@ export const selectCartItemCount = (state: RootState) =>
   state.cart.summary.itemCount;
 export const selectCartTotalItemCount = (state: RootState) =>
   state.cart.items.reduce((total, item) => total + item.quantity, 0);
+export const selectCartUniqueItemCount = (state: RootState) =>
+  state.cart.items.length;
 export const selectCartHasInitiallyLoaded = (state: RootState) =>
   state.cart.hasInitiallyLoaded;
 
