@@ -3,63 +3,49 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCarousel } from '@/components/ProductCarousel';
-import { productApi } from '@/services/api/productApi';
-
-interface RankingProduct {
-  detailId: number;
-  productSlug: string;
-  productTitle: string;
-  price: number;
-  finalPrice?: number;
-  percentOff?: number;
-  imageUrls: string[];
-  colors: string[];
-  quantity: number;
-}
+import { productApi, ProductCardWithPromotion } from '@/services/api/productApi';
 
 export function RankingSection() {
   const router = useRouter();
-  const [products, setProducts] = useState<RankingProduct[]>([]);
+  const [products, setProducts] = useState<ProductCardWithPromotion[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchRankingProducts = async () => {
+    const fetchBestSellers = async () => {
       try {
         setLoading(true);
-        const response = await productApi.getProducts({
-          category: 'ao-thun', // Get t-shirt products for ranking
-          page: 1,
-          pageSize: 10,
-        });
+        const response = await productApi.getBestSellers();
 
-        if (response.success && response.data?.items) {
-          const transformedProducts = response.data.items.map((item) => ({
-            detailId: item.detailId,
-            productSlug: item.productSlug,
-            productTitle: item.productTitle,
-            price: item.price,
-            finalPrice: item.finalPrice,
-            percentOff: item.percentOff,
-            imageUrls: item.imageUrls,
-            colors: item.colors,
-            quantity: item.quantity,
-          }));
-          setProducts(transformedProducts);
+        if (response.success && response.data) {
+          setProducts(response.data);
         }
       } catch (error) {
-        console.error('❌ Failed to fetch ranking products:', error);
+        console.error('❌ Failed to fetch best sellers:', error);
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRankingProducts();
+    fetchBestSellers();
   }, []);
 
   const handleProductClick = (detailId: number) => {
     router.push(`/products/${detailId}`);
   };
+
+  // Transform to format expected by ProductCarousel
+  const transformedProducts = products.map((item) => ({
+    detailId: item.detailId,
+    productSlug: item.productSlug,
+    productTitle: item.productTitle,
+    price: item.price,
+    finalPrice: item.finalPrice,
+    percentOff: item.percentOff,
+    imageUrls: item.imageUrls,
+    colors: item.colors,
+    quantity: item.quantity,
+  }));
 
   if (loading) {
     return (
@@ -74,7 +60,7 @@ export function RankingSection() {
     );
   }
 
-  if (!products || products.length === 0) {
+  if (!transformedProducts || transformedProducts.length === 0) {
     return null;
   }
 
@@ -84,7 +70,7 @@ export function RankingSection() {
         RANKING
       </h2>
       <ProductCarousel
-        products={products}
+        products={transformedProducts}
         title=""
         onProductClick={handleProductClick}
       />

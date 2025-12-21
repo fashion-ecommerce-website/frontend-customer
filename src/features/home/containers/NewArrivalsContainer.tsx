@@ -2,91 +2,84 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ProductItem, NewArrivalProduct, NewArrivalsCategory } from '@/services/api/productApi';
-import { apiClient } from '@/services/api/baseApi';
+import { productApi, ProductCardWithPromotion, NewArrivalsCategory } from '@/services/api/productApi';
+import { categoryApi, Category } from '@/services/api/categoryApi';
 import { NewArrivalsPresenter } from '../components/NewArrivalsPresenter';
-
-// Categories for New Arrivals (use API categories 'ao' and 'quan')
-const CATEGORY_MAP: Record<string, string> = {
-  all: 'all',
-  ao: 'ao',
-  quan: 'quan',
-};
-
-const CATEGORIES = [
-  { id: 'all', name: 'Tất cả', slug: 'all' },
-  { id: 'ao', name: 'Áo', slug: 'ao' },
-  { id: 'quan', name: 'Quần', slug: 'quan' },
-];
 
 export function NewArrivalsContainer() {
   const router = useRouter();
-  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [categories, setCategories] = useState<NewArrivalsCategory[]>([]);
+  const [categoryTree, setCategoryTree] = useState<Category[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('all');
 
-  const fetchProducts = useCallback(async (categoryId: string) => {
-    try {
-      setLoading(true);
-      // Build list of categories to fetch. If 'all', fetch both 'ao' and 'quan'.
-      const targets = categoryId === 'all' ? ['ao', 'quan'] : [CATEGORY_MAP[categoryId] || 'ao'];
-
-      // Helper to normalize API product shape to ProductItem
-      const mapToProductItem = (p: NewArrivalProduct): ProductItem => ({
-        quantity: (typeof p.quantity === 'number' ? p.quantity : 0),
-        price: (typeof p.price === 'number' ? p.price : (typeof p.finalPrice === 'number' ? p.finalPrice : 0)),
-        finalPrice: (typeof p.finalPrice === 'number' ? p.finalPrice : (typeof p.price === 'number' ? p.price : 0)),
-        percentOff: typeof p.percentOff === 'number' ? p.percentOff : 0,
-        promotionId: typeof p.promotionId === 'number' ? p.promotionId : undefined,
-        promotionName: typeof p.promotionName === 'string' ? p.promotionName : undefined,
-        colors: Array.isArray(p.colors) ? (p.colors as string[]) : [],
-        productTitle: typeof p.productTitle === 'string' ? p.productTitle : '',
-        productSlug: typeof p.productSlug === 'string' ? p.productSlug : '',
-        colorName: typeof p.colorName === 'string' ? p.colorName : '',
-        sizeName: '',
-        detailId: typeof p.detailId === 'number' ? p.detailId : 0,
-        imageUrls: Array.isArray(p.imageUrls) ? (p.imageUrls as string[]) : [],
-      });
-
-      const results: ProductItem[] = [];
-
-      await Promise.all(targets.map(async (cat) => {
-        try {
-          const endpoint = `/products/new-arrivals?limit=4&category=${encodeURIComponent(cat)}`;
-          const resp = await apiClient.get<NewArrivalsCategory[] | { products: NewArrivalProduct[] }>(endpoint, undefined, true);
-          if (resp.success && resp.data) {
-            const data = resp.data as NewArrivalsCategory[] | { products: NewArrivalProduct[] };
-            // Response might be array of category objects or an object containing 'products'
-            if (Array.isArray(data)) {
-              data.forEach((catObj: NewArrivalsCategory) => {
-                if (Array.isArray(catObj.products)) {
-                  catObj.products.forEach((p: NewArrivalProduct) => results.push(mapToProductItem(p)));
-                }
-              });
-            } else if (Array.isArray((data as { products: NewArrivalProduct[] }).products)) {
-              (data as { products: NewArrivalProduct[] }).products.forEach((p: NewArrivalProduct) => results.push(mapToProductItem(p)));
-            }
-          }
-        } catch (e) {
-          console.error('Failed to fetch new-arrivals for', cat, e);
+  // Fetch category tree for getting child categories
+  useEffect(() => {
+    const fetchCategoryTree = async () => {
+      try {
+        const response = await categoryApi.getTree();
+        if (response.success && response.data) {
+          setCategoryTree(response.data);
         }
-      }));
-
-      setProducts(results);
-    } catch (error) {
-      console.error('❌ Failed to fetch new arrivals:', error);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
+      } catch (error) {
+        console.error('❌ Failed to fetch category tree:', error);
+      }
+    };
+    fetchCategoryTree();
   }, []);
 
+  // Fetch new arrivals from API
   useEffect(() => {
-    fetchProducts(activeCategory);
-  }, [activeCategory, fetchProducts]);
+    const fetchNewArrivals = async () => {
+      try {
+        setLoading(true);
+        const response = await productApi.getNewArrivals(undefined, 4);
 
-  const handleCategoryClick = useCallback((categoryId: string) => {
-    setActiveCategory(categoryId);
+        if (response.success && response.data && response.data.length > 0) {
+          setCategories(response.data);
+          // Set first category as active by default
+          if (response.data[0].categorySlug) {
+            setActiveCategory(response.data[0].categorySlug);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch new arrivals:', error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNewArrivals();
+  }, []);
+
+  // Get current active category's products
+  const activeProducts = categories.find(c => c.categorySlug === activeCategory)?.products || [];
+
+  // Transform categories for presenter
+  const categoryOptions = categories.map(c => ({
+    id: c.categorySlug,
+    name: c.categoryName,
+    slug: c.categorySlug,
+  }));
+
+  // Transform products to match presenter's expected format
+  const transformedProducts = activeProducts.map((item: ProductCardWithPromotion) => ({
+    detailId: item.detailId,
+    productSlug: item.productSlug,
+    productTitle: item.productTitle,
+    price: item.price,
+    finalPrice: item.finalPrice,
+    percentOff: item.percentOff,
+    imageUrls: item.imageUrls,
+    colors: item.colors,
+    quantity: item.quantity,
+    colorName: item.colorName,
+    sizeName: '',
+  }));
+
+  const handleCategoryClick = useCallback((categorySlug: string) => {
+    setActiveCategory(categorySlug);
   }, []);
 
   const handleProductClick = useCallback((detailId: number) => {
@@ -94,18 +87,22 @@ export function NewArrivalsContainer() {
   }, [router]);
 
   const handleViewAll = useCallback(() => {
-    if (activeCategory === 'all') {
-      router.push('/products');
+    // Find the first child category of the active root category
+    const rootCategory = categoryTree.find(c => c.slug === activeCategory);
+    if (rootCategory?.children && rootCategory.children.length > 0) {
+      // Navigate to products page with first child category
+      const firstChildSlug = rootCategory.children[0].slug;
+      router.push(`/products?category=${firstChildSlug}`);
     } else {
-      const categorySlug = CATEGORY_MAP[activeCategory] || 'ao';
-      router.push(`/products?category=${categorySlug}`);
+      // Fallback to products page without filter
+      router.push('/products');
     }
-  }, [router, activeCategory]);
+  }, [router, activeCategory, categoryTree]);
 
   return (
     <NewArrivalsPresenter
-      products={products}
-      categories={CATEGORIES}
+      products={transformedProducts}
+      categories={categoryOptions}
       activeCategory={activeCategory}
       loading={loading}
       onCategoryClick={handleCategoryClick}

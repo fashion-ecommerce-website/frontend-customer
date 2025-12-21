@@ -11,6 +11,7 @@ import { useAppDispatch } from '@/hooks/redux';
 import { VoucherModal, Voucher, VoucherByUserResponse } from './VoucherModal';
 import { voucherApi } from '@/services/api/voucherApi';
 import { apiClient } from '@/services/api/baseApi';
+import { resetOrderState } from '../redux/orderSlice';
 
 
 interface OrderSummaryProps {
@@ -42,7 +43,12 @@ export function OrderSummary({
 		orderError,
 		order,
 	} = useOrder();
-	useAppDispatch();
+	const dispatch = useAppDispatch();
+
+	// Clear previous order error when component mounts
+	React.useEffect(() => {
+		dispatch(resetOrderState());
+	}, [dispatch]);
 
 	const [vouchers, setVouchers] = React.useState<Voucher[]>([]);
 
