@@ -211,7 +211,7 @@ const loginSlice = createSlice({
       state.user = null;
     },
 
-    // Restore auth state from localStorage
+    // Restore auth state from cookies
     restoreAuthState: (state, action: PayloadAction<{ user: User; accessToken: string; isAuthenticated: boolean }>) => {
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
