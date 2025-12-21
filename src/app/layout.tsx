@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import { EnumsProvider } from "@/providers/EnumsProvider";
+import { ColorProvider } from "@/providers/ColorProvider";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AuthInitializer } from "@/components/AuthInitializer";
@@ -73,6 +74,7 @@ export default function RootLayout({
         className="antialiased font-sans"
       >
         <ReduxProvider>
+          <ColorProvider>
             <EnumsProvider>
               <AuthInitializer>
                 <CartInitializer>
@@ -94,6 +96,7 @@ export default function RootLayout({
                 </CartInitializer>
               </AuthInitializer>
             </EnumsProvider>
+          </ColorProvider>
         </ReduxProvider>
       </body>
     </html>

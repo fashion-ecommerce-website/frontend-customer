@@ -1,9 +1,9 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ProductFilters, FilterDropdownOption } from "../types";
-import { colorApiService, type ColorResponse } from "@/services/api/colorApi";
+import { useColorMap } from "@/hooks/useColorMap";
 
 type FilterValue = ProductFilters[keyof ProductFilters];
 
@@ -29,26 +29,14 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     price: false,
   });
 
-  const [colorOptions, setColorOptions] = useState<FilterDropdownOption[]>([]);
-
-  // Fetch colors from API on mount
-  useEffect(() => {
-    const fetchColors = async () => {
-      try {
-        const response = await colorApiService.getActiveColors();
-        if (response.success && response.data) {
-          const options = response.data.map((color: ColorResponse) => ({
-            value: color.hex || color.name.toLowerCase(),
-            label: color.name.toLowerCase(),
-          }));
-          setColorOptions(options);
-        }
-      } catch (error) {
-        console.error("Failed to fetch colors:", error);
-      }
-    };
-    fetchColors();
-  }, []);
+  // Use ColorProvider - only API colors for filter
+  const { apiColors } = useColorMap();
+  
+  // Convert apiColors to options for filter (only from database)
+  const colorOptions: FilterDropdownOption[] = apiColors.map((color) => ({
+    value: color.hex,
+    label: color.name,
+  }));
 
   const sizeOptions: FilterDropdownOption[] = [
     { value: "XS", label: "XS" },

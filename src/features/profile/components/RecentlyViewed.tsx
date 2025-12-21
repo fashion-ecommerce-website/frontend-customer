@@ -5,10 +5,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProductList } from "@/features/filter-product/components";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { useColorMap } from "@/hooks/useColorMap";
 
 export const RecentlyViewed: React.FC = () => {
   const router = useRouter();
   const { items, loading, error, clearAll, deleteItems } = useRecentlyViewed();
+  const { getColorHex } = useColorMap();
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -166,25 +168,8 @@ export const RecentlyViewed: React.FC = () => {
                       {item.colors.map((color, idx) => (
                         <div
                           key={idx}
-                          className={`w-4 h-4 rounded-full ${
-                            color === "black"
-                              ? "bg-black"
-                              : color === "white"
-                              ? "bg-white border border-black"
-                              : color === "red"
-                              ? "bg-red-500"
-                              : color === "blue" || color === "dark blue"
-                              ? "bg-blue-500"
-                              : color === "mint"
-                              ? "bg-green-300"
-                              : color === "brown"
-                              ? "bg-amber-700"
-                              : color === "yellow"
-                              ? "bg-yellow-400"
-                              : color === "pink"
-                              ? "bg-pink-400"
-                              : "bg-gray-400"
-                          }`}
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: getColorHex(color) }}
                           title={color}
                         />
                       ))}

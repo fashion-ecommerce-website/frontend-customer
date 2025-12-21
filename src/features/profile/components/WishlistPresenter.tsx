@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { ProductList } from "@/features/filter-product/components";
+import { useColorMap } from "@/hooks/useColorMap";
 
 export interface WishlistPresenterProps {
   items: Array<{
@@ -43,6 +44,7 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
   onCancelConfirm,
   onProductClick,
 }) => {
+  const { getColorHex } = useColorMap();
   const normalizedProducts = useMemo(() => {
     return items.map((item) => ({
       detailId: item.detailId,
@@ -194,25 +196,8 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
                       {(item.colors && item.colors.length > 0 ? item.colors : (item.colorName ? [item.colorName] : [])).map((color, idx) => (
                         <div
                           key={idx}
-                          className={`w-4 h-4 rounded-full ${
-                            color === "black"
-                              ? "bg-black"
-                              : color === "white"
-                              ? "bg-white border border-black"
-                              : color === "red"
-                              ? "bg-red-500"
-                              : color === "blue" || color === "dark blue"
-                              ? "bg-blue-500"
-                              : color === "mint"
-                              ? "bg-green-300"
-                              : color === "brown"
-                              ? "bg-amber-700"
-                              : color === "yellow"
-                              ? "bg-yellow-400"
-                              : color === "pink"
-                              ? "bg-pink-400"
-                              : "bg-gray-400"
-                          }`}
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: getColorHex(color) }}
                           title={color}
                         />
                       ))}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Product } from '@/types/product.types';
 import AddToCartSvg from './AddToCartSvg';
+import { useColorMap } from '@/hooks/useColorMap';
 
 interface ProductCardProps {
   product: Product;
@@ -19,25 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const firstImage = product.images?.[0] || product.image;
   const secondImage = product.images?.[1] || null;
-
-  const getColorClass = (color: string): string => {
-    const colorMap: Record<string, string> = {
-      black: "bg-black",
-      white: "bg-[#f1f0eb]",
-      red: "bg-[#6d2028]",
-      gray: "bg-[#a7a9a8]",
-      blue: "bg-[#acbdcd]",
-      pink: "bg-[#ddb3bd]",
-      yellow: "bg-[#dcbe9a]",
-      purple: "bg-[#47458e]",
-      brown: "bg-[#61493f]",
-      green: "bg-[#2c5449]",
-      beige: "bg-[#ebe7dc]",
-      orange: "bg-[#F5B505]",
-      navy: "bg-[#001f3f]"
-    };
-    return colorMap[color.toLowerCase()] || "bg-gray-400";
-  };
+  const { getColorHex } = useColorMap();
 
   return (
     <div
@@ -116,7 +99,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {product.colors.slice(0, 5).map((color, index) => (
               <div
                 key={index}
-                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${getColorClass(color)} transition-transform hover:scale-110`}
+                className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-transform hover:scale-110"
+                style={{ backgroundColor: getColorHex(color) }}
                 title={color}
               />
             ))}
