@@ -44,7 +44,6 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const [filters, setFilters] = useState<ProductFilters>({
@@ -104,7 +103,6 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
     abortControllerRef.current = new AbortController();
     
     setIsLoading(true);
-    setError(null);
     const start = Date.now();
     
     try {
@@ -126,18 +124,38 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
           hasPrevious: response.data.hasPrevious
         });
       } else {
-        setError(response.message || 'An error occurred while loading products');
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Products API error:', response.message);
+        }
+
+        // Do not set or render any error message in the UI. Reset product list and pagination.
         setProducts([]);
+        setPagination({
+          page: 1,
+          pageSize: searchFilters.pageSize || 12,
+          totalItems: 0,
+          totalPages: 1,
+          hasNext: false,
+          hasPrevious: false,
+        });
       }
     } catch (err) {
-      // Don't show error if request was aborted
       if ((err as Error).name === 'AbortError' || abortControllerRef.current?.signal.aborted) {
         return;
       }
-      setError('Unable to connect to server');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Products fetch error:', err);
+      }
       setProducts([]);
+      setPagination({
+        page: 1,
+        pageSize: searchFilters.pageSize || 12,
+        totalItems: 0,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      });
     } finally {
-      // Don't update loading state if request was aborted
       if (abortControllerRef.current?.signal.aborted) {
         return;
       }
@@ -200,25 +218,11 @@ export const FilterProductPresenter: React.FC<FilterProductPresenterProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [filters]);
 
-  const handleClearError = () => {
-    setError(null);
-  };
+  // No UI error banner — errors are handled silently and logged in development.
 
   return (
     <div className="w-full bg-white px-3 sm:px-6 md:px-8 lg:px-16 py-6 sm:py-8 md:py-10">
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-black px-4 py-3 relative mb-6 rounded-lg">
-          <span className="block sm:inline">{error}</span>
-          <button
-            onClick={handleClearError}
-            className="absolute top-0 bottom-0 right-0 px-4 py-3 hover:text-black"
-          >
-            <span className="sr-only">Dismiss</span>
-            ✕
-          </button>
-        </div>
-      )}
+      {/* Note: UI error banner removed — errors are logged in dev only. */}
 
       {/* Header với Breadcrumb và Sort */}
       <ProductFilter

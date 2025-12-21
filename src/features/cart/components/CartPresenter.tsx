@@ -1,8 +1,5 @@
 "use client";
 
-// Cart Presenter Component
-// Presentational component for cart page UI
-
 import React from "react";
 import { useRouter } from "next/navigation";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -34,7 +31,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
   const handleProductClick = (detailId: number) => {
     router.push(`/products/${detailId}`);
   };
-  
+
   const breadcrumbItems = [
     {
       label: "HOME",
@@ -48,7 +45,6 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
     },
   ];
 
-  // Handle select all toggle
   const handleSelectAllChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       onSelectAll();
@@ -57,11 +53,8 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
     }
   };
 
-  // Empty cart state - improved logic to prevent flash
   if (cartItems.length === 0) {
-    // Show skeleton during initial load (before first data fetch completes)
     if (loading || !hasInitiallyLoaded) {
-      // Show skeletons during initial load
       return (
         <div className="min-h-screen bg-gray-50">
           <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
@@ -75,8 +68,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
         </div>
       );
     }
-    
-    // Show empty state only when not loading
+
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
@@ -121,7 +113,6 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
         <Breadcrumb items={breadcrumbItems} />
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 mb-4 rounded-lg relative">
             <span className="block sm:inline text-sm sm:text-base">
@@ -137,7 +128,6 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
           </div>
         )}
 
-        {/* Header with select all */}
         <div className="bg-white mb-4 px-4 sm:px-6 lg:px-10 py-4">
           <div className="flex items-center space-x-3 sm:space-x-4">
             <input
@@ -153,18 +143,15 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-10">
-          {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg space-y-4">
               {loading && cartItems.length === 0 ? (
-                // Show skeletons when loading and no items yet
                 <>
                   <CartItemSkeleton />
                   <CartItemSkeleton />
                   <CartItemSkeleton />
                 </>
               ) : (
-                // Show actual cart items
                 cartItems.map((item) => (
                   <CartItemComponent
                     key={item.id}
@@ -180,22 +167,36 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
               )}
             </div>
 
-            {/* Virtual Try-On Button */}
             <div className="mt-6 flex justify-center flex-col space-y-4">
-              <button 
-                onClick={() => router.push('/cart/virtual-tryon')}
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.setItem('virtual_tryon_show_intro', '1');
+                  } catch (e) {
+                    console.log('Virtual try-on intro:', e);
+                  }
+                  router.push("/cart/virtual-tryon");
+                }}
                 className="relative overflow-hidden bg-white border border-gray-200 rounded-xl p-4 w-full hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md group"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {/* Sparkle Icon with Gradient */}
                     <div className="relative bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 rounded-lg p-2 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                      <svg className="w-5 h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                      <svg
+                        className="w-5 h-5 text-white animate-pulse"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                        />
                       </svg>
                     </div>
-                    
-                    {/* Text Content */}
+
                     <div className="text-left">
                       <h3 className="font-semibold text-gray-900 text-base group-hover:tracking-wide transition-all duration-300">
                         Try On Before You Buy
@@ -205,16 +206,24 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
                       </p>
                     </div>
                   </div>
-                  
-                  {/* Arrow Icon */}
-                  <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+
+                  <svg
+                    className="w-5 h-5 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all duration-300 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </div>
               </button>
 
-              {/* Continue Shopping */}
-              <button 
+              <button
                 onClick={onContinueShopping}
                 className="border border-gray-300 rounded-lg p-3 w-full text-black hover:bg-gray-50 bg-white transition-colors font-medium shadow-sm hover:shadow"
               >
@@ -223,7 +232,6 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
             </div>
           </div>
 
-          {/* Cart Summary */}
           <div className="lg:col-span-1 order-first lg:order-last">
             <CartSummaryComponent
               summary={cartSummary}

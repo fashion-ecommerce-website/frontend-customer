@@ -28,6 +28,9 @@ interface VirtualTryOnContextType {
   handleHistorySelect: (item: HistoryItem) => void;
   dismissResult: () => void;
   clearSlot: (slot: 'upper' | 'lower') => void;
+  showWaitingModal: boolean;
+  lastTaskId?: string | number | null;
+  dismissWaitingModal: () => void;
 }
 
 const VirtualTryOnContext = createContext<VirtualTryOnContextType | undefined>(undefined);
@@ -40,6 +43,8 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [userImage, setUserImage] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showWaitingModal, setShowWaitingModal] = useState(false);
+  const [lastTaskId, setLastTaskId] = useState<string | number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeSlot, setActiveSlot] = useState<'upper' | 'lower'>('upper');
@@ -135,6 +140,7 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
 
     setIsProcessing(true);
+    setShowWaitingModal(true);
     setError(null);
     setMinimized(true); // Minimize when starting processing
 
@@ -201,6 +207,7 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       const taskId = createData.taskId;
+      setLastTaskId(taskId);
       console.log('✅ Task created:', taskId);
 
       // Step 2: Poll for task completion
@@ -226,9 +233,10 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
         console.log(`📊 Task status (attempt ${attempt + 1}):`, statusData.status);
 
         // Check if completed
-        if (statusData.status === 'COMPLETED' && statusData.resultImageUrl) {
+          if (statusData.status === 'COMPLETED' && statusData.resultImageUrl) {
           setResultImage(statusData.resultImageUrl);
           setIsProcessing(false); // Ensure processing state is updated
+            setShowWaitingModal(false);
           
           // Save to history
           saveToHistory({
@@ -259,8 +267,13 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.error('Virtual try-on error:', err);
     } finally {
       setIsProcessing(false);
+      setShowWaitingModal(false);
     }
   }, [selectedProduct, selectedLowerProduct, userImage, saveToHistory]);
+
+  const dismissWaitingModal = useCallback(() => {
+    setShowWaitingModal(false);
+  }, []);
 
   // Handle reset
   const handleReset = useCallback(() => {
@@ -310,6 +323,10 @@ export const VirtualTryOnProvider: React.FC<{ children: React.ReactNode }> = ({ 
         handleHistorySelect,
         dismissResult,
         clearSlot
+        ,
+        showWaitingModal,
+        lastTaskId,
+        dismissWaitingModal
       }}
     >
       {children}

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { VirtualTryOnPresenter } from '../components/VirtualTryOnPresenter';
+import { VirtualTryOnIntroModal, VirtualTryOnWaitingModal } from '@/components/modals';
 import { VirtualTryOnContainerProps } from '../types';
 import { useVirtualTryOn } from '../context/VirtualTryOnContext';
 
@@ -24,8 +25,25 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
     handleReset,
     handleHistorySelect,
     setActiveSlot,
-    clearSlot
+    clearSlot,
+    showWaitingModal,
+    dismissWaitingModal
   } = useVirtualTryOn();
+
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    try {
+      const flag = localStorage.getItem('virtual_tryon_show_intro');
+      if (flag === '1') {
+        setShowIntro(true);
+        localStorage.removeItem('virtual_tryon_show_intro');
+      }
+    } catch (e) {
+      console.log('Virtual_tryon_show_intro:', e);
+    }
+  }, []);
+
 
   // Handle back navigation
   const handleBack = useCallback(() => {
@@ -33,7 +51,20 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
   }, [router]);
 
   return (
-    <VirtualTryOnPresenter
+    <>
+      <VirtualTryOnIntroModal
+        isOpen={showIntro}
+        onClose={() => setShowIntro(false)}
+        onStart={() => setShowIntro(false)}
+      />
+
+      <VirtualTryOnWaitingModal
+        isOpen={showWaitingModal}
+        onClose={() => { dismissWaitingModal(); }}
+        status={isProcessing ? 'Processing' : undefined}
+      />
+
+      <VirtualTryOnPresenter
       products={products}
       selectedProduct={selectedProduct}
       selectedLowerProduct={selectedLowerProduct}
@@ -51,6 +82,7 @@ export const VirtualTryOnContainer: React.FC<VirtualTryOnContainerProps> = ({
       onActiveSlotChange={setActiveSlot}
       onClearSlot={clearSlot}
     />
+    </>
   );
 };
 

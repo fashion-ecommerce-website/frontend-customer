@@ -38,7 +38,9 @@ export function NewArrivalsContainer() {
         if (response.success && response.data && response.data.length > 0) {
           setCategories(response.data);
           // Set first category as active by default
-          setActiveCategory(response.data[0].categorySlug);
+          if (response.data[0].categorySlug) {
+            setActiveCategory(response.data[0].categorySlug);
+          }
         }
       } catch (error) {
         console.error('❌ Failed to fetch new arrivals:', error);

@@ -18,6 +18,8 @@ export interface ProductItem {
   imageUrls: string[];
 }
 
+
+
 // Product detail interface - matches the new API response format with promotion
 export interface ProductDetail {
   detailId: number;
