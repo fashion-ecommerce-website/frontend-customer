@@ -5,11 +5,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProductList } from "@/features/filter-product/components";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { useLanguage } from '@/hooks/useLanguage';
 import { useColorMap } from "@/hooks/useColorMap";
 
 export const RecentlyViewed: React.FC = () => {
   const router = useRouter();
   const { items, loading, error, clearAll, deleteItems } = useRecentlyViewed();
+  const { translations } = useLanguage();
   const { getColorHex } = useColorMap();
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
@@ -36,8 +38,8 @@ export const RecentlyViewed: React.FC = () => {
   const handleClearClick = () => {
     const count = editMode && selected.length > 0 ? selected.length : items.length;
     const message = editMode && selected.length > 0
-      ? `Are you sure you want to delete ${count} selected items?`
-      : 'Are you sure you want to clear all recently viewed items?';
+      ? translations.profile.areYouSureDeleteSelected.replace('{count}', count.toString())
+      : translations.profile.areYouSureClearAll;
     setConfirmConfig({
       message,
       onConfirm: async () => {
@@ -58,20 +60,20 @@ export const RecentlyViewed: React.FC = () => {
       <div className="p-6">
         <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
           <h2 className="text-lg font-semibold text-black">
-            {items.length} Recently Viewed
+            {translations.profile.itemsSelected.replace('{count}', items.length.toString())}
           </h2>
           <div className="space-x-2">
             <button
               onClick={handleEditClick}
               className="text-gray-500 border-b border-gray-500"
             >
-              {editMode ? "cancel" : "edit"}
+              {editMode ? translations.profile.cancel : translations.profile.edit}
             </button>
             <button
               onClick={handleClearClick}
               className="text-gray-500 border-b border-gray-500"
             >
-              clear all
+              {translations.profile.clearAll}
             </button>
           </div>
         </div>

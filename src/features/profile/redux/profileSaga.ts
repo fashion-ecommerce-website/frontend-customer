@@ -78,6 +78,9 @@ function convertApiUserToLoginUser(apiUser: ApiUserResponse): LoginUser {
     phoneVerified: apiUser.phoneVerified,
     roles: apiUser.roles,
     active: apiUser.active,
+    // Map rank name, accepting multiple possible API shapes (camelCase, snake_case, nested)
+    // Accept multiple possible API shapes for rank
+    rankName: apiUser.rankName ?? apiUser.rank_name ?? apiUser.rank?.name ?? undefined,
   };
 }
 

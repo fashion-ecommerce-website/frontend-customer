@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useLanguage } from '@/hooks/useLanguage';
 import Image from "next/image";
 import { CartItemComponentProps } from "../types";
 
@@ -15,8 +16,11 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
 }) => {
   const [isRemoving, setIsRemoving] = useState(false);
 
+  const { lang, translations } = useLanguage();
+
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
+    const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "VND",
     }).format(price);
@@ -98,8 +102,8 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
           {item.colorName} / {item.sizeName}
         </p>
 
-        <p className="text-[14px] text-black mb-2">
-          Quantity: {item.quantity}
+        <p className="text-[14px] text-black mb-2 group-hover:text-[#BB9244]">
+          {translations.product.quantity}: {item.quantity}
         </p>
 
         {/* Price */}
@@ -128,14 +132,14 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
           disabled={loading}
           className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200"
         >
-          Edit
+          {translations.common.edit}
         </button>
         <button
           onClick={handleRemove}
           disabled={loading || isRemoving}
           className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isRemoving ? "Removing..." : "Remove"}
+          {isRemoving ? translations.common.processing : translations.common.remove}
         </button>
       </div>
     </div>

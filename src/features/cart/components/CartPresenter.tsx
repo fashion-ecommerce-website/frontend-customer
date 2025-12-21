@@ -7,6 +7,7 @@ import { CartItemComponent } from "./CartItem";
 import { CartItemSkeleton } from "./CartItemSkeleton";
 import { CartSummaryComponent } from "./CartSummary";
 import { CartPresenterProps } from "../types";
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const CartPresenter: React.FC<CartPresenterProps> = ({
   cartItems,
@@ -28,18 +29,19 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
   onNoteChange,
 }) => {
   const router = useRouter();
+  const { translations } = useLanguage();
   const handleProductClick = (detailId: number) => {
     router.push(`/products/${detailId}`);
   };
 
   const breadcrumbItems = [
     {
-      label: "HOME",
+      label: translations.common.home.toUpperCase(),
       className: "text-gray-400 font-semibold font-[12px]",
       href: "/",
     },
     {
-      label: "SHOPPING CART",
+      label: translations.cart.cart.toUpperCase(),
       className: "text-black font-semibold font-[12px]",
       href: "/cart",
     },
@@ -91,16 +93,16 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
               </svg>
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-black">
-              Your cart is empty
+              {translations.cart.emptyCart}
             </h2>
             <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
-              Add products to your cart to continue shopping
+              {translations.cart.addToCartPrompt}
             </p>
             <button
               onClick={onContinueShopping}
               className="bg-black text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm sm:text-base"
             >
-              Continue Shopping
+              {translations.cart.continueShopping}
             </button>
           </div>
         </div>
@@ -129,7 +131,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
         )}
 
         <div className="bg-white mb-4 px-4 sm:px-6 lg:px-10 py-4">
-          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
             <input
               type="checkbox"
               checked={allItemsSelected}
@@ -137,7 +139,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
               className="border-gray-300 w-4 h-4 sm:w-5 sm:h-5 text-gray-800 focus:ring-gray-800 accent-gray-800 transition-all duration-200"
             />
             <span className="font-semibold text-black text-sm sm:text-base">
-              Select All
+              {translations.common.select} {translations.cart.cartItems}
             </span>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { googleLoginRequest, selectIsAuthenticated, selectUser, selectIsGoogleLoading } from '../features/auth/login/redux/loginSlice';
 import type { User } from '../features/auth/login/types/login.types';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface GoogleAuthProps {
   onSuccess?: (user: User) => void;
@@ -15,6 +16,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
   onError
 }) => {
   const dispatch = useAppDispatch();
+  const { translations } = useLanguage();
   
   const user = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -66,7 +68,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
       </svg>
       <span className={`text-gray-700 font-medium ${googleLoading ? 'opacity-0' : ''}`}>
-        Login with Google
+        {translations.auth.loginWithGoogle}
       </span>
 
       {/* Overlay loader */}

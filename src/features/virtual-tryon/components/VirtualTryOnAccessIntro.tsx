@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import useLanguage from '../../../hooks/useLanguage';
 
 type Props = {
   onUpgrade?: () => void;
@@ -10,6 +11,9 @@ type Props = {
 
 export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) => {
   const router = useRouter();
+  const { translations } = useLanguage();
+
+  const vt = translations.virtualTryOn;
 
   return (
     <div
@@ -17,7 +21,7 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
       style={{ padding: '2rem' }}
     >
       <div style={{ width: '90%', maxWidth: '64rem', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '2.25rem', marginBottom: '1rem' }} className="font-bold text-black">Experience Virtual Try-On</h1>
+        <h1 style={{ fontSize: '2.25rem', marginBottom: '1rem' }} className="font-bold text-black">{vt.title}</h1>
 
         <div style={{ marginBottom: '1.5rem' }}>
           <div style={{ width: '100%', borderRadius: '0.5rem', overflow: 'hidden', backgroundColor: '#f8fafc', border: '1px solid #e5e7eb', padding: '1.5rem' }}>
@@ -34,13 +38,13 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
               </div>
 
               <div style={{ flex: '1 1 220px', minWidth: 220 }}>
-                <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a', fontWeight: 600 }}>Virtual Try-On Preview</h2>
-                <p style={{ marginTop: '0.5rem', marginBottom: '0.75rem', color: '#475569' }}>This is a static preview of the Virtual Try-On feature. When enabled for your account, you&apos;ll be able to see garments on a live or uploaded image for a realistic fitting experience.</p>
+                <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a', fontWeight: 600 }}>{vt.previewTitle}</h2>
+                <p style={{ marginTop: '0.5rem', marginBottom: '0.75rem', color: '#475569' }}>{vt.previewDescription}</p>
 
                 <ul style={{ margin: 0, paddingLeft: '1.15rem', color: '#475569' }}>
-                  <li>Try products on using live camera or uploaded photos</li>
-                  <li>Accurate fit guidance and size recommendations</li>
-                  <li>Works across Platinum and Diamond tiers</li>
+                  {vt.bullets.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -48,7 +52,7 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
         </div>
 
         <div style={{ marginBottom: '1.5rem' }}>
-          <p style={{ fontSize: '1rem' }} className="text-black">Upgrade to Platinum or Diamond to unlock this feature and enjoy a seamless try-on experience.</p>
+          <p style={{ fontSize: '1rem' }} className="text-black">{vt.upgradeNote}</p>
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -59,7 +63,7 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
             }}
             style={{ padding: '0.75rem 1rem', backgroundColor: '#000', color: '#fff', borderRadius: '0.5rem' }}
           >
-            Upgrade Now
+            {vt.upgradeButton}
           </button>
 
           <button
@@ -69,7 +73,7 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
             }}
             style={{ padding: '0.75rem 1rem', backgroundColor: '#f3f4f6', color: '#000', borderRadius: '0.5rem' }}
           >
-            Back
+            {vt.backButton}
           </button>
         </div>
       </div>

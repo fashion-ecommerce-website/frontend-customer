@@ -14,6 +14,7 @@ import { ChatBot } from "@/components/ChatBot";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { VirtualTryOnProvider } from "@/features/virtual-tryon/context/VirtualTryOnContext";
 import { TryOnStatusFloater } from "@/features/virtual-tryon/components/TryOnStatusFloater";
+import { LanguageProvider } from '@/providers/LanguageProvider';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://fit.com'),
@@ -74,8 +75,9 @@ export default function RootLayout({
         className="antialiased font-sans"
       >
         <ReduxProvider>
+          <LanguageProvider>
           <ColorProvider>
-            <EnumsProvider>
+          <EnumsProvider>
               <AuthInitializer>
                 <CartInitializer>
                   <WishlistInitializer>
@@ -97,6 +99,7 @@ export default function RootLayout({
               </AuthInitializer>
             </EnumsProvider>
           </ColorProvider>
+        </LanguageProvider>
         </ReduxProvider>
       </body>
     </html>

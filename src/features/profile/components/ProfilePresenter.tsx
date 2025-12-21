@@ -23,6 +23,7 @@ import { OrderHistoryContainer } from '../containers/OrderHistoryContainer';
 import { ReviewContainer } from '../containers/ReviewContainer';
 import { VoucherContainer } from '../containers/VoucherContainer';
 import { RefundContainer } from '../containers/RefundContainer';
+import MembershipInfo from './MembershipInfo';
 import OrderDetailPresenter from '../components/OrderDetailPresenter';
 import { Order } from '@/features/order/types';
 import OrderApi from '@/services/api/orderApi';
@@ -30,6 +31,7 @@ import { OrderTrackingContainer } from '../containers/OrderTrackingContainer';
 import PaymentApi from '@/services/api/paymentApi';
 import { RefundModal } from '@/components/modals/RefundModal';
 import { RefundApi } from '@/services/api/refundApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   initialSection = 'account',
@@ -52,6 +54,7 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   onClearPasswordError,
   onClearSuccess,
 }) => {
+  const { translations } = useLanguage();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUpdateInfoModal, setShowUpdateInfoModal] = useState(false);
   // Default to account overview or use initialSection
@@ -247,23 +250,23 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
   const getSectionLabel = (section: string) => {
     switch (section) {
       case 'account':
-        return 'ACCOUNT';
+        return translations.profile.account;
       case 'wishlist':
-        return 'WISHLIST';
+        return translations.profile.wishlist.toUpperCase();
       case 'recently-viewed':
-        return 'RECENTLY VIEWED';
+        return translations.profile.recentlyViewed.toUpperCase();
       case 'order-info':
-        return 'ORDER INFORMATION';
+        return translations.profile.orderInfo.toUpperCase();
       case 'order-tracking':
-        return 'ORDER TRACKING';
+        return translations.profile.orderTracking.toUpperCase();
       case 'my-info':
-        return 'MY INFO';
+        return translations.profile.myInfo.toUpperCase();
       case 'shipping-address':
-        return 'ADDRESSES';
+        return translations.profile.shippingAddress.toUpperCase();
       case 'my-reviews':
-        return 'MY REVIEWS';
+        return translations.profile.myReviews.toUpperCase();
       case 'my-vouchers':
-        return 'VOUCHERS';
+        return translations.profile.vouchers.toUpperCase();
       // Add other cases as needed
       default:
         return '';
@@ -408,6 +411,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
           )}
           {activeSidebarSection === 'my-refund' && (
             <RefundContainer />
+          )}
+          {activeSidebarSection === 'membership-info' && (
+            <MembershipInfo user={user} />
           )}
           {/* TODO: add other sections (membership-info, order-info, etc) */}
           </main>

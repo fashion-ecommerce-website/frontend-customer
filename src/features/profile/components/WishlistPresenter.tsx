@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useLanguage } from '@/hooks/useLanguage';
 import { ProductList } from "@/features/filter-product/components";
 import { useColorMap } from "@/hooks/useColorMap";
 
@@ -44,6 +45,7 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
   onCancelConfirm,
   onProductClick,
 }) => {
+  const { translations } = useLanguage();
   const { getColorHex } = useColorMap();
   const normalizedProducts = useMemo(() => {
     return items.map((item) => ({
@@ -73,22 +75,22 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
   return (
     <>
       <div className="p-6">
-        <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
+          <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
           <h2 className="text-lg font-semibold text-black">
-            {items.length} Wishlist
+            {items.length} {translations.profile.wishlist || 'Wishlist'}
           </h2>
           <div className="space-x-2">
             <button
               onClick={onToggleEdit}
               className="text-gray-500 border-b border-gray-500"
             >
-              {editMode ? "cancel" : "edit"}
+              {editMode ? (translations.profile.cancel || 'cancel') : (translations.profile.edit || 'edit')}
             </button>
             <button
               onClick={onClearClick}
               className="text-gray-500 border-b border-gray-500"
             >
-              clear all
+              {translations.profile.clearAll || 'clear all'}
             </button>
           </div>
         </div>
@@ -106,8 +108,8 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
                 </clipPath>
               </defs>
             </svg>
-            <p className="mt-4 text-sm text-gray-400">No wishlist stored</p>
-            <p className="mt-1 text-sm text-gray-400">Browse recommended products</p>
+            <p className="mt-4 text-sm text-gray-400">{translations.profile.noWishlistStored || 'No wishlist stored'}</p>
+            <p className="mt-1 text-sm text-gray-400">{translations.profile.browseRecommendedProducts || 'Browse recommended products'}</p>
           </div>
         ) : loading ? (
           <ProductList products={[]} isLoading={true} onProductClick={() => {}} />
@@ -224,13 +226,13 @@ export const WishlistPresenter: React.FC<WishlistPresenterProps> = ({
                 onClick={onCancelConfirm}
                 className="w-[20vh] px-4 py-2 bg-gray-200 rounded"
               >
-                Cancel
+                  {translations.common.cancel || 'Cancel'}
               </button>
               <button
                 onClick={confirm.onConfirm}
                 className="w-[20vh] px-4 py-2 bg-black text-white rounded"
               >
-                OK
+                  {translations.common.confirm || 'OK'}
               </button>
             </div>
           </div>

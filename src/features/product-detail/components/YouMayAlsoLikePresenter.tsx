@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ProductCarousel } from '@/components/ProductCarousel';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface Product {
   detailId: number;
@@ -28,12 +29,14 @@ export function YouMayAlsoLikePresenter({
   error,
   onProductClick 
 }: YouMayAlsoLikePresenterProps) {
+  const { translations } = useLanguage();
+  
   if (loading) {
     return (
       <div className="bg-gray-50 py-8 md:py-12">
         <div className="mx-auto px-4 sm:px-6 lg:px-12 max-w-7xl">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-            You may also like
+            {translations.product.youMayAlsoLike}
           </h2>
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
@@ -55,7 +58,7 @@ export function YouMayAlsoLikePresenter({
     <section className="bg-white">
       <ProductCarousel
         products={products}
-        title="You may also like"
+        title={translations.product.youMayAlsoLike}
         onProductClick={onProductClick}
       />
     </section>

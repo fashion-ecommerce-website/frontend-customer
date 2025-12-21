@@ -3,6 +3,7 @@
 import React from 'react';
 import { Product } from '@/types/product.types';
 import AddToCartSvg from './AddToCartSvg';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useColorMap } from '@/hooks/useColorMap';
 
 interface ProductCardProps {
@@ -18,6 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onQuickView,
   className = ''
 }) => {
+  const { translations } = useLanguage();
   const firstImage = product.images?.[0] || product.image;
   const secondImage = product.images?.[1] || null;
   const { getColorHex } = useColorMap();
@@ -41,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <button
             className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             onClick={(e) => onQuickView(product, e)}
-            aria-label="Quick view product"
+            aria-label={translations.product.quickView}
           >
             <div className="scale-90 sm:scale-100 drop-shadow-lg">
               <AddToCartSvg />

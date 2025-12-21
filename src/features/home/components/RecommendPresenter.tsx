@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ProductCarousel } from '@/components/ProductCarousel';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface RecommendProduct {
     detailId: number;
@@ -28,11 +29,13 @@ export function RecommendPresenter({
     error,
     onProductClick 
 }: RecommendPresenterProps) {
+    const { translations } = useLanguage();
+    
     if (loading) {
         return (
             <div className="py-12 sm:py-16 lg:py-20">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-                    RECOMMEND FOR YOU
+                    {translations.home.recommendForYou}
                 </h2>
                 <div className="flex justify-center items-center h-64">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
@@ -52,7 +55,7 @@ export function RecommendPresenter({
     return (
         <div className="py-12 sm:py-16 lg:py-20">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-                RECOMMEND FOR YOU
+                {translations.home.recommendForYou}
             </h2>
             <ProductCarousel
                 products={products}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { User } from '../types/profile.types';
 import { AccountOverview } from './AccountOverview';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ProfileSidebarProps {
   user: User;
@@ -16,6 +17,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   onSectionChange,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { translations } = useLanguage();
 
   const handleSectionClick = (section: string) => {
     if (onSectionChange) {
@@ -93,17 +95,17 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   };
 
   const menuItems = [
-    { section: 'membership-info', label: 'Membership tier' },
-    { section: 'order-info', label: 'Order Information' },
-    { section: 'order-tracking', label: 'Order tracking' },
-    { section: 'my-refund', label: 'My Refund' },
-    { section: 'wishlist', label: 'Wishlist' },
-    { section: 'recently-viewed', label: 'Recently Viewed' },
-    { section: 'my-reviews', label: 'My Reviews' },
-    { section: 'my-vouchers', label: 'Vouchers' },
-    { section: 'shipping-address', label: 'Shipping address' },
-    { section: 'my-info', label: 'My info' },
-    { section: 'logout', label: 'Logout' },
+    { section: 'membership-info', label: translations.profile.membershipTier },
+    { section: 'order-info', label: translations.profile.orderInfo },
+    { section: 'order-tracking', label: translations.profile.orderTracking },
+    { section: 'my-refund', label: translations.profile.myRefund },
+    { section: 'wishlist', label: translations.profile.wishlist },
+    { section: 'recently-viewed', label: translations.profile.recentlyViewed },
+    { section: 'my-reviews', label: translations.profile.myReviews },
+    { section: 'my-vouchers', label: translations.profile.vouchers },
+    { section: 'shipping-address', label: translations.profile.shippingAddress },
+    { section: 'my-info', label: translations.profile.myInfo },
+    { section: 'logout', label: translations.profile.logout },
   ];
 
   return (

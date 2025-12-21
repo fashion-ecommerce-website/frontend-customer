@@ -5,6 +5,7 @@ export interface User {
   phone?: string;
   avatarUrl?: string | null;
   reason?: string | null;
+  rankName?: string; // Membership tier from API
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string; // Made optional

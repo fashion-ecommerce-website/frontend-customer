@@ -12,6 +12,7 @@ export interface User {
   lastName: string;
   phone?: string;
   avatar?: string;
+  rankName?: string; // Membership tier (e.g., SILVER, GOLD)
   role: 'USER';
   enabled: boolean;
   createdAt: string;
