@@ -202,20 +202,8 @@ export class AuthApiService {
    */
   async authenticateWithGoogle(): Promise<BackendUser> {
     try {
-      // Step 1: Firebase authentication
       const firebaseUser = await googleAuth.signInWithGoogle();
       
-      // ✅ Firebase authentication successful - show full token for testing
-      console.log('✅ Firebase authentication successful:');
-      console.log('🔑 Full ID Token:', firebaseUser.idToken);
-      console.log('📤 Sending to backend API with data:', {
-        idToken: firebaseUser.idToken,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName,
-        picture: firebaseUser.photoURL,
-      });
-      
-      // Step 2: Send to backend
       const backendResponse = await this.googleLogin({
         idToken: firebaseUser.idToken,
         email: firebaseUser.email,
@@ -223,8 +211,6 @@ export class AuthApiService {
         picture: firebaseUser.photoURL,
       });
       
-      // ✅ Backend response received
-      console.log('✅ Backend authentication successful:', backendResponse);
 
       // Step 3: Handle token-only login response 
       if ((backendResponse as { accessToken?: string })?.accessToken) {
@@ -261,8 +247,6 @@ export class AuthApiService {
         } as User;
 
         authUtils.setUser(userToStore);
-        console.log('💾 Saved token-only response and constructed user from Firebase');
-        console.log('✅ Google authentication flow completed successfully');
         return normalizedUser;
       }
 
