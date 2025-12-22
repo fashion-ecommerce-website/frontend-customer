@@ -61,7 +61,7 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
               if (onUpgrade) return onUpgrade();
               router.push('/profile/upgrade');
             }}
-            style={{ padding: '0.75rem 1rem', backgroundColor: '#000', color: '#fff', borderRadius: '0.5rem' }}
+            style={{ padding: '0.75rem 1rem', backgroundColor: '#000', color: '#fff', borderRadius: '0.5rem', cursor: 'pointer' }}
           >
             {vt.upgradeButton}
           </button>
@@ -71,7 +71,7 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
               if (onBack) return onBack();
               router.push('/cart');
             }}
-            style={{ padding: '0.75rem 1rem', backgroundColor: '#f3f4f6', color: '#000', borderRadius: '0.5rem' }}
+            style={{ padding: '0.75rem 1rem', backgroundColor: '#f3f4f6', color: '#000', borderRadius: '0.5rem', cursor: 'pointer' }}
           >
             {vt.backButton}
           </button>

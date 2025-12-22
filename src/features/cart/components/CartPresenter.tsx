@@ -100,7 +100,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
             </p>
             <button
               onClick={onContinueShopping}
-              className="bg-black text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm sm:text-base"
+              className="bg-black text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm sm:text-base cursor-pointer"
             >
               {translations.cart.continueShopping}
             </button>
@@ -179,7 +179,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
                   }
                   router.push("/cart/virtual-tryon");
                 }}
-                className="relative overflow-hidden bg-white border border-gray-200 rounded-xl p-4 w-full hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md group"
+                className="relative overflow-hidden bg-white border border-gray-200 rounded-xl p-4 w-full hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md group cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
 
               <button
                 onClick={onContinueShopping}
-                className="border border-gray-300 rounded-lg p-3 w-full text-black hover:bg-gray-50 bg-white transition-colors font-medium shadow-sm hover:shadow"
+                className="border border-gray-300 rounded-lg p-3 w-full text-black hover:bg-gray-50 bg-white transition-colors font-medium shadow-sm hover:shadow cursor-pointer"
               >
                 {translations.cart.continueShopping}
               </button>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { createPortal } from "react-dom";
+import useLanguage from "../../hooks/useLanguage";
 
 interface VirtualTryOnIntroModalProps {
   isOpen: boolean;
@@ -14,6 +15,9 @@ export function VirtualTryOnIntroModal({
   onClose,
   onStart,
 }: VirtualTryOnIntroModalProps) {
+  const { translations } = useLanguage();
+  const t = translations.virtualTryOnIntroModal;
+
   if (!isOpen || typeof window === "undefined") return null;
 
   return createPortal(
@@ -27,15 +31,13 @@ export function VirtualTryOnIntroModal({
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 animate-fadeIn">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-black">Virtual Try-On</h2>
-            <p className="text-sm text-black mt-1">
-              Hướng dẫn nhanh trước khi bắt đầu
-            </p>
+            <h2 className="text-xl font-bold text-black">{t.title}</h2>
+            <p className="text-sm text-black mt-1">{t.subtitle}</p>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-black hover:bg-gray-100 rounded p-2"
+            className="text-black hover:bg-gray-100 rounded p-2 cursor-pointer"
           >
             <svg
               className="w-5 h-5"
@@ -54,18 +56,9 @@ export function VirtualTryOnIntroModal({
         </div>
 
         <div className="space-y-3 text-sm text-black">
-          <p>
-            1. Chuẩn bị một bức ảnh thân thiện (đứng thẳng, phần muốn thử sản
-            phẩm rõ ràng).
-          </p>
-          <p>
-            2. Chọn sản phẩm bạn muốn thử. Hệ thống sẽ xử lý và trả kết quả
-            trong chốc lát.
-          </p>
-          <p>
-            3. Trong lúc chờ, bạn có thể tiếp tục duyệt hoặc mua sắm — hệ thống
-            sẽ thông báo bằng thông báo nhỏ ở góc trên bên phải.
-          </p>
+          <p>{t.step1}</p>
+          <p>{t.step2}</p>
+          <p>{t.step3}</p>
         </div>
 
         <div className="mt-6 flex items-center justify-end">
@@ -73,9 +66,9 @@ export function VirtualTryOnIntroModal({
             onClick={() => {
               onStart?.();
             }}
-            className="px-4 py-3 rounded-md bg-black text-white font-semibold hover:opacity-95"
+            className="px-4 py-3 rounded-md bg-black text-white font-semibold hover:opacity-95 cursor-pointer"
           >
-            Bắt đầu thử
+            {t.startButton}
           </button>
         </div>
       </div>

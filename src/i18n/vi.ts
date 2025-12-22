@@ -986,6 +986,14 @@ const vi: Translations = {
     slimmer: 'Mảnh hơn',
     broader: 'Rộng hơn',
   },
+  virtualTryOnIntroModal: {
+    title: 'Virtual Try-On',
+    subtitle: 'Hướng dẫn nhanh trước khi bắt đầu',
+    step1: '1. Chuẩn bị một bức ảnh thân thiện (đứng thẳng, phần muốn thử sản phẩm rõ ràng).',
+    step2: '2. Chọn sản phẩm bạn muốn thử. Hệ thống sẽ xử lý và trả kết quả trong chốc lát.',
+    step3: '3. Trong lúc chờ, bạn có thể tiếp tục duyệt hoặc mua sắm — hệ thống sẽ thông báo bằng thông báo nhỏ ở góc trên bên phải.',
+    startButton: 'Bắt đầu thử',
+  },
 };
 
 export default vi;

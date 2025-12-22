@@ -70,7 +70,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
           <div className="flex bg-gray-100 p-1 rounded-lg self-center sm:self-auto">
             <button
               onClick={() => setActiveTab('try-on')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'try-on'
                   ? 'bg-white text-black shadow-sm'
                   : 'text-gray-500 hover:text-black'
@@ -80,7 +80,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
                 activeTab === 'history'
                   ? 'bg-white text-black shadow-sm'
                   : 'text-gray-500 hover:text-black'
@@ -181,7 +181,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                                   e.stopPropagation();
                                   onClearSlot('upper');
                                 }}
-                                className="text-[10px] text-red-600 hover:text-red-700 mt-1"
+                                className="text-[10px] text-red-600 hover:text-red-700 mt-1 cursor-pointer"
                               >
                                 {translations.common.remove}
                               </button>
@@ -230,7 +230,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                                   e.stopPropagation();
                                   onClearSlot('lower');
                                 }}
-                                className="text-[10px] text-red-600 hover:text-red-700 mt-1"
+                                className="text-[10px] text-red-600 hover:text-red-700 mt-1 cursor-pointer"
                               >
                                 {translations.common.remove}
                               </button>
