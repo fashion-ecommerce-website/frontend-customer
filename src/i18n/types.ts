@@ -349,6 +349,15 @@ export interface OrderHistoryTranslations {
   payAgain: string;
   refund: string;
   review: string;
+  // Status tabs
+  unfulfilled: string;
+  fulfilled: string;
+  cancelled: string;
+  refunded: string;
+  // Sort options
+  newest: string;
+  oldest: string;
+  amount: string;
   // Status
   shipping: string;
   total: string;
@@ -375,6 +384,226 @@ export interface OrderHistoryTranslations {
   cashOnDelivery: string;
   creditCard: string;
   unknown: string;
+}
+
+export interface OrderTrackingTranslations {
+  title: string;
+  backToOrderHistory: string;
+  trackingNumber: string;
+  notAvailableYet: string;
+  carrier: string;
+  shipped: string;
+  delivered: string;
+  refresh: string;
+  refreshing: string;
+  trackingTimeline: string;
+  loadingTracking: string;
+  latest: string;
+  noTrackingEvents: string;
+  trackingWillAppear: string;
+  // Status labels
+  orderPlaced: string;
+  orderConfirmed: string;
+  processing: string;
+  inTransit: string;
+  cancelled: string;
+}
+
+export interface RefundTranslations {
+  title: string;
+  allStatus: string;
+  pending: string;
+  approved: string;
+  rejected: string;
+  completed: string;
+  reload: string;
+  noRefundsFound: string;
+  noRefundsYet: string;
+  refundRequest: string;
+  order: string;
+  refundAmount: string;
+  reason: string;
+  evidenceImages: string;
+  updated: string;
+  response: string;
+  processedOn: string;
+  // Status labels
+  pendingReview: string;
+}
+
+export interface RefundModalTranslations {
+  title: string;
+  orderId: string;
+  orderTotal: string;
+  paymentStatus: string;
+  refundAmount: string;
+  refundReason: string;
+  selectReason: string;
+  otherReason: string;
+  describeReason: string;
+  enterReason: string;
+  evidenceImages: string;
+  evidenceHint: string;
+  clickToUpload: string;
+  cancel: string;
+  uploading: string;
+  submitting: string;
+  submitRequest: string;
+  provideReason: string;
+  uploadFailed: string;
+  submitFailed: string;
+  notImage: string;
+  exceedsLimit: string;
+  maxImages: string;
+  // Reason suggestions
+  reasonDefective: string;
+  reasonWrongSize: string;
+  reasonDamaged: string;
+  reasonDuplicate: string;
+  reasonNoLongerNeed: string;
+}
+
+export interface ReviewModalTranslations {
+  title: string;
+  thankYou: string;
+  reviewedAll: string;
+  yourReviews: string;
+  yourReview: string;
+  edit: string;
+  rating: string;
+  comment: string;
+  commentPlaceholder: string;
+  cancel: string;
+  update: string;
+  updating: string;
+  updateReview: string;
+  submitReview: string;
+  quantity: string;
+  price: string;
+  pleaseRate: string;
+  pleaseSelectRating: string;
+  reviewSubmitted: string;
+  reviewOnce: string;
+  reviewFailed: string;
+  reviewUpdated: string;
+  updateFailed: string;
+}
+
+export interface SearchTranslations {
+  title: string;
+  placeholder: string;
+  searchButton: string;
+  recentSearches: string;
+  clearAll: string;
+  noProductsFound: string;
+  noResultsFor: string;
+  tryDifferentKeywords: string;
+  didYouMean: string;
+  popularSearches: string;
+  productsMatching: string;
+  pressEnterToSeeAll: string;
+  color: string;
+}
+
+export interface MeasurementsWizardTranslations {
+  // Progress
+  stepOf: string;
+  // Navigation
+  back: string;
+  continue: string;
+  finish: string;
+  // Gender step
+  genderTitle: string;
+  genderSubtitle: string;
+  male: string;
+  female: string;
+  // Height/Weight step
+  heightWeightTitle: string;
+  heightWeightSubtitle: string;
+  height: string;
+  weight: string;
+  cm: string;
+  kg: string;
+  // Measurements step
+  measurementsTitle: string;
+  measurementsSubtitle: string;
+  chest: string;
+  waist: string;
+  hips: string;
+  // Fit preference step
+  fitPreferenceTitle: string;
+  fitPreferenceSubtitle: string;
+  tighter: string;
+  looser: string;
+  tight: string;
+  average: string;
+  loose: string;
+  // Hip shape step
+  hipShapeTitle: string;
+  hipShapeSubtitle: string;
+  straighter: string;
+  wider: string;
+  // Belly shape step
+  bellyShapeTitle: string;
+  bellyShapeSubtitle: string;
+  flatter: string;
+  curvier: string;
+  // Chest shape step
+  chestShapeTitle: string;
+  chestShapeSubtitle: string;
+  slimmer: string;
+  broader: string;
+}
+
+export interface SizeGuideTranslations {
+  // Header
+  title: string;
+  // Recommendation section
+  sizeRecommendation: string;
+  basedOnMeasurements: string;
+  bestMatch: string;
+  alternative: string;
+  selectSize: string;
+  similarUsersChose: string;
+  recommendedBasedOnMeasurements: string;
+  mayAlsoFitLooser: string;
+  // No recommendation
+  recommendationUnavailable: string;
+  needMoreData: string;
+  couldNotRecommend: string;
+  referToSizeChart: string;
+  // No measurements
+  getPersonalizedRecommendations: string;
+  addMeasurementsDesc: string;
+  addYourMeasurements: string;
+  // Profile section
+  yourProfile: string;
+  edit: string;
+  delete: string;
+  deleting: string;
+  // How to measure
+  howToMeasure: string;
+  chestMeasure: string;
+  waistMeasure: string;
+  hipsMeasure: string;
+  heightMeasure: string;
+  // Fit tips
+  fitTips: string;
+  betweenSizes: string;
+  betweenSizesTip: string;
+  tightFit: string;
+  tightFitTip: string;
+  looseFit: string;
+  looseFitTip: string;
+  differentMeasurements: string;
+  differentMeasurementsTip: string;
+  // Footer
+  stillUnsure: string;
+  useFeatureAbove: string;
+  gotItThanks: string;
+  // Delete confirmation
+  deleteMeasurements: string;
+  deleteConfirmMessage: string;
 }
 
 export interface CommonTranslations {
@@ -684,6 +913,31 @@ export interface MessageTranslations {
   passwordMismatch: string;
 }
 
+export interface ToastTranslations {
+  // Address
+  addressAdded: string;
+  addressUpdated: string;
+  addressDeleted: string;
+  // Wishlist
+  noItemsToRemove: string;
+  removedSelectedItems: string;
+  clearedWishlist: string;
+  // Password
+  currentPasswordIncorrect: string;
+  passwordChangedSuccess: string;
+  // Product
+  sizeOutOfStock: string;
+  onlyXAvailable: string;
+  // Registration
+  registrationSuccess: string;
+  // Profile
+  profileUpdatedSuccess: string;
+  profileUpdateFailed: string;
+  passwordChangeFailed: string;
+  // Virtual try-on
+  virtualTryOnProcessing: string;
+}
+
 export interface Translations {
   common: CommonTranslations;
   header: HeaderTranslations;
@@ -694,6 +948,7 @@ export interface Translations {
   checkout: CheckoutTranslations;
   profile: ProfileTranslations;
   message: MessageTranslations;
+  toast: ToastTranslations;
   virtualTryOn: VirtualTryOnTranslations;
   promotionalBanner: PromotionalBannerTranslations;
   home: HomeTranslations;
@@ -709,6 +964,13 @@ export interface Translations {
   addressModal: AddressModalTranslations;
   myReview: MyReviewTranslations;
   orderHistory: OrderHistoryTranslations;
+  orderTracking: OrderTrackingTranslations;
+  refund: RefundTranslations;
+  refundModal: RefundModalTranslations;
+  reviewModal: ReviewModalTranslations;
+  search: SearchTranslations;
+  sizeGuide: SizeGuideTranslations;
+  measurementsWizard: MeasurementsWizardTranslations;
 }
 
 export default Translations;

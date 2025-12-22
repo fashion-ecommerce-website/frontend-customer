@@ -13,6 +13,7 @@ import {
   ListboxOption,
 } from "@headlessui/react";
 import { Fragment } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type FilterValue = ProductFilters[keyof ProductFilters];
 
@@ -30,11 +31,13 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
   onFiltersChange,
   onOpenSidebar,
 }) => {
+  const { translations } = useLanguage();
+
   const sortOptions: FilterDropdownOption[] = [
-    { value: "productTitle_asc", label: "Name: A-Z" },
-    { value: "productTitle_desc", label: "Name: Z-A" },
-    { value: "price_asc", label: "Price: Low to High" },
-    { value: "price_desc", label: "Price: High to Low" },
+    { value: "productTitle_asc", label: translations.filterProduct.sortNameAZ },
+    { value: "productTitle_desc", label: translations.filterProduct.sortNameZA },
+    { value: "price_asc", label: translations.filterProduct.sortPriceLowHigh },
+    { value: "price_desc", label: translations.filterProduct.sortPriceHighLow },
   ];
 
   const handleFilterChange = (key: keyof ProductFilters, value: FilterValue) => {
@@ -55,7 +58,7 @@ export const SearchProductFilter: React.FC<SearchProductFilterProps> = ({
             onClick={onOpenSidebar}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-black"
           >
-            Filters
+            {translations.filterProduct.filters}
             <svg
               className="w-4 h-4"
               fill="none"

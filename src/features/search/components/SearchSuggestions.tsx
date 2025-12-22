@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { findSuggestion, POPULAR_KEYWORDS } from '../../../utils/searchCorrection';
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProductSuggestion {
   detailId: number;
@@ -30,6 +31,8 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
   onSearchCorrection,
   query
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.search;
   // Find suggestion for typo correction
   const suggestedKeyword = findSuggestion(query);
   
@@ -68,13 +71,13 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
             />
           </svg>
           <p className="text-sm text-gray-500 mb-3">
-            No products found for &quot;{query}&quot;
+            {t.noProductsFound} &quot;{query}&quot;
           </p>
           
           {/* Did you mean suggestion */}
           {suggestedKeyword && suggestedKeyword.toLowerCase() !== query.toLowerCase() && (
             <div className="mb-4">
-              <p className="text-xs text-gray-500 mb-2">Did you mean:</p>
+              <p className="text-xs text-gray-500 mb-2">{t.didYouMean}</p>
               <button
                 onClick={() => onSearchCorrection?.(suggestedKeyword)}
                 className="inline-flex items-center gap-1 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
@@ -89,7 +92,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
           
           {/* Popular searches */}
           <div className="border-t border-gray-200 pt-4 mt-4">
-            <p className="text-xs font-medium text-gray-600 mb-2">Popular searches:</p>
+            <p className="text-xs font-medium text-gray-600 mb-2">{t.popularSearches}</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {POPULAR_KEYWORDS.slice(0, 6).map((keyword) => (
                 <button
@@ -108,7 +111,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
         <>
           <div className="px-4 py-2 border-b border-gray-200">
             <span className="text-sm font-medium text-gray-700">
-              Products matching &quot;{query}&quot;
+              {t.productsMatching} &quot;{query}&quot;
             </span>
           </div>
           
@@ -147,7 +150,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
                       {product.productTitle}
                     </h4>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Color: {product.colorName}
+                      {t.color}: {product.colorName}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       {product.percentOff && product.percentOff > 0 ? (
@@ -191,7 +194,7 @@ export const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({
 
           <div className="px-4 py-2 border-t border-gray-200 bg-gray-50">
             <p className="text-xs text-gray-500 text-center">
-              Press Enter to see all results
+              {t.pressEnterToSeeAll}
             </p>
           </div>
         </>

@@ -12,6 +12,7 @@ import {
 } from '../../../utils/searchHistory';
 import { productApi } from '../../../services/api/productApi';
 import { ProductItem } from '../../../services/api/productApi';
+import { useLanguage } from '../../../hooks/useLanguage';
 
 interface SearchInputProps {
   onSearch: (query: string, filters?: SearchFilters) => void;
@@ -25,9 +26,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   onSearch,
   onProductClick,
   isLoading = false,
-  placeholder = "Search products...",
+  placeholder,
   initialQuery = ""
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.search;
   const [query, setQuery] = useState(initialQuery);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -237,7 +240,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             onFocus={handleInputFocus}
-            placeholder={placeholder}
+            placeholder={placeholder || t.placeholder}
             disabled={isLoading}
             className="w-full px-4 py-3 pl-12 pr-16 text-black bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           />
@@ -264,7 +267,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
             type="submit"
             className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-black text-white rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Search
+            {t.searchButton}
           </button>
         </div>
 

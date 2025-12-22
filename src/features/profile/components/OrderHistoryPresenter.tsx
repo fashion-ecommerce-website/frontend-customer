@@ -99,25 +99,31 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
            order.payments[0].id;
   };
 
-  // Show Refund: when PAID or FULFILLED (not cancelled, not refunded, not unfulfilled)
-  const showRefund = (order: Order) => {
-    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
-           !isCancelled(order) &&
-           !isRefunded(order) &&
-           !isUnfulfilled(order) &&
-           order.payments && 
-           order.payments.length > 0 && 
-           order.payments[0].provider === 'STRIPE' &&
-           order.payments[0].id;
+  // Check if order is within refund window (3 days from order creation)
+  const isWithinRefundWindow = (order: Order) => {
+    const orderDate = new Date(order.createdAt);
+    const now = new Date();
+    const diffInMs = now.getTime() - orderDate.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays <= 3;
   };
 
-  // Show Review: when PAID or FULFILLED (not cancelled, not refunded, not unpaid, not unfulfilled)
-  const showReview = (order: Order) => {
-    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
+  // Show Refund: when PAID and FULFILLED (not cancelled, not refunded) AND within 3 days
+  // For COD orders that are FULFILLED and PAID, refund should also be available
+  const showRefund = (order: Order) => {
+    return order.paymentStatus === 'PAID' && 
+           order.status === OrderStatus.FULFILLED &&
            !isCancelled(order) &&
            !isRefunded(order) &&
-           !isUnfulfilled(order) &&
-           order.paymentStatus !== 'UNPAID';
+           isWithinRefundWindow(order);
+  };
+
+  // Show Review: when PAID and FULFILLED (not cancelled, not refunded) - no time limit
+  const showReview = (order: Order) => {
+    return order.paymentStatus === 'PAID' && 
+           order.status === OrderStatus.FULFILLED &&
+           !isCancelled(order) &&
+           !isRefunded(order);
   };
 
   const toggleExpand = (orderId: number) => {
@@ -335,30 +341,22 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     </button>
                   </div>
                 )}
-                {/* PAID/FULFILLED (not UNFULFILLED): Show Refund + Review */}
-                {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && !isUnfulfilled(order) && order.paymentStatus !== 'UNPAID' && (
+                {/* PAID + FULFILLED: Show Refund (if within 3 days) + Review */}
+                {showReview(order) && (
                   <div className="flex items-center gap-2">
+                    {showRefund(order) && (
+                      <button
+                        type="button"
+                        onClick={() => onRefund?.(order)}
+                        className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
+                      >
+                        {t.refund}
+                      </button>
+                    )}
                     <button
                       type="button"
-                      onClick={() => showRefund(order) && onRefund?.(order)}
-                      disabled={!showRefund(order)}
-                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
-                        showRefund(order)
-                          ? 'text-black border border-gray-300 hover:bg-gray-50 cursor-pointer'
-                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
-                      }`}
-                    >
-                      {t.refund}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => showReview(order) && onReview?.(order)}
-                      disabled={!showReview(order)}
-                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
-                        showReview(order)
-                          ? 'text-black border border-gray-300 hover:bg-gray-50 cursor-pointer'
-                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
-                      }`}
+                      onClick={() => onReview?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
                       {t.review}
                     </button>
@@ -427,30 +425,22 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                       {t.payAgain}
                     </button>
                   )}
-                  {/* PAID/FULFILLED (not UNFULFILLED): Show Refund + Review */}
-                  {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && !isUnfulfilled(order) && order.paymentStatus !== 'UNPAID' && (
+                  {/* PAID + FULFILLED: Show Refund (if within 3 days) + Review */}
+                  {showReview(order) && (
                     <>
+                      {showRefund(order) && (
+                        <button
+                          type="button"
+                          onClick={() => onRefund?.(order)}
+                          className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
+                        >
+                          {t.refund}
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={() => showRefund(order) && onRefund?.(order)}
-                        disabled={!showRefund(order)}
-                        className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
-                          showRefund(order)
-                            ? 'text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
-                            : 'text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        {t.refund}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => showReview(order) && onReview?.(order)}
-                        disabled={!showReview(order)}
-                        className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
-                          showReview(order)
-                            ? 'text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
-                            : 'text-gray-400 cursor-not-allowed'
-                        }`}
+                        onClick={() => onReview?.(order)}
+                        className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
                       >
                         {t.review}
                       </button>

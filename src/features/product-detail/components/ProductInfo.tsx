@@ -37,6 +37,7 @@ export function ProductInfo({
   const { showError } = useToast();
   const { getColorHex } = useColorMap();
   const { translations } = useLanguage();
+  const t = translations.toast;
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false);
@@ -112,12 +113,12 @@ export function ProductInfo({
     // Validate stock availability
     const availableQty = product.mapSizeToQuantity?.[selectedSize] ?? 0;
     if (availableQty === 0) {
-      showError('This size is out of stock');
+      showError(t.sizeOutOfStock);
       return;
     }
 
     if (quantity > availableQty) {
-      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`);
+      showError(t.onlyXAvailable.replace('{count}', availableQty.toString()));
       return;
     }
 
@@ -168,12 +169,12 @@ export function ProductInfo({
     // Validate stock availability
     const availableQty = product.mapSizeToQuantity?.[selectedSize] ?? 0;
     if (availableQty === 0) {
-      showError('This size is out of stock');
+      showError(t.sizeOutOfStock);
       return;
     }
 
     if (quantity > availableQty) {
-      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`);
+      showError(t.onlyXAvailable.replace('{count}', availableQty.toString()));
       return;
     }
 

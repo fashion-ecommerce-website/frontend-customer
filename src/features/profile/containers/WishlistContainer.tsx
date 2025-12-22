@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useToast } from "@/providers/ToastProvider";
 import { useMinimumLoadingTime } from "@/hooks/useMinimumLoadingTime";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   selectWishlistItems,
   selectWishlistLoading,
@@ -22,6 +23,8 @@ export const WishlistContainer: React.FC = () => {
   const loading = useAppSelector(selectWishlistLoading);
   const error = useAppSelector(selectWishlistError);
   const { showSuccess, showError } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.toast;
 
   // Use minimum loading time hook to ensure skeleton shows for at least 500ms
   const displayLoading = useMinimumLoadingTime(loading, 500);
@@ -53,7 +56,7 @@ export const WishlistContainer: React.FC = () => {
   const handleClearClick = () => {
     // Check if there are any items to remove
     if (items.length === 0) {
-      showError("Don't have any item to remove.");
+      showError(t.noItemsToRemove);
       return;
     }
 
@@ -70,12 +73,12 @@ export const WishlistContainer: React.FC = () => {
           dispatch(fetchWishlistRequest());
           setSelected([]);
           setEditMode(false);
-          showSuccess('Removed selected items');
+          showSuccess(t.removedSelectedItems);
         } else {
           dispatch(clearWishlistRequest());
           setSelected([]);
           setEditMode(false);
-          showSuccess('Cleared wishlist');
+          showSuccess(t.clearedWishlist);
         }
         setConfirmConfig(null);
       }

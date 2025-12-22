@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { UserMeasurements, Size } from '@/types/size-recommendation.types';
 import { calculateRecommendedSizes } from '@/features/size-recommendation/utils/sizeCalculation';
 import { getSizeChartByCategory, type SizeChart } from '@/data/sizeCharts';
@@ -17,6 +18,8 @@ import {
   getDataQualityIcon
 } from '@/utils/size-recommendation';
 import { ConfirmModal } from './ConfirmModal';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SizeGuideModalProps {
   isOpen: boolean;
@@ -39,6 +42,11 @@ export function SizeGuideModal({
   onSizeSelect,
   onAddMeasurements
 }: SizeGuideModalProps) {
+  const { translations, lang } = useLanguage();
+  const t = translations.sizeGuide;
+  const router = useRouter();
+  const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
   const [measurements, setMeasurements] = useState<UserMeasurements | null>(null);
   const [sizeChart, setSizeChart] = useState<SizeChart | null>(null);
 
@@ -137,6 +145,9 @@ export function SizeGuideModal({
     }
   };
 
+  // Minimum confidence threshold - below this, fallback to rule-based recommendation
+  const MIN_CONFIDENCE_THRESHOLD = 0.5;
+
   const loadSizeRecommendation = async (userMeasurements?: UserMeasurements | null) => {
     setLoadingRecommendation(true);
     try {
@@ -146,8 +157,15 @@ export function SizeGuideModal({
       if (response.success && response.data) {
         // Check if backend has collaborative data (recommendedSize not null)
         if (response.data.recommendedSize) {
-          console.log('✅ Size recommendation received from collaborative filtering:', response.data);
-          setApiRecommendation(response.data);
+          // Check confidence threshold - if too low, use rule-based instead
+          const confidence = response.data.confidence ?? 0;
+          if (confidence < MIN_CONFIDENCE_THRESHOLD) {
+            console.log(`⚠️ Confidence too low (${confidence} < ${MIN_CONFIDENCE_THRESHOLD}), using rule-based recommendation`);
+            fallbackToLocalRecommendation(userMeasurements);
+          } else {
+            console.log('✅ Size recommendation received from collaborative filtering:', response.data);
+            setApiRecommendation(response.data);
+          }
         } else {
           // Backend returned no data (no similar users or no order history)
           // Use frontend rule-based recommendation with detailed size charts
@@ -166,6 +184,21 @@ export function SizeGuideModal({
     }
   };
 
+  // Handle add measurements click - redirect to login if not authenticated
+  const handleAddMeasurementsClick = () => {
+    if (!isAuthenticated) {
+      // Redirect to login with return URL
+      const returnUrl = encodeURIComponent(pathname || window.location.pathname);
+      router.push(`/auth/login?returnUrl=${returnUrl}`);
+      onClose();
+      return;
+    }
+    
+    if (onAddMeasurements) {
+      onAddMeasurements();
+    }
+  };
+
   const handleSizeClick = (size: Size) => {
     if (onSizeSelect) {
       onSizeSelect(size);
@@ -177,25 +210,24 @@ export function SizeGuideModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 flex items-center justify-center z-[9999] px-4"
+      className="fixed inset-0 flex items-center justify-center z-[9999] px-2 sm:px-4"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-      onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden animate-fadeIn"
+        className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-black">Size Guide</h2>
-              <p className="text-sm text-gray-600">{category}</p>
+              <h2 className="text-lg sm:text-xl font-bold text-black">{t.title}</h2>
+              <p className="text-xs sm:text-sm text-gray-600">{category}</p>
             </div>
           </div>
           <button
@@ -210,32 +242,32 @@ export function SizeGuideModal({
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6 md:p-8 space-y-8">
+        <div className="overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-80px)] p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
 
           {/* Size Recommendation Section */}
           {measurements && apiRecommendation ? (
             apiRecommendation.recommendedSize ? (
               /* Case 1: Measurements exist AND Recommendation exists */
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-300 rounded-xl p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-black">Size Recommendation</h3>
-                    <p className="text-sm text-black">Based on your body measurements</p>
+                    <h3 className="text-lg sm:text-xl font-bold text-black">{t.sizeRecommendation}</h3>
+                    <p className="text-xs sm:text-sm text-black">{t.basedOnMeasurements}</p>
                   </div>
                 </div>
 
                 {/* Confidence Badge */}
                 {apiRecommendation.metadata && (
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getConfidenceBadgeColor(apiRecommendation.metadata.confidenceLevel)}`}>
+                  <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold border ${getConfidenceBadgeColor(apiRecommendation.metadata.confidenceLevel)}`}>
                       {getConfidenceBadgeLabel(
                         apiRecommendation.metadata.confidenceLevel, 
-                        'en',
+                        lang,
                         apiRecommendation.metadata.totalSimilarUsers === 0
                       )}
                     </span>
@@ -248,54 +280,54 @@ export function SizeGuideModal({
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Recommended Size */}
-                  <div className="bg-white border-2 border-blue-600 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="bg-white border-2 border-gray-700 rounded-xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-shadow">
                     <div className="text-center">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
-                        <span className="text-3xl font-bold text-white">{apiRecommendation.recommendedSize}</span>
+                      <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-full mb-3 sm:mb-4">
+                        <span className="text-2xl sm:text-3xl font-bold text-white">{apiRecommendation.recommendedSize}</span>
                       </div>
-                      <div className="mb-4">
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                          Best Match
+                      <div className="mb-3 sm:mb-4">
+                        <span className="inline-block px-2 sm:px-3 py-1 bg-gray-800 text-white text-xs font-semibold rounded-full">
+                          {t.bestMatch}
                         </span>
                       </div>
-                      <p className="text-sm text-black mb-4">
+                      <p className="text-xs sm:text-sm text-black mb-3 sm:mb-4">
                         {apiRecommendation.metadata?.totalSimilarUsers && apiRecommendation.metadata.totalSimilarUsers > 0
-                          ? `${((apiRecommendation.confidence || 0) * 100).toFixed(0)}% of similar users chose this size`
-                          : 'Recommended size based on your measurements'}
+                          ? `${((apiRecommendation.confidence || 0) * 100).toFixed(0)}${t.similarUsersChose}`
+                          : t.recommendedBasedOnMeasurements}
                       </p>
                       <button
                         onClick={() => handleSizeClick(apiRecommendation.recommendedSize as Size)}
-                        className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-800 text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors text-sm sm:text-base"
                       >
-                        Select Size {apiRecommendation.recommendedSize}
+                        {t.selectSize} {apiRecommendation.recommendedSize}
                       </button>
                     </div>
                   </div>
 
                   {/* Alternative Size */}
                   {apiRecommendation.alternatives && apiRecommendation.alternatives.length > 0 && (
-                    <div className="bg-white border-2 border-gray-300 rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+                    <div className="bg-white border-2 border-gray-300 rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-lg transition-shadow">
                       <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-200 rounded-full mb-4">
-                          <span className="text-3xl font-bold text-black">{apiRecommendation.alternatives[0].size}</span>
+                        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full mb-3 sm:mb-4">
+                          <span className="text-2xl sm:text-3xl font-bold text-black">{apiRecommendation.alternatives[0].size}</span>
                         </div>
-                        <div className="mb-4">
-                          <span className="inline-block px-3 py-1 bg-gray-100 text-black text-xs font-semibold rounded-full">
-                            Alternative
+                        <div className="mb-3 sm:mb-4">
+                          <span className="inline-block px-2 sm:px-3 py-1 bg-gray-100 text-black text-xs font-semibold rounded-full">
+                            {t.alternative}
                           </span>
                         </div>
-                        <p className="text-sm text-black mb-4">
+                        <p className="text-xs sm:text-sm text-black mb-3 sm:mb-4">
                           {apiRecommendation.metadata?.totalSimilarUsers && apiRecommendation.metadata.totalSimilarUsers > 0
-                            ? `${((apiRecommendation.alternatives[0].confidence || 0) * 100).toFixed(0)}% of similar users chose this size`
-                            : 'May also fit if you prefer a looser fit'}
+                            ? `${((apiRecommendation.alternatives[0].confidence || 0) * 100).toFixed(0)}${t.similarUsersChose}`
+                            : t.mayAlsoFitLooser}
                         </p>
                         <button
                           onClick={() => handleSizeClick(apiRecommendation.alternatives[0].size as Size)}
-                          className="w-full px-4 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors"
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-colors text-sm sm:text-base"
                         >
-                          Select Size {apiRecommendation.alternatives[0].size}
+                          {t.selectSize} {apiRecommendation.alternatives[0].size}
                         </button>
                       </div>
                     </div>
@@ -303,40 +335,40 @@ export function SizeGuideModal({
                 </div>
 
                 {/* Reasoning Message */}
-                <div className="bg-white/80 rounded-lg p-4 border border-blue-100 mt-4">
-                  <p className="text-sm text-black whitespace-pre-line">
-                    {buildRecommendationReasoning(apiRecommendation, 'en')}
+                <div className="bg-white/80 rounded-lg p-3 sm:p-4 border border-gray-200 mt-3 sm:mt-4">
+                  <p className="text-xs sm:text-sm text-black whitespace-pre-line">
+                    {buildRecommendationReasoning(apiRecommendation, lang)}
                   </p>
                 </div>
 
                 {/* User Measurements Summary */}
-                <div className="bg-white/80 rounded-lg p-4 border border-blue-100 mt-4">
-                  <div className="flex items-start justify-between">
-                    <p className="text-xs text-black flex items-center gap-2">
-                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-white/80 rounded-lg p-3 sm:p-4 border border-gray-200 mt-3 sm:mt-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <p className="text-xs text-black flex items-center gap-2 flex-wrap">
+                      <svg className="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span className="font-medium">Your Profile:</span>
-                      {measurements.gender} • {measurements.height}cm • {measurements.weight}kg
-                      {measurements.bmi !== undefined && ` • BMI ${measurements.bmi.toFixed(1)}`}
-                      {measurements.fitPreference && ` • ${measurements.fitPreference.toLowerCase()} fit`}
+                      <span className="font-medium">{t.yourProfile}</span>
+                      <span className="break-all">
+                        {measurements.gender} • {measurements.height}cm • {measurements.weight}kg
+                        {measurements.bmi !== undefined && ` • BMI ${measurements.bmi.toFixed(1)}`}
+                        {measurements.fitPreference && ` • ${measurements.fitPreference.toLowerCase()} fit`}
+                      </span>
                     </p>
 
-                    <div className="ml-4 flex-shrink-0 flex gap-2">
+                    <div className="flex-shrink-0 flex gap-2">
                       <button
-                        onClick={() => {
-                          if (onAddMeasurements) onAddMeasurements();
-                        }}
-                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors"
+                        onClick={handleAddMeasurementsClick}
+                        className="px-2 sm:px-3 py-1.5 bg-black text-white text-xs sm:text-sm font-medium rounded-md cursor-pointer transition-colors"
                       >
-                        Edit
+                        {t.edit}
                       </button>
                       <button
                         onClick={handleDeleteClick}
                         disabled={isDeleting}
-                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-2 sm:px-3 py-1.5 bg-black text-white text-xs sm:text-sm font-medium rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isDeleting ? 'Deleting...' : 'Delete'}
+                        {isDeleting ? t.deleting : t.delete}
                       </button>
                     </div>
                   </div>
@@ -344,54 +376,52 @@ export function SizeGuideModal({
               </div>
             ) : (
               /* Case 2: Measurements exist but NO Recommendation (e.g. not enough data) */
-              <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-6 space-y-4">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-200 rounded-xl p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-black">Recommendation Unavailable</h3>
-                    <p className="text-sm text-black">We have your measurements, but need more data for this product.</p>
+                    <h3 className="text-lg sm:text-xl font-bold text-black">{t.recommendationUnavailable}</h3>
+                    <p className="text-xs sm:text-sm text-black">{t.needMoreData}</p>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <p className="text-sm text-black mb-3">
-                    We couldn&apos;t confidently recommend a size for this specific item based on your profile. This usually happens with new products or unique fits.
+                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200">
+                  <p className="text-xs sm:text-sm text-black mb-2 sm:mb-3">
+                    {t.couldNotRecommend}
                   </p>
-                  <p className="text-sm text-black font-medium">
-                    Please refer to the Size Chart below for the most accurate fit.
+                  <p className="text-xs sm:text-sm text-black font-medium">
+                    {t.referToSizeChart}
                   </p>
                 </div>
 
                 {/* User Measurements Summary (Still show this so they know we have their data) */}
-                <div className="bg-white/80 rounded-lg p-4 border border-gray-200 mt-4">
-                  <div className="flex items-start justify-between">
+                <div className="bg-white/80 rounded-lg p-3 sm:p-4 border border-gray-200 mt-3 sm:mt-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <p className="text-xs text-black flex items-center gap-2">
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span className="font-medium">Your Profile:</span>
+                      <span className="font-medium">{t.yourProfile}</span>
                       {measurements.gender} • {measurements.height}cm • {measurements.weight}kg
                     </p>
 
-                    <div className="ml-4 flex-shrink-0 flex gap-2">
+                    <div className="flex-shrink-0 flex gap-2">
                       <button
-                        onClick={() => {
-                          if (onAddMeasurements) onAddMeasurements();
-                        }}
-                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors"
+                        onClick={handleAddMeasurementsClick}
+                        className="px-2 sm:px-3 py-1.5 bg-black text-white text-xs sm:text-sm font-medium rounded-md cursor-pointer transition-colors"
                       >
-                        Edit
+                        {t.edit}
                       </button>
                       <button
                         onClick={handleDeleteClick}
                         disabled={isDeleting}
-                        className="px-3 py-1.5 bg-black text-white text-sm font-medium rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-2 sm:px-3 py-1.5 bg-black text-white text-xs sm:text-sm font-medium rounded-md cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {isDeleting ? 'Deleting...' : 'Delete'}
+                        {isDeleting ? t.deleting : t.delete}
                       </button>
                     </div>
                   </div>
@@ -400,58 +430,54 @@ export function SizeGuideModal({
             )
           ) : (
             /* Case 3: No measurements - Show "Add Measurements" button */
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 text-center space-y-4">
-              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto">
-                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-gray-300 rounded-xl p-6 sm:p-8 text-center space-y-3 sm:space-y-4">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-700 rounded-full flex items-center justify-center mx-auto">
+                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-black mb-2">Get Personalized Size Recommendations</h3>
-                <p className="text-black mb-6">
-                  Add your measurements to receive personalized size suggestions based on your unique body type
+                <h3 className="text-lg sm:text-xl font-bold text-black mb-2">{t.getPersonalizedRecommendations}</h3>
+                <p className="text-sm sm:text-base text-black mb-4 sm:mb-6">
+                  {t.addMeasurementsDesc}
                 </p>
                 <button
-                  onClick={() => {
-                    if (onAddMeasurements) {
-                      onAddMeasurements();
-                    }
-                  }}
-                  className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+                  onClick={handleAddMeasurementsClick}
+                  className="px-6 sm:px-8 py-2.5 sm:py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2 cursor-pointer text-sm sm:text-base"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  Add Your Measurements
+                  {t.addYourMeasurements}
                 </button>
               </div>
             </div>
           )}
 
           {/* How to Measure Section */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-black mb-3 sm:mb-4 flex items-center gap-2">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              How to Measure
+              {t.howToMeasure}
             </h3>
-            <div className="space-y-3 text-sm text-black">
-              <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                <p><span className="font-semibold">Chest:</span> Measure around the fullest part of your chest, keeping the tape horizontal.</p>
+            <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-black">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                <p><span className="font-semibold">{lang === 'vi' ? 'Ngực:' : 'Chest:'}</span> {t.chestMeasure}</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                <p><span className="font-semibold">Waist:</span> Measure around your natural waistline, keeping the tape comfortably loose.</p>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                <p><span className="font-semibold">{lang === 'vi' ? 'Eo:' : 'Waist:'}</span> {t.waistMeasure}</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                <p><span className="font-semibold">Hips:</span> Measure around the fullest part of your hips, approximately 20cm below your waist.</p>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                <p><span className="font-semibold">{lang === 'vi' ? 'Hông:' : 'Hips:'}</span> {t.hipsMeasure}</p>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">4</span>
-                <p><span className="font-semibold">Height:</span> Stand straight against a wall and measure from head to toe.</p>
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                <p><span className="font-semibold">{lang === 'vi' ? 'Chiều cao:' : 'Height:'}</span> {t.heightMeasure}</p>
               </div>
             </div>
           </div>
@@ -460,36 +486,36 @@ export function SizeGuideModal({
           {sizeChart && <SizeChartTable sizeChart={sizeChart} />}
 
           {/* Fit Tips */}
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-black mb-3 sm:mb-4 flex items-center gap-2">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              Fit Tips
+              {t.fitTips}
             </h3>
-            <div className="space-y-2 text-sm text-black">
-              <p>• <span className="font-semibold">Between sizes?</span> Choose the larger size for a more comfortable fit.</p>
-              <p>• <span className="font-semibold">Tight fit preference?</span> Choose your exact measurement size.</p>
-              <p>• <span className="font-semibold">Loose fit preference?</span> Go one size up from your measurement.</p>
-              <p>• <span className="font-semibold">Different measurements?</span> Choose the size that fits your largest measurement.</p>
+            <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-black">
+              <p>• <span className="font-semibold">{t.betweenSizes}</span> {t.betweenSizesTip}</p>
+              <p>• <span className="font-semibold">{t.tightFit}</span> {t.tightFitTip}</p>
+              <p>• <span className="font-semibold">{t.looseFit}</span> {t.looseFitTip}</p>
+              <p>• <span className="font-semibold">{t.differentMeasurements}</span> {t.differentMeasurementsTip}</p>
             </div>
           </div>
 
           {/* Note */}
-          <div className="text-center text-sm text-gray-500 border-t pt-6">
+          <div className="text-center text-xs sm:text-sm text-gray-500 border-t pt-4 sm:pt-6">
             <p>
-              📏 Still unsure? Use our <span className="text-blue-600 font-semibold">Size Recommendation</span> feature above for personalized sizing based on your body measurements!
+              📏 {t.stillUnsure} <span className="text-gray-700 font-semibold">{t.sizeRecommendation}</span> {t.useFeatureAbove}
             </p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200">
+        <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 flex justify-end border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-6 py-2.5 bg-black text-white rounded-lg cursor-pointer transition-colors font-medium"
+            className="px-4 sm:px-6 py-2 sm:py-2.5 bg-black text-white rounded-lg cursor-pointer transition-colors font-medium text-sm sm:text-base"
           >
-            Got it, thanks!
+            {t.gotItThanks}
           </button>
         </div>
       </div>
@@ -497,10 +523,10 @@ export function SizeGuideModal({
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={showDeleteConfirm}
-        title="Delete Measurements"
-        message="Are you sure you want to delete your measurements? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
+        title={t.deleteMeasurements}
+        message={t.deleteConfirmMessage}
+        confirmText={t.delete}
+        cancelText={translations.common.cancel}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
         isLoading={isDeleting}
