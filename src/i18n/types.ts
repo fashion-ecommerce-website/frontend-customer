@@ -5,6 +5,19 @@ export interface VirtualTryOnTranslations {
   previewTitle: string;
   previewDescription: string;
   bullets: string[];
+  // Intro modal overrides / labels
+  introTitle?: string;
+  introSubtitle?: string;
+  introBullets?: string[];
+  startButton?: string;
+  // Privacy notice
+  privacyNoticeTitle?: string;
+  privacyNoticeParagraphs?: string[];
+  // Waiting modal / messages
+  waitingTitle?: string;
+  waitingMessage?: string;
+  waitingAdditional?: string;
+  waitingToast?: string;
   upgradeButton: string;
   backButton: string;
   upgradeNote: string;
@@ -14,8 +27,8 @@ export interface VirtualTryOnTranslations {
   generatedForYou: string;
   productDetails: string;
   tryOnNow: string;
-  selectTShirt: string;
-  selectShirt: string;
+  selectUpper: string;
+  selectLower: string;
   removeProduct: string;
   noProductSelected: string;
   noImageSelected: string;
@@ -23,6 +36,7 @@ export interface VirtualTryOnTranslations {
   completedStatus: string;
   viewDetails: string;
   activeStatus: string;
+  tryOnHistory: string;
 }
 
 export interface PromotionalBannerTranslations {

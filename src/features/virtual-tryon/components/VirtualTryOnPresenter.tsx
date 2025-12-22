@@ -86,7 +86,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                   : 'text-gray-500 hover:text-black'
               }`}
             >
-              {translations.profile.orderHistory}
+              {translations.virtualTryOn.tryOnHistory}
             </button>
           </div>
         </div>
@@ -156,7 +156,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-xs font-semibold text-gray-700 uppercase">
-                            {translations.virtualTryOn.selectTShirt}
+                            {translations.virtualTryOn.selectUpper}
                           </div>
                           {activeSlot === 'upper' && (
                             <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
@@ -205,7 +205,7 @@ export const VirtualTryOnPresenter: React.FC<VirtualTryOnPresenterProps> = ({
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-xs font-semibold text-gray-700 uppercase">
-                            {translations.virtualTryOn.selectShirt}
+                            {translations.virtualTryOn.selectLower}
                           </div>
                           {activeSlot === 'lower' && (
                             <div className="w-2 h-2 bg-black rounded-full animate-pulse" />

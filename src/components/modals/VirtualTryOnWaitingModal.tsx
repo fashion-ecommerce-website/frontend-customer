@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useToast } from '@/providers/ToastProvider';
-import { useLanguage } from '@/hooks/useLanguage';
+import useLanguage from '@/hooks/useLanguage';
 
 interface VirtualTryOnWaitingModalProps {
   isOpen: boolean;
@@ -14,17 +14,18 @@ interface VirtualTryOnWaitingModalProps {
 
 export function VirtualTryOnWaitingModal({ isOpen, onClose, status }: VirtualTryOnWaitingModalProps) {
   const { showInfo } = useToast();
+
   const { translations } = useLanguage();
-  const t = translations.toast;
+  const t = translations.virtualTryOn;
 
   useEffect(() => {
     if (!isOpen) return;
 
     // Notify user that try-on started
-    showInfo(t.virtualTryOnProcessing, 5000);
+    showInfo(t.waitingToast || 'Virtual try-on is being processed. You can continue browsing; we will notify you when it is done.', 5000);
 
     return () => {};
-  }, [isOpen, showInfo, t]);
+  }, [isOpen, showInfo, t.waitingToast]);
 
   if (!isOpen || typeof window === 'undefined') return null;
 
@@ -37,7 +38,7 @@ export function VirtualTryOnWaitingModal({ isOpen, onClose, status }: VirtualTry
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fadeIn">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="text-lg font-semibold text-black">Đang xử lý Virtual Try-On</h3>
+            <h3 className="text-lg font-semibold text-black">{t.waitingTitle || 'Virtual Try-On Processing'}</h3>
           </div>
           <button onClick={onClose} aria-label="Close" className="text-black hover:bg-gray-100 rounded p-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,9 +55,9 @@ export function VirtualTryOnWaitingModal({ isOpen, onClose, status }: VirtualTry
             </svg>
           </div>
           <div className="flex-1 text-sm text-black">
-            <p className="font-medium">Chúng tôi đang tạo kết quả. Thời gian dự kiến: vài giây đến vài phút.</p>
+            <p className="font-medium">{t.waitingMessage || "We're generating your result. Estimated time: a few seconds to a few minutes."}</p>
             {status && <p className="text-xs text-black mt-1">{status}</p>}
-            <p className="text-xs text-black mt-2">Bạn có thể đóng cửa sổ này và tiếp tục duyệt. Một thông báo sẽ xuất hiện khi hoàn thành.</p>
+            <p className="text-xs text-black mt-2">{t.waitingAdditional || 'You may close this window and continue browsing. We will notify you when processing is complete.'}</p>
           </div>
         </div>
 
