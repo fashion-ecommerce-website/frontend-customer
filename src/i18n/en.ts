@@ -986,6 +986,14 @@ const en: Translations = {
     slimmer: 'Slimmer',
     broader: 'Broader',
   },
+  virtualTryOnIntroModal: {
+    title: 'Virtual Try-On',
+    subtitle: 'Quick guide before you start',
+    step1: '1. Prepare a friendly photo (standing straight, the area you want to try the product on should be clearly visible).',
+    step2: '2. Select the product you want to try. The system will process and return results shortly.',
+    step3: '3. While waiting, you can continue browsing or shopping — the system will notify you with a small notification in the top right corner.',
+    startButton: 'Start Try-On',
+  },
 };
 
 export default en;

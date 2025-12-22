@@ -107,7 +107,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             <button
               onClick={handleClick}
               disabled={disabled}
-              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Change Photo
             </button>
@@ -115,7 +115,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             <button
               onClick={() => onTryOn && onTryOn()}
               disabled={disabled || !canTryOn}
-              className={`px-6 py-3 rounded-xl font-semibold text-white transition-all transform ${
+              className={`px-6 py-3 rounded-xl font-semibold text-white transition-all transform cursor-pointer ${
                 canTryOn
                   ? 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-lg'
                   : 'bg-gray-300 cursor-not-allowed'

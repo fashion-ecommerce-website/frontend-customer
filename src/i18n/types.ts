@@ -913,6 +913,15 @@ export interface MessageTranslations {
   passwordMismatch: string;
 }
 
+export interface VirtualTryOnIntroModalTranslations {
+  title: string;
+  subtitle: string;
+  step1: string;
+  step2: string;
+  step3: string;
+  startButton: string;
+}
+
 export interface ToastTranslations {
   // Address
   addressAdded: string;
@@ -971,6 +980,7 @@ export interface Translations {
   search: SearchTranslations;
   sizeGuide: SizeGuideTranslations;
   measurementsWizard: MeasurementsWizardTranslations;
+  virtualTryOnIntroModal: VirtualTryOnIntroModalTranslations;
 }
 
 export default Translations;
