@@ -339,6 +339,29 @@ const vi: Translations = {
       'Hướng dẫn kích thước chính xác và đề xuất kích cỡ',
       'Hoạt động cho các gói Platinum và Diamond',
     ],
+    // Intro modal specific strings
+    introTitle: 'Virtual Try-On',
+    introSubtitle: 'Hướng dẫn nhanh trước khi bắt đầu',
+    introBullets: [
+      'Chuẩn bị một bức ảnh thân thiện (đứng thẳng, phần muốn thử sản phẩm rõ ràng).',
+      'Chọn sản phẩm bạn muốn thử. Hệ thống sẽ xử lý và trả kết quả trong chốc lát.',
+      'Trong lúc chờ, bạn có thể tiếp tục duyệt hoặc mua sắm — hệ thống sẽ thông báo khi xong.',
+    ],
+    startButton: 'Bắt đầu thử',
+    // Privacy notice
+    privacyNoticeTitle: 'Thông báo quyền riêng tư',
+    privacyNoticeParagraphs: [
+      'Khi bạn tải ảnh lên, hình ảnh sẽ được xử lý tự động bằng công nghệ AI để cung cấp trải nghiệm Virtual Try-On.',
+      'Hình ảnh chỉ được sử dụng cho mục đích hiển thị kết quả thử đồ ảo trong ứng dụng.',
+      'Chúng tôi không sử dụng hình ảnh cho quảng cáo hoặc mục đích ngoài chức năng Virtual Try-On.',
+      'Việc xử lý và lưu trữ hình ảnh được thực hiện theo các tiêu chuẩn bảo mật hiện hành.',
+      'Vui lòng chỉ tải lên ảnh của chính bạn và tránh ảnh chứa thông tin nhạy cảm.',
+    ],
+    // Waiting modal / messages
+    waitingTitle: 'Đang xử lý Virtual Try-On',
+    waitingMessage: 'Chúng tôi đang tạo kết quả. Thời gian dự kiến: vài giây đến vài phút.',
+    waitingAdditional: 'Bạn có thể đóng cửa sổ này và tiếp tục duyệt. Một thông báo sẽ xuất hiện khi hoàn thành.',
+    waitingToast: 'Virtual try-on đang được xử lý. Bạn có thể tiếp tục duyệt; chúng tôi sẽ thông báo khi xong.',
     upgradeButton: 'Nâng cấp ngay',
     backButton: 'Quay lại',
     upgradeNote: 'Nâng cấp lên Platinum hoặc Diamond để mở khóa tính năng này và tận hưởng trải nghiệm thử đồ liền mạch.',
@@ -348,8 +371,8 @@ const vi: Translations = {
     generatedForYou: 'Được tạo riêng cho bạn',
     productDetails: 'Chi Tiết Sản Phẩm',
     tryOnNow: 'Thử Ngay',
-    selectTShirt: 'ÁO THUN',
-    selectShirt: 'ÁO SƠ MI',
+    selectUpper: 'Chọn Áo',
+    selectLower: 'Chọn Quần',
     removeProduct: 'Xóa',
     noProductSelected: 'Chưa chọn sản phẩm',
     noImageSelected: 'Chưa chọn ảnh',
@@ -357,6 +380,7 @@ const vi: Translations = {
     completedStatus: 'Hoàn thành',
     viewDetails: 'Xem Chi Tiết',
     activeStatus: 'Đang hoạt động',
+    tryOnHistory: 'Lịch Sử Thử Đồ',
   },
   home: {
     ranking: 'XẾP HẠNG',

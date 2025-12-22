@@ -339,6 +339,29 @@ const en: Translations = {
       'Accurate fit guidance and size recommendations',
       'Works across Platinum and Diamond tiers',
     ],
+    // Intro modal specific strings
+    introTitle: 'Virtual Try-On',
+    introSubtitle: 'Quick guide before you start',
+    introBullets: [
+      'Prepare a clear photo (stand straight, show the area to try the product).',
+      "Select the product you'd like to try. The system will process and return results shortly.",
+      'While waiting, you may continue browsing or shopping — we will notify you when the result is ready.',
+    ],
+    startButton: 'Start Try-On',
+    // Privacy notice
+    privacyNoticeTitle: 'Privacy Notice',
+    privacyNoticeParagraphs: [
+      'When you upload images, they will be automatically processed by AI technology to provide the Virtual Try-On experience.',
+      'Images are used only to display virtual try-on results within the app.',
+      'We do not use images for advertising or purposes outside the Virtual Try-On feature.',
+      'Image processing and storage are conducted according to current security standards.',
+      'Please only upload images of yourself and avoid images containing sensitive information.',
+    ],
+    // Waiting modal / messages
+    waitingTitle: 'Virtual Try-On Processing',
+    waitingMessage: "We're generating your result. Estimated time: a few seconds to a few minutes.",
+    waitingAdditional: 'You may close this window and continue browsing. We will notify you when processing is complete.',
+    waitingToast: "Virtual try-on is being processed. You can continue browsing; we'll notify you when it's done.",
     upgradeButton: 'Upgrade Now',
     backButton: 'Back',
     upgradeNote: 'Upgrade to Platinum or Diamond to unlock this feature and enjoy a seamless try-on experience.',
@@ -348,8 +371,8 @@ const en: Translations = {
     generatedForYou: 'Generated just for you',
     productDetails: 'Product Details',
     tryOnNow: 'Try On Now',
-    selectTShirt: 'T-SHIRT',
-    selectShirt: 'SHIRT',
+    selectUpper: 'Select Upper',
+    selectLower: 'Select Lower',
     removeProduct: 'Remove',
     noProductSelected: 'No product selected',
     noImageSelected: 'No image selected',
@@ -357,6 +380,7 @@ const en: Translations = {
     completedStatus: 'Completed',
     viewDetails: 'View Details',
     activeStatus: 'Active',
+    tryOnHistory: 'History',
   },
   home: {
     ranking: 'RANKING',
