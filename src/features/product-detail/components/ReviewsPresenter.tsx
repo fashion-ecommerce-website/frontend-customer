@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { ReviewItem } from '@/services/api/reviewApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ReviewsPresenterProps {
   reviews: ReviewItem[];
@@ -92,6 +93,8 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
     onShowLess,
   } = props;
 
+  const { translations, lang } = useLanguage();
+
   const getStarPercentage = (starCount: number): number => {
     if (reviews.length === 0) return 0;
     return (starCount / reviews.length) * 100;
@@ -105,13 +108,26 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
     return review.avatarUrl || review.avatar || undefined;
   };
 
+  // Format date based on language
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+    return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <section className="bg-white py-8 sm:py-10 lg:py-12">
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Reviews</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{translations.review.title}</h2>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -121,7 +137,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                 ))}
               </div>
               <span className="text-base sm:text-lg font-semibold text-gray-900">({average})</span>
-              <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer">{reviews.length} Reviews</span>
+              <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer">{translations.review.reviewsCount.replace('{count}', String(reviews.length))}</span>
             </div>
           </div>
         </div>
@@ -132,7 +148,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
           <div className="hidden lg:block">
             <div className="text-center lg:text-left">
               <div className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">{average}</div>
-              <div className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">out of 5</div>
+              <div className="text-base sm:text-lg text-gray-600 mb-3 sm:mb-4">{translations.review.outOf}</div>
               <div className="flex items-center justify-center lg:justify-start gap-0.5 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <svg key={i} className={`h-5 w-5 sm:h-6 sm:w-6 ${i < Math.round(average) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 24 24">
@@ -156,7 +172,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                     />
                   </div>
                   <span className="text-xs sm:text-sm text-blue-600 font-medium w-16 sm:w-20 text-right">
-                    {starDistribution[star]} reviews
+                    {starDistribution[star]} {translations.review.reviews}
                   </span>
                 </div>
               ))}
@@ -168,30 +184,30 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-row gap-2 sm:gap-4 items-center justify-end flex-wrap">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Filter:</label>
+              <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{translations.review.filter}</label>
               <select
                 value={starFilter || ''}
                 onChange={(e) => onSetStarFilter(e.target.value ? Number(e.target.value) : null)}
                 className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
-                <option value="">All</option>
-                <option value="5">5 stars</option>
-                <option value="4">4 stars</option>
-                <option value="3">3 stars</option>
-                <option value="2">2 stars</option>
-                <option value="1">1 star</option>
+                <option value="">{translations.review.all}</option>
+                <option value="5">5 {translations.review.stars}</option>
+                <option value="4">4 {translations.review.stars}</option>
+                <option value="3">3 {translations.review.stars}</option>
+                <option value="2">2 {translations.review.stars}</option>
+                <option value="1">1 {translations.review.star}</option>
               </select>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Sort:</label>
+              <label className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">{translations.review.sort}</label>
               <select
                 value={dateFilter}
                 onChange={(e) => onSetDateFilter(e.target.value)}
                 className="px-2 sm:px-3 py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
+                <option value="newest">{translations.review.newestFirst}</option>
+                <option value="oldest">{translations.review.oldestFirst}</option>
               </select>
             </div>
           </div>
@@ -199,17 +215,17 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
 
         {/* Individual Reviews */}
         <div className="space-y-6">
-          {loading && <div className="py-12 text-gray-500 text-center">Loading reviews...</div>}
+          {loading && <div className="py-12 text-gray-500 text-center">{translations.review.loadingReviews}</div>}
           {!loading && reviews.length === 0 && (
             <div className="py-12 text-gray-500 text-center">
-              <div className="text-lg mb-2">No reviews yet</div>
-              <div className="text-sm">Be the first to share your experience!</div>
+              <div className="text-lg mb-2">{translations.review.noReviewsYet}</div>
+              <div className="text-sm">{translations.review.beFirstToReview}</div>
             </div>
           )}
           {!loading && filteredReviews.length === 0 && reviews.length > 0 && (
             <div className="py-12 text-gray-500 text-center">
-              <div className="text-lg mb-2">It is empty here!</div>
-              <div className="text-sm">Try adjusting your filter criteria</div>
+              <div className="text-lg mb-2">{translations.review.emptyHere}</div>
+              <div className="text-sm">{translations.review.tryAdjustFilter}</div>
             </div>
           )}
           {!loading && displayedReviews.map((r) => (
@@ -227,7 +243,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                     <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-xs sm:text-sm text-green-600">Verified purchase</span>
+                    <span className="text-xs sm:text-sm text-green-600">{translations.review.verifiedPurchase}</span>
                   </div>
                 </div>
 
@@ -244,20 +260,20 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                     <div className="flex flex-col">
                       <span className="font-semibold text-sm sm:text-base text-gray-900 truncate">{r.username}</span>
                       <div className="text-xs sm:text-sm text-gray-500">
-                        {new Date(r.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                        {' at '}
-                        {new Date(r.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        {formatDate(r.createdAt)}
+                        {' - '}
+                        {formatTime(r.createdAt)}
                       </div>
                       {(r.productColor || r.productSize) && (
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
                           {r.productColor && (
                             <span className="text-xs sm:text-sm text-gray-600">
-                              Color: <span className="font-medium">{r.productColor}</span>
+                              {translations.review.color} <span className="font-medium">{r.productColor}</span>
                             </span>
                           )}
                           {r.productSize && (
                             <span className="text-xs sm:text-sm text-gray-600">
-                              Size: <span className="font-medium">{r.productSize}</span>
+                              {translations.review.size} <span className="font-medium">{r.productSize}</span>
                             </span>
                           )}
                         </div>
@@ -278,16 +294,16 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
             {visibleReviewsCount < filteredReviews.length ? (
               <button
                 onClick={onViewMore}
-                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base"
+                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base cursor-pointer"
               >
-                View More Reviews
+                {translations.review.viewMoreReviews}
               </button>
             ) : (
               <button
                 onClick={onShowLess}
-                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base"
+                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base cursor-pointer"
               >
-                Show Less
+                {translations.review.showLess}
               </button>
             )}
           </div>

@@ -10,6 +10,7 @@ import {
   ListboxOption,
 } from "@headlessui/react";
 import { ProductFilters, FilterDropdownOption } from "../types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProductFilterProps {
   filters: ProductFilters;
@@ -27,6 +28,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
 }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { translations } = useLanguage();
 
   const breadcrumbTitle = useMemo(() => {
     // Priority: prop > URL param 'name'/'title' > formatted category
@@ -49,10 +51,10 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
     router.push(`/products?category=${encodeURIComponent(category)}&name=${encodeURIComponent(breadcrumbTitle)}`);
   };
   const sortOptions: FilterDropdownOption[] = [
-    { value: "productTitle_asc", label: "Name: A-Z" },
-    { value: "productTitle_desc", label: "Name: Z-A" },
-    { value: "price_asc", label: "Price: Low to High" },
-    { value: "price_desc", label: "Price: High to Low" },
+    { value: "productTitle_asc", label: translations.filterProduct.sortNameAZ },
+    { value: "productTitle_desc", label: translations.filterProduct.sortNameZA },
+    { value: "price_asc", label: translations.filterProduct.sortPriceLowHigh },
+    { value: "price_desc", label: translations.filterProduct.sortPriceHighLow },
   ];
 
   const handleFilterChange = (key: keyof ProductFilters, value: string | string[] | number | undefined) => {
@@ -72,7 +74,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           onClick={handleHomeClick}
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleHomeClick()}
           className="text-gray-600 cursor-pointer"
-        >HOME</span>
+        >{translations.common.home.toUpperCase()}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="7"
@@ -100,9 +102,9 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
         {/* Filter Button */}
         <button
           onClick={onOpenSidebar}
-          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm flex-1 sm:flex-none justify-center"
+          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm flex-1 sm:flex-none justify-center cursor-pointer"
         >
-          Filters
+          {translations.filterProduct.filters}
           <svg
             className="w-3 h-3 sm:w-4 sm:h-4"
             fill="none"
@@ -124,7 +126,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           onChange={(value) => handleFilterChange("sort", value)}
         >
           <div className="relative flex-1 sm:flex-none">
-            <ListboxButton className="flex items-center justify-between w-full sm:w-48 px-3 sm:px-4 py-2 border border-gray-300 rounded-md bg-white text-black text-sm">
+            <ListboxButton className="flex items-center justify-between w-full sm:w-48 px-3 sm:px-4 py-2 border border-gray-300 rounded-md bg-white text-black text-sm cursor-pointer">
               <span className="truncate">
                 {sortOptions.find((opt) => opt.value === filters.sort)?.label ||
                   sortOptions[0].label}

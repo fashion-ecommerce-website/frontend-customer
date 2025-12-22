@@ -17,6 +17,7 @@ import { useToast } from "@/providers/ToastProvider"
 import { useRouter } from "next/navigation"
 import { OrderModal } from "@/components/modals"
 import { useColorMap } from "@/hooks/useColorMap"
+import { useLanguage } from "@/hooks/useLanguage"
 
 interface ProductQuickViewModalProps {
   isOpen: boolean
@@ -52,6 +53,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const { showError } = useToast()
   const router = useRouter()
   const { getColorHex } = useColorMap()
+  const { translations } = useLanguage()
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false)
@@ -424,7 +426,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const handleAddToCart = async () => {
     if (!selectedSizeLocal) {
       setShowSizeNotice(true)
-      showError('Please select a size')
+      showError(translations.product.pleaseSelectSize)
       setTimeout(() => setShowSizeNotice(false), 3000)
       return
     }
@@ -436,13 +438,13 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     // Verify availability for selected size
     const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
     if (availableQty === 0) {
-      showError('This size is out of stock')
+      showError(translations.product.sizeOutOfStock)
       return
     }
 
     if (selectedAmount > availableQty) {
       setShowSizeNotice(true)
-      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+      showError(translations.product.onlyXAvailable.replace('{count}', availableQty.toString()))
       setTimeout(() => setShowSizeNotice(false), 3000)
       return
     }
@@ -494,7 +496,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
   const handleBuyNow = async () => {
     if (!selectedSizeLocal) {
       setShowSizeNotice(true)
-      showError('Please select a size')
+      showError(translations.product.pleaseSelectSize)
       setTimeout(() => setShowSizeNotice(false), 3000)
       return
     }
@@ -504,12 +506,12 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
     // Validate stock availability
     const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
     if (availableQty === 0) {
-      showError('This size is out of stock')
+      showError(translations.product.sizeOutOfStock)
       return
     }
 
     if (selectedAmount > availableQty) {
-      showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+      showError(translations.product.onlyXAvailable.replace('{count}', availableQty.toString()))
       return
     }
 
@@ -646,7 +648,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           clipRule="evenodd"
                         />
                       </svg>
-                      <p className="text-xs">Unable to load image</p>
+                      <p className="text-xs">{translations.product.unableToLoadImage}</p>
                     </div>
                   </div>
                 )}
@@ -728,7 +730,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           key={size}
                           onClick={() => handleSizeSelect(size)}
                           disabled={quantity === 0}
-                          className={`px-3 py-2 text-sm font-medium w-12 h-10 rounded-full border transition-all ${selectedSizeLocal === size
+                          className={`px-3 py-2 text-sm font-medium w-12 h-10 rounded-full border transition-all cursor-pointer ${selectedSizeLocal === size
                             ? "bg-black text-white border-black"
                             : quantity === 0
                               ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
@@ -747,7 +749,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   <div className="flex h-12 w-full text-gray-900 border border-gray-300 rounded overflow-hidden">
                     <button
                       onClick={handleDecreaseAmount}
-                      className="flex items-center justify-start ml-4 w-1/3 text-sm"
+                      className="flex items-center justify-start ml-4 w-1/3 text-sm cursor-pointer"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -766,7 +768,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       className="text-center w-1/3 text-sm focus:outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min="1"
                     />
-                    <button onClick={handleIncreaseAmount} className="flex items-center justify-end mr-4 w-1/3 text-sm">
+                    <button onClick={handleIncreaseAmount} className="flex items-center justify-end mr-4 w-1/3 text-sm cursor-pointer">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                           d="M12 5V19"
@@ -794,15 +796,15 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       <button
                         onClick={onClose}
                         type="button"
-                        className="flex-1 bg-white text-black py-3 font-bold text-sm uppercase border border-gray-300"
+                        className="flex-1 bg-white text-black py-3 font-bold text-sm uppercase border border-gray-300 cursor-pointer"
                       >
-                        Cancel
+                        {translations.common.cancel}
                       </button>
                       <button
                         onClick={() => {
                           if (!selectedSizeLocal) {
                             setShowSizeNotice(true)
-                            showError('Please select a size')
+                            showError(translations.product.pleaseSelectSize)
                             setTimeout(() => setShowSizeNotice(false), 3000)
                             return
                           }
@@ -812,7 +814,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                             const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
                             if (selectedAmount > availableQty) {
                               setShowSizeNotice(true)
-                              showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+                              showError(translations.product.onlyXAvailable.replace('{count}', availableQty.toString()))
                               setTimeout(() => setShowSizeNotice(false), 3000)
                               return
                             }
@@ -828,9 +830,9 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           }
                         }}
                         type="button"
-                        className="flex-1 bg-black text-white py-3 font-bold text-sm uppercase"
+                        className="flex-1 bg-black text-white py-3 font-bold text-sm uppercase cursor-pointer"
                       >
-                        Edit
+                        {translations.common.edit}
                       </button>
                     </>
                   ) : (
@@ -839,16 +841,16 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         onClick={handleAddToCart}
                         disabled={addingToCart || !selectedSizeLocal || isVariantLoading}
                         type="button"
-                        className="flex-1 bg-white text-black py-3 font-bold text-sm uppercase border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-white text-black py-3 font-bold text-sm uppercase border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        {addingToCart ? "ADDING..." : "ADD TO CART"}
+                        {addingToCart ? translations.product.addingToCart : translations.product.addToCart.toUpperCase()}
                       </button>
                       <button
                         onClick={handleBuyNow}
                         type="button"
-                        className="flex-1 bg-black text-white py-3 font-bold text-sm uppercase"
+                        className="flex-1 bg-black text-white py-3 font-bold text-sm uppercase cursor-pointer"
                       >
-                        BUY NOW
+                        {translations.product.buyNow}
                       </button>
                     </>
                   )}
@@ -922,7 +924,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         fontSize: "11px",
                       }}
                     >
-                      Please select a size
+                      {translations.product.pleaseSelectSize}
                       <div
                         className="absolute -bottom-1 left-3 w-0 h-0"
                         style={{
@@ -939,7 +941,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           key={size}
                           onClick={() => handleSizeSelect(size)}
                           disabled={quantity === 0}
-                          className={`w-12 h-8 text-xs font-medium border rounded-full transition-all duration-200 flex items-center justify-center ${selectedSizeLocal === size
+                          className={`w-12 h-8 text-xs font-medium border rounded-full transition-all duration-200 flex items-center justify-center cursor-pointer ${selectedSizeLocal === size
                             ? "border-black bg-black text-white"
                             : quantity === 0
                               ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-100"
@@ -958,7 +960,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                   <div className="flex h-12 w-full text-gray-900 border border-gray-300 rounded overflow-hidden">
                     <button
                       onClick={handleDecreaseAmount}
-                      className="flex items-center justify-start ml-4 w-1/3 text-sm"
+                      className="flex items-center justify-start ml-4 w-1/3 text-sm cursor-pointer"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -977,7 +979,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       className="text-center w-1/3 text-sm focus:outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min="1"
                     />
-                    <button onClick={handleIncreaseAmount} className="flex items-center justify-end mr-4 w-1/3 text-sm">
+                    <button onClick={handleIncreaseAmount} className="flex items-center justify-end mr-4 w-1/3 text-sm cursor-pointer">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                           d="M12 5V19"
@@ -1006,16 +1008,16 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                     <button
                       onClick={onClose}
                       type="button"
-                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 w-full"
+                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 w-full cursor-pointer"
                     >
-                      Cancel
+                      {translations.common.cancel}
                     </button>
                     <button
                       onClick={() => {
                         // Validate selection
                         if (!selectedSizeLocal) {
                           setShowSizeNotice(true)
-                          showError('Please select a size')
+                          showError(translations.product.pleaseSelectSize)
                           setTimeout(() => setShowSizeNotice(false), 3000)
                           return
                         }
@@ -1025,7 +1027,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                           const availableQty = product.mapSizeToQuantity?.[selectedSizeLocal] ?? 0
                           if (selectedAmount > availableQty) {
                             setShowSizeNotice(true)
-                            showError(`Only ${availableQty} item${availableQty > 1 ? 's' : ''} available for this size`)
+                            showError(translations.product.onlyXAvailable.replace('{count}', availableQty.toString()))
                             setTimeout(() => setShowSizeNotice(false), 3000)
                             return
                           }
@@ -1041,9 +1043,9 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                         }
                       }}
                       type="button"
-                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase disabled:opacity-50 disabled:cursor-not-allowed transition-opacity w-full"
+                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase disabled:opacity-50 disabled:cursor-not-allowed transition-opacity w-full cursor-pointer"
                     >
-                      Edit
+                      {translations.common.edit}
                     </button>
                   </>
                 ) : (
@@ -1052,16 +1054,16 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                       onClick={handleAddToCart}
                       disabled={addingToCart || !selectedSizeLocal || isVariantLoading}
                       type="button"
-                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity w-full"
+                      className="bg-white text-black py-4 px-3 font-bold text-xs uppercase border-1 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity w-full cursor-pointer"
                     >
-                      {addingToCart ? "ADDING..." : "ADD TO CART"}
+                      {addingToCart ? translations.product.addingToCart : translations.product.addToCart.toUpperCase()}
                     </button>
                     <button
                       onClick={handleBuyNow}
                       type="button"
-                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase w-full"
+                      className="bg-black text-white py-4 px-3 font-bold text-xs uppercase w-full cursor-pointer"
                     >
-                      BUY NOW
+                      {translations.product.buyNow}
                     </button>
                   </>
                 )}
@@ -1071,7 +1073,7 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
         ) : (
           // Error state
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500 text-sm">Unable to load product information</p>
+            <p className="text-gray-500 text-sm">{translations.product.unableToLoadProduct}</p>
           </div>
         )}
       </div>

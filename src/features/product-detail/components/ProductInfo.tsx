@@ -13,6 +13,7 @@ import { isSizeGuideSupported } from '@/utils/sizeGuideUtils';
 import { wishlistApiService } from '@/services/api/wishlistApi';
 import { useToast } from '@/providers/ToastProvider';
 import { useColorMap } from '@/hooks/useColorMap';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -35,6 +36,7 @@ export function ProductInfo({
   const router = useRouter();
   const { showError } = useToast();
   const { getColorHex } = useColorMap();
+  const { translations } = useLanguage();
   const { addToCartWithToast } = useCartActions({
     onSuccess: () => {
       setAddingToCart(false);
@@ -103,7 +105,6 @@ export function ProductInfo({
   const handleAddToCart = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
-      showError('Please select a size');
       setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
@@ -160,7 +161,6 @@ export function ProductInfo({
   const handleBuyNow = async () => {
     if (!selectedSize) {
       setShowSizeNotice(true);
-      showError('Please select a size');
       setTimeout(() => setShowSizeNotice(false), 3000);
       return;
     }
@@ -251,7 +251,7 @@ export function ProductInfo({
       {/* Color Selection*/}
       {product.colors && product.colors.length > 0 && (
         <div className="space-y-2 md:space-y-3 pl-1">
-          <h3 className="text-xs md:text-sm font-medium text-gray-900">Color</h3>
+          <h3 className="text-xs md:text-sm font-medium text-gray-900">{translations.product.color}</h3>
           <div className="swatch-color" data-index="option1">
             <div className="flex items-center space-x-2 md:space-x-3 flex-wrap gap-y-2">
               {product.colors.map((color) => (
@@ -295,7 +295,7 @@ export function ProductInfo({
               fontSize: '0.875rem'
             }}
           >
-            Please select size
+            {translations.product.pleaseSelectSize}
             {/* Tooltip arrow pointing down */}
             <div
               className="absolute -bottom-1 left-4 w-0 h-0"
@@ -308,7 +308,7 @@ export function ProductInfo({
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-xs md:text-sm font-medium text-gray-900">Size</h3>
+            <h3 className="text-xs md:text-sm font-medium text-gray-900">{translations.product.size}</h3>
             {showSizeGuideButton && (
               <button
                 onClick={() => setShowSizeGuide(true)}
@@ -322,7 +322,7 @@ export function ProductInfo({
                   <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
                   <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
                 </svg>
-                <span>Size guide</span>
+                <span>{translations.product.sizeGuide}</span>
               </button>
             )}
           </div>
@@ -349,19 +349,19 @@ export function ProductInfo({
 
       {/* Quantity Selector */}
       <div className="space-y-2">
-        <label className="text-xs md:text-sm font-medium text-gray-900">Quantity</label>
+        <label className="text-xs md:text-sm font-medium text-gray-900">{translations.product.quantity}</label>
         <div className="flex items-center space-x-3 md:space-x-4">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={quantity <= 1}
-            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base"
+            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base cursor-pointer"
           >
             −
           </button>
           <span className="w-8 md:w-10 text-center font-medium text-gray-900 text-sm md:text-base">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors text-sm md:text-base"
+            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors text-sm md:text-base cursor-pointer"
           >
             +
           </button>
@@ -376,7 +376,7 @@ export function ProductInfo({
               disabled
               className="w-full h-full text-center uppercase text-xs md:text-sm font-semibold text-gray-500 bg-gray-100 rounded"
             >
-              Out of stock
+              {translations.product.outOfStock}
             </button>
           </div>
         ) : (
@@ -384,36 +384,18 @@ export function ProductInfo({
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSize}
-              className="bg-black text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded"
+              className="bg-black text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded cursor-pointer"
             >
-              {addingToCart ? "ADDING..." : "ADD TO CART"}
+              {addingToCart ? translations.product.addingToCart : translations.product.addToCart}
             </button>
             <button
               onClick={handleBuyNow}
               className="bg-red-600 text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-red-700 transition-all duration-200 cursor-pointer rounded"
             >
-              BUY NOW
+              {translations.product.buyNow}
             </button>
           </div>
         )}
-      </div>
-
-      {/* BLACK TUESDAY REWARDS - Simple Promotion Box */}
-      <div className="w-full px-2 md:px-[10px] py-2.5 md:py-3 bg-[#fafafa] border border-[#dfdfdf] rounded relative mt-2 md:mt-2.5 mb-2 md:mb-2.5 inline-flex flex-col justify-start items-start">
-        <div className="self-stretch pl-3 md:pl-4 flex flex-col justify-center items-start">
-          <div className="self-stretch relative flex flex-col justify-start items-start">
-            <div className="w-3 h-6 md:h-7 left-[-16px] md:left-[-20px] top-0 absolute justify-center text-[#202846] text-xs md:text-sm font-normal font-['Products Sans'] leading-loose">◈</div>
-            <div className="justify-center text-[#202846] text-xs md:text-sm font-bold font-['Products Sans'] leading-loose">BLACK TUESDAY REWARDS</div>
-          </div>
-
-          <div className="justify-center text-[#202846] text-[11px] md:text-sm font-normal font-['Products Sans'] leading-relaxed md:leading-loose">
-            Earn 10% Loyalty points back on any invoice value every Tuesday<br />
-            Valid from: April 1, 2025<br />
-            Points expiry: End of the following month (Ex: Points earned on 10/3 will expire on 30/4)<br />
-            Loyalty points will be credited in addition to your regular membership benefits<br />
-            *Applicable every Tuesday only
-          </div>
-        </div>
       </div>
 
       {/* Size Guide Modal - Only show for supported categories */}

@@ -130,14 +130,14 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
         <button
           onClick={handleEdit}
           disabled={loading}
-          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200"
+          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 cursor-pointer"
         >
           {translations.common.edit}
         </button>
         <button
           onClick={handleRemove}
           disabled={loading || isRemoving}
-          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isRemoving ? translations.common.processing : translations.common.remove}
         </button>

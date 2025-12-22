@@ -8,6 +8,7 @@ import {
   ProductRecommendationResponse,
 } from "@/types/recommendation.types";
 import { useRouter } from "next/navigation";
+import { useLanguageContext } from "@/providers/LanguageProvider";
 
 const STORAGE_KEY = "fashion_chat_history";
 
@@ -49,7 +50,7 @@ const RecommendationCarousel: React.FC<RecommendationCarouselProps> = ({
               <button
                 onClick={prevSlide}
                 aria-label="Previous product"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-100 sm:opacity-0 sm:group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-100 sm:opacity-0 sm:group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800 cursor-pointer"
               >
                 <svg
                   className="w-5 h-5"
@@ -68,7 +69,7 @@ const RecommendationCarousel: React.FC<RecommendationCarouselProps> = ({
               <button
                 onClick={nextSlide}
                 aria-label="Next product"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-100 sm:opacity-0 sm:group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-100 sm:opacity-0 sm:group-hover/carousel:opacity-100 transition-opacity hover:bg-white text-gray-800 cursor-pointer"
               >
                 <svg
                   className="w-5 h-5"
@@ -129,6 +130,7 @@ export const ChatBot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { translations } = useLanguageContext();
 
   // Auto scroll to bottom
   const scrollToBottom = () => {
@@ -170,19 +172,13 @@ export const ChatBot: React.FC = () => {
       const welcomeMessage: ChatMessage = {
         id: Date.now().toString(),
         role: "assistant",
-        content:
-          "Hi! 👋 I'm your personal fashion assistant. I can help you find the perfect outfit! What are you looking for today?",
+        content: translations.chatBot.welcomeMessage,
         timestamp: new Date(),
-        suggestedQuestions: [
-          "What should I wear today?",
-          "Show me casual outfits",
-          "I need formal wear",
-          "Looking for summer clothes",
-        ],
+        suggestedQuestions: translations.chatBot.suggestedQuestions,
       };
       setMessages([welcomeMessage]);
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen, messages.length, translations.chatBot.welcomeMessage, translations.chatBot.suggestedQuestions]);
 
   const handleSendMessage = async (messageText?: string) => {
     const textToSend = messageText || inputMessage.trim();
@@ -223,7 +219,7 @@ export const ChatBot: React.FC = () => {
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Sorry, I encountered an error. Please try again.",
+        content: translations.chatBot.errorMessage,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -240,15 +236,9 @@ export const ChatBot: React.FC = () => {
       const welcomeMessage: ChatMessage = {
         id: Date.now().toString(),
         role: "assistant",
-        content:
-          "Hi! 👋 I'm your personal fashion assistant. I can help you find the perfect outfit! What are you looking for today?",
+        content: translations.chatBot.welcomeMessage,
         timestamp: new Date(),
-        suggestedQuestions: [
-          "What should I wear today?",
-          "Show me casual outfits",
-          "I need formal wear",
-          "Looking for summer clothes",
-        ],
+        suggestedQuestions: translations.chatBot.suggestedQuestions,
       };
       setMessages([welcomeMessage]);
     }, 100);
@@ -272,7 +262,7 @@ export const ChatBot: React.FC = () => {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-6 z-40 bg-black text-white rounded-full p-4 shadow-xl hover:shadow-2xl hover:scale-105 transform transition-all duration-300 group"
+        className="fixed bottom-4 right-6 z-40 bg-black text-white rounded-full p-4 shadow-xl hover:shadow-2xl hover:scale-105 transform transition-all duration-300 group cursor-pointer"
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
         <svg
@@ -308,12 +298,12 @@ export const ChatBot: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-bold text-sm tracking-wide text-gray-900">
-                  FASHION ASSISTANT
+                  {translations.chatBot.title}
                 </h3>
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
                   <p className="text-[10px] text-gray-500 font-medium">
-                    Online
+                    {translations.chatBot.online}
                   </p>
                 </div>
               </div>
@@ -321,8 +311,8 @@ export const ChatBot: React.FC = () => {
             <div className="flex items-center gap-1">
               <button
                 onClick={handleClearChat}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-900"
-                title="Clear Chat"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-900 cursor-pointer"
+                title={translations.chatBot.clearChat}
               >
                 <svg
                   className="w-4 h-4"
@@ -340,7 +330,7 @@ export const ChatBot: React.FC = () => {
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-900"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-900 cursor-pointer"
               >
                 <svg
                   className="w-5 h-5"
@@ -400,7 +390,7 @@ export const ChatBot: React.FC = () => {
                                 <button
                                   key={index}
                                   onClick={() => handleSendMessage(question)}
-                                  className="text-left text-xs bg-gray-50 hover:bg-black hover:text-white text-gray-600 rounded-full px-4 py-2 transition-all border border-gray-200"
+                                  className="text-left text-xs bg-gray-50 hover:bg-black hover:text-white text-gray-600 rounded-full px-4 py-2 transition-all border border-gray-200 cursor-pointer"
                                 >
                                   {question}
                                 </button>
@@ -447,14 +437,14 @@ export const ChatBot: React.FC = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Ask for outfit ideas..."
+                placeholder={translations.chatBot.placeholder}
                 className="flex-1 bg-transparent text-sm focus:outline-none text-gray-900 placeholder-gray-500 px-3"
                 disabled={isLoading}
               />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-black text-white rounded-full p-2.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95"
+                className="bg-black text-white rounded-full p-2.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <svg
                   className="w-4 h-4"

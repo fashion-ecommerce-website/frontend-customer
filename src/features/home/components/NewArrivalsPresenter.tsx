@@ -135,7 +135,7 @@ export function NewArrivalsPresenter({
                         onClick={onViewAll}
                         className="pointer-events-auto cursor-pointer px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-md border border-white text-white bg-white/10 hover:bg-white/25 uppercase text-xs sm:text-sm font-semibold tracking-wide transition-colors"
                       >
-                        View all
+                        {translations.home.viewAll}
                       </button>
                     </div>
                   </div>

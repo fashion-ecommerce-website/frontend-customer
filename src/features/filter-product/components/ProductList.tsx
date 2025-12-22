@@ -6,6 +6,7 @@ import { FilterProductItem } from "../types";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
 import { ProductCard, ProductCardSkeleton } from "@/components";
 import { Product } from "@/types/product.types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProductListProps {
   products: FilterProductItem[];
@@ -38,6 +39,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   onProductClick,
 }) => {
   const router = useRouter();
+  const { translations } = useLanguage();
   // State for quick view modal
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quickViewProductId, setQuickViewProductId] = useState<number | null>(null);
@@ -62,7 +64,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   if (!isLoading && products.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-black text-lg">No products found</p>
+        <p className="text-black text-lg">{translations.filterProduct.noProductsFound}</p>
       </div>
     );
   }
