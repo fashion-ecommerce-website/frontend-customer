@@ -50,7 +50,7 @@ export const CartSummaryComponent: React.FC<CartSummaryComponentProps> = ({
         <button
           onClick={onCheckout}
           disabled={loading || summary.itemCount === 0}
-          className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           {loading ? translations.common.processing : translations.cart.checkout}
         </button>

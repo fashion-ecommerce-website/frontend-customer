@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Order } from '@/features/order/types';
 import { uploadMultipleToCloudinary } from '@/services/api/cloudinaryApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface RefundModalProps {
   isOpen: boolean;
@@ -15,14 +16,6 @@ interface RefundModalProps {
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-const REFUND_REASON_SUGGESTIONS = [
-  'Product is defective or does not match the website description',
-  'Received wrong size/color',
-  'Product was damaged during shipping',
-  'Received duplicate product',
-  'No longer need this product',
-];
-
 export const RefundModal: React.FC<RefundModalProps> = ({
   isOpen,
   onClose,
@@ -30,6 +23,17 @@ export const RefundModal: React.FC<RefundModalProps> = ({
   onConfirm,
   loading = false,
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.refundModal;
+  
+  const REFUND_REASON_SUGGESTIONS = [
+    t.reasonDefective,
+    t.reasonWrongSize,
+    t.reasonDamaged,
+    t.reasonDuplicate,
+    t.reasonNoLongerNeed,
+  ];
+
   const [reason, setReason] = useState('');
   const [customReason, setCustomReason] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -47,15 +51,15 @@ export const RefundModal: React.FC<RefundModalProps> = ({
 
     files.forEach((file) => {
       if (!file.type.startsWith('image/')) {
-        errors.push(`${file.name} is not an image`);
+        errors.push(`${file.name} ${t.notImage}`);
         return;
       }
       if (file.size > MAX_FILE_SIZE) {
-        errors.push(`${file.name} exceeds 5MB limit`);
+        errors.push(`${file.name} ${t.exceedsLimit}`);
         return;
       }
       if (selectedFiles.length + validFiles.length >= MAX_IMAGES) {
-        errors.push(`Maximum ${MAX_IMAGES} images allowed`);
+        errors.push(t.maxImages);
         return;
       }
       validFiles.push(file);
@@ -110,7 +114,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
     const finalReason = getFinalReason();
 
     if (!finalReason.trim()) {
-      setError('Please provide a reason for the refund request');
+      setError(t.provideReason);
       return;
     }
 
@@ -126,7 +130,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           imageUrls = await uploadMultipleToCloudinary(selectedFiles);
         } catch {
           setUploading(false);
-          setError('Failed to upload images. Please try again.');
+          setError(t.uploadFailed);
           return;
         }
         setUploading(false);
@@ -143,7 +147,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
       onClose();
     } catch (err) {
       setUploading(false);
-      setError(err instanceof Error ? err.message : 'Failed to submit refund request');
+      setError(err instanceof Error ? err.message : t.submitFailed);
     }
   };
 
@@ -164,23 +168,23 @@ export const RefundModal: React.FC<RefundModalProps> = ({
 
       {/* Modal */}
       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Request Refund</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">{t.title}</h2>
 
         <div className="space-y-4">
           {/* Order Info */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600">Order ID</span>
+              <span className="text-gray-600">{t.orderId}</span>
               <span className="font-medium text-gray-900">#{order.id}</span>
             </div>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600">Order Total</span>
+              <span className="text-gray-600">{t.orderTotal}</span>
               <span className="font-medium text-gray-900">
                 {formatPrice(order.totalAmount)}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Payment Status</span>
+              <span className="text-gray-600">{t.paymentStatus}</span>
               <span className="font-medium text-green-600">
                 {order.paymentStatus}
               </span>
@@ -190,7 +194,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           {/* Refund Amount */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-700">Refund Amount:</span>
+              <span className="text-sm text-gray-700">{t.refundAmount}:</span>
               <span className="text-lg font-bold text-black">
                 {formatPrice(order.totalAmount)}
               </span>
@@ -200,7 +204,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           {/* Reason Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Refund Reason <span className="text-red-500">*</span>
+              {t.refundReason} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <select
@@ -209,13 +213,13 @@ export const RefundModal: React.FC<RefundModalProps> = ({
                 className="flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-black text-sm appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
               >
-                <option value="">Select a reason...</option>
+                <option value="">{t.selectReason}</option>
                 {REFUND_REASON_SUGGESTIONS.map((r, index) => (
                   <option key={index} value={r}>
                     {r}
                   </option>
                 ))}
-                <option value="custom">Other (specify below)</option>
+                <option value="custom">{t.otherReason}</option>
               </select>
               {/* Chevron icon - same as ProductFilter */}
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -238,12 +242,12 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           {reason === 'custom' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Please describe your reason <span className="text-red-500">*</span>
+                {t.describeReason} <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="Enter your reason for requesting a refund..."
+                placeholder={t.enterReason}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-colors resize-none"
                 rows={3}
                 disabled={loading}
@@ -254,10 +258,10 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Evidence Images <span className="text-red-500">*</span>
+              {t.evidenceImages} <span className="text-red-500">*</span>
             </label>
             <p className="text-xs text-gray-500 mb-2">
-              Upload up to {MAX_IMAGES} images as evidence for your refund request (max 5MB each)
+              {t.evidenceHint}
             </p>
             
             {/* Upload Button */}
@@ -292,7 +296,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
                   />
                 </svg>
                 <span className="mt-2 block text-sm text-gray-600">
-                  Click to upload images
+                  {t.clickToUpload}
                 </span>
               </button>
             )}
@@ -340,7 +344,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
             disabled={loading || uploading}
             className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             type="button"
@@ -366,10 +370,10 @@ export const RefundModal: React.FC<RefundModalProps> = ({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                <span>{uploading ? 'Uploading...' : 'Submitting...'}</span>
+                <span>{uploading ? t.uploading : t.submitting}</span>
               </>
             ) : (
-              'Submit Request'
+              t.submitRequest
             )}
           </button>
         </div>

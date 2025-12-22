@@ -5,6 +5,7 @@ import { Order, OrderStatus, PaginatedResponse } from '@/features/order/types';
 import Image from 'next/image';
 import { useEnums } from '@/hooks/useEnums';
 import { Pagination } from '@/features/filter-product/components/Pagination';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface OrderHistoryPresenterProps {
   orders: Order[];
@@ -35,6 +36,8 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
 }) => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const { data: enums } = useEnums();
+  const { translations } = useLanguage();
+  const t = translations.orderHistory;
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
   const formatDate = (iso: string) => new Date(iso).toLocaleString('vi-VN');
 
@@ -96,25 +99,31 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
            order.payments[0].id;
   };
 
-  // Show Refund: when PAID or FULFILLED (not cancelled, not refunded, not unfulfilled)
-  const showRefund = (order: Order) => {
-    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
-           !isCancelled(order) &&
-           !isRefunded(order) &&
-           !isUnfulfilled(order) &&
-           order.payments && 
-           order.payments.length > 0 && 
-           order.payments[0].provider === 'STRIPE' &&
-           order.payments[0].id;
+  // Check if order is within refund window (3 days from order creation)
+  const isWithinRefundWindow = (order: Order) => {
+    const orderDate = new Date(order.createdAt);
+    const now = new Date();
+    const diffInMs = now.getTime() - orderDate.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays <= 3;
   };
 
-  // Show Review: when PAID or FULFILLED (not cancelled, not refunded, not unpaid, not unfulfilled)
-  const showReview = (order: Order) => {
-    return (order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && 
+  // Show Refund: when PAID and FULFILLED (not cancelled, not refunded) AND within 3 days
+  // For COD orders that are FULFILLED and PAID, refund should also be available
+  const showRefund = (order: Order) => {
+    return order.paymentStatus === 'PAID' && 
+           order.status === OrderStatus.FULFILLED &&
            !isCancelled(order) &&
            !isRefunded(order) &&
-           !isUnfulfilled(order) &&
-           order.paymentStatus !== 'UNPAID';
+           isWithinRefundWindow(order);
+  };
+
+  // Show Review: when PAID and FULFILLED (not cancelled, not refunded) - no time limit
+  const showReview = (order: Order) => {
+    return order.paymentStatus === 'PAID' && 
+           order.status === OrderStatus.FULFILLED &&
+           !isCancelled(order) &&
+           !isRefunded(order);
   };
 
   const toggleExpand = (orderId: number) => {
@@ -188,7 +197,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
       <div className="px-4 py-6">
         <div className="bg-red-50 text-red-700 border border-red-200 rounded p-4 flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={onReload} className="px-3 py-1 text-sm font-medium bg-black text-white rounded">Reload</button>
+          <button onClick={onReload} className="px-3 py-1 text-sm font-medium bg-black text-white rounded cursor-pointer">{t.reload}</button>
         </div>
       </div>
     );
@@ -197,8 +206,8 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
   if (!orders || orders.length === 0) {
     return (
       <div className="px-4 py-10 text-center text-gray-600">
-        <div className="mb-4">You have no orders yet.</div>
-        <button onClick={onReload} className="px-3 py-1 text-sm font-medium bg-black text-white rounded">Reload</button>
+        <div className="mb-4">{t.noOrdersYet}</div>
+        <button onClick={onReload} className="px-3 py-1 text-sm font-medium bg-black text-white rounded cursor-pointer">{t.reload}</button>
       </div>
     );
   }
@@ -236,23 +245,23 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     <button
                       type="button"
                       onClick={() => toggleExpand(order.id)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      {expandedIds.has(order.id) ? 'Hide' : 'Show'}
+                      {expandedIds.has(order.id) ? t.hide : t.show}
                     </button>
                     <button
                       type="button"
                       onClick={() => onOpenDetail?.(order)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Details
+                      {t.details}
                     </button>
                     <button
                       type="button"
                       onClick={() => onTrack?.(order)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Track
+                      {t.track}
                     </button>
                     <button
                       type="button"
@@ -264,7 +273,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                           : 'text-gray-400 border border-gray-200 cursor-not-allowed'
                       }`}
                     >
-                      Pay Again
+                      {t.payAgain}
                     </button>
                   </div>
                 )}
@@ -274,23 +283,23 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     <button
                       type="button"
                       onClick={() => toggleExpand(order.id)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      {expandedIds.has(order.id) ? 'Hide' : 'Show'}
+                      {expandedIds.has(order.id) ? t.hide : t.show}
                     </button>
                     <button
                       type="button"
                       onClick={() => onOpenDetail?.(order)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Details
+                      {t.details}
                     </button>
                     <button
                       type="button"
                       onClick={() => onTrack?.(order)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Track
+                      {t.track}
                     </button>
                     <button
                       type="button"
@@ -302,7 +311,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                           : 'text-gray-400 border border-gray-200 cursor-not-allowed'
                       }`}
                     >
-                      Pay Again
+                      {t.payAgain}
                     </button>
                   </div>
                 )}
@@ -312,52 +321,44 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                     <button
                       type="button"
                       onClick={() => toggleExpand(order.id)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      {expandedIds.has(order.id) ? 'Hide' : 'Show'}
+                      {expandedIds.has(order.id) ? t.hide : t.show}
                     </button>
                     <button
                       type="button"
                       onClick={() => onOpenDetail?.(order)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Details
+                      {t.details}
                     </button>
                     <button
                       type="button"
                       onClick={() => onTrack?.(order)}
-                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors"
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Track
+                      {t.track}
                     </button>
                   </div>
                 )}
-                {/* PAID/FULFILLED (not UNFULFILLED): Show Refund + Review */}
-                {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && !isUnfulfilled(order) && order.paymentStatus !== 'UNPAID' && (
+                {/* PAID + FULFILLED: Show Refund (if within 3 days) + Review */}
+                {showReview(order) && (
                   <div className="flex items-center gap-2">
+                    {showRefund(order) && (
+                      <button
+                        type="button"
+                        onClick={() => onRefund?.(order)}
+                        className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
+                      >
+                        {t.refund}
+                      </button>
+                    )}
                     <button
                       type="button"
-                      onClick={() => showRefund(order) && onRefund?.(order)}
-                      disabled={!showRefund(order)}
-                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
-                        showRefund(order)
-                          ? 'text-black border border-gray-300 hover:bg-gray-50 cursor-pointer'
-                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
-                      }`}
+                      onClick={() => onReview?.(order)}
+                      className="flex-1 text-xs font-medium text-black border border-gray-300 hover:bg-gray-50 px-2 py-1.5 rounded transition-colors cursor-pointer"
                     >
-                      Refund
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => showReview(order) && onReview?.(order)}
-                      disabled={!showReview(order)}
-                      className={`flex-1 text-xs font-medium px-2 py-1.5 rounded transition-colors ${
-                        showReview(order)
-                          ? 'text-black border border-gray-300 hover:bg-gray-50 cursor-pointer'
-                          : 'text-gray-400 border border-gray-200 cursor-not-allowed'
-                      }`}
-                    >
-                      Review
+                      {t.review}
                     </button>
                   </div>
                 )}
@@ -369,30 +370,30 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
               <div
                 className="flex items-center gap-3 cursor-pointer select-none"
                 onClick={() => toggleExpand(order.id)}
-                title={expandedIds.has(order.id) ? 'Hide details' : 'Show details'}
+                title={expandedIds.has(order.id) ? t.hide : t.show}
               >
                 <span className="whitespace-nowrap">{formatDate(order.createdAt)}</span>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap min-w-[80px] text-center ${getPaymentBadgeClass(order.paymentStatus)}`}>
                   {enums?.paymentStatus?.[order.paymentStatus] || order.paymentStatus}
                 </span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200`}>Shipping: {getShipmentStatus(order)}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-gray-100 text-gray-700 border border-gray-200`}>{t.shipping}: {getShipmentStatus(order)}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-black font-semibold">Total: {formatPrice(order.totalAmount)}</span>
+                <span className="text-black font-semibold">{t.total}: {formatPrice(order.totalAmount)}</span>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => onOpenDetail?.(order)}
                     className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
                   >
-                    Details
+                    {t.details}
                   </button>
                   <button
                     type="button"
                     onClick={() => onTrack?.(order)}
                     className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
                   >
-                    Track
+                    {t.track}
                   </button>
                   {/* UNFULFILLED: Show Pay Again (enabled if UNPAID+STRIPE, disabled if PAID or COD) */}
                   {isUnfulfilled(order) && !isCancelled(order) && (
@@ -406,7 +407,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                           : 'text-gray-400 cursor-not-allowed'
                       }`}
                     >
-                      Pay Again
+                      {t.payAgain}
                     </button>
                   )}
                   {/* UNPAID (not UNFULFILLED): Show Pay Again (red if STRIPE, gray if not) */}
@@ -421,35 +422,27 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                           : 'text-gray-400 cursor-not-allowed'
                       }`}
                     >
-                      Pay Again
+                      {t.payAgain}
                     </button>
                   )}
-                  {/* PAID/FULFILLED (not UNFULFILLED): Show Refund + Review */}
-                  {(order.paymentStatus === 'PAID' || order.status === OrderStatus.FULFILLED) && !isCancelled(order) && !isRefunded(order) && !isUnfulfilled(order) && order.paymentStatus !== 'UNPAID' && (
+                  {/* PAID + FULFILLED: Show Refund (if within 3 days) + Review */}
+                  {showReview(order) && (
                     <>
+                      {showRefund(order) && (
+                        <button
+                          type="button"
+                          onClick={() => onRefund?.(order)}
+                          className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
+                        >
+                          {t.refund}
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={() => showRefund(order) && onRefund?.(order)}
-                        disabled={!showRefund(order)}
-                        className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
-                          showRefund(order)
-                            ? 'text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
-                            : 'text-gray-400 cursor-not-allowed'
-                        }`}
+                        onClick={() => onReview?.(order)}
+                        className="text-sm font-medium text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 px-2 py-1 rounded cursor-pointer transition-colors"
                       >
-                        Refund
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => showReview(order) && onReview?.(order)}
-                        disabled={!showReview(order)}
-                        className={`text-sm font-medium px-2 py-1 rounded transition-colors ${
-                          showReview(order)
-                            ? 'text-black border border-transparent hover:border-gray-300 hover:bg-gray-50 cursor-pointer'
-                            : 'text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        Review
+                        {t.review}
                       </button>
                     </>
                   )}
@@ -509,7 +502,7 @@ export const OrderHistoryPresenter: React.FC<OrderHistoryPresenterProps> = ({
                       <div className="flex-1 min-w-0">
                         <div className="text-black font-semibold text-base line-clamp-2">{detail.title}</div>
                         <div className="text-xs text-gray-500 mt-1">{detail.colorLabel} / {detail.sizeLabel}</div>
-                        <div className="text-xs text-gray-600 mt-1">Quantity: {detail.quantity}</div>
+                        <div className="text-xs text-gray-600 mt-1">{t.quantity}: {detail.quantity}</div>
                         
                         <div className="mt-2">
                           {detail.promotionId && detail.percentOff != null && detail.percentOff > 0 ? (

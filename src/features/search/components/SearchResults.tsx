@@ -3,6 +3,7 @@
 import React from "react";
 import { SearchResultItem } from "../types";
 import { ProductList } from "../../filter-product/components/ProductList";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface SearchResultsProps {
   results: SearchResultItem[];
@@ -17,6 +18,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
   onProductClick,
   query,
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.search;
+
   // No results
   if (!isLoading && !results.length) {
     return (
@@ -37,12 +41,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
           </svg>
         </div>
         <h3 className="text-xl font-medium text-black mb-2">
-          No products found
+          {t.noProductsFound}
         </h3>
         <p className="text-black">
           {query
-            ? `No results for "${query}"`
-            : "Try searching with different keywords"}
+            ? `${t.noResultsFor} "${query}"`
+            : t.tryDifferentKeywords}
         </p>
       </div>
     );

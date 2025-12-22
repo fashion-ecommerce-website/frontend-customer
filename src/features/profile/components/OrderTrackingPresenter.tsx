@@ -3,6 +3,7 @@
 import React from 'react';
 import { Order, Shipment } from '@/features/order/types';
 import { TrackingEvent } from '@/services/api/trackingApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 type OrderTrackingPresenterProps = {
   order: Order;
@@ -42,19 +43,6 @@ const getStatusBadgeClass = (status: string) => {
       return 'bg-red-100 text-red-700 border border-red-200';
     default:
       return 'bg-gray-100 text-gray-700 border border-gray-200';
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  const upperStatus = status?.toUpperCase() || '';
-  switch (upperStatus) {
-    case 'PENDING': return 'Order Placed';
-    case 'CONFIRMED': return 'Order Confirmed';
-    case 'PROCESSING': return 'Processing';
-    case 'SHIPPED': return 'In Transit';
-    case 'DELIVERED': return 'Delivered';
-    case 'CANCELLED': return 'Cancelled';
-    default: return status;
   }
 };
 
@@ -107,6 +95,22 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
   onRefresh,
   refreshing 
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.orderTracking;
+  
+  const getStatusLabel = (status: string) => {
+    const upperStatus = status?.toUpperCase() || '';
+    switch (upperStatus) {
+      case 'PENDING': return t.orderPlaced;
+      case 'CONFIRMED': return t.orderConfirmed;
+      case 'PROCESSING': return t.processing;
+      case 'SHIPPED': return t.inTransit;
+      case 'DELIVERED': return t.delivered;
+      case 'CANCELLED': return t.cancelled;
+      default: return status;
+    }
+  };
+
   const shipments: Shipment[] = Array.isArray(order.shipments) ? order.shipments : [];
   const latest = shipments
     .slice()
@@ -125,9 +129,9 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl text-black font-bold">Order Tracking</h1>
-          <button type="button" onClick={onBack} className="text-sm text-gray-800 hover:text-yellow-800">
-            Back to orders history
+          <h1 className="text-xl text-black font-bold">{t.title}</h1>
+          <button type="button" onClick={onBack} className="text-sm text-gray-800 hover:text-yellow-800 cursor-pointer">
+            {t.backToOrderHistory}
           </button>
         </div>
 
@@ -136,26 +140,26 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-sm text-gray-700 space-y-1">
               <div>
-                Tracking Number: {' '}
+                {t.trackingNumber}: {' '}
                 <span className="text-black font-medium font-mono">
-                  {latest?.trackingNo || 'Not available yet'}
+                  {latest?.trackingNo || t.notAvailableYet}
                 </span>
               </div>
               <div>
-                Carrier: {' '}
+                {t.carrier}: {' '}
                 <span className="text-black font-medium">
                   {latest?.carrier || '-'}
                 </span>
               </div>
               {latest?.shippedAt && (
                 <div>
-                  Shipped: {' '}
+                  {t.shipped}: {' '}
                   <span className="text-black">{formatDateTime(latest.shippedAt)}</span>
                 </div>
               )}
               {latest?.deliveredAt && (
                 <div>
-                  Delivered: {' '}
+                  {t.delivered}: {' '}
                   <span className="text-green-600 font-medium">{formatDateTime(latest.deliveredAt)}</span>
                 </div>
               )}
@@ -174,7 +178,7 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
                   <svg className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
+                  {refreshing ? t.refreshing : t.refresh}
                 </button>
               )}
             </div>
@@ -184,7 +188,7 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
         {/* Timeline */}
         <div>
           <h2 className="text-base text-black font-semibold mb-4 border-b-2 border-black pb-3">
-            Tracking Timeline
+            {t.trackingTimeline}
           </h2>
           
           {loading && (
@@ -193,7 +197,7 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              Loading tracking information...
+              {t.loadingTracking}
             </div>
           )}
           
@@ -219,7 +223,7 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
                         {getStatusLabel(event.status)}
                         {isLatest && (
                           <span className="text-xs font-normal text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                            Latest
+                            {t.latest}
                           </span>
                         )}
                       </h3>
@@ -250,9 +254,9 @@ export const OrderTrackingPresenter: React.FC<OrderTrackingPresenterProps> = ({
               <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <p className="text-gray-500 text-sm">No tracking events yet.</p>
+              <p className="text-gray-500 text-sm">{t.noTrackingEvents}</p>
               <p className="text-gray-400 text-xs mt-1">
-                Tracking information will appear once your order is shipped.
+                {t.trackingWillAppear}
               </p>
             </div>
           )}

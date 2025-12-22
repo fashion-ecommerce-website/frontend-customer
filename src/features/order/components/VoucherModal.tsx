@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export type Voucher = {
   id: string | number;
@@ -46,6 +47,7 @@ interface VoucherModalProps {
 }
 
 export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, subtotal, onClose, onSelect, onApplyCode, onSearchVoucher }) => {
+  const { translations } = useLanguage();
   const formatPrice = (price: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 }).format(price);
   const [code, setCode] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<Voucher[]>([]);
@@ -111,10 +113,10 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
 
   // Get status label for voucher
   const getStatusLabel = (voucher: Voucher): string => {
-    if (isEligible(voucher)) return 'Available';
-    if (!passesMinSubtotal(voucher)) return 'Not Eligible';
-    if (!isServerAvailable(voucher)) return 'Unavailable';
-    return 'Unavailable';
+    if (isEligible(voucher)) return translations.orderModal.available;
+    if (!passesMinSubtotal(voucher)) return translations.orderModal.notEligible;
+    if (!isServerAvailable(voucher)) return translations.orderModal.unavailable;
+    return translations.orderModal.unavailable;
   };
 
   return (
@@ -123,7 +125,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold text-black">Select Voucher</h2>
+            <h2 className="text-xl font-semibold text-black">{translations.orderModal.selectVoucher}</h2>
           </div>
           <button type="button" onClick={onClose} className="text-gray-600 hover:text-black cursor-pointer">✕</button>
         </div>
@@ -132,12 +134,12 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
         <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
           {/* Enter code */}
           <div className="border border-gray-200 rounded-lg p-4 bg-white">
-            <label className="block text-sm font-semibold text-gray-800 mb-2">Search Voucher</label>
+            <label className="block text-sm font-semibold text-gray-800 mb-2">{translations.orderModal.searchVoucher}</label>
             <div className="flex items-center gap-3">
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="Enter voucher code..."
+                placeholder={translations.orderModal.enterVoucherCode}
                 className="flex-1 h-11 rounded border border-gray-300 px-3.5 text-sm text-black placeholder-gray-400 focus:outline-none"
               />
               <button
@@ -174,7 +176,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                 className="h-11 shrink-0 rounded bg-black hover:bg-gray-900 px-5 text-sm font-bold uppercase tracking-wide text-white transition-colors cursor-pointer disabled:opacity-50"
                 disabled={isSearching}
               >
-                {isSearching ? 'Searching...' : 'Search'}
+                {isSearching ? translations.orderModal.searching : translations.orderModal.search}
               </button>
             </div>
           </div>
@@ -183,7 +185,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
           <div className="mt-6">
             {showSearchResults && (
               <div className="flex items-center justify-between mb-3">
-                <div className="text-sm text-gray-700 font-semibold">Search Results</div>
+                <div className="text-sm text-gray-700 font-semibold">{translations.orderModal.searchResults}</div>
                 <button
                   type="button"
                   onClick={() => {
@@ -193,14 +195,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                   }}
                   className="text-xs text-gray-500 hover:text-gray-700 underline cursor-pointer"
                 >
-                  Show All Vouchers
+                  {translations.orderModal.showAllVouchers}
                 </button>
               </div>
             )}
             <div className="space-y-4">
               {(showSearchResults ? searchResults : vouchers).length === 0 && (
                 <div className="text-sm text-gray-600">
-                  {showSearchResults ? 'No vouchers found for this code.' : 'No vouchers available.'}
+                  {showSearchResults ? translations.orderModal.noVouchersFound : translations.orderModal.noVouchersAvailable}
                 </div>
               )}
               {(showSearchResults ? searchResults : vouchers)
@@ -223,23 +225,23 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                             <div className="text-black font-semibold truncate">{v.label}</div>
                             <span className={`text-xs px-2 py-0.5 rounded-full border ${eligible ? 'text-black border-black' : 'text-gray-500 border-gray-400'}`}>{getStatusLabel(v)}</span>
                           </div>
-                          <div className="text-xs text-gray-600 mt-1">Code: <span className="font-mono">{v.code}</span></div>
+                          <div className="text-xs text-gray-600 mt-1">{translations.orderModal.code}: <span className="font-mono">{v.code}</span></div>
                           {typeof v.minSubtotal === 'number' && (
-                            <div className="text-xs text-gray-500 mt-1">Min. order: {formatPrice(v.minSubtotal)}</div>
+                            <div className="text-xs text-gray-500 mt-1">{translations.orderModal.minOrder}: {formatPrice(v.minSubtotal)}</div>
                           )}
                           
                           {typeof v.maxDiscountAmount === 'number' && (
                             <div className="text-[11px] text-gray-600 mt-1">
-                              Max: {formatPrice(v.maxDiscountAmount)}
+                              {translations.orderModal.maxDiscount}: {formatPrice(v.maxDiscountAmount)}
                             </div>
                           )}
                           
                           <div className="flex items-center gap-6 text-[11px] text-gray-600 mt-1">
                             {v.startsAt && isNotStarted(v.startsAt) && (
-                              <span>Starts: {new Date(v.startsAt).toLocaleDateString('vi-VN')}</span>
+                              <span>{translations.orderModal.starts}: {new Date(v.startsAt).toLocaleDateString('vi-VN')}</span>
                             )}
                             {v.expiresAt && (
-                              <span>Expires: {new Date(v.expiresAt).toLocaleDateString('vi-VN')}</span>
+                              <span>{translations.orderModal.expires}: {new Date(v.expiresAt).toLocaleDateString('vi-VN')}</span>
                             )}
                           </div>
                         </div>
@@ -251,7 +253,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
                             disabled={!eligible}
                             onClick={() => onSelect(v)}
                           >
-                            Apply
+                            {translations.orderModal.apply}
                           </button>
                         </div>
                       </div>
@@ -274,7 +276,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({ isOpen, vouchers, su
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer">Close</button>
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer">{translations.orderModal.close}</button>
         </div>
       </div>
     </div>

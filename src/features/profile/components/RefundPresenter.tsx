@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import type { RefundPresenterProps, RefundStatus } from '../types/refund.types';
 import { Pagination } from '../../filter-product/components/Pagination';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const RefundPresenter: React.FC<RefundPresenterProps> = ({
   refunds,
@@ -22,6 +23,8 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
   onReload,
 }) => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const { translations } = useLanguage();
+  const t = translations.refund;
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('vi-VN', {
@@ -51,10 +54,10 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
 
   const getStatusLabel = (status: RefundStatus) => {
     const labels = {
-      PENDING: 'Pending Review',
-      APPROVED: 'Approved',
-      REJECTED: 'Rejected',
-      COMPLETED: 'Completed',
+      PENDING: t.pendingReview,
+      APPROVED: t.approved,
+      REJECTED: t.rejected,
+      COMPLETED: t.completed,
     };
     return labels[status] || status;
   };
@@ -144,9 +147,9 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
           <span>{error}</span>
           <button
             onClick={onReload}
-            className="px-3 py-1 text-sm font-medium bg-black text-white rounded"
+            className="px-3 py-1 text-sm font-medium bg-black text-white rounded cursor-pointer"
           >
-            Reload
+            {t.reload}
           </button>
         </div>
       </div>
@@ -159,7 +162,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
       <div className="mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4 pb-2 border-b-3 border-black">
           <h2 className="text-base sm:text-xl font-semibold text-black">
-            My Refund Requests
+            {t.title}
           </h2>
 
           {/* Filter */}
@@ -169,11 +172,11 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
               onChange={handleFilterChange}
               className="w-full h-10 sm:h-11 rounded border border-gray-300 px-3 text-xs sm:text-sm text-black focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white"
             >
-              <option value="all">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="COMPLETED">Completed</option>
+              <option value="all">{t.allStatus}</option>
+              <option value="PENDING">{t.pending}</option>
+              <option value="APPROVED">{t.approved}</option>
+              <option value="REJECTED">{t.rejected}</option>
+              <option value="COMPLETED">{t.completed}</option>
             </select>
           </div>
         </div>
@@ -195,15 +198,15 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
               d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
             />
           </svg>
-          <p className="text-sm text-gray-400">No refund requests found</p>
+          <p className="text-sm text-gray-400">{t.noRefundsFound}</p>
           <p className="mt-1 text-xs sm:text-sm text-gray-400">
-            You haven&apos;t made any refund requests yet
+            {t.noRefundsYet}
           </p>
           <button
             onClick={onReload}
-            className="mt-4 px-4 py-2 text-sm font-medium bg-black text-white rounded hover:bg-gray-800 transition-colors"
+            className="mt-4 px-4 py-2 text-sm font-medium bg-black text-white rounded hover:bg-gray-800 transition-colors cursor-pointer"
           >
-            Reload
+            {t.reload}
           </button>
         </div>
       ) : (
@@ -224,7 +227,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                           #{refund.id}
                         </span>
                         <span className="mx-1">•</span>
-                        <span>Order #{refund.orderId}</span>
+                        <span>{t.order} #{refund.orderId}</span>
                       </div>
                       <div className="text-[10px] text-gray-400">
                         {formatDate(refund.createdAt)}
@@ -244,7 +247,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                     </div>
                     <div className="bg-gray-50 rounded p-2">
                       <div className="text-[10px] text-gray-500 mb-0.5">
-                        Reason:
+                        {t.reason}:
                       </div>
                       <div className="text-xs text-gray-800">
                         {refund.reason}
@@ -256,7 +259,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                   {refund.imageUrls && refund.imageUrls.length > 0 && (
                     <div className="mb-3">
                       <div className="text-[10px] text-gray-500 mb-1">
-                        Evidence Images:
+                        {t.evidenceImages}:
                       </div>
                       <div className="flex gap-1.5 flex-wrap">
                         {refund.imageUrls.map((url, index) => (
@@ -282,7 +285,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                   {/* Update Info */}
                   {refund.updatedAt && refund.updatedAt !== refund.createdAt && (
                     <div className="text-[10px] text-gray-500">
-                      Updated: {formatDate(refund.updatedAt)}
+                      {t.updated}: {formatDate(refund.updatedAt)}
                     </div>
                   )}
 
@@ -303,7 +306,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                         </svg>
                         <div className="flex-1 min-w-0">
                           <div className="text-[10px] font-medium text-blue-900 mb-0.5">
-                            Response
+                            {t.response}
                           </div>
                           <p className="text-xs text-blue-800 leading-relaxed">
                             {refund.adminNote}
@@ -316,7 +319,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                   {/* Processed Info */}
                   {refund.processedAt && (
                     <div className="mt-2 text-[10px] text-gray-500">
-                      Processed: {formatDate(refund.processedAt)}
+                      {t.processedOn}: {formatDate(refund.processedAt)}
                     </div>
                   )}
                 </div>
@@ -331,7 +334,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                         <div className="flex-1 min-w-0 pr-4">
                           <div className="flex items-center gap-3 mb-1.5">
                             <h3 className="text-base font-semibold text-black">
-                              Refund Request #{refund.id}
+                              {t.refundRequest} #{refund.id}
                             </h3>
                             <span
                               className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeClass(refund.status)}`}
@@ -340,7 +343,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                             </span>
                           </div>
                           <div className="flex items-center gap-3 text-xs text-gray-500">
-                            <span>Order #{refund.orderId}</span>
+                            <span>{t.order} #{refund.orderId}</span>
                             <span>•</span>
                             <span>{formatDate(refund.createdAt)}</span>
                             {refund.stripeRefundId && (
@@ -358,7 +361,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                             {formatPrice(refund.refundAmount)}
                           </div>
                           <div className="text-xs text-gray-500">
-                            Refund Amount
+                            {t.refundAmount}
                           </div>
                         </div>
                       </div>
@@ -366,7 +369,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                       {/* Reason */}
                       <div className="mb-3">
                         <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <span className="text-gray-500">Reason:</span>
+                          <span className="text-gray-500">{t.reason}:</span>
                           <span>{refund.reason}</span>
                         </div>
                       </div>
@@ -375,7 +378,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                       {refund.imageUrls && refund.imageUrls.length > 0 && (
                         <div className="mb-3">
                           <div className="text-xs text-gray-500 mb-1.5">
-                            Evidence Images:
+                            {t.evidenceImages}:
                           </div>
                           <div className="flex gap-2 flex-wrap">
                             {refund.imageUrls.map((url, index) => (
@@ -401,7 +404,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                       {/* Processed Info */}
                       {refund.processedAt && (
                         <div className="mb-3 text-xs text-gray-500">
-                          Processed on {formatDate(refund.processedAt)}
+                          {t.processedOn} {formatDate(refund.processedAt)}
                         </div>
                       )}
 
@@ -421,7 +424,7 @@ export const RefundPresenter: React.FC<RefundPresenterProps> = ({
                           </svg>
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-medium text-blue-900 mb-1">
-                              Response
+                              {t.response}
                             </div>
                             <p className="text-sm text-blue-800 leading-relaxed">
                               {refund.adminNote}

@@ -58,7 +58,7 @@ export const GoogleAuth: React.FC<GoogleAuthProps> = ({
       type="button" 
       onClick={handleSignIn}
       disabled={disabled}
-      className="flex items-center justify-center gap-3 w-full h-[48px] px-4 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out relative overflow-hidden"
+      className="flex items-center justify-center gap-3 w-full h-[48px] px-4 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ease-in-out relative overflow-hidden cursor-pointer"
     >
       {/* Base content: keep space even while loading */}
       <svg className={`w-5 h-5 ${googleLoading ? 'opacity-0' : ''}`} viewBox="0 0 24 24">

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLanguage } from '../../../hooks/useLanguage';
 
 interface SearchHistoryProps {
   items: string[];
@@ -15,17 +16,20 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
   onRemoveItem,
   onClearAll
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.search;
+
   if (items.length === 0) return null;
 
   return (
     <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-        <span className="text-sm font-medium text-gray-700">Recent Searches</span>
+        <span className="text-sm font-medium text-gray-700">{t.recentSearches}</span>
         <button
           onClick={onClearAll}
           className="text-xs text-gray-500 hover:text-black transition-colors"
         >
-          Clear All
+          {t.clearAll}
         </button>
       </div>
       

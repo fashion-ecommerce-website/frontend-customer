@@ -2,9 +2,11 @@ import React from 'react';
 import Image from 'next/image';
 import { PaymentMethod } from '../types';
 import { useOrder } from '../hooks/useOrder';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export function PaymentMethods(): React.ReactElement {
   const { selectedPaymentMethod, selectPaymentMethod } = useOrder();
+  const { translations } = useLanguage();
 
   const handlePaymentMethodChange = (method: PaymentMethod) => {
     selectPaymentMethod(method);
@@ -12,16 +14,16 @@ export function PaymentMethods(): React.ReactElement {
 
   return (
     <div className="flex flex-col gap-2 pt-4 border-t border-zinc-100">
-      <h3 className="text-zinc-800 text-base font-bold uppercase tracking-wide">Payment methods</h3>
+      <h3 className="text-zinc-800 text-base font-bold uppercase tracking-wide">{translations.orderModal.paymentMethods}</h3>
       <div className="rounded-sm bg-white">
         {/* Stripe */}
-        <label className="flex items-center gap-3 px-2 py-2">
+        <label className="flex items-center gap-3 px-2 py-2 cursor-pointer">
           <input 
             type="radio" 
             name="payment" 
             checked={selectedPaymentMethod === PaymentMethod.CREDIT_CARD}
             onChange={() => handlePaymentMethodChange(PaymentMethod.CREDIT_CARD)}
-            className="h-4 w-4" 
+            className="h-4 w-4 cursor-pointer" 
           />
           <div className="flex-1 flex items-center gap-3">
             <div className="h-10 w-10 flex items-center justify-center relative">
@@ -34,20 +36,20 @@ export function PaymentMethods(): React.ReactElement {
               />
             </div>
             <div className="flex-1">
-              <div className="text-sm font-bold text-zinc-800">Stripe</div>
-              <div className="text-xs text-zinc-500">Pay securely with card via Stripe</div>
+              <div className="text-sm font-bold text-zinc-800">{translations.orderModal.stripe}</div>
+              <div className="text-xs text-zinc-500">{translations.orderModal.stripeDesc}</div>
             </div>
           </div>
         </label>
 
         {/* Cash on Delivery */}
-        <label className="flex items-center gap-3 px-2 py-2">
+        <label className="flex items-center gap-3 px-2 py-2 cursor-pointer">
           <input 
             type="radio" 
             name="payment" 
             checked={selectedPaymentMethod === PaymentMethod.CASH_ON_DELIVERY}
             onChange={() => handlePaymentMethodChange(PaymentMethod.CASH_ON_DELIVERY)}
-            className="h-4 w-4" 
+            className="h-4 w-4 cursor-pointer" 
           />
           <div className="flex-1 flex items-center gap-3">
             <div className="h-10 w-10 flex items-center justify-center">
@@ -56,8 +58,8 @@ export function PaymentMethods(): React.ReactElement {
               </div>
             </div>
             <div className="flex-1">
-              <div className="text-sm font-bold text-zinc-800">Cash on Delivery</div>
-              <div className="text-xs text-zinc-500">Pay with cash upon delivery</div>
+              <div className="text-sm font-bold text-zinc-800">{translations.orderModal.cashOnDelivery}</div>
+              <div className="text-xs text-zinc-500">{translations.orderModal.codDesc}</div>
             </div>
           </div>
         </label>

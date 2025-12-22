@@ -389,6 +389,9 @@ export const ProfilePresenter: React.FC<ProfilePresenterProps> = ({
                 onBack={() => {
                   setActiveSidebarSection('order-info');
                 }}
+                onOrderUpdate={(updatedOrder) => {
+                  setSelectedOrder(updatedOrder);
+                }}
               />
             </div>
           )}

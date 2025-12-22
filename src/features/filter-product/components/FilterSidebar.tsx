@@ -4,6 +4,7 @@ import type React from "react";
 import { useState } from "react";
 import type { ProductFilters, FilterDropdownOption } from "../types";
 import { useColorMap } from "@/hooks/useColorMap";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type FilterValue = ProductFilters[keyof ProductFilters];
 
@@ -31,6 +32,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
   // Use ColorProvider - only API colors for filter
   const { apiColors } = useColorMap();
+  const { translations } = useLanguage();
   
   // Convert apiColors to options for filter (only from database)
   const colorOptions: FilterDropdownOption[] = apiColors.map((color) => ({
@@ -47,30 +49,12 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     { value: "XXL", label: "XXL" },
   ];
 
-  const shoeSizeOptions: FilterDropdownOption[] = [
-    { value: "36.5", label: "36.5" },
-    { value: "37.5", label: "37.5" },
-    { value: "38", label: "38" },
-    { value: "38.5", label: "38.5" },
-    { value: "39", label: "39" },
-    { value: "40.5", label: "40.5" },
-    { value: "41", label: "41" },
-    { value: "42", label: "42" },
-    { value: "42.5", label: "42.5" },
-    { value: "43", label: "43" },
-    { value: "44", label: "44" },
-    { value: "44.5", label: "44.5" },
-    { value: "45", label: "45" },
-    { value: "45.5", label: "45.5" },
-    { value: "46", label: "46" },
-  ];
-
   const priceOptions: FilterDropdownOption[] = [
-    { value: "", label: "All prices" },
-    { value: "<1m", label: "Under 1 million VND" },
-    { value: "1-2m", label: "1-2 million VND" },
-    { value: "2-3m", label: "2-3 million VND" },
-    { value: ">3m", label: "Over 3 million VND" },
+    { value: "", label: translations.filterProduct.allPrices },
+    { value: "<1m", label: translations.filterProduct.under1m },
+    { value: "1-2m", label: translations.filterProduct.from1to2m },
+    { value: "2-3m", label: translations.filterProduct.from2to3m },
+    { value: ">3m", label: translations.filterProduct.over3m },
   ];
 
   const handleFilterChange = (
@@ -125,10 +109,10 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-medium text-black">Filters</h3>
+          <h3 className="text-lg font-medium text-black">{translations.filterProduct.filters}</h3>
           <button
             onClick={onClose}
-            className="text-black hover:text-gray-600 transition-colors duration-200"
+            className="text-black hover:text-gray-600 transition-colors duration-200 cursor-pointer"
           >
             <svg
               className="w-6 h-6"
@@ -152,9 +136,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <div>
             <button
               onClick={() => toggleSection("colors")}
-              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3"
+              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3 cursor-pointer"
             >
-              <span>Colors</span>
+              <span>{translations.filterProduct.colors}</span>
               <svg
                 className={`w-4 h-4 transition-transform duration-300 ${
                   expandedSections.colors ? "rotate-180" : ""
@@ -189,7 +173,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                           handleMultiSelectChange("colors", option.label)
                         }
                         className={`
-                          w-8 h-8 rounded-full transition-all duration-200 relative
+                          w-8 h-8 rounded-full transition-all duration-200 relative cursor-pointer
                           ${
                             isSelected
                               ? "ring-2 ring-offset-2 ring-black"
@@ -217,9 +201,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <div>
             <button
               onClick={() => toggleSection("sizes")}
-              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3"
+              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3 cursor-pointer"
             >
-              <span>Sizes</span>
+              <span>{translations.filterProduct.sizes}</span>
               <svg
                 className={`w-4 h-4 transition-transform duration-300 ${
                   expandedSections.sizes ? "rotate-180" : ""
@@ -240,38 +224,11 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
                 {/* Clothing */}
                 <div>
-                  <h4 className="text-sm font-medium text-black mb-2">
-                    Clothing
-                  </h4>
                   <div className="grid grid-cols-6 gap-2">
                     {sizeOptions.map((option) => (
                       <button
                         key={option.value}
-                        className={`h-8 px-2 text-sm border rounded transition-all duration-200 hover:scale-105 ${
-                          filters.sizes?.includes(option.value)
-                            ? "border-black bg-black text-white"
-                            : "border-gray-300 bg-white text-black hover:border-gray-400"
-                        }`}
-                        onClick={() =>
-                          handleMultiSelectChange("sizes", option.value)
-                        }
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Footwear */}
-                <div>
-                  <h4 className="text-sm font-medium text-black mb-2">
-                    Footwear
-                  </h4>
-                  <div className="grid grid-cols-6 gap-1">
-                    {shoeSizeOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        className={`h-8 px-1 text-xs border rounded transition-all duration-200 hover:scale-105 ${
+                        className={`h-8 px-2 text-sm border rounded transition-all duration-200 hover:scale-105 cursor-pointer ${
                           filters.sizes?.includes(option.value)
                             ? "border-black bg-black text-white"
                             : "border-gray-300 bg-white text-black hover:border-gray-400"
@@ -293,9 +250,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <div>
             <button
               onClick={() => toggleSection("price")}
-              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3"
+              className="w-full flex items-center justify-between text-sm font-medium text-black mb-3 cursor-pointer"
             >
-              <span>Price</span>
+              <span>{translations.filterProduct.price}</span>
               <svg
                 className={`w-4 h-4 transition-transform duration-300 ${
                   expandedSections.price ? "rotate-180" : ""
@@ -348,7 +305,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             filters.title) && (
             <div className="mb-4">
               <h4 className="text-sm font-medium text-black mb-2">
-                Selected Filters
+                {translations.filterProduct.selectedFilters}
               </h4>
               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                 {/* Clear All filter item */}
@@ -356,7 +313,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   onClick={clearFilters}
                   className="flex items-center bg-gray-200 text-black text-xs px-2 py-1 rounded-lg border-2 border-gray-300 hover:bg-gray-300 transition-colors cursor-pointer"
                 >
-                  <span className="mr-1">Clear All</span>
+                  <span className="mr-1">{translations.filterProduct.clearAll}</span>
                   <svg
                     className="ml-1 w-3 h-3"
                     fill="none"
@@ -484,7 +441,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             (filters.price && filters.price !== "") ||
             filters.title) && (
             <div className="text-center text-sm text-gray-600">
-              <span>Showing {productCount || 0} products</span>
+              <span>{translations.filterProduct.showingProducts.replace('{count}', String(productCount || 0))}</span>
             </div>
           )}
         </div>

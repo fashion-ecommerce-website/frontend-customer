@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { OrderQueryParams, OrderStatus, PaymentStatus } from '@/features/order/types';
+import { useLanguage } from '@/hooks/useLanguage';
 
 // Status tab type
 export type StatusTab = 'unfulfilled' | 'fulfilled' | 'cancelled' | 'refund';
@@ -11,18 +12,20 @@ interface OrderFiltersProps {
   className?: string;
 }
 
-const STATUS_TABS: { value: StatusTab; label: string }[] = [
-  { value: 'unfulfilled', label: 'Unfulfilled' },
-  { value: 'fulfilled', label: 'Fulfilled' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'refund', label: 'Refunded' },
-];
-
 export const OrderFilters: React.FC<OrderFiltersProps> = ({
   query,
   onQueryChange,
   className = ''
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.orderHistory;
+
+  const STATUS_TABS: { value: StatusTab; label: string }[] = [
+    { value: 'unfulfilled', label: t.unfulfilled },
+    { value: 'fulfilled', label: t.fulfilled },
+    { value: 'cancelled', label: t.cancelled },
+    { value: 'refund', label: t.refunded },
+  ];
 
   const getCurrentStatusTab = (): StatusTab | null => {
     const status = query.status;
@@ -120,9 +123,9 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
             onChange={(e) => handleCombinedSortChange(e.target.value)}
             className="pl-7 sm:pl-8 pr-2 sm:pr-3 py-1 sm:py-1.5 text-[11px] sm:text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-black text-black bg-white appearance-none"
           >
-            <option value="new">Newest</option>
-            <option value="old">Oldest</option>
-            <option value="totalAmount">Amount</option>
+            <option value="new">{t.newest}</option>
+            <option value="old">{t.oldest}</option>
+            <option value="totalAmount">{t.amount}</option>
           </select>
           <Image 
             width={12} 

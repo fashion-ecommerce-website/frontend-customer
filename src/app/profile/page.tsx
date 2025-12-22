@@ -5,9 +5,12 @@ import { ProfileContainer } from '@/features/profile';
 import { useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/components';
 import { useToast } from '@/providers/ToastProvider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 function ProfileContent() {
   const { showSuccess, showError } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.toast;
   const params = useSearchParams();
   const sectionParam = params.get('section');
   const tabParam = params.get('tab');
@@ -24,16 +27,16 @@ function ProfileContent() {
       <ProfileContainer
         initialSection={initialSection}
         onUpdateSuccess={() => {
-          showSuccess('Profile updated successfully');
+          showSuccess(t.profileUpdatedSuccess);
         }}
         onUpdateError={(error) => {
-          showError(error.message || 'Failed to update profile');
+          showError(error.message || t.profileUpdateFailed);
         }}
         onPasswordChangeSuccess={() => {
-          showSuccess('Password changed successfully');
+          showSuccess(t.passwordChangedSuccess);
         }}
         onPasswordChangeError={(error) => {
-          showError(error.message || 'Failed to change password');
+          showError(error.message || t.passwordChangeFailed);
         }}
       />
     </AuthGuard>

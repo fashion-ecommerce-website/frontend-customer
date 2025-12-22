@@ -12,6 +12,7 @@ import { VoucherModal, Voucher, VoucherByUserResponse } from './VoucherModal';
 import { voucherApi } from '@/services/api/voucherApi';
 import { apiClient } from '@/services/api/baseApi';
 import { resetOrderState } from '../redux/orderSlice';
+import { useLanguage } from '@/hooks/useLanguage';
 
 
 interface OrderSummaryProps {
@@ -30,6 +31,7 @@ export function OrderSummary({
 	note,
 }: OrderSummaryProps): React.ReactElement {
 	const router = useRouter();
+	const { translations } = useLanguage();
 	const [isItemsVisible, setIsItemsVisible] = useState(products.length < 2);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
@@ -226,12 +228,12 @@ export function OrderSummary({
 		<>
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<h3 className="text-zinc-800 text-base font-bold tracking-wide">ORDER SUMMARY</h3>
-					<span className="text-xs text-gray-500">({products.length} {products.length === 1 ? 'item' : 'items'})</span>
+					<h3 className="text-zinc-800 text-base font-bold tracking-wide">{translations.orderModal.orderSummary}</h3>
+					<span className="text-xs text-gray-500">({products.length} {products.length === 1 ? translations.orderModal.item : translations.orderModal.items})</span>
 					<button
 						type="button"
 						onClick={() => setIsItemsVisible(!isItemsVisible)}
-						className="p-1 hover:bg-gray-100 rounded transition-colors"
+						className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
 					>
 						<svg 
 							width="20" 
@@ -285,7 +287,7 @@ export function OrderSummary({
 											</span>
 										)}
 									</div>
-									<span className="text-sm font-bold text-neutral-600">Quantity: {product.quantity}</span>
+									<span className="text-sm font-bold text-neutral-600">{translations.orderModal.quantity}: {product.quantity}</span>
 								</div>
 							</div>
 						</div>
@@ -294,14 +296,14 @@ export function OrderSummary({
 			)}
 
 			<div className="mt-6">
-				<label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-neutral-400">Voucher</label>
+				<label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-neutral-400">{translations.orderModal.voucher}</label>
 				<button
 					type="button"
 					onClick={() => setIsVoucherModalOpen(true)}
 					className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-black rounded flex items-center justify-center gap-2 bg-white text-zinc-800 transition-colors cursor-pointer"
 				>
 					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a2 2 0 110-4 2 2 0 010 4zM4 6h12a2 2 0 012 2v1a3 3 0 100 6v1a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-					<span className="text-sm font-semibold">{selectedVoucher ? 'Change Voucher' : 'Select Voucher'}</span>
+					<span className="text-sm font-semibold">{selectedVoucher ? translations.orderModal.changeVoucher : translations.orderModal.selectVoucher}</span>
 				</button>
 				{selectedVoucher && (
 					<div className="mt-2 text-sm text-zinc-800 flex items-center gap-2">
@@ -312,7 +314,7 @@ export function OrderSummary({
 							type="button"
 							onClick={() => setSelectedVoucher(null)}
 							className="ml-auto p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-							title="Remove voucher"
+							title={translations.orderModal.removeVoucher}
 						>
 							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -323,32 +325,32 @@ export function OrderSummary({
 			</div>
 
 			<div className="mt-4">
-				<span className="text-base text-zinc-800">Loyal customers</span>
+				<span className="text-base text-zinc-800">{translations.orderModal.loyalCustomers}</span>
 			</div>
 
 			<div className="mt-4 rounded-sm bg-gray-50 p-4">
 				<div className="flex items-start justify-between py-1">
-					<span className="text-sm font-bold text-zinc-800">Subtotal</span>
+					<span className="text-sm font-bold text-zinc-800">{translations.orderModal.subtotal}</span>
 					<span className="text-sm font-bold text-neutral-600">{formatPrice(subtotal)}</span>
 				</div>
 				
 				{voucherDiscount > 0 && (
 					<div className="py-1 flex items-start justify-between">
-						<span className="text-sm font-bold text-zinc-800">Voucher Discount</span>
+						<span className="text-sm font-bold text-zinc-800">{translations.orderModal.voucherDiscount}</span>
 						<span className="text-sm font-bold text-green-700">- {formatPrice(voucherDiscount)}</span>
 					</div>
 				)}
 				<div className="flex items-start justify-between py-1">
-					<span className="text-sm text-zinc-800">Shipping fee</span>
+					<span className="text-sm text-zinc-800">{translations.orderModal.shippingFee}</span>
 					<span className="text-sm text-neutral-600">
 						{shippingFee?.isCalculating ? (
-							<span className="text-blue-600">Calculating...</span>
+							<span className="text-blue-600">{translations.orderModal.calculating}</span>
 						) : shippingFee?.error ? (
-							<span className="text-red-600">Error</span>
+							<span className="text-red-600">{translations.orderModal.error}</span>
 						) : selectedAddress ? (
 							`+ ${formatPrice(shippingFee?.fee || 0)}`
 						) : (
-							<span className="text-neutral-500">Select address to calculate</span>
+							<span className="text-neutral-500">{translations.orderModal.selectAddressToCalculate}</span>
 						)}
 					</span>
 				</div>
@@ -359,10 +361,10 @@ export function OrderSummary({
 		<div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 -mx-4 -mb-4">
 			<div className="rounded-sm bg-gray-50 p-4">
 				<div className="flex items-start justify-between pt-0 border-t-0">
-					<span className="text-xl font-bold uppercase tracking-wide text-neutral-600">Total payment</span>
+					<span className="text-xl font-bold uppercase tracking-wide text-neutral-600">{translations.orderModal.totalPayment}</span>
 					<span className="text-xl font-bold uppercase tracking-wide text-neutral-600">
 						{shippingFee?.isCalculating ? (
-							<span className="text-blue-600">Calculating...</span>
+							<span className="text-blue-600">{translations.orderModal.calculating}</span>
 						) : (
 							formatPrice(total)
 						)}
@@ -385,7 +387,7 @@ export function OrderSummary({
 						<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M11.4375 18.75L4.6875 12L11.4375 5.25M5.625 12H19.3125" stroke="#2E2E2E" strokeLinecap="round" strokeLinejoin="round" />
 						</svg>
-						<div className="text-center text-zinc-800 text-sm font-bold uppercase leading-tight tracking-wide">Back</div>
+						<div className="text-center text-zinc-800 text-sm font-bold uppercase leading-tight tracking-wide">{translations.orderModal.back}</div>
 					</div>
 				</button>
 				<button 
@@ -396,7 +398,7 @@ export function OrderSummary({
 				>
 					<div className="flex h-12 w-full items-center justify-center bg-zinc-800 hover:bg-zinc-700 px-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded">
 						<div className="text-center text-white text-sm font-semibold uppercase leading-tight tracking-wide">
-							{isOrderLoading ? 'PROCESSING...' : (!selectedAddress ? 'SELECT ADDRESS' : 'COMPLETE ORDER')}
+							{isOrderLoading ? translations.orderModal.processing : (!selectedAddress ? translations.orderModal.selectAddressBtn : translations.orderModal.completeOrder)}
 						</div>
 					</div>
 				</button>

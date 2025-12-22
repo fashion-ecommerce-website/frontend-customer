@@ -4,8 +4,10 @@ import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { PaymentApi } from '@/services/api/paymentApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 function CheckoutSuccessContent(): React.ReactElement {
+    const { translations } = useLanguage();
     const searchParams = useSearchParams();
     const orderIdParam = searchParams.get('orderId');
     const paymentIdParam = searchParams.get('paymentId');
@@ -69,16 +71,16 @@ function CheckoutSuccessContent(): React.ReactElement {
 
                             {/* Title */}
                             <h1 className="text-2xl font-bold text-gray-900 mb-3">
-                                {isSuccess ? (isUnpaid ? 'Order Successfully!' : 'Payment Successful!') : 'Payment Canceled'}
+                                {isSuccess ? (isUnpaid ? translations.orderModal.orderSuccessTitle : translations.orderModal.paymentSuccessTitle) : translations.orderModal.paymentCanceledTitle}
                             </h1>
 
                             {/* Description */}
                             <p className="text-gray-600 leading-relaxed">
                                 {isSuccess
                                     ? (isUnpaid 
-                                        ? 'Your order has been placed successfully. Please prepare cash for delivery.' 
-                                        : 'Thank you for your purchase! Your payment was successful and your order is being processed.')
-                                    : 'Your payment was canceled. You can return to checkout to try again.'}
+                                        ? translations.orderModal.orderSuccessDesc 
+                                        : translations.orderModal.paymentSuccessDesc)
+                                    : translations.orderModal.paymentCanceledDesc}
                             </p>
                         </div>
 
@@ -92,18 +94,18 @@ function CheckoutSuccessContent(): React.ReactElement {
                                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    View Order
+                                    {translations.orderModal.viewOrder}
                                 </Link>
                             ) : (
                                 paymentId && (
                                     <button 
                                         onClick={handlePayAgain}
-                                        className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200"
+                                        className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200 cursor-pointer"
                                     >
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
-                                        Pay Again
+                                        {translations.orderModal.payAgain}
                                     </button>
                                 )
                             )}
@@ -115,7 +117,7 @@ function CheckoutSuccessContent(): React.ReactElement {
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
-                                Continue Shopping
+                                {translations.orderModal.continueShopping}
                             </Link>
                         </div>
 
@@ -123,7 +125,7 @@ function CheckoutSuccessContent(): React.ReactElement {
                         {isSuccess && !isUnpaid && (
                             <div className="mt-6 text-center">
                                 <p className="text-sm text-gray-500">
-                                    You will receive an email confirmation shortly
+                                    {translations.orderModal.emailConfirmation}
                                 </p>
                             </div>
                         )}
@@ -134,9 +136,13 @@ function CheckoutSuccessContent(): React.ReactElement {
     );
 }
 
+function LoadingFallback(): React.ReactElement {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">Loading...</div>;
+}
+
 export default function CheckoutSuccessPage(): React.ReactElement {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
             <CheckoutSuccessContent />
         </Suspense>
     );

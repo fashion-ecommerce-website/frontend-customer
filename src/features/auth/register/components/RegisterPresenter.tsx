@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { RegisterPresenterProps } from "../types/register.types";
 import { GoogleAuth } from "../../../../components";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
   isLoading,
@@ -14,6 +15,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+  const { translations } = useLanguage();
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,33 +36,33 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
     const errors: Record<string, string> = {};
 
     if (!formData.phone.trim()) {
-      errors.phone = "Phone number is required";
+      errors.phone = translations.auth.phoneRequired;
     } else if (!/^\d{10,}$/.test(formData.phone.replace(/\s|-/g, ""))) {
-      errors.phone = "Please enter a valid phone number";
+      errors.phone = translations.auth.phoneInvalid;
     }
 
     if (!formData.username.trim()) {
-      errors.username = "Username is required";
+      errors.username = translations.auth.usernameRequired;
     } else if (formData.username.length < 3) {
-      errors.username = "Username must be at least 3 characters";
+      errors.username = translations.auth.usernameMinLength;
     }
 
     if (!formData.email.trim()) {
-      errors.email = "Email is required";
+      errors.email = translations.auth.emailRequired;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Please enter a valid email address";
+      errors.email = translations.auth.emailInvalid;
     }
 
     if (!formData.password) {
-      errors.password = "Password is required";
+      errors.password = translations.auth.passwordRequired;
     } else if (formData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+      errors.password = translations.auth.passwordMinLength;
     }
 
     if (!formData.confirmPassword) {
-      errors.confirmPassword = "Please confirm your password";
+      errors.confirmPassword = translations.auth.confirmPasswordRequired;
     } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "Passwords do not match";
+      errors.confirmPassword = translations.auth.passwordsNotMatch;
     }
 
     return errors;
@@ -86,14 +88,8 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
       <div className="bg-white w-full max-w-[430px]">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-black tracking-wider">
-            REGISTER
+            {translations.auth.register.toUpperCase()}
           </h2>
-          <p className="text-black text-xs sm:text-sm mb-2 text-start">
-            Register as a member and receive a 10% discount on your first order
-          </p>
-          <p className="text-black text-xs sm:text-sm text-start">
-            Enter code: <strong>FITWELCOME</strong>
-          </p>
         </div>
 
         <form
@@ -105,7 +101,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               htmlFor="email"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              EMAIL
+              {translations.auth.email.toUpperCase()}
             </label>
             <input
               type="email"
@@ -113,7 +109,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Email"
+              placeholder={translations.auth.email}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -134,7 +130,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               htmlFor="phone"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              PHONE NUMBER
+              {translations.auth.phoneNumber.toUpperCase()}
             </label>
             <input
               type="tel"
@@ -142,7 +138,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              placeholder="Phone Number"
+              placeholder={translations.auth.phoneNumber}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -163,7 +159,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               htmlFor="username"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              USERNAME
+              {translations.auth.username.toUpperCase()}
             </label>
             <input
               type="text"
@@ -171,7 +167,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="username"
               value={formData.username}
               onChange={handleInputChange}
-              placeholder="Username"
+              placeholder={translations.auth.username}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -192,7 +188,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               htmlFor="password"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              PASSWORD
+              {translations.auth.password.toUpperCase()}
             </label>
             <input
               type="password"
@@ -200,7 +196,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              placeholder="Password"
+              placeholder={translations.auth.password}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -221,7 +217,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               htmlFor="confirmPassword"
               className="font-medium text-black mb-2 text-xs sm:text-sm tracking-wider"
             >
-              CONFIRM PASSWORD
+              {translations.auth.confirmPassword.toUpperCase()}
             </label>
             <input
               type="password"
@@ -229,7 +225,7 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              placeholder="Confirm Password"
+              placeholder={translations.auth.confirmPassword}
               required
               disabled={isLoading}
               className={`px-3 sm:px-4 py-2.5 sm:py-3 h-[40px] sm:h-[44px] w-full box-border border-2 border-gray-300 rounded transition-all duration-200 bg-white text-sm sm:text-base text-black ${
@@ -257,16 +253,16 @@ export const RegisterPresenter: React.FC<RegisterPresenterProps> = ({
             {isLoading && (
               <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-transparent border-t-current rounded-full animate-spin"></div>
             )}
-            {isLoading ? "Creating Account..." : "REGISTER"}
+            {isLoading ? translations.auth.creatingAccount : translations.auth.register.toUpperCase()}
           </button>
 
           <div className="text-center text-xs sm:text-sm">
-            <span className="text-gray-900">Already have an account? </span>
+            <span className="text-gray-900">{translations.auth.alreadyHaveAccount} </span>
             <Link
               href="/auth/login"
               className="text-gray-900 hover:underline font-medium"
             >
-              Sign in
+              {translations.auth.signIn}
             </Link>
           </div>
 

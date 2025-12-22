@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Address, addressApi } from '@/services/api/addressApi';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface AddressListModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
   onDeleteAddress,
   onAddressChange,
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.addressModal;
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -47,8 +50,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
     if (address.isDefault || address.default) {
       setConfirmModal({
         isOpen: true,
-        title: 'Cannot Delete Default Address',
-        message: 'Cannot delete default address. Please set another address as default first.',
+        title: t.cannotDeleteDefault,
+        message: t.cannotDeleteDefaultMsg,
         type: 'warning',
         onConfirm: () => {
           setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -59,8 +62,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
 
     setConfirmModal({
       isOpen: true,
-      title: 'Delete Address',
-      message: `Are you sure you want to delete this address?\n\n${address.fullName}\n${[address.line, address.ward, address.districtName, address.city].filter(Boolean).join(', ')}`,
+      title: t.deleteAddressConfirm,
+      message: `${t.areYouSureDelete}\n\n${address.fullName}\n${[address.line, address.ward, address.districtName, address.city].filter(Boolean).join(', ')}`,
       type: 'danger',
       onConfirm: () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -86,8 +89,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
       } else {
         setConfirmModal({
           isOpen: true,
-          title: 'Delete Failed',
-          message: `Failed to delete address: ${response.message}`,
+          title: t.deleteFailed,
+          message: `${t.deleteFailed}: ${response.message}`,
           type: 'warning',
           onConfirm: () => {
             setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -97,8 +100,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
     } catch {
       setConfirmModal({
         isOpen: true,
-        title: 'Error',
-        message: 'An unexpected error occurred while deleting the address',
+        title: translations.message.error,
+        message: t.errorOccurred,
         type: 'warning',
         onConfirm: () => {
           setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -116,7 +119,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
       <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden shadow-2xl border border-gray-200">
         {/* Modal Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Select Delivery Address</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t.selectDeliveryAddress}</h2>
           <div className="flex items-center gap-3">
             {onAddNew && (
               <button
@@ -126,7 +129,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Add New
+                {translations.orderModal.addNew}
               </button>
             )}
             <button
@@ -144,8 +147,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
         <div className="overflow-y-auto max-h-[calc(80vh-80px)] p-6">
           {addresses.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">No addresses found</p>
-              <p className="text-sm text-gray-500 mb-4">Please add an address in your profile first.</p>
+              <p className="text-gray-600 mb-4">{t.noAddressesFound}</p>
+              <p className="text-sm text-gray-500 mb-4">{t.pleaseAddAddress}</p>
               {onAddNew && (
                 <button
                   onClick={onAddNew}
@@ -154,7 +157,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Add New Address
+                  {t.addNewAddress}
                 </button>
               )}
             </div>
@@ -177,12 +180,12 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
                         <h4 className="font-semibold text-gray-900">{address.fullName}</h4>
                         {(address.isDefault || address.default) && (
                           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                            Default
+                            {translations.orderModal.default}
                           </span>
                         )}
                         {currentAddress?.id === address.id && (
                           <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                            Selected
+                            {t.selected}
                           </span>
                         )}
                       </div>
@@ -199,7 +202,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
                             onEditAddress(address);
                           }}
                           className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-                          title="Edit address"
+                          title={t.editAddress}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -217,7 +220,7 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
                             }
                           }}
                           className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
-                          title="Delete address"
+                          title={t.deleteAddress}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -239,8 +242,8 @@ export const AddressListModal: React.FC<AddressListModalProps> = ({
         title={confirmModal.title}
         message={confirmModal.message}
         type={confirmModal.type}
-        confirmText="Confirm"
-        cancelText="Cancel"
+        confirmText={t.confirm}
+        cancelText={t.cancel}
         onConfirm={confirmModal.onConfirm}
         onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
         isLoading={deletingId !== null}

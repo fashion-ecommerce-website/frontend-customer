@@ -8,11 +8,10 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ReviewPresenterProps, Review } from '../types/profile.types';
-import { 
-  ErrorMessage
-} from '../../../components';
+import { ErrorMessage } from '../../../components';
 import { Pagination } from '../../filter-product/components/Pagination';
 import { useToast } from '../../../providers/ToastProvider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
   reviews,
@@ -32,17 +31,19 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [editData, setEditData] = useState({ rating: 0, comment: '' });
   const { showSuccess } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.myReview;
 
   // Show toast for success (both edit and delete)
   useEffect(() => {
     if (submitSuccess && lastActionType) {
       if (lastActionType === 'edit') {
-        showSuccess('Review updated successfully!');
+        showSuccess(t.reviewUpdated);
       } else if (lastActionType === 'delete') {
-        showSuccess('Review deleted successfully!');
+        showSuccess(t.reviewDeleted);
       }
     }
-  }, [submitSuccess, lastActionType, showSuccess]);
+  }, [submitSuccess, lastActionType, showSuccess, t.reviewUpdated, t.reviewDeleted]);
 
   const handleEditClick = (review: Review) => {
     setEditingReview(review.id);
@@ -83,7 +84,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     <div className="bg-gray-50 p-4 rounded-lg border">
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Rating
+          {t.rating}
         </label>
         <div className="flex space-x-1">
           {Array.from({ length: 5 }, (_, index) => (
@@ -105,14 +106,14 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
       </div>
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Comment
+          {t.comment}
         </label>
         <textarea
           value={editData.comment}
           onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
           className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
           rows={4}
-          placeholder="Write your review..."
+          placeholder={t.commentPlaceholder}
         />
       </div>
       <div className="flex space-x-2">
@@ -121,13 +122,13 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
           disabled={isSubmitting}
           className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 disabled:opacity-50 cursor-pointer"
         >
-          {isSubmitting ? 'Saving...' : 'Save'}
+          {isSubmitting ? t.saving : t.save}
         </button>
         <button
           onClick={handleEditCancel}
           className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 cursor-pointer"
         >
-          Cancel
+          {t.cancel}
         </button>
       </div>
     </div>
@@ -158,12 +159,12 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
             <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-gray-600 mb-2">
               {review.productColor && (
                 <span>
-                  Color: <span className="font-medium">{review.productColor}</span>
+                  {t.color} <span className="font-medium">{review.productColor}</span>
                 </span>
               )}
               {review.productSize && (
                 <span>
-                  Size: <span className="font-medium">{review.productSize}</span>
+                  {t.size} <span className="font-medium">{review.productSize}</span>
                 </span>
               )}
             </div>
@@ -176,7 +177,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
             <div className="flex">{renderStars(review.rating)}</div>
             {review.isVerified && (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Verified
+                {t.verified}
               </span>
             )}
           </div>
@@ -194,7 +195,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
             onClick={() => handleEditClick(review)}
             className="flex-1 py-2 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded text-sm font-medium transition-colors"
           >
-            Edit
+            {t.edit}
           </button>
         </div>
       </div>
@@ -223,12 +224,12 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
                 <div className="flex items-center space-x-2 mb-2">
                   {review.productColor && (
                     <span className="text-sm text-gray-600">
-                      Color: <span className="font-medium">{review.productColor}</span>
+                      {t.color} <span className="font-medium">{review.productColor}</span>
                     </span>
                   )}
                   {review.productSize && (
                     <span className="text-sm text-gray-600">
-                      Size: <span className="font-medium">{review.productSize}</span>
+                      {t.size} <span className="font-medium">{review.productSize}</span>
                     </span>
                   )}
                 </div>
@@ -239,7 +240,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
                   </span>
                   {review.isVerified && (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Verified
+                      {t.verified}
                     </span>
                   )}
                 </div>
@@ -251,7 +252,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
               onClick={() => handleEditClick(review)}
               className="text-gray-500 border-b border-gray-500 hover:text-black hover:border-black text-sm font-medium"
             >
-              Edit
+              {t.edit}
             </button>
           </div>
         </div>
@@ -360,7 +361,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
       <div className="p-3 sm:p-6">
         <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
           <h2 className="text-base sm:text-lg font-semibold text-black">
-            Reviews
+            {t.title}
           </h2>
         </div>
         {renderReviewSkeleton()}
@@ -372,7 +373,7 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
     <div className="p-3 sm:p-6">
       <div className="mb-4 flex items-center justify-between border-b-3 border-black pb-2">
         <h2 className="text-base sm:text-lg font-semibold text-black">
-          {totalReviews} Reviews
+          {t.reviewsCount.replace('{count}', String(totalReviews))}
         </h2>
       </div>
 
@@ -388,8 +389,8 @@ export const ReviewPresenter: React.FC<ReviewPresenterProps> = ({
       {reviews.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-400">
           
-          <p className="mt-4 text-sm text-gray-400">No reviews stored</p>
-          <p className="mt-1 text-sm text-gray-400">Start reviewing your purchased products</p>
+          <p className="mt-4 text-sm text-gray-400">{t.noReviewsStored}</p>
+          <p className="mt-1 text-sm text-gray-400">{t.startReviewing}</p>
         </div>
       ) : (
         <>

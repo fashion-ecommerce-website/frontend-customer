@@ -8,6 +8,7 @@
 import React, { useEffect } from 'react';
 import { ChangePasswordFormData, ApiError } from '../types/profile.types';
 import { useToast } from '@/providers/ToastProvider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface PasswordChangeModalProps {
   isOpen: boolean;
@@ -37,6 +38,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   onClearFieldError,
 }) => {
   const { showSuccess, showError } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.toast;
   
   // Show error via toast when passwordError occurs
   useEffect(() => {
@@ -44,7 +47,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
       // Check if it's a current password error from the API
       const errorMessage = passwordError.message.toLowerCase();
       if (errorMessage.includes('current password') || errorMessage.includes('incorrect')) {
-        showError('Current password is incorrect.');
+        showError(t.currentPasswordIncorrect);
       } else {
         showError(passwordError.message);
       }
@@ -56,7 +59,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   // Show success via toast when password changed
   useEffect(() => {
     if (passwordChangeSuccess) {
-      showSuccess('Password changed successfully.');
+      showSuccess(t.passwordChangedSuccess);
       onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

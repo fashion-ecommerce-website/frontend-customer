@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useToast } from '@/providers/ToastProvider';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface VirtualTryOnWaitingModalProps {
   isOpen: boolean;
@@ -13,15 +14,17 @@ interface VirtualTryOnWaitingModalProps {
 
 export function VirtualTryOnWaitingModal({ isOpen, onClose, status }: VirtualTryOnWaitingModalProps) {
   const { showInfo } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.toast;
 
   useEffect(() => {
     if (!isOpen) return;
 
     // Notify user that try-on started
-    showInfo('Virtual try-on đang được xử lý. Bạn có thể tiếp tục duyệt, chúng tôi sẽ thông báo khi xong.', 5000);
+    showInfo(t.virtualTryOnProcessing, 5000);
 
     return () => {};
-  }, [isOpen, showInfo]);
+  }, [isOpen, showInfo, t]);
 
   if (!isOpen || typeof window === 'undefined') return null;
 

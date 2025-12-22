@@ -201,10 +201,10 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
 
                     <div className="text-left">
                       <h3 className="font-semibold text-gray-900 text-base group-hover:tracking-wide transition-all duration-300">
-                        Try On Before You Buy
+                        {translations.cart.tryOnTitle}
                       </h3>
                       <p className="text-xs text-gray-600 mt-0.5 group-hover:text-gray-900 transition-colors duration-300">
-                        Use our Virtual Try-On to see how clothes look on you
+                        {translations.cart.tryOnDesc}
                       </p>
                     </div>
                   </div>
@@ -229,7 +229,7 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
                 onClick={onContinueShopping}
                 className="border border-gray-300 rounded-lg p-3 w-full text-black hover:bg-gray-50 bg-white transition-colors font-medium shadow-sm hover:shadow"
               >
-                Continue Shopping
+                {translations.cart.continueShopping}
               </button>
             </div>
           </div>

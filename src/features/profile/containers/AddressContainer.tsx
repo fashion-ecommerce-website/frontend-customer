@@ -8,6 +8,7 @@ import { ConfirmModal } from '../../../components/modals/ConfirmModal';
 import { useToast } from '../../../providers/ToastProvider';
 import { Address } from '../../../services/api/addressApi';
 import { authUtils } from '@/utils/auth';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
   getAddressesRequest,
   createAddressRequest,
@@ -45,6 +46,8 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { showSuccess, showError } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.toast;
   
   // Redux state
   const addresses = useAppSelector(selectAddresses);
@@ -109,26 +112,26 @@ export const AddressContainer: React.FC<AddressContainerProps> = ({
     if (createSuccess) {
       setShowModal(false);
       setCurrentAddress(null);
-      showSuccess('Your shipping address has been added successfully.');
+      showSuccess(t.addressAdded);
       dispatch(clearSuccess());
     }
     if (updateSuccess) {
       setShowModal(false);
       setCurrentAddress(null);
-      showSuccess('Your shipping address has been updated successfully.');
+      showSuccess(t.addressUpdated);
       dispatch(clearSuccess());
     }
-  }, [createSuccess, updateSuccess, dispatch, showSuccess]);
+  }, [createSuccess, updateSuccess, dispatch, showSuccess, t]);
 
   // Handle delete success
   useEffect(() => {
     if (deleteSuccess) {
       setShowDeleteConfirm(false);
       setAddressToDelete(null);
-      showSuccess('Your shipping address has been deleted successfully.');
+      showSuccess(t.addressDeleted);
       dispatch(clearSuccess());
     }
-  }, [deleteSuccess, dispatch, showSuccess]);
+  }, [deleteSuccess, dispatch, showSuccess, t]);
 
   // Helper function to get user-friendly error message
   const getFriendlyErrorMessage = (errorMessage: string, action: 'create' | 'update' | 'delete'): string => {

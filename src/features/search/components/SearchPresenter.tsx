@@ -10,6 +10,7 @@ import { SearchResultItem } from '../types';
 import { ProductFilters } from '../../filter-product/types';
 import { productApi } from '../../../services/api/productApi';
 import { addSearchHistory } from '../../../utils/searchHistory';
+import { useLanguage } from '../../../hooks/useLanguage';
 
 // Debounce hook for API calls
 const useDebounce = (value: ProductFilters, delay: number): ProductFilters => {
@@ -39,6 +40,8 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
   initialQuery = "",
   initialCategory
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.search;
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -164,7 +167,7 @@ export const SearchPresenter: React.FC<SearchPresenterProps> = ({
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-center text-black mb-8">
-            Search Products
+            {t.title}
           </h1>
           
           <SearchInput

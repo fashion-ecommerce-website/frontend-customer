@@ -45,12 +45,6 @@ export function MeasurementsModal({ isOpen, onClose, onSave, productImage }: Mea
     <div
       className="fixed inset-0 flex items-center justify-center z-[9999] px-4"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-      onClick={(e) => {
-        // Only close if clicking the backdrop
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
     >
       <div
         className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full h-[90vh] overflow-hidden animate-fadeIn flex flex-col"

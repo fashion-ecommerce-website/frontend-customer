@@ -29,10 +29,7 @@ export interface PromotionalBannerTranslations {
   signUpDiscount: string;
   signUpAction: string;
   freeShipping: string;
-  newArrivals: string;
-  shopNow: string;
   exclusiveDeals: string;
-  viewDeals: string;
   easyReturns: string;
 }
 
@@ -47,6 +44,566 @@ export interface HomeTranslations {
   shopNow: string;
   noProductsFound: string;
   loadingProducts: string;
+}
+
+export interface AboutTranslations {
+  title: string;
+  subtitle: string;
+  missionTitle: string;
+  missionText1: string;
+  missionText2: string;
+  featuresTitle: string;
+  chatbotTitle: string;
+  chatbotDesc: string;
+  virtualTryOnTitle: string;
+  virtualTryOnDesc: string;
+  personalizedTitle: string;
+  personalizedDesc: string;
+  contactTitle: string;
+  contactDesc: string;
+}
+
+export interface SupportTranslations {
+  title: string;
+  subtitle: string;
+  hotline: string;
+  hotlineHours: string;
+  email: string;
+  emailResponse: string;
+  faqTitle: string;
+  faqDesc: string;
+  viewFaq: string;
+}
+
+export interface TermsTranslations {
+  title: string;
+  subtitle: string;
+  section1Title: string;
+  section1Content: string[];
+  section2Title: string;
+  section2Content: string[];
+  section3Title: string;
+  section3Content: string[];
+  section4Title: string;
+  section4Content: string[];
+  section5Title: string;
+  section5Content: string[];
+  section6Title: string;
+  section6Content: string[];
+  section7Title: string;
+  section7Content: string[];
+  section8Title: string;
+  section8Content: string[];
+  section9Title: string;
+  section9Content: string[];
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface FAQTranslations {
+  title: string;
+  subtitle: string;
+  categoryLabel: string;
+  notFoundTitle: string;
+  notFoundDesc: string;
+  contactSupport: string;
+  loading: string;
+  categories: {
+    account: string;
+    order: string;
+    payment: string;
+    shipping: string;
+    return: string;
+    size: string;
+  };
+  account: FAQItem[];
+  order: FAQItem[];
+  payment: FAQItem[];
+  shipping: FAQItem[];
+  return: FAQItem[];
+  size: FAQItem[];
+}
+
+export interface PrivacyTranslations {
+  title: string;
+  subtitle: string;
+  section1Title: string;
+  section1Content: string[];
+  section2Title: string;
+  section2Content: string[];
+  section3Title: string;
+  section3Content: string[];
+  section4Title: string;
+  section4Content: string[];
+}
+
+export interface ChatBotTranslations {
+  title: string;
+  online: string;
+  welcomeMessage: string;
+  placeholder: string;
+  clearChat: string;
+  errorMessage: string;
+  suggestedQuestions: string[];
+}
+
+export interface FilterProductTranslations {
+  filters: string;
+  sortBy: string;
+  sortNameAZ: string;
+  sortNameZA: string;
+  sortPriceLowHigh: string;
+  sortPriceHighLow: string;
+  colors: string;
+  sizes: string;
+  price: string;
+  allPrices: string;
+  under1m: string;
+  from1to2m: string;
+  from2to3m: string;
+  over3m: string;
+  selectedFilters: string;
+  clearAll: string;
+  showingProducts: string;
+  noProductsFound: string;
+}
+
+export interface ReviewTranslations {
+  title: string;
+  reviewsCount: string;
+  outOf: string;
+  reviews: string;
+  filter: string;
+  all: string;
+  stars: string;
+  star: string;
+  sort: string;
+  newestFirst: string;
+  oldestFirst: string;
+  loadingReviews: string;
+  noReviewsYet: string;
+  beFirstToReview: string;
+  emptyHere: string;
+  tryAdjustFilter: string;
+  verifiedPurchase: string;
+  color: string;
+  size: string;
+  viewMoreReviews: string;
+  showLess: string;
+}
+
+export interface OrderModalTranslations {
+  // Modal header
+  buyNow: string;
+  order: string;
+  // Address form
+  deliveryAddress: string;
+  addressCount: string;
+  addressCountPlural: string;
+  loadingAddress: string;
+  errorLoadingAddresses: string;
+  default: string;
+  selectAddress: string;
+  noAddressAvailable: string;
+  addNew: string;
+  // Payment methods
+  paymentMethods: string;
+  stripe: string;
+  stripeDesc: string;
+  cashOnDelivery: string;
+  codDesc: string;
+  // Order summary
+  orderSummary: string;
+  item: string;
+  items: string;
+  voucher: string;
+  changeVoucher: string;
+  selectVoucher: string;
+  removeVoucher: string;
+  loyalCustomers: string;
+  subtotal: string;
+  voucherDiscount: string;
+  shippingFee: string;
+  calculating: string;
+  error: string;
+  selectAddressToCalculate: string;
+  totalPayment: string;
+  back: string;
+  processing: string;
+  selectAddressBtn: string;
+  completeOrder: string;
+  quantity: string;
+  // Voucher modal
+  searchVoucher: string;
+  enterVoucherCode: string;
+  searching: string;
+  search: string;
+  searchResults: string;
+  showAllVouchers: string;
+  noVouchersFound: string;
+  noVouchersAvailable: string;
+  available: string;
+  notEligible: string;
+  unavailable: string;
+  code: string;
+  minOrder: string;
+  maxDiscount: string;
+  starts: string;
+  expires: string;
+  apply: string;
+  close: string;
+  // Checkout success page
+  orderSuccessTitle: string;
+  paymentSuccessTitle: string;
+  paymentCanceledTitle: string;
+  orderSuccessDesc: string;
+  paymentSuccessDesc: string;
+  paymentCanceledDesc: string;
+  viewOrder: string;
+  payAgain: string;
+  continueShopping: string;
+  emailConfirmation: string;
+  loading: string;
+}
+
+export interface AddressModalTranslations {
+  // Address list modal
+  selectDeliveryAddress: string;
+  noAddressesFound: string;
+  pleaseAddAddress: string;
+  addNewAddress: string;
+  selected: string;
+  editAddress: string;
+  deleteAddress: string;
+  cannotDeleteDefault: string;
+  cannotDeleteDefaultMsg: string;
+  deleteAddressConfirm: string;
+  areYouSureDelete: string;
+  deleteFailed: string;
+  errorOccurred: string;
+  confirm: string;
+  cancel: string;
+  // Address form modal
+  updateShippingAddress: string;
+  addShippingAddress: string;
+  fullName: string;
+  fullNameRequired: string;
+  enterFullName: string;
+  phone: string;
+  phoneRequired: string;
+  phoneInvalid: string;
+  phoneLengthVN: string;
+  phoneLengthIntl: string;
+  phoneHintVN: string;
+  addressLine: string;
+  addressLineRequired: string;
+  addressLinePlaceholder: string;
+  provinceCity: string;
+  provinceRequired: string;
+  searchProvince: string;
+  noProvinceFound: string;
+  district: string;
+  districtRequired: string;
+  searchDistrict: string;
+  noDistrictFound: string;
+  ward: string;
+  wardRequired: string;
+  searchWard: string;
+  noWardFound: string;
+  setAsDefault: string;
+  updating: string;
+  adding: string;
+  updateAddress: string;
+  addAddress: string;
+}
+
+export interface MyReviewTranslations {
+  title: string;
+  reviewsCount: string;
+  rating: string;
+  comment: string;
+  commentPlaceholder: string;
+  saving: string;
+  save: string;
+  cancel: string;
+  edit: string;
+  verified: string;
+  color: string;
+  size: string;
+  noReviewsStored: string;
+  startReviewing: string;
+  reviewUpdated: string;
+  reviewDeleted: string;
+}
+
+export interface OrderHistoryTranslations {
+  // Actions
+  reload: string;
+  show: string;
+  hide: string;
+  details: string;
+  track: string;
+  payAgain: string;
+  refund: string;
+  review: string;
+  // Status tabs
+  unfulfilled: string;
+  fulfilled: string;
+  cancelled: string;
+  refunded: string;
+  // Sort options
+  newest: string;
+  oldest: string;
+  amount: string;
+  // Status
+  shipping: string;
+  total: string;
+  quantity: string;
+  // Empty state
+  noOrdersYet: string;
+  // Order detail page
+  orderProductInfo: string;
+  backToOrderHistory: string;
+  totalAmount: string;
+  productPrice: string;
+  shippingFee: string;
+  promotionDiscount: string;
+  billingAddress: string;
+  shippingAddress: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  shippingStatus: string;
+  name: string;
+  phoneNumber: string;
+  address: string;
+  country: string;
+  // Payment methods
+  cashOnDelivery: string;
+  creditCard: string;
+  unknown: string;
+}
+
+export interface OrderTrackingTranslations {
+  title: string;
+  backToOrderHistory: string;
+  trackingNumber: string;
+  notAvailableYet: string;
+  carrier: string;
+  shipped: string;
+  delivered: string;
+  refresh: string;
+  refreshing: string;
+  trackingTimeline: string;
+  loadingTracking: string;
+  latest: string;
+  noTrackingEvents: string;
+  trackingWillAppear: string;
+  // Status labels
+  orderPlaced: string;
+  orderConfirmed: string;
+  processing: string;
+  inTransit: string;
+  cancelled: string;
+}
+
+export interface RefundTranslations {
+  title: string;
+  allStatus: string;
+  pending: string;
+  approved: string;
+  rejected: string;
+  completed: string;
+  reload: string;
+  noRefundsFound: string;
+  noRefundsYet: string;
+  refundRequest: string;
+  order: string;
+  refundAmount: string;
+  reason: string;
+  evidenceImages: string;
+  updated: string;
+  response: string;
+  processedOn: string;
+  // Status labels
+  pendingReview: string;
+}
+
+export interface RefundModalTranslations {
+  title: string;
+  orderId: string;
+  orderTotal: string;
+  paymentStatus: string;
+  refundAmount: string;
+  refundReason: string;
+  selectReason: string;
+  otherReason: string;
+  describeReason: string;
+  enterReason: string;
+  evidenceImages: string;
+  evidenceHint: string;
+  clickToUpload: string;
+  cancel: string;
+  uploading: string;
+  submitting: string;
+  submitRequest: string;
+  provideReason: string;
+  uploadFailed: string;
+  submitFailed: string;
+  notImage: string;
+  exceedsLimit: string;
+  maxImages: string;
+  // Reason suggestions
+  reasonDefective: string;
+  reasonWrongSize: string;
+  reasonDamaged: string;
+  reasonDuplicate: string;
+  reasonNoLongerNeed: string;
+}
+
+export interface ReviewModalTranslations {
+  title: string;
+  thankYou: string;
+  reviewedAll: string;
+  yourReviews: string;
+  yourReview: string;
+  edit: string;
+  rating: string;
+  comment: string;
+  commentPlaceholder: string;
+  cancel: string;
+  update: string;
+  updating: string;
+  updateReview: string;
+  submitReview: string;
+  quantity: string;
+  price: string;
+  pleaseRate: string;
+  pleaseSelectRating: string;
+  reviewSubmitted: string;
+  reviewOnce: string;
+  reviewFailed: string;
+  reviewUpdated: string;
+  updateFailed: string;
+}
+
+export interface SearchTranslations {
+  title: string;
+  placeholder: string;
+  searchButton: string;
+  recentSearches: string;
+  clearAll: string;
+  noProductsFound: string;
+  noResultsFor: string;
+  tryDifferentKeywords: string;
+  didYouMean: string;
+  popularSearches: string;
+  productsMatching: string;
+  pressEnterToSeeAll: string;
+  color: string;
+}
+
+export interface MeasurementsWizardTranslations {
+  // Progress
+  stepOf: string;
+  // Navigation
+  back: string;
+  continue: string;
+  finish: string;
+  // Gender step
+  genderTitle: string;
+  genderSubtitle: string;
+  male: string;
+  female: string;
+  // Height/Weight step
+  heightWeightTitle: string;
+  heightWeightSubtitle: string;
+  height: string;
+  weight: string;
+  cm: string;
+  kg: string;
+  // Measurements step
+  measurementsTitle: string;
+  measurementsSubtitle: string;
+  chest: string;
+  waist: string;
+  hips: string;
+  // Fit preference step
+  fitPreferenceTitle: string;
+  fitPreferenceSubtitle: string;
+  tighter: string;
+  looser: string;
+  tight: string;
+  average: string;
+  loose: string;
+  // Hip shape step
+  hipShapeTitle: string;
+  hipShapeSubtitle: string;
+  straighter: string;
+  wider: string;
+  // Belly shape step
+  bellyShapeTitle: string;
+  bellyShapeSubtitle: string;
+  flatter: string;
+  curvier: string;
+  // Chest shape step
+  chestShapeTitle: string;
+  chestShapeSubtitle: string;
+  slimmer: string;
+  broader: string;
+}
+
+export interface SizeGuideTranslations {
+  // Header
+  title: string;
+  // Recommendation section
+  sizeRecommendation: string;
+  basedOnMeasurements: string;
+  bestMatch: string;
+  alternative: string;
+  selectSize: string;
+  similarUsersChose: string;
+  recommendedBasedOnMeasurements: string;
+  mayAlsoFitLooser: string;
+  // No recommendation
+  recommendationUnavailable: string;
+  needMoreData: string;
+  couldNotRecommend: string;
+  referToSizeChart: string;
+  // No measurements
+  getPersonalizedRecommendations: string;
+  addMeasurementsDesc: string;
+  addYourMeasurements: string;
+  // Profile section
+  yourProfile: string;
+  edit: string;
+  delete: string;
+  deleting: string;
+  // How to measure
+  howToMeasure: string;
+  chestMeasure: string;
+  waistMeasure: string;
+  hipsMeasure: string;
+  heightMeasure: string;
+  // Fit tips
+  fitTips: string;
+  betweenSizes: string;
+  betweenSizesTip: string;
+  tightFit: string;
+  tightFitTip: string;
+  looseFit: string;
+  looseFitTip: string;
+  differentMeasurements: string;
+  differentMeasurementsTip: string;
+  // Footer
+  stillUnsure: string;
+  useFeatureAbove: string;
+  gotItThanks: string;
+  // Delete confirmation
+  deleteMeasurements: string;
+  deleteConfirmMessage: string;
 }
 
 export interface CommonTranslations {
@@ -137,6 +694,19 @@ export interface AuthTranslations {
   loginWithGoogle: string;
   welcomeMessage: string;
   journeyStarts: string;
+  // Register validation
+  phoneRequired: string;
+  phoneInvalid: string;
+  usernameRequired: string;
+  usernameMinLength: string;
+  emailRequired: string;
+  emailInvalid: string;
+  passwordRequired: string;
+  passwordMinLength: string;
+  confirmPasswordRequired: string;
+  passwordsNotMatch: string;
+  creatingAccount: string;
+  signIn: string;
 }
 
 export interface ProductTranslations {
@@ -167,6 +737,15 @@ export interface ProductTranslations {
   recentlyViewed: string;
   noProductsFound: string;
   loadingProducts: string;
+  // Quick view modal
+  addingToCart: string;
+  buyNow: string;
+  pleaseSelectSize: string;
+  sizeOutOfStock: string;
+  unableToLoadImage: string;
+  unableToLoadProduct: string;
+  onlyXAvailable: string;
+  sizeGuide: string;
   tabs: {
     information: string;
     productCare: string;
@@ -204,6 +783,8 @@ export interface CartTranslations {
   notes: string;
   enterOrderNotes: string;
   issueInvoice: string;
+  tryOnTitle: string;
+  tryOnDesc: string;
 }
 
 export interface CheckoutTranslations {
@@ -332,6 +913,31 @@ export interface MessageTranslations {
   passwordMismatch: string;
 }
 
+export interface ToastTranslations {
+  // Address
+  addressAdded: string;
+  addressUpdated: string;
+  addressDeleted: string;
+  // Wishlist
+  noItemsToRemove: string;
+  removedSelectedItems: string;
+  clearedWishlist: string;
+  // Password
+  currentPasswordIncorrect: string;
+  passwordChangedSuccess: string;
+  // Product
+  sizeOutOfStock: string;
+  onlyXAvailable: string;
+  // Registration
+  registrationSuccess: string;
+  // Profile
+  profileUpdatedSuccess: string;
+  profileUpdateFailed: string;
+  passwordChangeFailed: string;
+  // Virtual try-on
+  virtualTryOnProcessing: string;
+}
+
 export interface Translations {
   common: CommonTranslations;
   header: HeaderTranslations;
@@ -342,9 +948,29 @@ export interface Translations {
   checkout: CheckoutTranslations;
   profile: ProfileTranslations;
   message: MessageTranslations;
+  toast: ToastTranslations;
   virtualTryOn: VirtualTryOnTranslations;
   promotionalBanner: PromotionalBannerTranslations;
   home: HomeTranslations;
+  about: AboutTranslations;
+  support: SupportTranslations;
+  terms: TermsTranslations;
+  faq: FAQTranslations;
+  privacy: PrivacyTranslations;
+  chatBot: ChatBotTranslations;
+  filterProduct: FilterProductTranslations;
+  review: ReviewTranslations;
+  orderModal: OrderModalTranslations;
+  addressModal: AddressModalTranslations;
+  myReview: MyReviewTranslations;
+  orderHistory: OrderHistoryTranslations;
+  orderTracking: OrderTrackingTranslations;
+  refund: RefundTranslations;
+  refundModal: RefundModalTranslations;
+  reviewModal: ReviewModalTranslations;
+  search: SearchTranslations;
+  sizeGuide: SizeGuideTranslations;
+  measurementsWizard: MeasurementsWizardTranslations;
 }
 
 export default Translations;

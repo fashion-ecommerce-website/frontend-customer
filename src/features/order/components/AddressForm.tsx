@@ -3,6 +3,7 @@ import { useOrder } from '@/features/order/hooks/useOrder';
 import { AddressListModal } from '@/features/order/components/AddressListModal';
 import { AddressModal } from '@/features/profile/components/AddressModal';
 import { Address, CreateAddressRequest, UpdateAddressRequest, addressApi } from '@/services/api/addressApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export type AddressFormProps = {
   onChange?: (values: Record<string, string>) => void;
@@ -10,6 +11,7 @@ export type AddressFormProps = {
 };
 
 export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): React.ReactElement {
+  const { translations } = useLanguage();
   const {
     addresses,
     selectedAddress,
@@ -121,10 +123,10 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h3 className="text-zinc-800 text-base font-bold uppercase tracking-wide">Delivery Address</h3>
+          <h3 className="text-zinc-800 text-base font-bold uppercase tracking-wide">{translations.orderModal.deliveryAddress}</h3>
           {addresses.length > 0 && (
             <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-              {addresses.length} address{addresses.length > 1 ? 'es' : ''}
+              {addresses.length} {addresses.length > 1 ? translations.orderModal.addressCountPlural : translations.orderModal.addressCount}
             </span>
           )}
         </div>
@@ -134,11 +136,11 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
         {isAddressLoading ? (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            Loading address...
+            {translations.orderModal.loadingAddress}
           </div>
         ) : addressError ? (
           <div className="text-sm text-red-600">
-            Error loading addresses: {addressError}
+            {translations.orderModal.errorLoadingAddresses}: {addressError}
           </div>
         ) : selectedAddress ? (
           <div className="space-y-2">
@@ -147,7 +149,7 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
                 <h4 className="font-semibold text-gray-900">{selectedAddress.fullName}</h4>
                 {(selectedAddress.isDefault || selectedAddress.default) && (
                   <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                    Default
+                    {translations.orderModal.default}
                   </span>
                 )}
               </div>
@@ -156,7 +158,7 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
               className="text-sm text-gray-700 font-medium border border-gray-600 hover:border-gray-800 px-3 py-1 rounded transition-colors cursor-pointer"
               onClick={openAddressListModal}
             >
-              Select Address
+              {translations.orderModal.selectAddress}
             </button>
             </div>
             <p className="text-sm text-gray-600">{selectedAddress.phone}</p>
@@ -167,14 +169,14 @@ export function AddressForm({ onChange, onAddressSelect }: AddressFormProps): Re
         ) : (
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              No address available. Please add an address!
+              {translations.orderModal.noAddressAvailable}
             </div>
             <button
               type="button"
               className="text-sm text-gray-700 hover:text-black font-medium border border-gray-700 hover:border-black px-3 py-1 rounded transition-colors cursor-pointer"
               onClick={handleAddNew}
             >
-              Add New
+              {translations.orderModal.addNew}
             </button>
           </div>
         )}

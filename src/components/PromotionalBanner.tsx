@@ -23,10 +23,6 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
     {
       text: translations.promotionalBanner.freeShipping,
       action: null
-    },
-    {
-      text: translations.promotionalBanner.newArrivals,
-      action: { text: translations.promotionalBanner.shopNow, href: '/new-arrivals' }
     }
   ];
 
@@ -36,12 +32,8 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
       action: null
     },
     {
-      text: translations.promotionalBanner.newArrivals,
-      action: { text: translations.promotionalBanner.shopNow, href: '/new-arrivals' }
-    },
-    {
       text: translations.promotionalBanner.exclusiveDeals,
-      action: { text: translations.promotionalBanner.viewDeals, href: '/deals' }
+      action: null
     },
     {
       text: translations.promotionalBanner.easyReturns,

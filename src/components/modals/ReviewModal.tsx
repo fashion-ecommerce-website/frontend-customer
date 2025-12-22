@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Order } from '@/features/order/types';
 import { useToast } from '@/providers/ToastProvider';
 import { reviewApiService, ReviewItem } from '@/services/api/reviewApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
   const [editReview, setEditReview] = useState<{ rating: number; comment: string }>({ rating: 0, comment: '' });
   const [isUpdating, setIsUpdating] = useState(false);
   const { showError, showSuccess } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.reviewModal;
 
   // Fetch user's reviews to check which orderDetails are already reviewed
   useEffect(() => {
@@ -78,7 +81,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
       }));
 
     if (reviewsArray.length === 0) {
-      showError('Please rate at least one product');
+      showError(t.pleaseRate);
       return;
     }
 
@@ -95,7 +98,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
     if (!order) return;
     const review = reviews[orderDetailId];
     if (!review || review.rating === 0) {
-      showError('Please rate this product');
+      showError(t.pleaseRate);
       return;
     }
     try {
@@ -107,7 +110,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
       }]);
       const apiResp = (resp ?? {}) as { success?: boolean; message?: string };
       if (apiResp && apiResp.success) {
-        showSuccess('Review submitted successfully!');
+        showSuccess(t.reviewSubmitted);
         const submittedReview = reviews[orderDetailId];
         // Add to existing reviews map with the submitted data
         setExistingReviews(prev => new Map(prev).set(orderDetailId, {
@@ -121,10 +124,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
         }));
         setReviews(prev => ({ ...prev, [orderDetailId]: { rating: 0, comment: '' } }));
       } else {
-        showError(apiResp?.message || 'You can only review this product once!');
+        showError(apiResp?.message || t.reviewOnce);
       }
     } catch {
-      showError('Failed to submit review!');
+      showError(t.reviewFailed);
     }
   };
 
@@ -153,7 +156,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
   // Update existing review
   const handleUpdateReview = async (reviewId: number, orderDetailId: number) => {
     if (editReview.rating === 0) {
-      showError('Please select a rating');
+      showError(t.pleaseSelectRating);
       return;
     }
     
@@ -165,7 +168,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
       });
       
       if (response.success && response.data) {
-        showSuccess('Review updated successfully!');
+        showSuccess(t.reviewUpdated);
         // Update existing reviews map
         setExistingReviews(prev => {
           const newMap = new Map(prev);
@@ -182,10 +185,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
         setEditingReviewId(null);
         setEditReview({ rating: 0, comment: '' });
       } else {
-        showError(response.message || 'Failed to update review');
+        showError(response.message || t.updateFailed);
       }
     } catch {
-      showError('Failed to update review');
+      showError(t.updateFailed);
     } finally {
       setIsUpdating(false);
     }
@@ -207,7 +210,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Review Order #{order.id}</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t.title} #{order.id}</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
@@ -232,12 +235,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Thank you for your review!</h3>
-                <p className="text-gray-600 mb-6">You have reviewed all {order.orderDetails.length} products in this order.</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.thankYou}</h3>
+                <p className="text-gray-600 mb-6">{t.reviewedAll.replace('{count}', String(order.orderDetails.length))}</p>
                 
                 {/* Product list with review info */}
                 <div className="bg-gray-50 rounded-lg p-4 text-left">
-                  <p className="text-sm font-medium text-gray-700 mb-3">Your reviews:</p>
+                  <p className="text-sm font-medium text-gray-700 mb-3">{t.yourReviews}:</p>
                   <div className="space-y-4">
                     {order.orderDetails.map((detail) => {
                       const reviewData = existingReviews.get(detail.id);
@@ -262,7 +265,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                     onClick={() => handleStartEdit(detail.id, reviewData!)}
                                     className="text-xs text-gray-700 hover:text-black font-medium cursor-pointer ml-2 flex-shrink-0"
                                   >
-                                    Edit
+                                    {t.edit}
                                   </button>
                                 </div>
                                 <div className="flex items-center gap-1 mt-1">
@@ -299,7 +302,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                 </div>
                               </div>
                               <div className="mb-3">
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Rating</label>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">{t.rating}</label>
                                 <div className="flex gap-1">
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <button
@@ -321,11 +324,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                 </div>
                               </div>
                               <div className="mb-3">
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Comment</label>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">{t.comment}</label>
                                 <textarea
                                   value={editReview.comment}
                                   onChange={(e) => setEditReview(prev => ({ ...prev, comment: e.target.value }))}
-                                  placeholder="Share your experience..."
+                                  placeholder={t.commentPlaceholder}
                                   rows={2}
                                   className="w-full px-2 py-1.5 text-sm text-black border border-gray-300 rounded-md resize-none"
                                 />
@@ -336,14 +339,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                   className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer"
                                   disabled={isUpdating}
                                 >
-                                  Cancel
+                                  {t.cancel}
                                 </button>
                                 <button
                                   onClick={() => handleUpdateReview(reviewData!.id, detail.id)}
                                   disabled={isUpdating}
                                   className="px-3 py-1.5 text-xs font-medium text-white bg-black rounded-md hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
                                 >
-                                  {isUpdating ? 'Updating...' : 'Update'}
+                                  {isUpdating ? t.updating : t.update}
                                 </button>
                               </div>
                             </div>
@@ -380,8 +383,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                             {detail.colorLabel} / {detail.sizeLabel}
                           </p>
                           <div className="flex gap-4 mt-1 text-sm text-gray-600">
-                            <span>Quantity: <span className="font-medium text-black">{detail.quantity}</span></span>
-                            <span>Price: <span className="font-medium text-black">{(detail.finalPrice ?? detail.unitPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 })}</span></span>
+                            <span>{t.quantity}: <span className="font-medium text-black">{detail.quantity}</span></span>
+                            <span>{t.price}: <span className="font-medium text-black">{(detail.finalPrice ?? detail.unitPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND', minimumFractionDigits: 0 })}</span></span>
                           </div>
                           
                           {/* Show existing review info */}
@@ -389,7 +392,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                             <div className="mt-3 pt-3 border-t border-green-200">
                               <div className="flex items-center justify-between mb-1">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs font-medium text-green-700">Your review:</span>
+                                  <span className="text-xs font-medium text-green-700">{t.yourReview}:</span>
                                   <div className="flex items-center gap-0.5">
                                     {[1, 2, 3, 4, 5].map((star) => (
                                       <svg
@@ -407,7 +410,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                   onClick={() => handleStartEdit(detail.id, existingReview!)}
                                   className="text-xs text-gray-700 hover:text-black font-medium cursor-pointer"
                                 >
-                                  Edit
+                                  {t.edit}
                                 </button>
                               </div>
                               {existingReview?.content && (
@@ -421,7 +424,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                             <div className="mt-3 pt-3 border-t border-gray-300">
                               <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Rating <span className="text-red-500">*</span>
+                                  {t.rating} <span className="text-red-500">*</span>
                                 </label>
                                 <div className="flex gap-2">
                                   {[1, 2, 3, 4, 5].map((star) => (
@@ -454,12 +457,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                               </div>
                               <div className="mb-3">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Your Review (Optional)
+                                  {t.comment}
                                 </label>
                                 <textarea
                                   value={editReview.comment}
                                   onChange={(e) => setEditReview(prev => ({ ...prev, comment: e.target.value }))}
-                                  placeholder="Share your experience with this product..."
+                                  placeholder={t.commentPlaceholder}
                                   rows={3}
                                   className="w-full px-3 py-2 text-black border border-gray-300 rounded-md resize-none"
                                 />
@@ -470,14 +473,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                                   disabled={isUpdating}
                                 >
-                                  Cancel
+                                  {t.cancel}
                                 </button>
                                 <button
                                   onClick={() => handleUpdateReview(existingReview!.id, detail.id)}
                                   disabled={isUpdating}
                                   className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 cursor-pointer"
                                 >
-                                  {isUpdating ? 'Updating...' : 'Update Review'}
+                                  {isUpdating ? t.updating : t.updateReview}
                                 </button>
                               </div>
                             </div>
@@ -490,7 +493,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                           {/* Rating */}
                           <div className="mb-3">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Rating <span className="text-red-500">*</span>
+                              {t.rating} <span className="text-red-500">*</span>
                             </label>
                             <div className="flex gap-2">
                               {[1, 2, 3, 4, 5].map((star) => (
@@ -498,7 +501,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                                   key={star}
                                   type="button"
                                   onClick={() => handleRatingChange(detail.id, star)}
-                                  className="focus:outline-none transition-transform hover:scale-110"
+                                  className="focus:outline-none transition-transform hover:scale-110 cursor-pointer"
                                 >
                                   <svg
                                     className={`w-8 h-8 ${
@@ -525,12 +528,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                           {/* Comment */}
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Your Review (Optional)
+                              {t.comment}
                             </label>
                             <textarea
                               value={currentReview.comment}
                               onChange={(e) => handleCommentChange(detail.id, e.target.value)}
-                              placeholder="Share your experience with this product..."
+                              placeholder={t.commentPlaceholder}
                               rows={3}
                               className="w-full px-3 py-2 text-black border border-gray-300 rounded-md resize-none"
                             />
@@ -539,9 +542,9 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({ isOpen, onClose, order
                           <div className="flex justify-end mt-3">
                             <button
                               onClick={() => handleSubmitSingle(detail.id)}
-                              className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors"
+                              className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
                             >
-                              Submit Review
+                              {t.submitReview}
                             </button>
                           </div>
                         </>

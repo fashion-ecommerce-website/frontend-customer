@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Address } from '@/services/api/addressApi';
 import { ghnApi, GHNProvince, GHNDistrict, GHNWard } from '@/services/api/ghnApi';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface AddressModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   isLoading = false,
   isFirstAddress = false,
 }) => {
+  const { translations } = useLanguage();
+  const t = translations.addressModal;
   // Error map for form fields
   type AddressField = keyof Address;
   type AddressErrors = Partial<Record<AddressField, string>>;
@@ -293,14 +296,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     const cleanPhone = phone.replace(/\D/g, '');
     
     if (!cleanPhone) {
-      return 'Phone number is required';
+      return t.phoneRequired;
     }
 
     // Vietnam phone number validation
     if (countryCode === 'VN') {
       // Vietnamese phone numbers: 10-11 digits starting with 0 or +84
       if (cleanPhone.length < 10 || cleanPhone.length > 11) {
-        return 'Vietnamese phone number must be 10-11 digits';
+        return t.phoneLengthVN;
       }
       
       // Check if it starts with valid Vietnamese mobile prefixes
@@ -308,12 +311,12 @@ export const AddressModal: React.FC<AddressModalProps> = ({
       const firstTwoDigits = cleanPhone.substring(0, 2);
       
       if (!validPrefixes.includes(firstTwoDigits)) {
-        return 'Invalid Vietnamese mobile number format';
+        return t.phoneInvalid;
       }
     } else {
       // International phone number validation (basic)
       if (cleanPhone.length < 7 || cleanPhone.length > 15) {
-        return 'Phone number must be 7-15 digits';
+        return t.phoneLengthIntl;
       }
     }
 
@@ -324,7 +327,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
     const newErrors: AddressErrors = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
+      newErrors.fullName = t.fullNameRequired;
     }
 
     // Enhanced phone validation
@@ -335,32 +338,32 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
 
     if (!formData.line.trim()) {
-      newErrors.line = 'Address line is required';
+      newErrors.line = t.addressLineRequired;
     }
 
     if (!formData.ward.trim()) {
-      newErrors.ward = 'Ward is required';
+      newErrors.ward = t.wardRequired;
     }
 
     if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
+      newErrors.city = t.provinceRequired;
     }
 
     // Validate GHN fields
     if (!formData.provinceId) {
-      newErrors.provinceId = 'Province is required';
+      newErrors.provinceId = t.provinceRequired;
     }
 
     if (!formData.districtId) {
-      newErrors.districtId = 'District is required';
+      newErrors.districtId = t.districtRequired;
     }
 
     if (!formData.wardCode) {
-      newErrors.wardCode = 'Ward is required';
+      newErrors.wardCode = t.wardRequired;
     }
 
     if (!formData.countryCode.trim()) {
-      newErrors.countryCode = 'Country is required';
+      newErrors.countryCode = t.provinceRequired;
     }
 
     setErrors(newErrors);
@@ -448,14 +451,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
         {/* Modal title */}
         <h2 className="text-xl font-semibold text-black mb-6">
-          {address?.id ? 'Update shipping address' : 'Add shipping address'}
+          {address?.id ? t.updateShippingAddress : t.addShippingAddress}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Full Name Field */}
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-              Full name <span className="text-red-500">*</span>
+              {t.fullName} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -465,7 +468,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
                 errors.fullName ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter your full name"
+              placeholder={t.enterFullName}
               disabled={isLoading}
             />
             {errors.fullName && (
@@ -476,7 +479,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Phone Field */}
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone <span className="text-red-500">*</span>
+              {t.phone} <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -492,7 +495,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
                 errors.phone ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder={formData.countryCode === 'VN' ? 'e.g., 0901234567' : 'Enter your phone number'}
+              placeholder={formData.countryCode === 'VN' ? 'e.g., 0901234567' : t.enterFullName}
               disabled={isLoading}
             />
             {errors.phone && (
@@ -500,7 +503,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             )}
             {formData.countryCode === 'VN' && !errors.phone && formData.phone && (
               <p className="mt-1 text-xs text-gray-500">
-                Vietnamese mobile numbers: 03xx, 05xx, 07xx, 08xx, 09xx
+                {t.phoneHintVN}
               </p>
             )}
           </div>
@@ -508,7 +511,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Address Line Field */}
           <div>
             <label htmlFor="line" className="block text-sm font-medium text-gray-700 mb-1">
-              Address Line <span className="text-red-500">*</span>
+              {t.addressLine} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -518,7 +521,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black ${
                 errors.line ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="House number, street name..."
+              placeholder={t.addressLinePlaceholder}
               disabled={isLoading}
             />
             {errors.line && (
@@ -529,7 +532,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
            {/* Province Selection */}
            <div className="relative dropdown-container">
              <label className="block text-sm font-medium text-gray-700 mb-1">
-               Province/City <span className="text-red-500">*</span>
+               {t.provinceCity} <span className="text-red-500">*</span>
              </label>
              <div className="relative">
                <div className="relative">
@@ -549,7 +552,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                      setIsDistrictOpen(false);
                      setIsWardOpen(false);
                    }}
-                   placeholder="Search province/city..."
+                   placeholder={t.searchProvince}
                    disabled={isLoading || loading.provinces}
                    className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                  />
@@ -584,14 +587,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                      ))
                    ) : (
                      <div className="px-3 py-2 text-gray-500 text-sm">
-                       No province/city found
+                       {t.noProvinceFound}
                      </div>
                    )}
                  </div>
                )}
              </div>
              {loading.provinces && (
-               <p className="text-xs text-gray-500 mt-1">Loading...</p>
+               <p className="text-xs text-gray-500 mt-1">{translations.common.loading}</p>
              )}
              {errors.provinceId && (
                <p className="mt-1 text-sm text-red-600">{errors.provinceId}</p>
@@ -601,7 +604,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* District Selection */}
           <div className="relative dropdown-container">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              District <span className="text-red-500">*</span>
+              {t.district} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <div className="relative">
@@ -621,7 +624,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                     setIsProvinceOpen(false);
                     setIsWardOpen(false);
                   }}
-                   placeholder="Search district..."
+                   placeholder={t.searchDistrict}
                   disabled={isLoading || loading.districts || !selectedProvince}
                   className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                 />
@@ -656,14 +659,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                     ))
                   ) : (
                      <div className="px-3 py-2 text-gray-500 text-sm">
-                       No district found
+                       {t.noDistrictFound}
                      </div>
                   )}
                 </div>
               )}
             </div>
             {loading.districts && (
-              <p className="text-xs text-gray-500 mt-1">Loading...</p>
+              <p className="text-xs text-gray-500 mt-1">{translations.common.loading}</p>
             )}
             {errors.districtId && (
               <p className="mt-1 text-sm text-red-600">{errors.districtId}</p>
@@ -673,7 +676,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
           {/* Ward Selection */}
           <div className="relative dropdown-container">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ward <span className="text-red-500">*</span>
+              {t.ward} <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <div className="relative">
@@ -693,7 +696,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                     setIsProvinceOpen(false);
                     setIsDistrictOpen(false);
                   }}
-                   placeholder="Search ward..."
+                   placeholder={t.searchWard}
                   disabled={isLoading || loading.wards || !selectedDistrict}
                   className="w-full h-10 px-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
                 />
@@ -728,14 +731,14 @@ export const AddressModal: React.FC<AddressModalProps> = ({
                     ))
                   ) : (
                      <div className="px-3 py-2 text-gray-500 text-sm">
-                       No ward found
+                       {t.noWardFound}
                      </div>
                   )}
                 </div>
               )}
             </div>
             {loading.wards && (
-              <p className="text-xs text-gray-500 mt-1">Loading...</p>
+              <p className="text-xs text-gray-500 mt-1">{translations.common.loading}</p>
             )}
             {errors.wardCode && (
               <p className="mt-1 text-sm text-red-600">{errors.wardCode}</p>
@@ -760,7 +763,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
               disabled={isLoading || isFirstAddress}
             />
             <label htmlFor="isDefault" className="ml-2 text-sm text-black">
-              Set as default address.
+              {t.setAsDefault}
             </label>
           </div>
 
@@ -770,7 +773,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             disabled={isLoading}
             className="w-full bg-black text-white py-3 rounded-md font-medium transition-all duration-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none mt-6 cursor-pointer"
           >
-            {isLoading ? (address?.id ? 'Updating...' : 'Adding...') : (address?.id ? 'Update address' : 'Add address')}
+            {isLoading ? (address?.id ? t.updating : t.adding) : (address?.id ? t.updateAddress : t.addAddress)}
           </button>
         </form>
       </div>

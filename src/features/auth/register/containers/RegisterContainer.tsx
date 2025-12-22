@@ -9,6 +9,7 @@ import React, { useState, useCallback } from 'react';
 import { RegisterPresenter } from '../components/RegisterPresenter';
 import { authApi } from '@/services/api/authApi';
 import { useToast } from '@/providers/ToastProvider';
+import { useLanguage } from '@/hooks/useLanguage';
 import { 
   RegisterContainerProps, 
   RegisterFormData
@@ -21,6 +22,8 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
   // Simple local state
   const [isLoading, setIsLoading] = useState(false);
   const { showSuccess, showError } = useToast();
+  const { translations } = useLanguage();
+  const t = translations.toast;
 
   // Local form state
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -53,7 +56,7 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
       });
 
       if (response.success) {
-        showSuccess('Registration successful! Please check your email for OTP.');
+        showSuccess(t.registrationSuccess);
         if (onRegisterSuccess) {
           const tempUser = {
             id: '',
@@ -84,7 +87,7 @@ export const RegisterContainer: React.FC<RegisterContainerProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [onRegisterSuccess, onRegisterError, showSuccess, showError]);
+  }, [onRegisterSuccess, onRegisterError, showSuccess, showError, t.registrationSuccess]);
 
   // Handle clear error
   // no internal error state, errors shown via toast
