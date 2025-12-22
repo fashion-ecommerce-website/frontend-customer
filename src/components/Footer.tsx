@@ -85,9 +85,7 @@ export const Footer: React.FC = () => {
         title: translations.footer.company,
         links: [
           { id: 'about', label: translations.footer.aboutUs, href: '/about' },
-          { id: 'features', label: translations.footer.features, href: '/features' },
-          { id: 'works', label: translations.footer.works, href: '/works' },
-          { id: 'career', label: translations.footer.career, href: '/career' }
+          { id: 'features', label: translations.footer.features, href: '/about' }
         ]
       },
       {
@@ -95,7 +93,6 @@ export const Footer: React.FC = () => {
         title: translations.footer.help,
         links: [
           { id: 'customer-support', label: translations.footer.customerSupport, href: '/support' },
-          { id: 'delivery-details', label: translations.footer.deliveryDetails, href: '/delivery' },
           { id: 'terms-conditions', label: translations.footer.termsConditions, href: '/terms' },
           { id: 'privacy-policy', label: translations.footer.privacyPolicy, href: '/privacy' }
         ]
@@ -104,10 +101,10 @@ export const Footer: React.FC = () => {
         id: 'faq',
         title: translations.footer.faq,
         links: [
-          { id: 'account', label: translations.profile.profile, href: '/faq/account' },
-          { id: 'manage-deliveries', label: translations.checkout.shippingAddress, href: '/faq/deliveries' },
-          { id: 'orders', label: translations.profile.orderHistory, href: '/faq/orders' },
-          { id: 'payments', label: translations.checkout.paymentMethod, href: '/faq/payments' }
+          { id: 'account', label: translations.faq.categories.account, href: '/faq?tab=account' },
+          { id: 'shipping', label: translations.faq.categories.shipping, href: '/faq?tab=shipping' },
+          { id: 'orders', label: translations.faq.categories.order, href: '/faq?tab=order' },
+          { id: 'payments', label: translations.faq.categories.payment, href: '/faq?tab=payment' }
         ]
       }
     ],

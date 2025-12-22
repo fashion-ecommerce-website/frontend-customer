@@ -29,10 +29,7 @@ export interface PromotionalBannerTranslations {
   signUpDiscount: string;
   signUpAction: string;
   freeShipping: string;
-  newArrivals: string;
-  shopNow: string;
   exclusiveDeals: string;
-  viewDeals: string;
   easyReturns: string;
 }
 
@@ -47,6 +44,100 @@ export interface HomeTranslations {
   shopNow: string;
   noProductsFound: string;
   loadingProducts: string;
+}
+
+export interface AboutTranslations {
+  title: string;
+  subtitle: string;
+  missionTitle: string;
+  missionText1: string;
+  missionText2: string;
+  featuresTitle: string;
+  chatbotTitle: string;
+  chatbotDesc: string;
+  virtualTryOnTitle: string;
+  virtualTryOnDesc: string;
+  personalizedTitle: string;
+  personalizedDesc: string;
+  contactTitle: string;
+  contactDesc: string;
+}
+
+export interface SupportTranslations {
+  title: string;
+  subtitle: string;
+  hotline: string;
+  hotlineHours: string;
+  email: string;
+  emailResponse: string;
+  faqTitle: string;
+  faqDesc: string;
+  viewFaq: string;
+}
+
+export interface TermsTranslations {
+  title: string;
+  subtitle: string;
+  section1Title: string;
+  section1Content: string[];
+  section2Title: string;
+  section2Content: string[];
+  section3Title: string;
+  section3Content: string[];
+  section4Title: string;
+  section4Content: string[];
+  section5Title: string;
+  section5Content: string[];
+  section6Title: string;
+  section6Content: string[];
+  section7Title: string;
+  section7Content: string[];
+  section8Title: string;
+  section8Content: string[];
+  section9Title: string;
+  section9Content: string[];
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface FAQTranslations {
+  title: string;
+  subtitle: string;
+  categoryLabel: string;
+  notFoundTitle: string;
+  notFoundDesc: string;
+  contactSupport: string;
+  loading: string;
+  categories: {
+    account: string;
+    order: string;
+    payment: string;
+    shipping: string;
+    return: string;
+    size: string;
+  };
+  account: FAQItem[];
+  order: FAQItem[];
+  payment: FAQItem[];
+  shipping: FAQItem[];
+  return: FAQItem[];
+  size: FAQItem[];
+}
+
+export interface PrivacyTranslations {
+  title: string;
+  subtitle: string;
+  section1Title: string;
+  section1Content: string[];
+  section2Title: string;
+  section2Content: string[];
+  section3Title: string;
+  section3Content: string[];
+  section4Title: string;
+  section4Content: string[];
 }
 
 export interface CommonTranslations {
@@ -345,6 +436,11 @@ export interface Translations {
   virtualTryOn: VirtualTryOnTranslations;
   promotionalBanner: PromotionalBannerTranslations;
   home: HomeTranslations;
+  about: AboutTranslations;
+  support: SupportTranslations;
+  terms: TermsTranslations;
+  faq: FAQTranslations;
+  privacy: PrivacyTranslations;
 }
 
 export default Translations;

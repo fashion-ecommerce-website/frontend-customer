@@ -3,19 +3,14 @@
 import React from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 
-export default function TermsPage() {
+export default function PrivacyPage() {
   const { translations: t } = useLanguage();
 
   const sections = [
-    { title: t.terms.section1Title, content: t.terms.section1Content },
-    { title: t.terms.section2Title, content: t.terms.section2Content },
-    { title: t.terms.section3Title, content: t.terms.section3Content },
-    { title: t.terms.section4Title, content: t.terms.section4Content },
-    { title: t.terms.section5Title, content: t.terms.section5Content },
-    { title: t.terms.section6Title, content: t.terms.section6Content },
-    { title: t.terms.section7Title, content: t.terms.section7Content },
-    { title: t.terms.section8Title, content: t.terms.section8Content },
-    { title: t.terms.section9Title, content: t.terms.section9Content },
+    { title: t.privacy.section1Title, content: t.privacy.section1Content },
+    { title: t.privacy.section2Title, content: t.privacy.section2Content },
+    { title: t.privacy.section3Title, content: t.privacy.section3Content },
+    { title: t.privacy.section4Title, content: t.privacy.section4Content },
   ];
 
   return (
@@ -23,8 +18,8 @@ export default function TermsPage() {
       {/* Hero Section */}
       <section className="bg-black text-white py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl lg:text-4xl font-bold mb-4">{t.terms.title}</h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">{t.terms.subtitle}</p>
+          <h1 className="text-3xl lg:text-4xl font-bold mb-4">{t.privacy.title}</h1>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">{t.privacy.subtitle}</p>
         </div>
       </section>
 
