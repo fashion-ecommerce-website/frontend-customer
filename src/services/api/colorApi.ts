@@ -14,7 +14,8 @@ const COLOR_ENDPOINTS = {
 
 export class ColorApiService {
   async getActiveColors(): Promise<ApiResponse<ColorResponse[]>> {
-    return apiClient.get<ColorResponse[]>(COLOR_ENDPOINTS.GET_ACTIVE_COLORS);
+    // skipAuth = true vì đây là public endpoint, không cần authentication
+    return apiClient.get<ColorResponse[]>(COLOR_ENDPOINTS.GET_ACTIVE_COLORS, undefined, true);
   }
 }
 
