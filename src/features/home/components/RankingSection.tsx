@@ -79,10 +79,16 @@ export function RankingSection() {
   }
 
   return (
-    <div className="py-12 sm:py-16 lg:py-20">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
-        {translations.home.ranking}
-      </h2>
+    <div className="py-12 sm:py-16">
+      <div className="text-center max-w-xl mx-auto mb-10 sm:mb-14 space-y-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
+          CURATED COLLECTION
+        </span>
+        <h2 className="font-serif-luxury text-3xl sm:text-4xl text-neutral-900 font-normal">
+          {translations.home.ranking || 'Best Sellers Ranking'}
+        </h2>
+        <div className="w-12 h-0.5 bg-[#C5A880] mx-auto rounded-full mt-2 opacity-80" />
+      </div>
       <ProductCarousel
         products={transformedProducts}
         title=""

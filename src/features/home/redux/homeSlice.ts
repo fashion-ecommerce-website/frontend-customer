@@ -10,12 +10,6 @@ import {
   ApiError,
   SearchRequest
 } from '../types/home.types';
-import {
-  mockBanners,
-  mockNewArrivals,
-  mockProductCategories,
-  mockRankingProducts
-} from '../data/mockData';
 
 // Initial state
 const initialState: HomeState = {
@@ -97,10 +91,44 @@ const initialState: HomeState = {
       copyright: 'FIT © 2025, All Rights Reserved',
     }
   },
-  banners: mockBanners,
-  newArrivals: mockNewArrivals,
-  recommendedProducts: mockRankingProducts,
-  productCategories: mockProductCategories,
+  banners: [
+    {
+      id: 'banner-1',
+      title: 'Haute Couture 2026 Collection',
+      subtitle: 'DISCOVER ELEGANCE',
+      description: 'Masterpiece designs from Dior, Chanel, Louis Vuitton, Saint Laurent, and Hermès.',
+      image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&auto=format&fit=crop&q=80',
+      link: '/products?category=evening-gowns-dresses',
+      buttonText: 'Discover Now',
+      type: 'hero',
+      isActive: true,
+    },
+    {
+      id: 'banner-2',
+      title: 'The Art of Tailoring',
+      subtitle: 'SHARP SILHOUETTES',
+      description: 'Discover sharp suits, structured blazer jackets, and luxury flannel trousers.',
+      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80',
+      link: '/products?category=tailored-trousers',
+      buttonText: 'Explore Collection',
+      type: 'hero',
+      isActive: true,
+    },
+    {
+      id: 'banner-3',
+      title: 'Icons of Leather',
+      subtitle: 'CRAFTED TO LAST',
+      description: 'Explore the Lady Dior, Bottega Veneta clutches, and legendary Birkin handbags.',
+      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80',
+      link: '/products?category=luxury-handbags',
+      buttonText: 'Shop Handbags',
+      type: 'hero',
+      isActive: true,
+    }
+  ],
+  newArrivals: [],
+  recommendedProducts: [],
+  productCategories: [],
   isLoading: false,
   error: null,
   isInitialized: false,

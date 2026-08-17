@@ -313,9 +313,9 @@ export function ProductInfo({
             {showSizeGuideButton && (
               <button
                 onClick={() => setShowSizeGuide(true)}
-                className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer group"
+                className="text-[10px] md:text-xs text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer group transition-colors duration-150"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="7" viewBox="0 0 20 9" fill="none" className="md:w-4 md:h-2 group-hover:scale-105 transition-transform">
                   <rect x="0.5" y="0.5" width="19" height="8" rx="0.5" stroke="black"></rect>
                   <rect x="3.5" y="4" width="1" height="4" fill="black"></rect>
                   <rect x="6.5" y="6" width="1" height="2" fill="black"></rect>
@@ -323,7 +323,7 @@ export function ProductInfo({
                   <rect x="9.5" y="4" width="1" height="4" fill="black"></rect>
                   <rect x="15.5" y="4" width="1" height="4" fill="black"></rect>
                 </svg>
-                <span>{translations.product.sizeGuide}</span>
+                <span className="group-hover:underline">{translations.product.sizeGuide}</span>
               </button>
             )}
           </div>
@@ -355,14 +355,14 @@ export function ProductInfo({
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={quantity <= 1}
-            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base cursor-pointer"
+            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm md:text-base cursor-pointer active:scale-90 duration-150"
           >
             −
           </button>
-          <span className="w-8 md:w-10 text-center font-medium text-gray-900 text-sm md:text-base">{quantity}</span>
+          <span className="w-8 md:w-10 text-center font-medium text-gray-900 text-sm md:text-base select-none">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors text-sm md:text-base cursor-pointer"
+            className="w-8 h-8 md:w-9 md:h-9 border border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-all text-sm md:text-base cursor-pointer active:scale-90 duration-150"
           >
             +
           </button>
@@ -385,13 +385,13 @@ export function ProductInfo({
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSize}
-              className="bg-black text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded cursor-pointer"
+              className="bg-black text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded cursor-pointer active:scale-[0.98]"
             >
               {addingToCart ? translations.product.addingToCart : translations.product.addToCart}
             </button>
             <button
               onClick={handleBuyNow}
-              className="bg-red-600 text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-red-700 transition-all duration-200 cursor-pointer rounded"
+              className="bg-red-600 text-white py-2.5 md:py-3 px-4 md:px-6 font-semibold text-[10px] md:text-xs uppercase tracking-wider hover:bg-red-700 transition-all duration-200 cursor-pointer rounded active:scale-[0.98]"
             >
               {translations.product.buyNow}
             </button>

@@ -62,7 +62,7 @@ export function VirtualTryOnWaitingModal({ isOpen, onClose, status }: VirtualTry
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <button onClick={onClose} className="px-3 py-2 rounded-md border hover:bg-gray-50 text-black">Đóng</button>
+          <button onClick={onClose} className="px-3 py-2 rounded-md border hover:bg-gray-50 text-black">Close</button>
         </div>
       </div>
     </div>,

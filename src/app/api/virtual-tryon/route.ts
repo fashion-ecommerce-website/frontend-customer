@@ -8,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // Fitroom API configuration
 const FITROOM_API_BASE = 'https://platform.fitroom.app/api/tryon/v2';
 const FITROOM_API_KEY = process.env.FITROOM_API_KEY || '';
-const FITROOM_STATUS_API_KEY = process.env.FITROOM_STATUS_API_KEY || '';
 
 /**
  * Types
@@ -120,7 +119,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${FITROOM_API_BASE}/tasks/${taskId}`, {
       method: 'GET',
       headers: {
-        'X-API-KEY': FITROOM_STATUS_API_KEY,
+        'X-API-KEY': FITROOM_API_KEY,
       },
     });
 

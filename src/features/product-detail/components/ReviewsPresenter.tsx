@@ -137,7 +137,7 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
                 ))}
               </div>
               <span className="text-base sm:text-lg font-semibold text-gray-900">({average})</span>
-              <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer">{translations.review.reviewsCount.replace('{count}', String(reviews.length))}</span>
+              <span className="text-base sm:text-lg font-semibold text-black underline cursor-pointer hover:opacity-75 transition-opacity duration-150">{translations.review.reviewsCount.replace('{count}', String(reviews.length))}</span>
             </div>
           </div>
         </div>
@@ -294,14 +294,14 @@ export function ReviewsPresenter(props: ReviewsPresenterProps) {
             {visibleReviewsCount < filteredReviews.length ? (
               <button
                 onClick={onViewMore}
-                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base cursor-pointer"
+                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-150 text-sm sm:text-base cursor-pointer active:scale-95"
               >
                 {translations.review.viewMoreReviews}
               </button>
             ) : (
               <button
                 onClick={onShowLess}
-                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm sm:text-base cursor-pointer"
+                className="w-full sm:w-auto px-6 py-2.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-150 text-sm sm:text-base cursor-pointer active:scale-95"
               >
                 {translations.review.showLess}
               </button>

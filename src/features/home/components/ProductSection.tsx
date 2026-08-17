@@ -6,7 +6,6 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { Product, ProductCategory } from '../types/home.types';
 import { ProductCard } from '@/components';
 import { useLanguageContext } from '@/providers/LanguageProvider';
-import { mockRankingProducts } from '../data/mockData';
 
 interface ProductSectionProps {
   title: string;
@@ -123,7 +122,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
 
         {variant === 'default' && (
           <button className="text-orange-600 hover:text-orange-700 font-medium text-sm lg:text-base transition-colors">
-            Xem tất cả →
+            View all →
           </button>
         )}
       </div>
@@ -193,7 +192,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
           <div className="self-stretch relative flex flex-col justify-start items-start">
             <div className="self-stretch flex flex-col justify-start items-start overflow-hidden">
               <div className="relative">
-                {(products?.length ?? mockRankingProducts.length) > 5 && (
+                {(products?.length ?? 0) > 5 && (
                   <div className="absolute left-0 right-0 top-[42%] -translate-y-1/2 hidden lg:flex justify-between items-center pointer-events-none z-10 px-2.5">
                     <button
                       type="button"
@@ -231,7 +230,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
 
                 <div className="overflow-hidden w-full" ref={emblaRef}>
                   <div className="flex gap-2 sm:gap-3 lg:gap-3.5">
-                    {(products && products.length > 0 ? products : mockRankingProducts).map((product, idx) => (
+                    {products.map((product, idx) => (
                       <div key={product.id} className="relative flex-[0_0_calc(50%-0.25rem)] sm:flex-[0_0_calc(33.33%-0.5rem)] md:flex-[0_0_calc(25%-0.75rem)] lg:flex-[0_0_calc(20%-0.7rem)] min-w-0">
                         <div className="absolute left-0 top-0 z-10 select-none">
                           <div className="relative w-6 h-8 sm:w-8 sm:h-10">
@@ -271,7 +270,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <p className="text-gray-500 text-lg">Không có sản phẩm nào</p>
+          <p className="text-gray-500 text-lg">No products available</p>
         </div>
       )}
     </section>

@@ -126,10 +126,9 @@ The feature uses [Fitroom's AI-powered virtual try-on service](https://platform.
 
 ### Configuration
 
-Add to `.env.local`:
+Add to `.env`:
 ```bash
 FITROOM_API_KEY=your_fitroom_api_key
-FITROOM_STATUS_API_KEY=your_fitroom_status_api_key
 ```
 
 See `FITROOM_INTEGRATION.md` in the project root for complete setup instructions.

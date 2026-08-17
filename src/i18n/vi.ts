@@ -181,7 +181,8 @@ const vi: Translations = {
     enterOrderNotes: 'Nhập ghi chú đơn hàng',
     issueInvoice: 'Xuất hóa đơn công ty',
     tryOnTitle: 'Thử Đồ Trước Khi Mua',
-    tryOnDesc: 'Sử dụng tính năng Thử Đồ Ảo để xem quần áo phù hợp như thế nào với bạn',
+    tryOnDesc: 'Sử dụng tính năng Thử Đồ Ảo để xem quần áo phù hợp với bạn (Chỉ hỗ trợ sản phẩm Quần Áo)',
+    tryOnNoteBadge: 'Chỉ dành cho Quần Áo',
   },
   checkout: {
     checkout: 'Thanh toán',

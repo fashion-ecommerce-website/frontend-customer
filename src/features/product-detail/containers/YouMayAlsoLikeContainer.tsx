@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { recommendationApi } from '@/services/api/recommendationApi';
+import { productApi } from '@/services/api/productApi';
 import { YouMayAlsoLikePresenter } from '../components/YouMayAlsoLikePresenter';
 
 interface YouMayAlsoLikeContainerProps {
@@ -36,7 +37,7 @@ export function YouMayAlsoLikeContainer({ productId }: YouMayAlsoLikeContainerPr
       
       const response = await recommendationApi.getSimilarItems(productId, 10);
 
-      if (response.success && response.data) {
+      if (response.success && response.data && response.data.length > 0) {
         const transformedProducts = response.data.map((item) => ({
           detailId: item.detailId,
           productSlug: item.productSlug,
@@ -50,12 +51,48 @@ export function YouMayAlsoLikeContainer({ productId }: YouMayAlsoLikeContainerPr
         }));
         setProducts(transformedProducts);
       } else {
-        throw new Error(response.message || 'Failed to fetch similar products');
+        // Fallback to best sellers from backend if recommendation service unavailable
+        const fallbackRes = await productApi.getBestSellers();
+        if (fallbackRes.success && fallbackRes.data) {
+          const transformedProducts = fallbackRes.data.map((item) => ({
+            detailId: item.detailId,
+            productSlug: item.productSlug,
+            productTitle: item.productTitle,
+            price: item.price,
+            finalPrice: item.finalPrice,
+            percentOff: item.percentOff ?? 0,
+            imageUrls: item.imageUrls,
+            colors: item.colors,
+            quantity: item.quantity,
+          }));
+          setProducts(transformedProducts);
+        } else {
+          setProducts([]);
+        }
       }
     } catch (err) {
-      console.error('❌ Failed to fetch similar products:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setProducts([]);
+      console.warn('⚠️ Recommendation service unavailable, using best sellers fallback:', err);
+      try {
+        const fallbackRes = await productApi.getBestSellers();
+        if (fallbackRes.success && fallbackRes.data) {
+          const transformedProducts = fallbackRes.data.map((item) => ({
+            detailId: item.detailId,
+            productSlug: item.productSlug,
+            productTitle: item.productTitle,
+            price: item.price,
+            finalPrice: item.finalPrice,
+            percentOff: item.percentOff ?? 0,
+            imageUrls: item.imageUrls,
+            colors: item.colors,
+            quantity: item.quantity,
+          }));
+          setProducts(transformedProducts);
+        } else {
+          setProducts([]);
+        }
+      } catch {
+        setProducts([]);
+      }
     } finally {
       setLoading(false);
     }

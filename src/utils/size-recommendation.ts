@@ -11,7 +11,7 @@ import type {
  */
 export function buildRecommendationReasoning(
     data: SizeRecommendationResponse,
-    language: 'en' | 'vi' = 'vi'
+    language: 'en' | 'vi' = 'en'
 ): string {
     // No measurements case
     if (!data.hasMeasurements) {
@@ -146,8 +146,8 @@ export function getConfidenceBadgeColor(level: ConfidenceLevel): string {
  * @param isRuleBased Whether this is a rule-based recommendation (no user data)
  */
 export function getConfidenceBadgeLabel(
-    level: ConfidenceLevel, 
-    language: 'en' | 'vi' = 'vi',
+    level: ConfidenceLevel,
+    language: 'en' | 'vi' = 'en',
     isRuleBased: boolean = false
 ): string {
     // For rule-based recommendations, use different labels

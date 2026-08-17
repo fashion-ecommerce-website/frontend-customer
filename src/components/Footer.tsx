@@ -116,30 +116,33 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#3a3839] border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+    <footer className="bg-neutral-950 text-neutral-400 border-t border-neutral-800/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
         
         {/* Desktop Grid Layout - 4 columns */}
-        <div className="hidden lg:grid lg:grid-cols-4 gap-8 mb-8">
+        <div className="hidden lg:grid lg:grid-cols-4 gap-12 mb-12">
           {/* Company Info */}
-          <div>
-            <h3 className="text-2xl font-bold text-white mb-4">
-              {footerData.companyInfo.name}
-            </h3>
-            <p className="mb-6 text-sm text-[#C4C4C4] leading-relaxed">
+          <div className="space-y-4">
+            <Link
+              href="/"
+              className="font-serif-luxury text-3xl font-normal text-white tracking-[0.25em] hover:text-[#C5A880] transition-colors block"
+            >
+              FIT
+            </Link>
+            <p className="text-xs text-neutral-400 leading-relaxed font-light">
               {footerData.companyInfo.description}
             </p>
             
             {/* Social Links */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3 pt-2">
               {footerData.socialLinks.map((social) => (
                 <Link
                   key={social.id}
                   href={social.href}
-                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100 transition-all duration-200 hover:scale-110"
+                  className="w-9 h-9 bg-neutral-900 border border-neutral-800 rounded-full flex items-center justify-center text-neutral-300 hover:text-neutral-950 hover:bg-[#C5A880] hover:border-[#C5A880] transition-all duration-300 hover:scale-105"
                   aria-label={social.platform}
                 >
-                  {getSocialIcon(social.platform, "w-5 h-5")}
+                  {getSocialIcon(social.platform, "w-4 h-4")}
                 </Link>
               ))}
             </div>
@@ -148,15 +151,15 @@ export const Footer: React.FC = () => {
           {/* Footer Sections */}
           {footerData.sections.map((section) => (
             <div key={section.id}>
-              <h4 className="text-base font-semibold text-white uppercase tracking-wider mb-4">
+              <h4 className="text-xs font-semibold text-[#C5A880] uppercase tracking-[0.2em] mb-4">
                 {section.title}
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5 text-xs">
                 {section.links.map((link) => (
                   <li key={link.id}>
                     <Link
                       href={link.href}
-                      className="text-[#C4C4C4] hover:text-white text-sm transition-colors duration-200 hover:underline decoration-offset-2"
+                      className="text-neutral-400 hover:text-white transition-colors duration-200"
                     >
                       {link.label}
                     </Link>
@@ -171,39 +174,42 @@ export const Footer: React.FC = () => {
         <div className="lg:hidden">
           {/* Company Info - Always visible on mobile */}
           <div className="mb-6">
-            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">
-              {footerData.companyInfo.name}
-            </h3>
-            <p className="mb-4 sm:mb-6 text-sm sm:text-base text-[#C4C4C4] leading-relaxed">
+            <Link
+              href="/"
+              className="font-serif-luxury text-3xl font-normal text-white tracking-[0.25em] block mb-3"
+            >
+              FIT
+            </Link>
+            <p className="mb-4 text-xs text-neutral-400 leading-relaxed">
               {footerData.companyInfo.description}
             </p>
             
             {/* Social Links */}
-            <div className="flex space-x-3 sm:space-x-4">
+            <div className="flex space-x-3">
               {footerData.socialLinks.map((social) => (
                 <Link
                   key={social.id}
                   href={social.href}
-                  className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-black hover:bg-gray-100 transition-all duration-200 hover:scale-110"
+                  className="w-9 h-9 bg-neutral-900 border border-neutral-800 rounded-full flex items-center justify-center text-neutral-300 hover:text-neutral-950 hover:bg-[#C5A880] transition-all duration-200"
                   aria-label={social.platform}
                 >
-                  {getSocialIcon(social.platform, "w-4 h-4 sm:w-5 sm:h-5")}
+                  {getSocialIcon(social.platform, "w-4 h-4")}
                 </Link>
               ))}
             </div>
           </div>
 
           {/* Tab Navigation - Horizontal Scroll */}
-          <div className="flex space-x-2 overflow-x-auto pb-3 mb-4 border-b border-gray-600 hide-scrollbar">
+          <div className="flex space-x-2 overflow-x-auto pb-3 mb-4 border-b border-neutral-800 hide-scrollbar">
             {footerData.sections.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setActiveTab(section.id)}
                 className={`
-                  px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200
+                  px-4 py-1.5 rounded-full font-semibold text-xs uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95
                   ${activeTab === section.id 
-                    ? 'bg-white text-[#3a3839] shadow-md' 
-                    : 'bg-gray-700 text-[#C4C4C4] hover:bg-gray-600'
+                    ? 'bg-[#C5A880] text-neutral-950 shadow-sm' 
+                    : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
                   }
                 `}
               >
@@ -222,14 +228,14 @@ export const Footer: React.FC = () => {
                   animate-fadeIn
                 `}
               >
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-3">
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
                   {section.links.map((link) => (
                     <li key={link.id}>
                       <Link
                         href={link.href}
-                        className="text-[#C4C4C4] hover:text-white text-sm sm:text-base transition-colors duration-200 flex items-center group"
+                        className="text-neutral-400 hover:text-white transition-colors duration-200 flex items-center group"
                       >
-                        <span className="w-1 h-1 bg-[#C4C4C4] rounded-full mr-2 flex-shrink-0 group-hover:bg-white transition-colors"></span>
+                        <span className="w-1 h-1 bg-amber-500/60 rounded-full mr-2 flex-shrink-0 group-hover:bg-[#C5A880] transition-colors"></span>
                         <span className="line-clamp-1">{link.label}</span>
                       </Link>
                     </li>
@@ -241,17 +247,17 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-600 my-6 lg:my-8"></div>
+        <div className="border-t border-neutral-800 my-6 lg:my-8"></div>
 
         {/* Bottom Footer */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
           {/* Copyright Text */}
-          <p className="text-[#C4C4C4] text-xs sm:text-sm text-center sm:text-left order-2 sm:order-1">
+          <p className="text-neutral-500 text-center sm:text-left order-2 sm:order-1 font-light">
             {footerData.companyInfo.copyright}
           </p>
           
           {/* Payment Methods */}
-          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-end order-1 sm:order-2">
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-end order-1 sm:order-2 opacity-80 hover:opacity-100 transition-opacity">
             {footerData.paymentMethods.map((payment) => (
               <div 
                 key={payment.id} 

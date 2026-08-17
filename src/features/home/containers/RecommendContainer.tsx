@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { recommendationApi } from '@/services/api/recommendationApi';
+import { productApi } from '@/services/api/productApi';
 import { RecommendPresenter } from '../components/RecommendPresenter';
 
 interface RecommendProduct {
@@ -29,7 +29,7 @@ export function RecommendContainer() {
             setLoading(true);
             setError(null);
             
-            const response = await recommendationApi.getRecommendationsForYou(10);
+            const response = await productApi.getBestSellers();
 
             if (response.success && response.data) {
                 const transformedProducts = response.data.map((item) => ({
@@ -38,7 +38,7 @@ export function RecommendContainer() {
                     productTitle: item.productTitle,
                     price: item.price,
                     finalPrice: item.finalPrice,
-                    percentOff: item.percentOff,
+                    percentOff: item.percentOff ?? 0,
                     imageUrls: item.imageUrls,
                     colors: item.colors,
                     quantity: item.quantity,

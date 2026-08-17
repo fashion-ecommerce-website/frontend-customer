@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShippingFeeData } from '@/features/order/hooks/useShippingFee';
-import { mockOrderProducts, calculateOrderTotals } from '@/features/order/mockData';
+import { calculateOrderTotals } from '@/features/order/mockData';
 import { ProductItem } from '@/services/api/productApi';
 import { useOrder } from '@/features/order/hooks/useOrder';
 import { CreateOrderRequest, PaymentMethod } from '../types';
@@ -26,7 +26,7 @@ interface OrderSummaryProps {
 export function OrderSummary({ 
 	onClose, 
 	shippingFee, 
-	products = mockOrderProducts, 
+	products = [], 
 	onOrderComplete,
 	note,
 }: OrderSummaryProps): React.ReactElement {

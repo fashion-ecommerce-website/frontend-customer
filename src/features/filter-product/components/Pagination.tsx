@@ -47,10 +47,10 @@ export const Pagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!hasPrevious}
         aria-label="Previous page"
-        className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-colors ${
+        className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-all ${
           hasPrevious
-            ? "text-black bg-white border border-gray-300 hover:bg-gray-50"
-            : "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed opacity-60"
+            ? "text-black bg-white border border-gray-300 hover:bg-gray-100 hover:border-gray-400 cursor-pointer hover:scale-105 active:scale-95"
+            : "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed opacity-50"
         }`}
       >
         <svg
@@ -76,10 +76,10 @@ export const Pagination: React.FC<PaginationProps> = ({
           key={pageNum}
           onClick={() => onPageChange(pageNum)}
           aria-label={`Go to page ${pageNum}`}
-          className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-colors ${
+          className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-all ${
             pageNum === currentPage
-              ? "text-white bg-black border border-black"
-              : "text-black bg-white border border-gray-300 hover:bg-gray-50"
+              ? "text-white bg-black border border-black cursor-default"
+              : "text-black bg-white border border-gray-300 hover:bg-gray-100 hover:border-gray-400 cursor-pointer hover:scale-105 active:scale-95"
           }`}
         >
           {pageNum}
@@ -91,10 +91,10 @@ export const Pagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!hasNext}
         aria-label="Next page"
-        className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-colors ${
+        className={`w-9 h-9 text-sm font-medium rounded-full flex items-center justify-center transition-all ${
           hasNext
-            ? "text-black bg-white border border-gray-300 hover:bg-gray-50"
-            : "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed opacity-60"
+            ? "text-black bg-white border border-gray-300 hover:bg-gray-100 hover:border-gray-400 cursor-pointer hover:scale-105 active:scale-95"
+            : "text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed opacity-50"
         }`}
       >
         <svg

@@ -72,12 +72,12 @@ export const CartSummaryComponent: React.FC<CartSummaryComponentProps> = ({
 
       {/* Company Invoice Checkbox */}
       <div className="mt-4">
-        <label className="flex items-center space-x-2">
+        <label className="flex items-center space-x-2 cursor-pointer hover:opacity-85 transition-opacity duration-150">
           <input
             type="checkbox"
-            className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black focus:ring-2"
+            className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black focus:ring-2 cursor-pointer"
           />
-          <span className="text-sm text-black">{translations.cart.issueInvoice}</span>
+          <span className="text-sm text-black select-none">{translations.cart.issueInvoice}</span>
         </label>
       </div>
     </div>

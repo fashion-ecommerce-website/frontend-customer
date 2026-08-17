@@ -799,6 +799,7 @@ export interface CartTranslations {
   issueInvoice: string;
   tryOnTitle: string;
   tryOnDesc: string;
+  tryOnNoteBadge?: string;
 }
 
 export interface CheckoutTranslations {

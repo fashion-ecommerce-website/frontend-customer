@@ -73,7 +73,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           tabIndex={0}
           onClick={handleHomeClick}
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleHomeClick()}
-          className="text-gray-600 cursor-pointer"
+          className="text-gray-600 cursor-pointer hover:text-gray-900 transition-colors duration-150"
         >{translations.common.home.toUpperCase()}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
           tabIndex={0}
           onClick={handleTitleClick}
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleTitleClick()}
-          className="font-medium text-gray-900 cursor-pointer"
+          className="font-medium text-gray-900 cursor-pointer hover:text-black hover:underline underline-offset-2 transition-all duration-150"
         >{breadcrumbTitle}</span>
       </div>
 
@@ -102,7 +102,7 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
         {/* Filter Button */}
         <button
           onClick={onOpenSidebar}
-          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm flex-1 sm:flex-none justify-center cursor-pointer"
+          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm flex-1 sm:flex-none justify-center cursor-pointer hover:bg-gray-50 hover:border-gray-400 transition-all duration-150 active:scale-95"
         >
           {translations.filterProduct.filters}
           <svg

@@ -41,6 +41,11 @@ export const VirtualTryOnAccessIntro: React.FC<Props> = ({ onUpgrade, onBack }) 
                 <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a', fontWeight: 600 }}>{vt.previewTitle}</h2>
                 <p style={{ marginTop: '0.5rem', marginBottom: '0.75rem', color: '#475569' }}>{vt.previewDescription}</p>
 
+                <div style={{ padding: '0.6rem 0.8rem', backgroundColor: '#fef3c7', borderRadius: '0.375rem', border: '1px solid #fde68a', color: '#78350f', fontSize: '0.8125rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>ℹ️</span>
+                  <span><strong>Lưu ý:</strong> Tính năng Virtual Try-On hiện chỉ áp dụng cho sản phẩm <strong>Quần & Áo</strong> (chưa hỗ trợ kính, giày hay phụ kiện).</span>
+                </div>
+
                 <ul style={{ margin: 0, paddingLeft: '1.15rem', color: '#475569' }}>
                   {vt.bullets.map((b, i) => (
                     <li key={i}>{b}</li>

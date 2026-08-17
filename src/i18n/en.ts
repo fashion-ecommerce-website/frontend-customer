@@ -181,7 +181,8 @@ const en: Translations = {
     enterOrderNotes: 'Enter order notes',
     issueInvoice: 'Issue company invoice',
     tryOnTitle: 'Try On Before You Buy',
-    tryOnDesc: 'Use our Virtual Try-On to see how clothes look on you',
+    tryOnDesc: 'Use our Virtual Try-On to see how clothes look on you (Apparel items only)',
+    tryOnNoteBadge: 'Apparel Only',
   },
   checkout: {
     checkout: 'Checkout',

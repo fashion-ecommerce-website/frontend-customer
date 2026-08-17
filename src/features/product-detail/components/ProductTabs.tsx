@@ -99,10 +99,10 @@ export function ProductTabs({ product }: ProductTabsProps) {
           {tabs.map((tab) => (
             <div
               key={tab.key}
-              className={`flex-1 py-3 md:py-4 border-b-[2px] md:border-b-[3px] inline-flex flex-col justify-start items-center cursor-pointer whitespace-nowrap min-w-0 ${
+              className={`flex-1 py-3 md:py-4 border-b-[2px] md:border-b-[3px] inline-flex flex-col justify-start items-center cursor-pointer whitespace-nowrap min-w-0 transition-all duration-200 hover:opacity-75 ${
                 activeTab === tab.key
                   ? 'border-black'
-                  : 'border-white'
+                  : 'border-white hover:border-gray-200'
               }`}
               onClick={() => setActiveTab(tab.key)}
             >

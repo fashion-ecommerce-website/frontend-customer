@@ -65,7 +65,7 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
         <button
           type="button"
           onClick={handleProductClick}
-          className="p-0 m-0 block focus:outline-none"
+          className="p-0 m-0 block focus:outline-none cursor-pointer hover:opacity-85 active:scale-98 transition-all duration-200"
           aria-label={`Open product ${item.productTitle}`}
         >
           <Image
@@ -130,14 +130,14 @@ export const CartItemComponent: React.FC<CartItemComponentProps> = ({
         <button
           onClick={handleEdit}
           disabled={loading}
-          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 cursor-pointer"
+          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:bg-black hover:text-white transition-all duration-200 cursor-pointer active:scale-95"
         >
           {translations.common.edit}
         </button>
         <button
           onClick={handleRemove}
           disabled={loading || isRemoving}
-          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:text-yellow-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="w-[80px] font-semibold py-1 text-sm border border-gray-300 rounded text-black hover:bg-neutral-950 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95"
         >
           {isRemoving ? translations.common.processing : translations.common.remove}
         </button>

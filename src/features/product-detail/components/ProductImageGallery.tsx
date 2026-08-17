@@ -114,6 +114,9 @@ export function ProductImageGallery({ images, productTitle }: ProductImageGaller
                     height={1000}
                     className="w-full h-full object-cover "
                     priority={index === 0}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/800x1000?text=Image+Not+Found';
+                    }}
                   />
                 </div>
               ))}

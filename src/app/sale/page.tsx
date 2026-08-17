@@ -2,10 +2,10 @@ import { SaleContainer } from '@/features/sale';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sale - FIT Fashion | Giảm giá đặc biệt',
+  title: 'Sale - FIT Fashion | Special Offers',
   description:
-    'Khám phá các sản phẩm thời trang đang được giảm giá hấp dẫn tại FIT Fashion.',
-  keywords: 'sale, giảm giá, khuyến mãi, thời trang',
+    'Discover high-end fashion items with special discounts at FIT Fashion.',
+  keywords: 'sale, discount, offers, fashion, luxury',
 };
 
 export default function SalePage() {

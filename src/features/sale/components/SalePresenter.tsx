@@ -211,9 +211,9 @@ export const SalePresenter: React.FC<SalePresenterProps> = ({ onProductClick }) 
       {/* Empty State */}
       {!isLoading && products.length === 0 && !error && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Hiện tại chưa có sản phẩm giảm giá</p>
+          <p className="text-gray-500 text-lg">No sale products available currently</p>
           <p className="text-gray-400 text-sm mt-2">
-            Hãy quay lại sau để xem các ưu đãi mới nhất!
+            Please check back later for the latest offers!
           </p>
         </div>
       )}

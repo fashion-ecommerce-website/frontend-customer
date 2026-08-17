@@ -24,17 +24,51 @@ interface NewArrivalsPresenterProps {
   onViewAll: () => void;
 }
 
-export function NewArrivalsPresenter({
-  products,
-  categories,
-  activeCategory,
-  loading,
-  onCategoryClick,
-  onProductClick,
-  onViewAll,
-}: NewArrivalsPresenterProps) {
+export function NewArrivalsPresenter(props: NewArrivalsPresenterProps) {
+  const {
+    products,
+    categories,
+    activeCategory,
+    loading,
+    onCategoryClick,
+    onProductClick,
+    onViewAll,
+  } = props;
   const { translations } = useLanguage();
   
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = React.useState(false);
+  const [showRightArrow, setShowRightArrow] = React.useState(false);
+
+  const checkScroll = React.useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftArrow(scrollLeft > 5);
+      setShowRightArrow(scrollWidth - scrollLeft - clientWidth > 5);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    checkScroll();
+    const timer = setTimeout(checkScroll, 150);
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [categories, checkScroll]);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 200;
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+      setTimeout(checkScroll, 350);
+    }
+  };
+
   // Transform ProductItem to Product format expected by ProductCard
   const transformedProducts: Product[] = products.map((item) => ({
     id: item.detailId.toString(),
@@ -51,63 +85,104 @@ export function NewArrivalsPresenter({
     isNew: true,
   }));
 
-  const leftImageUrl = "https://cdn.hstatic.net/files/200000642007/file/banner_phu_-_giay_dep_-675_x873_bdb081cf9da74f98a05c919d53ed843d.jpg";
+  const leftImageUrl = "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&auto=format&fit=crop&q=80";
 
   return (
-    <section className="w-full pt-12 sm:pt-16 lg:pt-20 flex flex-col justify-start items-start gap-4 sm:gap-6">
+    <section className="w-full space-y-6 sm:space-y-8">
       {/* Section Header */}
-      <div className="self-stretch flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-        <div className="flex flex-col justify-start items-start">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            {translations.home.newArrivals}
+      <div className="self-stretch flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-neutral-200/80 pb-4">
+        <div className="flex flex-col justify-start items-start space-y-1">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C5A880]">
+            NEW COLLECTION
+          </span>
+          <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal text-neutral-900">
+            {translations.home.newArrivals || 'New Arrivals'}
           </h2>
         </div>
 
-        {/* Category Badges */}
-        <div className="w-full sm:w-auto overflow-x-auto">
-          <div className="flex justify-start items-start gap-2 sm:gap-2.5 min-w-max">
-            {categories.map((category) => {
-              const isActive = category.id === activeCategory;
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => onCategoryClick(category.id)}
-                  className={`flex-shrink-0 px-3 sm:px-5 py-1 sm:py-px rounded-[34px] border border-black cursor-pointer transition-colors ${
-                    isActive ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="text-center text-sm sm:text-lg font-semibold leading-loose">
-                    {category.name}
-                  </span>
-                </button>
-              );
-            })}
+        {/* Category Badges with Smooth Scroll Arrows and Edge Fades */}
+        <div className="relative flex items-center w-full md:w-auto max-w-full md:max-w-[70%] group/scroll">
+          {/* Left Arrow Button */}
+          {showLeftArrow && (
+            <button
+              onClick={() => handleScroll('left')}
+              className="absolute left-1 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white/95 border border-neutral-200/80 shadow-sm hover:scale-105 active:scale-95 transition-all text-neutral-800 cursor-pointer"
+              aria-label="Scroll left"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Left Fade Overlay */}
+          {showLeftArrow && (
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-5" />
+          )}
+
+          {/* Scrollable Container */}
+          <div
+            ref={scrollRef}
+            onScroll={checkScroll}
+            className="w-full overflow-x-auto hide-scrollbar scroll-smooth py-1 px-2"
+          >
+            <div className="flex justify-start items-center gap-2 sm:gap-3 min-w-max">
+              {categories.map((category) => {
+                const isActive = category.id === activeCategory;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => onCategoryClick(category.id)}
+                    className={`flex-shrink-0 px-4 sm:px-5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all border cursor-pointer ${
+                      isActive ? 'bg-neutral-950 text-[#C5A880] border-neutral-950 shadow-md' : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400 hover:text-neutral-900'
+                    }`}
+                  >
+                    <span>
+                      {category.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
+
+          {/* Right Fade Overlay */}
+          {showRightArrow && (
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-5" />
+          )}
+
+          {/* Right Arrow Button */}
+          {showRightArrow && (
+            <button
+              onClick={() => handleScroll('right')}
+              className="absolute right-1 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white/95 border border-neutral-200/80 shadow-sm hover:scale-105 active:scale-95 transition-all text-neutral-800 cursor-pointer"
+              aria-label="Scroll right"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
       {/* Products Grid */}
       {loading ? (
-        <div className="self-stretch grid grid-cols-1 lg:grid-cols-[11fr_9fr] gap-4 lg:gap-0 items-stretch">
+        <div className="self-stretch grid grid-cols-1 lg:grid-cols-[11fr_9fr] gap-4 lg:gap-6 items-stretch">
           {/* Left large image skeleton */}
           <div className="w-full min-w-0 order-2 lg:order-1">
-            <div className="w-full aspect-square lg:aspect-[995/1287] bg-gray-200 animate-pulse rounded-lg lg:rounded-none" />
+            <div className="w-full aspect-square lg:aspect-[995/1287] bg-neutral-200 animate-pulse rounded-xl" />
           </div>
 
           {/* Right grid panel skeleton */}
-          <div className="w-full min-w-0 order-1 lg:order-2 lg:pl-4 lg:pr-0">
-            <div className="w-full h-full grid grid-cols-2 auto-rows-fr gap-3 sm:gap-4 lg:gap-4">
+          <div className="w-full min-w-0 order-1 lg:order-2">
+            <div className="w-full h-full grid grid-cols-2 auto-rows-fr gap-3 sm:gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex flex-col">
-                  <div className="w-full aspect-[4/5] bg-gray-200 animate-pulse rounded-lg mb-2 sm:mb-3" />
-                  <div className="space-y-2 px-0.5 sm:px-1">
-                    <div className="h-4 bg-gray-200 animate-pulse rounded w-3/4" />
-                    <div className="h-4 bg-gray-200 animate-pulse rounded w-1/2" />
-                    <div className="flex gap-1.5 pt-1">
-                      {[1, 2, 3].map((j) => (
-                        <div key={j} className="w-3 h-3 bg-gray-200 animate-pulse rounded-full" />
-                      ))}
-                    </div>
+                  <div className="w-full aspect-[4/5] bg-neutral-200 animate-pulse rounded-xl mb-3" />
+                  <div className="space-y-2 px-1">
+                    <div className="h-4 bg-neutral-200 animate-pulse rounded w-3/4" />
+                    <div className="h-4 bg-neutral-200 animate-pulse rounded w-1/2" />
                   </div>
                 </div>
               ))}
@@ -115,27 +190,29 @@ export function NewArrivalsPresenter({
           </div>
         </div>
       ) : transformedProducts.length > 0 ? (
-        <div className="self-stretch grid grid-cols-1 lg:grid-cols-[11fr_9fr] gap-4 lg:gap-0 items-stretch">
+        <div className="self-stretch grid grid-cols-1 lg:grid-cols-[11fr_9fr] gap-4 lg:gap-6 items-stretch">
           {/* Left large image */}
           <div className="w-full min-w-0 order-2 lg:order-1">
             <AnimatedSection animation="fade-up" duration={0.8} delay={100}>
               <div className="w-full h-full relative">
-                <div className="w-full aspect-square lg:h-full lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-lg lg:rounded-none relative">
+                <div className="w-full aspect-square lg:h-full lg:aspect-[995/1287] overflow-hidden cursor-pointer group rounded-xl relative shadow-md">
                   <Image
-                    className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-95 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                     src={leftImageUrl}
                     alt="New arrivals"
                     fill
                     sizes="(max-width: 1024px) 100vw, 55vw"
                   />
-                  <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute inset-0 bg-black/50"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300" />
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 space-y-3">
+                    <span className="text-xs uppercase tracking-[0.25em] text-[#C5A880] font-semibold">HAUTE COUTURE</span>
+                    <h3 className="font-serif-luxury text-2xl sm:text-3xl text-white font-normal">Latest Collection</h3>
+                    <div>
                       <button 
                         onClick={onViewAll}
-                        className="pointer-events-auto cursor-pointer px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-md border border-white text-white bg-white/10 hover:bg-white/25 uppercase text-xs sm:text-sm font-semibold tracking-wide transition-colors"
+                        className="cursor-pointer px-6 py-2.5 rounded-full border border-[#C5A880] text-[#C5A880] bg-neutral-950/60 hover:bg-[#C5A880] hover:text-neutral-950 uppercase text-xs font-semibold tracking-widest transition-all backdrop-blur-xs"
                       >
-                        {translations.home.viewAll}
+                        {translations.home.viewAll || 'View All'}
                       </button>
                     </div>
                   </div>

@@ -60,13 +60,13 @@ export const PromotionalBanner: React.FC<PromotionalBannerProps> = ({
   const currentMessage = messages[currentMessageIndex] ?? messages[0];
 
   return (
-    <div className="bg-black text-white text-center py-3 px-4 relative">
-      <p className="font-bold text-sm">
-        {currentMessage.text}{' '}
+    <div className="bg-neutral-950 text-neutral-300 text-center py-2.5 px-4 border-b border-neutral-900 text-[11px] font-medium uppercase tracking-[0.2em]">
+      <p className="inline-flex items-center justify-center gap-2">
+        <span>{currentMessage.text}</span>
         {currentMessage.action && (
           <Link 
             href={currentMessage.action.href} 
-            className="underline font-medium hover:text-gray-200 transition-colors"
+            className="underline text-[#C5A880] hover:text-[#B89762] transition-colors font-semibold ml-1"
           >
             {currentMessage.action.text}
           </Link>

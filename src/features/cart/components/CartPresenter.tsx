@@ -131,17 +131,17 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
         )}
 
         <div className="bg-white mb-4 px-4 sm:px-6 lg:px-10 py-4">
-            <div className="flex items-center space-x-3 sm:space-x-4">
+          <label className="flex items-center space-x-3 sm:space-x-4 cursor-pointer hover:opacity-85 transition-opacity duration-150">
             <input
               type="checkbox"
               checked={allItemsSelected}
               onChange={handleSelectAllChange}
-              className="border-gray-300 w-4 h-4 sm:w-5 sm:h-5 text-gray-800 focus:ring-gray-800 accent-gray-800 transition-all duration-200"
+              className="border-gray-300 w-4 h-4 sm:w-5 sm:h-5 text-gray-800 focus:ring-gray-800 accent-gray-800 transition-all duration-200 cursor-pointer"
             />
-            <span className="font-semibold text-black text-sm sm:text-base">
+            <span className="font-semibold text-black text-sm sm:text-base select-none">
               {translations.common.select} {translations.cart.cartItems}
             </span>
-          </div>
+          </label>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-10">
@@ -200,9 +200,15 @@ export const CartPresenter: React.FC<CartPresenterProps> = ({
                     </div>
 
                     <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 text-base group-hover:tracking-wide transition-all duration-300">
-                        {translations.cart.tryOnTitle}
-                      </h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-900 text-base group-hover:tracking-wide transition-all duration-300">
+                          {translations.cart.tryOnTitle}
+                        </h3>
+                        <span className="text-[10px] font-semibold bg-amber-100/80 text-amber-900 px-2 py-0.5 rounded-full border border-amber-300/60 flex items-center gap-1 shadow-2xs">
+                          <span>👕</span>
+                          <span>{translations.cart.tryOnNoteBadge || 'Apparel Only'}</span>
+                        </span>
+                      </div>
                       <p className="text-xs text-gray-600 mt-0.5 group-hover:text-gray-900 transition-colors duration-300">
                         {translations.cart.tryOnDesc}
                       </p>

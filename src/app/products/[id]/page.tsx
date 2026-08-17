@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
   // Create description from product description array or fallback
   const description = product.description && Array.isArray(product.description) 
     ? product.description.join(' ').substring(0, 160)
-    : `Mua ${product.title} chính hãng với giá ${priceFormatted}₫. Miễn phí vận chuyển toàn quốc. Đổi trả trong 7 ngày.`;
+    : `Buy authentic ${product.title} for ${priceFormatted}₫. Free shipping nationwide. 7-day returns.`;
 
   // Get first image or use placeholder
   const imageUrl = product.images?.[0] || `${baseUrl}/images/placeholder-product.jpg`;
