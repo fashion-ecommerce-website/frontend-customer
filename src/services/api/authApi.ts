@@ -12,9 +12,9 @@ import { auth, googleProvider } from '../../config/firebase';
 // Google Auth Types
 export interface GoogleLoginRequest {
   idToken: string;
-  email: string | null;
-  name: string | null;
-  picture: string | null;
+  email?: string | null;
+  name?: string | null;
+  picture?: string | null;
 }
 
 export interface FirebaseGoogleUser {
@@ -206,11 +206,7 @@ export class AuthApiService {
       
       const backendResponse = await this.googleLogin({
         idToken: firebaseUser.idToken,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName,
-        picture: firebaseUser.photoURL,
       });
-      
 
       // Step 3: Handle token-only login response 
       if ((backendResponse as { accessToken?: string })?.accessToken) {
@@ -266,15 +262,17 @@ export class AuthApiService {
   async logout(): Promise<void> {
     try {
       const token = authUtils.getAccessToken();
+      const refreshToken = authUtils.getRefreshToken();
       
-      // Logout from backend
-      if (token) {
+      // Logout from backend by sending refreshToken to /api/auth/logout
+      if (refreshToken) {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           },
+          body: JSON.stringify({ refreshToken }),
         });
         
         if (!response.ok) {
@@ -288,7 +286,7 @@ export class AuthApiService {
     } catch (error) {
       console.error('❌ Logout error:', error);
     } finally {
-      // Always clear local storage
+      // Always clear local storage/cookies
       authUtils.clearAuth();
       console.log('✅ Logout complete');
     }
@@ -349,6 +347,20 @@ export class AuthApiService {
   async verifyOtp(request: { email: string; otpCode: string }): Promise<ApiResponse<null>> {
     return apiClient.post<null>(AUTH_ENDPOINTS.VERIFY_OTP, request);
   }
+
+  /**
+   * Request password reset link (Forgot Password)
+   */
+  async forgotPassword(email: string): Promise<ApiResponse<null>> {
+    return apiClient.post<null>(AUTH_ENDPOINTS.FORGOT_PASSWORD, email, undefined, true);
+  }
+
+  /**
+   * Reset password with token
+   */
+  async resetPassword(request: { token: string; newPassword: string }): Promise<ApiResponse<null>> {
+    return apiClient.post<null>(AUTH_ENDPOINTS.RESET_PASSWORD, request, undefined, true);
+  }
 }
 
 // Export singleton instance
@@ -365,6 +377,8 @@ export const authApi = {
   login: (credentials: LoginRequest) => authApiService.login(credentials),
   register: (userData: RegisterRequest) => authApiService.register(userData),
   verifyOtp: (request: { email: string; otpCode: string }) => authApiService.verifyOtp(request),
+  forgotPassword: (email: string) => authApiService.forgotPassword(email),
+  resetPassword: (request: { token: string; newPassword: string }) => authApiService.resetPassword(request),
   refreshToken: (refreshTokenData: RefreshTokenRequest) => authApiService.refreshToken(refreshTokenData),
   getCurrentUser: () => authApiService.getCurrentUser(),
   

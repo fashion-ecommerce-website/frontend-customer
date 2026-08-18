@@ -56,30 +56,20 @@ class BaseApi {
 
     try {
       const refreshToken = authUtils.getRefreshToken();
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-      
-      // Validate refresh token format (should be JWT)
-      if (!refreshToken.includes('.') || refreshToken.split('.').length !== 3) {
-        throw new Error('Invalid refresh token format');
-      }
-      
-      const payload = { refreshToken };
+      const payload = refreshToken ? { refreshToken } : {};
 
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Đảm bảo không gửi Authorization header cho refresh request
         },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorData = await response.text();
         
-        // Log để debug
         if (response.status === 403) {
           throw new Error('403 Forbidden - RefreshToken có thể đã hết hạn hoặc không hợp lệ');
         }
@@ -89,15 +79,10 @@ class BaseApi {
 
       const data = await response.json();
       
-      // Kiểm tra structure của response data
       const newAccessToken = data.accessToken || data.access_token;
-      const newRefreshToken = data.refreshToken || data.refresh_token;
-      
-      if (!newAccessToken || !newRefreshToken) {
-        throw new Error('Invalid response structure from refresh endpoint');
-      }
+      const newRefreshToken = data.refreshToken || data.refresh_token || '';
 
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && newAccessToken) {
         authUtils.setTokens(newAccessToken, newRefreshToken);
       }
 
@@ -105,7 +90,6 @@ class BaseApi {
       return newAccessToken;
     } catch (error) {
       this.processQueue(error, undefined);
-      // Clear tokens if refresh fails
       authUtils.clearAuth();
       return null;
     } finally {
@@ -154,8 +138,6 @@ class BaseApi {
     retry: boolean = true
   ): Promise<ApiResponse<T>> {
     try {
-      // Chỉ kiểm tra token với các endpoint thực sự cần đăng nhập
-      // Không kiểm tra với GET /products hoặc các API public
       const isGetProducts = options.method === 'GET' && endpoint.startsWith('/products');
       const isChatbot = endpoint.includes('/chatbot/');
       const isPublicRecommendation = options.method === 'GET' && (endpoint.includes('/recommendations/for-you') || endpoint.includes('/recommendations/similar'));
@@ -172,7 +154,6 @@ class BaseApi {
       }
 
       const url = `${this.baseUrl}${endpoint}`;
-      // Only add auth headers if not skipping auth
       const authHeaders = options.skipAuth ? {} : this.getAuthHeaders();
       const headers = {
         'Content-Type': 'application/json',
@@ -183,6 +164,7 @@ class BaseApi {
       const config: RequestInit = {
         method: options.method,
         headers,
+        credentials: 'include',
       };
 
       if (options.body && options.method !== 'GET') {

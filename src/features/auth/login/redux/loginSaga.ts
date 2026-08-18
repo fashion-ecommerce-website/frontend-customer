@@ -176,12 +176,12 @@ function* handleLogin(action: PayloadAction<LoginRequest>) {
   }
 }
 
-// Logout saga with token clearing
+// Logout saga with token clearing and backend/firebase revocation
 function* handleLogout() {
   try {
-    // Clear auth cookies - no API call needed for logout
-    authUtils.clearAuth();
-    
+    // Call backend API logout & Firebase signout
+    yield call(() => authApi.logout());
+
     // Clear cart data when user logs out
     yield put(clearCart());
     
