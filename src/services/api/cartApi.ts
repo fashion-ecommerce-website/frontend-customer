@@ -62,29 +62,35 @@ class CartApi {
    * Update cart item quantity
    */
   async updateCartItem(request: UpdateCartItemRequest): Promise<ApiResponse<CartItem>> {
-    return apiClient.put<CartItem>(`/cart/update`, request);
+    return apiClient.put<CartItem>(`/cart`, request);
   }
 
   /**
-   * Remove item from cart
+   * Remove items from cart (single or multiple)
+   */
+  async removeFromCart(cartDetailIds: number[]): Promise<ApiResponse<void>> {
+    return apiClient.delete<void>('/cart', { cartDetailIds });
+  }
+
+  /**
+   * Remove single item from cart
    */
   async removeCartItem(cartItemId: number): Promise<ApiResponse<void>> {
-    return apiClient.delete<void>(`/cart/${cartItemId}`);
-  }
-
-  /**
-   * Clear entire cart
-   */
-  async clearCart(): Promise<ApiResponse<void>> {
-    return apiClient.delete<void>('/cart');
+    return this.removeFromCart([cartItemId]);
   }
 
   /**
    * Remove multiple selected items from cart
    */
   async removeMultipleCartItems(ids: number[]): Promise<ApiResponse<void>> {
-    // Backend expects DELETE with body { cartDetailIds: number[] }
-    return apiClient.delete<void>('/cart/remove-multiple', { cartDetailIds: ids });
+    return this.removeFromCart(ids);
+  }
+
+  /**
+   * Clear entire cart
+   */
+  async clearCart(): Promise<ApiResponse<void>> {
+    return apiClient.delete<void>('/cart/clear');
   }
 }
 

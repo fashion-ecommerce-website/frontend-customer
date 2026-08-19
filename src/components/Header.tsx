@@ -207,8 +207,9 @@ export const Header: React.FC = () => {
                 }}
                 className="text-black hover:text-gray-600 transition-colors flex items-center justify-center text-xs font-medium cursor-pointer"
                 style={{ width: 44, height: 36, minWidth: 44 }}
-                aria-label={translations.header.switchLanguage}
+                aria-label={mounted ? translations.header.switchLanguage : 'Switch language'}
                 title={mounted ? translations.header.switchLanguage : 'Switch language'}
+                suppressHydrationWarning
               >
                 {mounted ? lang.toUpperCase() : 'EN'}
               </button>
@@ -358,8 +359,9 @@ export const Header: React.FC = () => {
                   setLang(lang === 'en' ? 'vi' : 'en');
                 }}
                 className="text-[11px] font-bold tracking-wider text-neutral-900 bg-neutral-100 hover:bg-neutral-950 hover:text-[#C5A880] px-3 py-1 rounded-full transition-all cursor-pointer border border-neutral-200"
-                aria-label={translations.header.switchLanguage}
+                aria-label={mounted ? translations.header.switchLanguage : 'Switch language'}
                 title={mounted ? translations.header.switchLanguage : 'Switch language'}
+                suppressHydrationWarning
               >
                 {mounted ? lang.toUpperCase() : 'EN'}
               </button>
